@@ -140,42 +140,42 @@ class SymmetricHiddenLayer(object):
         def reconstruct_x(self):
             return self.activation_output(Tensor.dot(self.backward_output, self.Wx.T))
 
-
-        #Regularization methods for different kinds of regularization types
-        def sparsity_forward(self, ru=0.05):
-
-            forward_activation = self.compute_forward_hidden()
-
-            avg_activation_forward = forward_activation.sum(axis=0) / forward_activation.shape[0]
-
-            KL_forward = ru * Tensor.log(ru / avg_activation_forward) + \
-                           (1 - ru) * Tensor.log((1 - ru) / (1 - avg_activation_forward))
-
-            return KL_forward.sum()
-
-        def sparsity_backward(self, ru=0.05):
-
-            backward_activation = self.compute_backward_hidden()
-
-            avg_activation_backward = backward_activation.sum(axis=0) / backward_activation.shape[0]
-
-            KL_backward = ru * Tensor.log(ru / avg_activation_backward) + \
-                            (1 - ru) * Tensor.log((1 - ru) / (1 - avg_activation_backward))
-
-            return KL_backward.sum()
-
-        def contractive_term_forward(self):
-
-            forward_activation = self.compute_forward_hidden()
-
-            h = forward_activation.sum(axis=0) / forward_activation.shape[0]
-
-            return ((h ** 2) * ((1 - h) ** 2) * (self.w_xtoh ** 2).sum(axis=0)).sum()
-
-        def contractive_term_backward(self):
-
-            backward_activation = self.compute_backward_hidden()
-
-            h = backward_activation.sum(axis=0) / backward_activation.shape[0]
-
-            return ((h ** 2) * ((1 - h) ** 2) * (self.b_ytoh ** 2).sum(axis=0)).sum()
+        #
+        # #Regularization methods for different kinds of regularization types
+        # def sparsity_forward(self, ru=0.05):
+        #
+        #     forward_activation = self.compute_forward_hidden()
+        #
+        #     avg_activation_forward = forward_activation.sum(axis=0) / forward_activation.shape[0]
+        #
+        #     KL_forward = ru * Tensor.log(ru / avg_activation_forward) + \
+        #                    (1 - ru) * Tensor.log((1 - ru) / (1 - avg_activation_forward))
+        #
+        #     return KL_forward.sum()
+        #
+        # def sparsity_backward(self, ru=0.05):
+        #
+        #     backward_activation = self.compute_backward_hidden()
+        #
+        #     avg_activation_backward = backward_activation.sum(axis=0) / backward_activation.shape[0]
+        #
+        #     KL_backward = ru * Tensor.log(ru / avg_activation_backward) + \
+        #                     (1 - ru) * Tensor.log((1 - ru) / (1 - avg_activation_backward))
+        #
+        #     return KL_backward.sum()
+        #
+        # def contractive_term_forward(self):
+        #
+        #     forward_activation = self.compute_forward_hidden()
+        #
+        #     h = forward_activation.sum(axis=0) / forward_activation.shape[0]
+        #
+        #     return ((h ** 2) * ((1 - h) ** 2) * (self.w_xtoh ** 2).sum(axis=0)).sum()
+        #
+        # def contractive_term_backward(self):
+        #
+        #     backward_activation = self.compute_backward_hidden()
+        #
+        #     h = backward_activation.sum(axis=0) / backward_activation.shape[0]
+        #
+        #     return ((h ** 2) * ((1 - h) ** 2) * (self.b_ytoh ** 2).sum(axis=0)).sum()

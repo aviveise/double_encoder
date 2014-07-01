@@ -1,18 +1,12 @@
 __author__ = 'aviv'
 
-import os
-import sys
-import time
-
-import numpy
-
 import theano
 import theano.tensor as Tensor
 import theano.printing
 
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from symmetric_hidden_layer import SymmetricHiddenLayer
+from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
 class SymmetricDropoutHiddenLayer(SymmetricHiddenLayer):
 
