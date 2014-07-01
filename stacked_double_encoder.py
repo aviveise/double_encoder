@@ -47,6 +47,9 @@ class StackedDoubleEncoder(object):
     def __getitem__(self, y):
         return self._symmetric_layers.__getitem__(y)
 
+    def count(self):
+        return self._symmetric_layers.count()
+
     def add_hidden_layer(self, symmetric_layer):
 
         if self._symmetric_layers.count == 0:

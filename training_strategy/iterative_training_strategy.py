@@ -6,56 +6,40 @@ import numpy
 
 from training_strategy import TrainingStrategy
 from stacked_double_encoder import StackedDoubleEncoder
-from symmetric_hidden_layer import SymmetricHiddenLayer
-from theano.compat.python2x import OrderedDict
-from theano import shared, config
-
+from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
+from trainer import Trainer
 
 class IterativeTrainingStrategy(TrainingStrategy):
 
-    def __init__(self, dataset, hyper_parameters, regularization_methods, activation_method):
-        super(IterativeTrainingStrategy, self).__init__(dataset, hyper_parameters)
+    def train(self, training_set_x, training_set_y, hyper_parameters, regularization_methods, activation_method):
 
-        self._regularization_methods = regularization_methods
-        self._symmetric_double_encoder = StackedDoubleEncoder(x=self._x,
-                                                              y=self._y,
-                                                              hidden_layers=[],
-                                                              numpy_range=self._random_range,
-                                                              activation_method=activation_method)
-
-
-        self._activation_method = activation_method
-        self._layer_count = 0
-
-    def get_regularization_methods(self):
-        return self._regularization_methods
-
-    def start_training(self):
+        symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+                                                        numpy_range=self._random_range,
+                                                        activation_method=activation_method)
 
         #In this phase we train the stacked encoder one layer at a time
         #once a layer was added, weights not belonging to the new layer are
         #not changed
-        for layer_size in self._hyper_parameters.layer_sizes:
+        for layer_size in hyper_parameters.layer_sizes:
 
-            print '--------------Training layer %d----------------' % i
-
-            self._add_cross_encoder_layer(layer_size)
+            self._add_cross_encoder_layer(layer_size, symmetric_double_encoder, activation_method)
 
             params = []
             params.extend(self._symmetric_double_encoder[-1].x_params)
             params.extend(self._symmetric_double_encoder[-1].y_params)
 
-            self._trainer.train(self._symmetric_double_encoder, params)
+            Trainer.train(self._symmetric_double_encoder, params)
 
-        return self._symmetric_double_encoder
+        return symmetric_double_encoder
 
-    def _add_cross_encoder_layer(self, layer_size):
+    def _add_cross_encoder_layer(self, layer_size, symmetric_double_encoder, activation_method):
+
+        layer_count = symmetric_double_encoder.count()
 
         symmetric_layer = SymmetricHiddenLayer(numpy_range=self._random_range,
                                                hidden_layer_size=layer_size,
-                                               name="layer" + self._layer_count,
-                                               activation_hidden=self._activation_method,
-                                               activation_output=self._activation_method)
+                                               name="layer" + layer_count,
+                                               activation_hidden=activation_method,
+                                               activation_output=activation_method)
 
-        self._symmetric_double_encoder.add_hidden_layer(symmetric_layer)
-        self._layer_count += 1
+        symmetric_double_encoder.add_hidden_layer(symmetric_layer)
