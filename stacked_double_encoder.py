@@ -1,20 +1,17 @@
 __author__ = 'aviv'
 
-import os
-import sys
-import time
+import theano.tensor as Tensor
 
-import theano.tensor as T
-
-from symmetric_hidden_layer import SymmetricHiddenLayer
 from numpy.random import RandomState
-from correlation_optimizer import CorrelationOptimizer
+from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
+
 
 class StackedDoubleEncoder(object):
-    def __init__(self, x, y, hidden_layers, numpy_range, activation_method=T.nnet.sigmoid):
+    def __init__(self, hidden_layers, numpy_range, activation_method=T.nnet.sigmoid):
 
-        self._x = x
-        self._y = y
+        #Define x and y variables for input
+        self.var_x = Tensor.matrix('x')
+        self.var_y = Tensor.matrix('y')
 
         self._symmetric_layers = []
 
@@ -30,7 +27,7 @@ class StackedDoubleEncoder(object):
             input_x = None
 
             if layer_index == 0:
-                input_x = self._x
+                input_x = self.var_x
 
             symmetric_layer = SymmetricHiddenLayer(numpy_rng=numpy_range,
                                                    x=input_x,
@@ -41,7 +38,7 @@ class StackedDoubleEncoder(object):
 
             layer_index += 1
 
-        self._symmetric_layers[-1].update_y(self._y)
+        self._symmetric_layers[-1].update_y(self.var_y)
 
 
     def __iter__(self):
@@ -62,6 +59,7 @@ class StackedDoubleEncoder(object):
 
             #connecting the X of new layer with the Y of the last layer
             symmetric_layer.update_x(last_layer.output_y, last_layer.Wy, last_layer.bias_y)
+            symmetric_layer.update_y(self.var_y)
 
             Wy = symmetric_layer.Wx
             bias_y = symmetric_layer.bias_x
@@ -84,6 +82,7 @@ class StackedDoubleEncoder(object):
     def reconstruct_y(self):
         return self._symmetric_layers[-1].reconstruct_y()
 
+    #Initialize the inputs of the first layer to be 'x' and 'y' variables
     def _initialize_first_layer(self, layer):
-        layer.update_x(self._x)
-        layer.update_y(self._y)
+        layer.update_x(self.var_x)
+        layer.update_y(self.var_y)
