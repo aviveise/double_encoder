@@ -6,7 +6,6 @@ import os
 import numpy
 import theano.tensor as Tensor
 
-from MISC.logger import Logger, Verbosity
 from theano.compat.python2x import OrderedDict
 from theano import function
 from theano import config
@@ -19,11 +18,7 @@ class Trainer(object):
     @staticmethod
     def train(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
 
-        Logger.write("Building Model", Verbosity.DEBUG)
-
         model = Trainer._build_model(train_set_x, train_set_y, symmetric_double_encoder, params, regularization_methods)
-
-        Logger.write("Start Training", Verbosity.DEBUG)
 
         #Calculating number of batches
         n_training_batches = train_set_x.get_value(borrow=True).shape[0] / hyper_parameters.batch_size
