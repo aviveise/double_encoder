@@ -1,0 +1,8 @@
+__author__ = 'aviv'
+
+from Optimizations import optimization_layer_structure_search
+from Optimizations import optimization_layer_structure
+from Optimizations import optimization_batch_size
+from Optimizations import optimization_epoch_number
+from Optimizations import optimization_momentum
+from Optimizations import optimization_regularization_weight

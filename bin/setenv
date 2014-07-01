@@ -1,0 +1,5 @@
+setenv LD_LIBRARY_PATH /usr/local/lib/cuda-5.5.22/lib64/:/usr/local/lib/cuda-5.5.22/NVIDIA-Linux-x86_64-319.37/:/usr/lib/atlas-base/atlas/
+setenv THEANO_FLAGS mode=FAST_RUN,device=gpu,floatX=float32
+
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/atlas-base/atlas/
+
