@@ -4,16 +4,18 @@ import sys
 from numpy import arange
 from theano import config
 from optimization_base import OptimizationBase
-from Optimizations.optimization_factory import OptimizationMetaClass
+from MISC.container import ContainerRegisterMetaClass
 
 class OptimizationRegularizationWeight(OptimizationBase):
 
-    __metaclass__ = OptimizationMetaClass
+    __metaclass__ = ContainerRegisterMetaClass
 
-    def __init__(self, data_set, parameters, output_file):
-        super(OptimizationRegularizationWeight, self).__init__(data_set, parameters, output_file)
+    def __init__(self, data_set, optimization_parameters, hyper_parameters,  regularization_methods):
+        super(OptimizationRegularizationWeight, self).__init__(data_set, optimization_parameters, hyper_parameters,  regularization_methods)
 
-        self.weight_interval = parameters.optimization_interval
+        self.start_value = optimization_parameters['start_value']
+        self.end_value = optimization_parameters['end_value']
+        self.step = optimization_parameters['step']
 
     def perform_optimization(self):
 
@@ -21,23 +23,22 @@ class OptimizationRegularizationWeight(OptimizationBase):
         self.output_file.write('weight layer_sizes correlations cca_correlations time\n')
         self.output_file.flush()
 
-        hyper_parameters = self.base_hyper_parameters.copy()
+        regularization_methods = self.regularization_methods.copy()
         best_correlation = 0
 
         #Weight decay optimization
-        for i in arange(self.weight_interval.start,
-                        self.weight_interval.end,
-                        self.weight_interval.step,
+        for i in arange(self.start_value,
+                        self.end_value,
+                        self.step,
                         dtype=config.floatX):
 
-            hyper_parameters.regularization_parameters['weight'] = i
+            regularization_methods['weight_decay_regularization'].regularization_parameters['weight'] = i
 
             self.output_file.write('%f, ' % i)
-            correlations = self.train(hyper_parameters=hyper_parameters)
+            correlations = self.train(regularization_methods=regularization_methods)
 
             if correlations[0] > best_correlation:
-
                 best_correlation = correlations[0]
-                best_hyper_parameters = hyper_parameters.copy()
+                self.regularization_methods['weight_decay_regularization'].regularization_parameters['weight'] = i
 
-        return best_hyper_parameters
+        return True

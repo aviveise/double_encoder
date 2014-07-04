@@ -5,14 +5,14 @@ from numpy import arange
 from numpy.random import RandomState
 
 from optimization_base import OptimizationBase
-from Optimizations.optimization_factory import OptimizationMetaClass
+from MISC.container import ContainerRegisterMetaClass
 
 class OptimizationLayerStructureSearch(OptimizationBase):
 
-    __metaclass__ = OptimizationMetaClass
+    __metaclass__ = ContainerRegisterMetaClass
 
-    def __init__(self, data_set, parameters, output_file):
-        super(OptimizationLayerStructureSearch, self).__init__(data_set, parameters, output_file)
+    def __init__(self, data_set, parameters, output_file, regularizations):
+        super(OptimizationLayerStructureSearch, self).__init__(data_set, parameters, output_file, regularizations)
 
         self.symmetric_layers = parameters.structure_optimization_symmetric
         self.layer_size_interval = parameters.optimization_interval

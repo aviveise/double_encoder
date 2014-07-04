@@ -5,16 +5,18 @@ from numpy import arange
 from theano import config
 from optimization_base import OptimizationBase
 
-from Optimizations.optimization_factory import OptimizationMetaClass
+from MISC.container import ContainerRegisterMetaClass
 
 class OptimizationMomentum(OptimizationBase):
 
-    __metaclass__ = OptimizationMetaClass
+    __metaclass__ = ContainerRegisterMetaClass
 
-    def __init__(self, data_set, parameters, output_file=None):
-        super(OptimizationMomentum, self).__init__(data_set, parameters, output_file)
+    def __init__(self, data_set, optimization_parameters, hyper_parameters,  regularization_methods):
+        super(OptimizationMomentum, self).__init__(optimization_parameters, hyper_parameters,  regularization_methods)
 
-        self.momentum_interval = parameters.optimization_interval
+        self.start_value = optimization_parameters['start_value']
+        self.end_value = optimization_parameters['end_value']
+        self.step = optimization_parameters['step']
 
     def perform_optimization(self):
 
@@ -23,13 +25,13 @@ class OptimizationMomentum(OptimizationBase):
 
         self.output_file.flush()
 
-        hyper_parameters = self.base_hyper_parameters.copy()
+        hyper_parameters = self.hyper_parameters.copy()
         best_correlation = 0
 
         #Weight decay optimization
-        for i in arange(self.momentum_interval.start,
-                        self.momentum_interval.end,
-                        self.momentum_interval.step,
+        for i in arange(self.start_value,
+                        self.end_value,
+                        self.step,
                         dtype=config.floatX):
 
             hyper_parameters.momentum = i
@@ -38,8 +40,7 @@ class OptimizationMomentum(OptimizationBase):
             correlations = self.train(hyper_parameters=hyper_parameters)
 
             if correlations[0] > best_correlation:
-
                 best_correlation = correlations[0]
-                best_hyper_parameters = hyper_parameters.copy()
+                self.hyper_parameters.batch_size = i
 
-        return best_hyper_parameters
+        return True
