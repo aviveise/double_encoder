@@ -1,6 +1,6 @@
 import sys
 
-from double_encoder_parameters import CrossEncoderParameters
+from configuration import CrossEncoderParameters
 
 from DataSetReaders.dataset_factory import DatasetFactory
 

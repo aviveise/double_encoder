@@ -4,13 +4,15 @@ import sys
 import io
 
 from regularization_base import RegularizationBase
-
+from MISC.container import ContainerRegisterMetaClass
 
 class WeightDecayRegularization(RegularizationBase):
 
-    def __init__(self, weight, regularization_type='L2'):
-        super(WeightDecayRegularization, self).__init__(weight)
-        self.regularization_type = regularization_type
+    __metaclass__ = ContainerRegisterMetaClass
+
+    def __init__(self, regularization_parameters):
+        super(WeightDecayRegularization, self).__init__(regularization_parameters)
+        self.regularization_type = regularization_parameters['regularization_type']
 
     def compute(self, symmetric_double_encoder):
 

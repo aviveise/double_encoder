@@ -13,15 +13,16 @@ class Configuration(object):
         config.read(config_file_path)
 
         self.optimizations_parameters = []
+        self.regularizations_parameters = []
 
         sections = config.sections()
         for section in sections:
 
             if section.startswith('optimization_'):
-                self.optimizations.append(ConfigSectionMap(section, config))
+                self.optimizations_parameters.append(ConfigSectionMap(section, config))
 
             elif section.startswith('regularization_'):
-                self.regularization.append(ConfigSectionMap(section, config))
+                self.regularizations_parameters.append(ConfigSectionMap(section, config))
 
         self.hyper_parameters = self._parse_training_parameters(ConfigSectionMap("Hyper_parameters", config))
 

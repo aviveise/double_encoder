@@ -9,8 +9,8 @@ class RegularizationBase(object):
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, weight):
-        self.weight = weight
+    def __init__(self, regularization_parameters):
+        self.weight = regularization_parameters['weight']
 
 
     @abc.abstractmethod

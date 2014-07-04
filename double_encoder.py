@@ -1,95 +1,61 @@
-__author__ = 'aviv'
+    __author__ = 'aviv'
 
 import sys
 import os
 import datetime
 
-from double_encoder_parameters import DoubleEncoderParameters
-from DataSetReaders.dataset_factory import DatasetFactory
-from Optimizations.optimization_factory import OptimizationFactory
 from theano.tensor.nnet import sigmoid
-from iterative_training_strategy import IterativeTrainingStrategy
-from Regularizations.weight_decay_regularization import WeightDecayRegularization
 
-def run_optimizations(dataset, parameters, output_file):
-
-    opt_factory = OptimizationFactory()
-
-    args = (dataset, parameters, output_file)
-    optimization = opt_factory.create(parameters.optimization_type, *args)
-
-    output_file.write('\n--------------- Optimization Phase ---------------\n')
-    output_file.write('Optimization type = %s\n' % parameters.optimization_type)
-
-    return optimization.perform_optimization()
-
-def run(parameters, output_file):
-
-    data_factory = DatasetFactory()
-
-    args = (parameters.dataset_path,
-            parameters.center,
-            parameters.normalize,
-            parameters.whiten)
-    dataset = data_factory.create(parameters.data_type, *args)
-
-
-    output_file.write('Data type = %s\n' % parameters.data_type)
-    output_file.write('Training set size = %d\n' % dataset.trainset[0].shape[1])
-    output_file.write('Test set size = %d\n' % dataset.testset[0].shape[1])
-    output_file.write('Tuning set size = %d\n' % dataset.tuning[0].shape[1])
-    output_file.flush()
-
-    regularization = WeightDecayRegularization(hyper_parameters.regularization_parameters['weight'])
-    training_strategy = IterativeTrainingStrategy(dataset.trainset[0].T,
-                                                  dataset.trainset[1].T,
-                                                  hyper_parameters, regularization, sigmoid)
-    training_strategy.start_training()
+from training_strategy.iterative_training_strategy import IterativeTrainingStrategy
+from MISC.container import Container
+from configuration import Configuration
 
 if __name__ == '__main__':
 
-    path = sys.argv[1]
+    data_set_config = sys.argv[1]
+    run_time_config = sys.argv[2]
 
-    config_files = []
+    training_strategy = IterativeTrainingStrategy()
+    regularization_methods = {}
 
-    if os.path.isdir(path):
-        config_files = [path + '/' + file for file in os.listdir(path) if file.endswith('.ini')]
-    else:
-        config_files.append(path)
+    #construct data set
+    data_set = Container().create(data_set_config)
 
-    parameters = [DoubleEncoderParameters(config_file) for config_file in config_files]
+    #parse runtime configuration
+    configuration = Configuration(run_time_config)
 
-    optimization_parameters = [parameter for parameter in parameters if parameter.optimization_mode]
-    regular_parameters = [parameter for parameter in parameters if not parameter.optimization_mode]
+    #building regularization methods
+    for regularization_parameters in configuration.regularizations_parameters:
 
-    optimization_parameters = sorted(optimization_parameters, key=lambda parameter: parameter.optimization_priority)
+        regularization_methods[regularization_parameters['type']] = Container().create(regularization_parameters['type'], regularization_parameters)
 
-    output_file_name = 'double_encoder_' + str(datetime.datetime.now()) + '.txt'
-    output_file = open(output_file_name, 'w+')
+    #performing optimizations for various parameters
+    for optimization_parameters in configuration.optimization_parameters:
 
-    output_file.write('Starting Double Encoder\n')
+        args = (optimization_parameters, configuration.hyper_parameters, regularization_methods)
+        optimization = Container().create(optimization_parameters['type'], *args)
+        optimization.perform_optimization(data_set, training_strategy,  configuration.hyper_parameters)
 
-    if not len(optimization_parameters) == 0:
+    #training the system with the optimized parameters
+    stacked_double_encoder = training_strategy.train(training_set_x=data_set.training_set[0].T,
+                                                     training_set_y=data_set.training_set[1].T,
+                                                     hyper_parameters=configuration.hyper_parameters,
+                                                     regularization_methods=regularization_methods.values(),
+                                                     activation_method=sigmoid)
 
-        data_factory = DatasetFactory()
+    #testing the trained double encoder
 
-        args = (optimization_parameters[0].dataset_path,
-                optimization_parameters[0].center,
-                optimization_parameters[0].normalize,
-                optimization_parameters[0].whiten)
-
-        output_file.write('Dataset = %s\n' % optimization_parameters[0].data_type)
-        dataset = data_factory.create(optimization_parameters[0].data_type, *args)
-
-        hyper_parameters = optimization_parameters[0].base_hyper_parameters
-
-        for parameter in optimization_parameters:
-
-            parameter.base_hyper_parameters = hyper_parameters
-            hyper_parameters = run_optimizations(dataset, parameter, output_file)
-
-
-    for parameter in regular_parameters:
-        run(parameter, output_file)
-
-    output_file.close()
+    # output_file_name = 'double_encoder_' + str(datetime.datetime.now()) + '.txt'
+    # output_file = open(output_file_name, 'w+')
+    #
+    # output_file.write('Starting Double Encoder\n')
+    #
+    # if not len(optimization_parameters) == 0:
+    #
+    #     output_file.write('Dataset = %s\n' % optimization_parameters[0].data_type)
+    #
+    #
+    # for parameter in regular_parameters:
+    #     run(parameter, output_file)
+    #
+    # output_file.close()
