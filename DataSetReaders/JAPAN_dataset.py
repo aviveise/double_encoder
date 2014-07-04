@@ -7,14 +7,14 @@ import gzip
 import cPickle
 
 from theano import config
-from DataSetReaders.dataset_factory import dataset_meta
+from MISC.container import ContainerRegisterMetaClass
 from DataSetReaders.dataset_base import DatasetBase
 
 TRAINING_PERCENT = 0.8
 
 class JAPANDataSetVideo(DatasetBase):
 
-    __metaclass__ = dataset_meta
+    __metaclass__ = ContainerRegisterMetaClass
 
     def __init__(self, dataset_path, center=False, normalize=False, whiten=False):
         super(JAPANDataSetVideo, self).__init__(dataset_path, 'JAPAN', center, normalize, whiten)

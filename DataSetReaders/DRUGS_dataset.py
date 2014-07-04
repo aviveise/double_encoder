@@ -7,14 +7,14 @@ import scipy.io
 
 from theano import config
 
-from DataSetReaders.dataset_factory import dataset_meta
+from MISC.container import ContainerRegisterMetaClass
 from DataSetReaders.dataset_base import DatasetBase
 
 TRAINING_PERCENT = 0.8
 
 class DRUGSDataSet(DatasetBase):
 
-    __metaclass__ = dataset_meta
+    __metaclass__ = ContainerRegisterMetaClass
 
     def __init__(self, dataset_path, center, normalize, whiten):
         super(DRUGSDataSet, self).__init__(dataset_path, 'DRUGS', center, normalize, whiten)

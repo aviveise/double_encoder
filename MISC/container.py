@@ -1,11 +1,18 @@
 import os
 import sys
+import abc
 
 from MISC.singleton import Singleton
 
 __author__ = 'aviv'
 
-class FactoryBase(object):
+
+class ContainerRegisterMetaClass(abc.ABCMeta):
+
+    def __init__(cls, name, bases, attr):
+        Container().register(name, cls)
+
+class Container(object):
 
     __metaclass__ = Singleton
 

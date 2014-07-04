@@ -9,12 +9,12 @@ import numpy
 
 from theano import config
 
-from DataSetReaders.dataset_factory import dataset_meta
+from MISC.container import ContainerRegisterMetaClass
 from DataSetReaders.dataset_base import DatasetBase
 
 class XRBMDataSet(DatasetBase):
 
-    __metaclass__ = dataset_meta
+    __metaclass__ = ContainerRegisterMetaClass
 
     def __init__(self, dataset_path, center, normalize, whiten):
         super(XRBMDataSet, self).__init__(dataset_path, 'XRBM', center, normalize, whiten)

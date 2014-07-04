@@ -5,12 +5,12 @@ import cPickle
 import gzip
 import theano
 
-from DataSetReaders.dataset_factory import dataset_meta
+from MISC.container import ContainerRegisterMetaClass
 from DataSetReaders.dataset_base import DatasetBase
 
 class MNISTDataSet(DatasetBase):
 
-    __metaclass__ = dataset_meta
+    __metaclass__ = ContainerRegisterMetaClass
 
     def __init__(self, dataset_path, center=False, normalize=False, whiten=False):
         super(MNISTDataSet, self).__init__(dataset_path, 'MNIST', center, normalize, whiten)
