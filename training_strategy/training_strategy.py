@@ -18,5 +18,11 @@ class TrainingStrategy(object):
         self._random_range = RandomState()
 
     @abc.abstractmethod
-    def train(self, training_set_x, training_set_y, hyper_parameters, regularization_methods, activation_method):
+    def train(self,
+              training_set_x,
+              training_set_y,
+              hyper_parameters,
+              regularization_methods,
+              activation_method,
+              output_file):
         return

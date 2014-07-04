@@ -11,7 +11,13 @@ from trainer import Trainer
 
 class IterativeTrainingStrategy(TrainingStrategy):
 
-    def train(self, training_set_x, training_set_y, hyper_parameters, regularization_methods, activation_method):
+    def train(self,
+              training_set_x,
+              training_set_y,
+              hyper_parameters,
+              regularization_methods,
+              activation_method,
+              output_file):
 
         symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                         numpy_range=self._random_range,
@@ -28,7 +34,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
             params.extend(self._symmetric_double_encoder[-1].x_params)
             params.extend(self._symmetric_double_encoder[-1].y_params)
 
-            Trainer.train(self._symmetric_double_encoder, params)
+            Trainer.train(self._symmetric_double_encoder, params, output_file)
 
         return symmetric_double_encoder
 

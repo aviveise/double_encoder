@@ -18,7 +18,7 @@ class OptimizationBase(object):
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, data_set, optimization_parameters, hyper_parameters,  regularization_methods):
+    def __init__(self, data_set, optimization_parameters, hyper_parameters,  regularization_methods, output_file):
 
         if hyper_parameters is None:
             raise ValueError('hyper parameters cannot be none')
@@ -30,6 +30,7 @@ class OptimizationBase(object):
         self.test_set = data_set.tuning
         self.hyper_parameters = hyper_parameters
         self.regularization_methods = regularization_methods
+        self.output_file = output_file
         self.random_range = RandomState()
 
         # self.output_file = output_file

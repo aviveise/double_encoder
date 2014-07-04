@@ -18,6 +18,9 @@ if __name__ == '__main__':
     training_strategy = IterativeTrainingStrategy()
     regularization_methods = {}
 
+    output_file_name = 'double_encoder_' + str(datetime.datetime.now()) + '.txt'
+    output_file = open(output_file_name, 'w+')
+
     #construct data set
     data_set = Container().create(data_set_config)
 
@@ -32,7 +35,7 @@ if __name__ == '__main__':
     #performing optimizations for various parameters
     for optimization_parameters in configuration.optimization_parameters:
 
-        args = (optimization_parameters, configuration.hyper_parameters, regularization_methods)
+        args = (optimization_parameters, configuration.hyper_parameters, regularization_methods, output_file)
         optimization = Container().create(optimization_parameters['type'], *args)
         optimization.perform_optimization(data_set, training_strategy,  configuration.hyper_parameters)
 
@@ -41,7 +44,8 @@ if __name__ == '__main__':
                                                      training_set_y=data_set.training_set[1].T,
                                                      hyper_parameters=configuration.hyper_parameters,
                                                      regularization_methods=regularization_methods.values(),
-                                                     activation_method=sigmoid)
+                                                     activation_method=sigmoid,
+                                                     output_file=output_file)
 
     #testing the trained double encoder
 

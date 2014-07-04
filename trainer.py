@@ -16,7 +16,7 @@ from theano import Out
 class Trainer(object):
 
     @staticmethod
-    def train(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
+    def train(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods, output_file):
 
         model = Trainer._build_model(train_set_x, train_set_y, symmetric_double_encoder, params, regularization_methods)
 
