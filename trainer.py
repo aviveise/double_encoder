@@ -25,7 +25,7 @@ class Trainer(object):
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
             for index in xrange(n_training_batches):
-                print 'epoch (%f)' % epoch
+                print 'epoch (%d)' % epoch
                 loss = model(index)
                 print ' ,Loss = %f\n' % loss
 
