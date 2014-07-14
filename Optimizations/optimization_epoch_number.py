@@ -15,9 +15,9 @@ class OptimizationEpochNumber(OptimizationBase):
     def __init__(self, data_set, optimization_parameters, hyper_parameters,  regularization_methods):
         super(OptimizationEpochNumber, self).__init__(data_set, optimization_parameters, hyper_parameters,  regularization_methods)
 
-        self.start_value = optimization_parameters['start_value']
-        self.end_value = optimization_parameters['end_value']
-        self.step = optimization_parameters['step']
+        self.start_value = int(optimization_parameters['start_value'])
+        self.end_value = int(optimization_parameters['end_value'])
+        self.step = int(optimization_parameters['step'])
 
     def perform_optimization(self):
 
