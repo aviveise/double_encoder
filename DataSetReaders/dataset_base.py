@@ -13,15 +13,18 @@ __author__ = 'aviv'
 
 class DatasetBase(object):
 
-    def __init__(self, dataset_path, name, center=False, normalize=False, whiten=False):
+    def __init__(self, data_set_parameters): #dataset_path, name, center=False, normalize=False, whiten=False):
 
-        OutputLog().write('Loading dataset: ' + name)
+        OutputLog().write('Loading dataset: ' + data_set_parameters['name'])
 
-        self.dataset_path = dataset_path
+        self.dataset_path = data_set_parameters['path']
         self.trainset = None
         self.testset = None
         self.tuning = None
-        self.name = name
+        
+        normalize = bool(int(data_set_parameters['normalize']))
+        center = bool(int(data_set_parameters['center']))
+        whiten = bool(int(data_set_parameters['whiten']))
 
         self.build_dataset()
 

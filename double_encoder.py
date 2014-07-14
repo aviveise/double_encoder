@@ -3,12 +3,15 @@
 import sys
 import os
 import datetime
+import ConfigParser
 
 from theano.tensor.nnet import sigmoid
-
 from training_strategy.iterative_training_strategy import IterativeTrainingStrategy
-from MISC.container import Container
+
 from configuration import Configuration
+
+from MISC.container import Container
+from MISC.utils import ConfigSectionMap
 
 if __name__ == '__main__':
 
@@ -18,8 +21,12 @@ if __name__ == '__main__':
     training_strategy = IterativeTrainingStrategy()
     regularization_methods = {}
 
+    data_config = ConfigParser.ConfigParser()
+    data_config.read(data_set_config)
+    data_parameters = ConfigSectionMap("dataset_parameters", data_config)
+
     #construct data set
-    data_set = Container().create(data_set_config)
+    data_set = Container().create(data_parameters['name'], data_parameters)
 
     #parse runtime configuration
     configuration = Configuration(run_time_config)
@@ -42,20 +49,3 @@ if __name__ == '__main__':
                                                      hyper_parameters=configuration.hyper_parameters,
                                                      regularization_methods=regularization_methods.values(),
                                                      activation_method=sigmoid)
-
-    #testing the trained double encoder
-
-    # output_file_name = 'double_encoder_' + str(datetime.datetime.now()) + '.txt'
-    # output_file = open(output_file_name, 'w+')
-    #
-    # output_file.write('Starting Double Encoder\n')
-    #
-    # if not len(optimization_parameters) == 0:
-    #
-    #     output_file.write('Dataset = %s\n' % optimization_parameters[0].data_type)
-    #
-    #
-    # for parameter in regular_parameters:
-    #     run(parameter, output_file)
-    #
-    # output_file.close()

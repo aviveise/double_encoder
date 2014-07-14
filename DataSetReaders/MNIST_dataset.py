@@ -12,8 +12,8 @@ class MNISTDataSet(DatasetBase):
 
     __metaclass__ = ContainerRegisterMetaClass
 
-    def __init__(self, dataset_path, center=False, normalize=False, whiten=False):
-        super(MNISTDataSet, self).__init__(dataset_path, 'MNIST', center, normalize, whiten)
+    def __init__(self, data_set_parameters):
+        super(MNISTDataSet, self).__init__(data_set_parameters)
 
     def build_dataset(self):
 

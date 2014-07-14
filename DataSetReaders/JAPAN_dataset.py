@@ -16,8 +16,8 @@ class JAPANDataSetVideo(DatasetBase):
 
     __metaclass__ = ContainerRegisterMetaClass
 
-    def __init__(self, dataset_path, center=False, normalize=False, whiten=False):
-        super(JAPANDataSetVideo, self).__init__(dataset_path, 'JAPAN', center, normalize, whiten)
+    def __init__(self, data_set_parameters):
+        super(JAPANDataSetVideo, self).__init__(data_set_parameters)
 
     def build_dataset(self):
 
