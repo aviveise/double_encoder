@@ -7,7 +7,7 @@ import numpy
 
 from MISC.utils import center as center_function, unitnorm
 from MISC.whiten_transform import WhitenTransform
-
+from MISC.logger import OutputLog
 
 __author__ = 'aviv'
 
@@ -15,7 +15,7 @@ class DatasetBase(object):
 
     def __init__(self, dataset_path, name, center=False, normalize=False, whiten=False):
 
-        print '--------------Loading %s Data----------------' % name
+        OutputLog().write('Loading dataset: ' + name)
 
         self.dataset_path = dataset_path
         self.trainset = None
@@ -48,9 +48,9 @@ class DatasetBase(object):
             self.testset = (transform_0.transform(self.testset[0]), transform_1.transform(self.testset[1]))
             self.tuning = (transform_0.transform(self.tuning[0]), transform_1.transform(self.tuning[1]))
 
-        print 'Training set size = %d' % self.trainset[0].shape[1]
-        print 'Test set size = %d' % self.testset[0].shape[1]
-        print 'Tuning set size = %d' % self.tuning[0].shape[1]
+        OutputLog().write('Training set size = %d' % self.trainset[0].shape[1])
+        OutputLog().write('Test set size = %d' % self.testset[0].shape[1])
+        OutputLog().write('Tuning set size = %d' % self.tuning[0].shape[1])
 
     def produce_optimization_sets(self, train, test_samples=None):
 

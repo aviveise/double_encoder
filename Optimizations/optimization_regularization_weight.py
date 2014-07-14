@@ -4,7 +4,9 @@ import sys
 from numpy import arange
 from theano import config
 from optimization_base import OptimizationBase
+
 from MISC.container import ContainerRegisterMetaClass
+from MISC.logger import OutputLog
 
 class OptimizationRegularizationWeight(OptimizationBase):
 
@@ -19,9 +21,8 @@ class OptimizationRegularizationWeight(OptimizationBase):
 
     def perform_optimization(self):
 
-        self.output_file.write('Learning regularization\n')
-        self.output_file.write('weight layer_sizes correlations cca_correlations time\n')
-        self.output_file.flush()
+        OutputLog().write('----------------------------------------------------------')
+        OutputLog().write('batch_size layer_sizes correlations cca_correlations time\n')
 
         regularization_methods = self.regularization_methods.copy()
         best_correlation = 0
@@ -34,11 +35,16 @@ class OptimizationRegularizationWeight(OptimizationBase):
 
             regularization_methods['weight_decay_regularization'].regularization_parameters['weight'] = i
 
-            self.output_file.write('%f, ' % i)
-            correlations = self.train(regularization_methods=regularization_methods)
+            correlation, execution_time = self.train(regularization_methods=regularization_methods)
 
-            if correlations[0] > best_correlation:
-                best_correlation = correlations[0]
+            if correlation > best_correlation:
+                best_correlation = correlation
                 self.regularization_methods['weight_decay_regularization'].regularization_parameters['weight'] = i
+
+            OutputLog().write('%f, %s, %f\n' % (i,
+                                                correlation,
+                                                execution_time))
+
+        OutputLog().write('----------------------------------------------------------')
 
         return True

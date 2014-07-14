@@ -12,11 +12,12 @@ from theano import config
 from theano import shared
 from theano import Out
 
+from MISC.logger import OutputLog
 
 class Trainer(object):
 
     @staticmethod
-    def train(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods, output_file):
+    def train(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
 
         model = Trainer._build_model(train_set_x, train_set_y, symmetric_double_encoder, params, regularization_methods)
 

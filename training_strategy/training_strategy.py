@@ -23,6 +23,5 @@ class TrainingStrategy(object):
               training_set_y,
               hyper_parameters,
               regularization_methods,
-              activation_method,
-              output_file):
+              activation_method):
         return

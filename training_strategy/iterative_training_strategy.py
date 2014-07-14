@@ -16,8 +16,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
               training_set_y,
               hyper_parameters,
               regularization_methods,
-              activation_method,
-              output_file):
+              activation_method):
 
         symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                         numpy_range=self._random_range,
@@ -34,7 +33,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
             params.extend(self._symmetric_double_encoder[-1].x_params)
             params.extend(self._symmetric_double_encoder[-1].y_params)
 
-            Trainer.train(self._symmetric_double_encoder, params, output_file)
+            Trainer.train(self._symmetric_double_encoder, params)
 
         return symmetric_double_encoder
 

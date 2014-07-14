@@ -5,14 +5,17 @@ from numpy import arange
 from numpy.random import RandomState
 
 from optimization_base import OptimizationBase
+
 from MISC.container import ContainerRegisterMetaClass
+from MISC.utils import print_list
+from MISC.logger import OutputLog
 
 class OptimizationLayerStructure(OptimizationBase):
 
     __metaclass__ = ContainerRegisterMetaClass
 
-    def __init__(self, data_set, optimization_parameters, hyper_parameters,  regularization_methods, output_file):
-        super(OptimizationLayerStructure, self).__init__(data_set, optimization_parameters, hyper_parameters,  regularization_methods, output_file)
+    def __init__(self, data_set, optimization_parameters, hyper_parameters,  regularization_methods):
+        super(OptimizationLayerStructure, self).__init__(data_set, optimization_parameters, hyper_parameters,  regularization_methods)
 
         self.symmetric_layers = optimization_parameters['symmetric']
         self.start_value = optimization_parameters['start_value']
@@ -21,6 +24,9 @@ class OptimizationLayerStructure(OptimizationBase):
         self.layer_number = optimization_parameters['hidden_layer_number']
 
     def perform_optimization(self):
+
+        OutputLog().write('----------------------------------------------------------')
+        OutputLog().write('batch_size layer_sizes correlations cca_correlations time')
 
         hyper_parameters = self.hyper_parameters.copy()
         random_rng = RandomState()
@@ -39,11 +45,18 @@ class OptimizationLayerStructure(OptimizationBase):
                     hyper_parameters.layer_sizes[len(hyper_parameters.layer_sizes) - (i + 1)] = \
                         hyper_parameters.layer_sizes[i]
 
-            correlations = self.train(hyper_parameters=hyper_parameters)
+            correlation, execution_time = self.train(hyper_parameters=hyper_parameters)
 
-            if correlations[0] > best_correlation:
+            if correlation > best_correlation:
 
-                best_correlation = correlations[0]
+                best_correlation = correlation
                 self.hyper_parameters.layer_sizes = hyper_parameters.layer_sizes
+
+            OutputLog().write('%s, %f, %s, %f\n' % (print_list(hyper_parameters.layer_sizes),
+                                                    correlation,
+                                                    execution_time))
+
+
+        OutputLog().write('----------------------------------------------------------')
 
         return True
