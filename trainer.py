@@ -12,8 +12,6 @@ from theano import config
 from theano import shared
 from theano import Out
 
-from MISC.logger import OutputLog
-
 class Trainer(object):
 
     @staticmethod
@@ -27,7 +25,9 @@ class Trainer(object):
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
             for index in xrange(n_training_batches):
+                print 'epoch (%f)' % epoch
                 loss = model(index)
+                print ' ,Loss = %f\n' % loss
 
     @staticmethod
     def _build_model(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
@@ -65,7 +65,7 @@ class Trainer(object):
 
             updates = OrderedDict()
             for param, gradient, model_update in zip(params, gradients, model_updates):
-                delta = self.hyper_parameters.momentum * model_update - self.hyper_parameters.learning_rate * gradient
+                delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
                 updates[param] = param + delta
                 updates[model_update] = delta
 
