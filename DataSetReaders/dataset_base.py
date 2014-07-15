@@ -13,7 +13,7 @@ __author__ = 'aviv'
 
 class DatasetBase(object):
 
-    def __init__(self, data_set_parameters): #dataset_path, name, center=False, normalize=False, whiten=False):
+    def __init__(self, data_set_parameters):
 
         OutputLog().write('Loading dataset: ' + data_set_parameters['name'])
 

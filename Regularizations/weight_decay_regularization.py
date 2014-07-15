@@ -12,7 +12,7 @@ class WeightDecayRegularization(RegularizationBase):
 
     def __init__(self, regularization_parameters):
         super(WeightDecayRegularization, self).__init__(regularization_parameters)
-        self.regularization_type = regularization_parameters['regularization_type']
+        self.regularization_type = regularization_parameters['weight_decay_type']
 
     def compute(self, symmetric_double_encoder):
 

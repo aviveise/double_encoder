@@ -1,4 +1,4 @@
-    __author__ = 'aviv'
+__author__ = 'aviv'
 
 import sys
 import os
@@ -7,6 +7,10 @@ import ConfigParser
 
 from theano.tensor.nnet import sigmoid
 from training_strategy.iterative_training_strategy import IterativeTrainingStrategy
+
+from Optimizations.optimization_base import OptimizationBase
+from DataSetReaders.dataset_base import DatasetBase
+from Regularizations.regularization_base import RegularizationBase
 
 from configuration import Configuration
 
@@ -37,7 +41,7 @@ if __name__ == '__main__':
         regularization_methods[regularization_parameters['type']] = Container().create(regularization_parameters['type'], regularization_parameters)
 
     #performing optimizations for various parameters
-    for optimization_parameters in configuration.optimization_parameters:
+    for optimization_parameters in configuration.optimizations_parameters:
 
         args = (optimization_parameters, configuration.hyper_parameters, regularization_methods)
         optimization = Container().create(optimization_parameters['type'], *args)

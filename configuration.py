@@ -24,7 +24,7 @@ class Configuration(object):
             elif section.startswith('regularization_'):
                 self.regularizations_parameters.append(ConfigSectionMap(section, config))
 
-        self.hyper_parameters = self._parse_training_parameters(ConfigSectionMap("Hyper_parameters", config))
+        self.hyper_parameters = self._parse_training_parameters(ConfigSectionMap("hyper_parameters", config))
 
     def _parse_training_parameters(self, training_section):
         learning_rate = float(training_section['learning_rate'])

@@ -13,8 +13,7 @@ class RegularizationBase(object):
 
     def __init__(self, regularization_parameters):
 
-        for regularization in regularization_parameters:
-            OutputLog().write('Adding regularization: ' + regularization['type'])
+        OutputLog().write('Adding regularization: ' + regularization_parameters['type'])
 
         self.weight = regularization_parameters['weight']
 
