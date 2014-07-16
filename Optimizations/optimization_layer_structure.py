@@ -23,7 +23,7 @@ class OptimizationLayerStructure(OptimizationBase):
         self.rounds_number = int(optimization_parameters['rounds_number'])
         self.layer_number = int(optimization_parameters['hidden_layer_number'])
 
-    def perform_optimization(self):
+    def perform_optimization(self, training_strategy):
 
         OutputLog().write('----------------------------------------------------------')
         OutputLog().write('batch_size layer_sizes correlations cca_correlations time')
@@ -45,7 +45,7 @@ class OptimizationLayerStructure(OptimizationBase):
                     hyper_parameters.layer_sizes[len(hyper_parameters.layer_sizes) - (i + 1)] = \
                         hyper_parameters.layer_sizes[i]
 
-            correlation, execution_time = self.train(hyper_parameters=hyper_parameters)
+            correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters)
 
             if correlation > best_correlation:
 

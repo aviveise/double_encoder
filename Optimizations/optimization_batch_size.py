@@ -12,14 +12,14 @@ class OptimizationBatchSize(OptimizationBase):
 
     __metaclass__ = ContainerRegisterMetaClass
 
-    def __init__(self, data_set, optimization_parameters, hyper_parameters,  regularization_methods):
+    def __init__(self, data_set, optimization_parameters, hyper_parameters, regularization_methods):
         super(OptimizationBatchSize, self).__init__(data_set, optimization_parameters, hyper_parameters,  regularization_methods)
 
         self.start_value = int(optimization_parameters['start_value'])
         self.end_value = int(optimization_parameters['end_value'])
         self.step = int(optimization_parameters['step'])
 
-    def perform_optimization(self):
+    def perform_optimization(self, training_strategy):
 
         OutputLog().write('----------------------------------------------------------')
         OutputLog().write('batch_size layer_sizes correlations cca_correlations time')
@@ -36,7 +36,7 @@ class OptimizationBatchSize(OptimizationBase):
 
             hyper_parameters.batch_size = int(i)
 
-            correlation, execution_time = self.train(hyper_parameters=hyper_parameters)
+            correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters)
 
             if correlation > best_correlation:
                 best_correlation = correlation

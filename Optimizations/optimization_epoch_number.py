@@ -19,7 +19,7 @@ class OptimizationEpochNumber(OptimizationBase):
         self.end_value = int(optimization_parameters['end_value'])
         self.step = int(optimization_parameters['step'])
 
-    def perform_optimization(self):
+    def perform_optimization(self, training_strategy):
 
         OutputLog().write('----------------------------------------------------------')
         OutputLog().write('batch_size layer_sizes correlations cca_correlations time')
@@ -33,7 +33,7 @@ class OptimizationEpochNumber(OptimizationBase):
 
             hyper_parameters.epochs = int(i)
 
-            correlation, execution_time = self.train(hyper_parameters=hyper_parameters)
+            correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters)
 
             if correlation > best_correlation:
                 best_correlation = correlation

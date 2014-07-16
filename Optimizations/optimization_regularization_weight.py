@@ -19,7 +19,7 @@ class OptimizationRegularizationWeight(OptimizationBase):
         self.end_value = float(optimization_parameters['end_value'])
         self.step = float(optimization_parameters['step'])
 
-    def perform_optimization(self):
+    def perform_optimization(self, training_strategy):
 
         OutputLog().write('----------------------------------------------------------')
         OutputLog().write('batch_size layer_sizes correlations cca_correlations time\n')
@@ -33,13 +33,13 @@ class OptimizationRegularizationWeight(OptimizationBase):
                         self.step,
                         dtype=config.floatX):
 
-            regularization_methods['weight_decay_regularization'].regularization_parameters['weight'] = i
+            regularization_methods['WeightDecayRegularization'].weight = i
 
-            correlation, execution_time = self.train(regularization_methods=regularization_methods)
+            correlation, execution_time = self.train(training_strategy=training_strategy, regularization_methods=regularization_methods)
 
             if correlation > best_correlation:
                 best_correlation = correlation
-                self.regularization_methods['weight_decay_regularization'].regularization_parameters['weight'] = i
+                self.regularization_methods['WeightDecayRegularization'].weight = i
 
             OutputLog().write('%f, %s, %f\n' % (i,
                                                 correlation,

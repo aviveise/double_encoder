@@ -49,7 +49,7 @@ class SymmetricHiddenLayer(object):
                 self.input_layer_size = x.shape[1]
 
                 if weights is None or bias is None:
-                    self._initialize_x_weights()
+                    self._initialize_input_weights()
 
                 else:
                     self.Wx = weights
@@ -67,7 +67,7 @@ class SymmetricHiddenLayer(object):
                 self.output_layer_size = y.shape[1]
 
                 if weights is None or bias is None:
-                    self._initialize_y_weights()
+                    self._initialize_output_weights()
 
                 else:
                     self.Wy = weights

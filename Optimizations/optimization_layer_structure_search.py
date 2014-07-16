@@ -23,7 +23,7 @@ class OptimizationLayerStructureSearch(OptimizationBase):
         self.rounds_number = int(optimization_parameters['rounds_number'])
         self.layer_number = int(optimization_parameters['hidden_layer_number'])
 
-    def perform_optimization(self):
+    def perform_optimization(self, training_strategy):
 
         OutputLog().write('----------------------------------------------------------')
         OutputLog().write('batch_size layer_sizes correlations cca_correlations time\n')
@@ -42,7 +42,7 @@ class OptimizationLayerStructureSearch(OptimizationBase):
 
             hyper_parameters.layer_sizes = [int(round(layer_size)) for layer_size in hyper_parameters.layer_sizes]
 
-            correlation, execution_time = self.train(hyper_parameters=hyper_parameters, print_results=False)
+            correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters, print_results=False)
 
             if correlation < previous_correlation:
                 improvement_rounds = 0

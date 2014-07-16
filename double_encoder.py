@@ -43,9 +43,9 @@ if __name__ == '__main__':
     #performing optimizations for various parameters
     for optimization_parameters in configuration.optimizations_parameters:
 
-        args = (optimization_parameters, configuration.hyper_parameters, regularization_methods)
+        args = (data_set, optimization_parameters, configuration.hyper_parameters, regularization_methods)
         optimization = Container().create(optimization_parameters['type'], *args)
-        optimization.perform_optimization(data_set, training_strategy,  configuration.hyper_parameters)
+        optimization.perform_optimization(training_strategy)
 
     #training the system with the optimized parameters
     stacked_double_encoder = training_strategy.train(training_set_x=data_set.training_set[0].T,

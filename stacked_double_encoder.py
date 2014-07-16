@@ -19,7 +19,7 @@ class StackedDoubleEncoder(object):
         if numpy_range is None:
             numpy_range = RandomState()
 
-        if hidden_layers is None or hidden_layers.count() == 0:
+        if hidden_layers is None or len(hidden_layers) == 0:
             return
 
         layer_index = 0
@@ -47,12 +47,12 @@ class StackedDoubleEncoder(object):
     def __getitem__(self, y):
         return self._symmetric_layers.__getitem__(y)
 
-    def count(self):
-        return self._symmetric_layers.count()
+    def __len__(self):
+        return len(self._symmetric_layers)
 
     def add_hidden_layer(self, symmetric_layer):
 
-        if self._symmetric_layers.count == 0:
+        if len(self._symmetric_layers) == 0:
 
             self._initialize_first_layer(symmetric_layer)
 

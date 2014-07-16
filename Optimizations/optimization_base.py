@@ -34,7 +34,7 @@ class OptimizationBase(object):
         self.regularization_methods = regularization_methods
         self.random_range = RandomState()
 
-    def train(self, hyper_parameters=None, print_results=True, regularization_methods=None):
+    def train(self, training_strategy=IterativeTrainingStrategy, hyper_parameters=None, regularization_methods=None):
 
         start = clock()
 
@@ -45,9 +45,11 @@ class OptimizationBase(object):
             regularization_methods = self.regularization_methods
 
         try:
-            training_strategy = IterativeTrainingStrategy(self.training_set[0].T,
-                                                          self.training_set[1].T,
-                                                          hyper_parameters, regularization_methods.values(), sigmoid)
+            training_strategy = training_strategy.train(self.training_set[0].T,
+                                                        self.training_set[1].T,
+                                                        hyper_parameters,
+                                                        regularization_methods.values(),
+                                                        sigmoid)
 
             double_encoder = training_strategy.train()
 
@@ -64,6 +66,6 @@ class OptimizationBase(object):
         return correlation, execution_time
 
     @abc.abstractmethod
-    def perform_optimization(self):
+    def perform_optimization(self, training_strategy):
         """main optimization method"""
         return
