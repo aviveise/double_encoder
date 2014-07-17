@@ -39,6 +39,6 @@ class WeightDecayRegularization(RegularizationBase):
 
         regularization = 0
         for layer in symmetric_double_encoder:
-            regularization += layer.Wx.square().sum() + layer.Wy.square().sum()
+            regularization += (layer.Wx ** 2).sum() + (layer.Wy ** 2).sum()
 
         return regularization

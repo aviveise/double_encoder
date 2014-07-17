@@ -17,7 +17,12 @@ class Trainer(object):
     @staticmethod
     def train(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
 
-        model = Trainer._build_model(train_set_x, train_set_y, symmetric_double_encoder, params, regularization_methods)
+        model = Trainer._build_model(train_set_x,
+                                     train_set_y,
+                                     hyper_parameters,
+                                     symmetric_double_encoder,
+                                     params,
+                                     regularization_methods)
 
         #Calculating number of batches
         n_training_batches = train_set_x.get_value(borrow=True).shape[0] / hyper_parameters.batch_size

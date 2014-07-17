@@ -8,11 +8,14 @@ from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
 class StackedDoubleEncoder(object):
 
-    def __init__(self, hidden_layers, numpy_range, activation_method=Tensor.nnet.sigmoid):
+    def __init__(self, hidden_layers, numpy_range, input_size, output_size, activation_method=Tensor.nnet.sigmoid):
 
         #Define x and y variables for input
         self.var_x = Tensor.matrix('x')
         self.var_y = Tensor.matrix('y')
+
+        self.input_size = input_size
+        self.output_size = output_size
 
         self._symmetric_layers = []
 
@@ -62,7 +65,7 @@ class StackedDoubleEncoder(object):
 
             #connecting the X of new layer with the Y of the last layer
             symmetric_layer.update_x(last_layer.output_y, last_layer.Wy, last_layer.bias_y)
-            symmetric_layer.update_y(self.var_y)
+            symmetric_layer.update_y(self.var_y, output_size=self.output_size)
 
             Wy = symmetric_layer.Wx
             bias_y = symmetric_layer.bias_x
@@ -87,5 +90,5 @@ class StackedDoubleEncoder(object):
 
     #Initialize the inputs of the first layer to be 'x' and 'y' variables
     def _initialize_first_layer(self, layer):
-        layer.update_x(self.var_x)
-        layer.update_y(self.var_y)
+        layer.update_x(self.var_x, input_size=self.input_size)
+        layer.update_y(self.var_y, output_size=self.output_size)

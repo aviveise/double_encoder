@@ -4,9 +4,11 @@ import sys
 import os
 import numpy
 
+from theano import shared
 from training_strategy import TrainingStrategy
 from stacked_double_encoder import StackedDoubleEncoder
 from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
+
 from trainer import Trainer
 
 class IterativeTrainingStrategy(TrainingStrategy):
@@ -18,8 +20,14 @@ class IterativeTrainingStrategy(TrainingStrategy):
               regularization_methods,
               activation_method):
 
+        #need to convert the input into tensor variable
+        training_set_x = shared(training_set_x, 'training_set_x', borrow=True)
+        training_set_y = shared(training_set_y, 'training_set_y', borrow=True)
+
         symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                         numpy_range=self._random_range,
+                                                        input_size=training_set_x.get_value(borrow=True).shape[1],
+                                                        output_size=training_set_y.get_value(borrow=True).shape[1],
                                                         activation_method=activation_method)
 
         #In this phase we train the stacked encoder one layer at a time
@@ -31,10 +39,16 @@ class IterativeTrainingStrategy(TrainingStrategy):
             self._add_cross_encoder_layer(layer_size, symmetric_double_encoder, activation_method)
 
             params = []
-            params.extend(self._symmetric_double_encoder[-1].x_params)
-            params.extend(self._symmetric_double_encoder[-1].y_params)
+            params.extend(symmetric_double_encoder[-1].x_params)
+            params.extend(symmetric_double_encoder[-1].y_params)
 
-            Trainer.train(self._symmetric_double_encoder, params)
+            Trainer.train(train_set_x=training_set_x,
+                          train_set_y=training_set_y,
+                          hyper_parameters=hyper_parameters,
+                          symmetric_double_encoder=symmetric_double_encoder,
+                          params=params,
+                          regularization_methods=regularization_methods)
+
             print '----------------Layer Added - %d\n' % layer_size
 
 
