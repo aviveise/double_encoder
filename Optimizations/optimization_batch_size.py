@@ -15,9 +15,9 @@ class OptimizationBatchSize(OptimizationBase):
     def __init__(self, data_set, optimization_parameters, hyper_parameters, regularization_methods):
         super(OptimizationBatchSize, self).__init__(data_set, optimization_parameters, hyper_parameters,  regularization_methods)
 
-        self.start_value = int(optimization_parameters['start_value'])
-        self.end_value = int(optimization_parameters['end_value'])
-        self.step = int(optimization_parameters['step'])
+        self.start_value = float(optimization_parameters['start_value'])
+        self.end_value = float(optimization_parameters['end_value'])
+        self.step = float(optimization_parameters['step'])
 
     def perform_optimization(self, training_strategy):
 
@@ -34,15 +34,17 @@ class OptimizationBatchSize(OptimizationBase):
                         self.step,
                         dtype=config.floatX):
 
-            hyper_parameters.batch_size = int(i)
+            batch_size = self.training_set[0].shape[0] * i
+
+            hyper_parameters.batch_size = batch_size
 
             correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters)
 
             if correlation > best_correlation:
                 best_correlation = correlation
-                self.hyper_parameters.batch_size = int(i)
+                self.hyper_parameters.batch_size = batch_size
 
-            OutputLog().write('%f, %s, %f\n' % (i,
+            OutputLog().write('%f, %s, %f\n' % (batch_size,
                                                 correlation,
                                                 execution_time))
 
