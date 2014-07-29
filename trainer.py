@@ -29,10 +29,11 @@ class Trainer(object):
 
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
+            loss = 0
             for index in xrange(n_training_batches):
-                print 'epoch (%d)' % epoch
-                loss = model(index)
-                print ' ,Loss = %f\n' % loss
+                loss += model(index)
+
+            print 'epoch (%d) ,Loss = %f\n' % (epoch, loss / n_training_batches)
 
     @staticmethod
     def _build_model(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):

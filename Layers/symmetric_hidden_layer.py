@@ -53,7 +53,7 @@ class SymmetricHiddenLayer(object):
                     self.bias_x = bias
 
                 self.x_params = [self.Wx, self.bias_x]
-                self.output_x = self.compute_forward_hidden()
+                self.output_forward = self.compute_forward_hidden()
 
         def update_y(self, y, weights=None, bias=None, output_size=None):
 
@@ -71,7 +71,7 @@ class SymmetricHiddenLayer(object):
 
 
                 self.y_params = [self.Wy, self.bias_y]
-                self.output_y = self.compute_backward_hidden()
+                self.output_backward = self.compute_backward_hidden()
 
         def _initialize_input_weights(self, input_size):
 
@@ -134,11 +134,11 @@ class SymmetricHiddenLayer(object):
 
         #Given one input computes the network forward output
         def reconstruct_y(self):
-            return self.activation_output(Tensor.dot(self.output_x, self.Wy.T))
+            return self.activation_output(Tensor.dot(self.output_forward, self.Wy.T))
 
         #Given one input computes the network backward output
         def reconstruct_x(self):
-            return self.activation_output(Tensor.dot(self.output_y, self.Wx.T))
+            return self.activation_output(Tensor.dot(self.output_backward, self.Wx.T))
 
         #
         # #Regularization methods for different kinds of regularization types

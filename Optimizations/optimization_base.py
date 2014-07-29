@@ -20,7 +20,7 @@ class OptimizationBase(object):
 
     def __init__(self, data_set, optimization_parameters, hyper_parameters, regularization_methods):
 
-        OutputLog().write('Creating optimization: ' + optimization_parameters['type'])
+        OutputLog().write('\nCreating optimization: ' + optimization_parameters['type'])
 
         if hyper_parameters is None:
             raise ValueError('hyper parameters cannot be none')
@@ -45,16 +45,14 @@ class OptimizationBase(object):
             regularization_methods = self.regularization_methods
 
         try:
-            training_strategy = training_strategy.train(self.training_set[0].T,
-                                                        self.training_set[1].T,
-                                                        hyper_parameters,
-                                                        regularization_methods.values(),
-                                                        sigmoid)
+            double_encoder = training_strategy.train(self.training_set[0].T,
+                                                     self.training_set[1].T,
+                                                     hyper_parameters,
+                                                     regularization_methods.values(),
+                                                     sigmoid)
 
-            double_encoder = training_strategy.train()
-
-            correlation_test = CorrelationTest(self.test_set[0].T, self.test_set[0].T)
-            correlation = correlation_test.test(DoubleEncoderTester(double_encoder, 1))
+            correlation = CorrelationTest(self.test_set[0].T, self.test_set[0].T).\
+                test(DoubleEncoderTester(double_encoder, 1))
 
         except:
 

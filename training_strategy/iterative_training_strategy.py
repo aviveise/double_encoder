@@ -35,7 +35,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
         #not changed
         for layer_size in hyper_parameters.layer_sizes:
 
-            print '----------------Adding Layer - %d\n' % layer_size
+            print '--------Adding Layer of Size - %d--------\n' % layer_size
             self._add_cross_encoder_layer(layer_size, symmetric_double_encoder, activation_method)
 
             params = []
@@ -48,9 +48,6 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           symmetric_double_encoder=symmetric_double_encoder,
                           params=params,
                           regularization_methods=regularization_methods)
-
-            print '----------------Layer Added - %d\n' % layer_size
-
 
         return symmetric_double_encoder
 
