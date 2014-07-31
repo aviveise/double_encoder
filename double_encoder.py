@@ -35,7 +35,7 @@ if __name__ == '__main__':
     #parse runtime configuration
     configuration = Configuration(run_time_config)
 
-    configuration.hyper_parameters.batch_size = configuration.hyper_parameters.batch_size * data_set.training_set[0].shape[0]
+    configuration.hyper_parameters.batch_size = configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[0]
 
     #building regularization methods
     for regularization_parameters in configuration.regularizations_parameters:
