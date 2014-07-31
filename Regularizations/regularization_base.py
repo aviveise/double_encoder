@@ -15,7 +15,7 @@ class RegularizationBase(object):
 
         OutputLog().write('Adding regularization: ' + regularization_parameters['type'])
 
-        self.weight = regularization_parameters['weight']
+        self.weight = float(regularization_parameters['weight'])
 
 
     @abc.abstractmethod
