@@ -42,7 +42,7 @@ class OptimizationLayerStructureSearch(OptimizationBase):
 
             hyper_parameters.layer_sizes = [int(round(layer_size)) for layer_size in hyper_parameters.layer_sizes]
 
-            correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters, print_results=False)
+            correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters)
 
             if correlation < previous_correlation:
                 improvement_rounds = 0
