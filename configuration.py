@@ -28,7 +28,7 @@ class Configuration(object):
 
     def _parse_training_parameters(self, training_section):
         learning_rate = float(training_section['learning_rate'])
-        batch_size = int(training_section['batch_size'])
+        batch_size = float(training_section['batch_size'])
         epochs = int(training_section['epochs'])
         momentum = float(training_section['momentum'])
         layer_sizes = map(int, training_section['layer_sizes'].split())

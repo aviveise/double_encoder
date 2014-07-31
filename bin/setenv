@@ -3,3 +3,5 @@ setenv THEANO_FLAGS mode=FAST_RUN,device=gpu,floatX=float32
 
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/atlas-base/atlas/
 
+LD_LIBRARY_PATH=/usr/local/cuda-6.0/lib64:/opt/opencv/lib:/usr/local/lib:/opt/intel/mkl/lib/intel64:/opt/tbb/lib/intel64:/usr/lib/atlas-base/atlas/:
+LD_LIBRARY_PATH=/usr/local/cuda-5.5/lib64:/opt/opencv/lib:/usr/local/lib:/opt/intel/mkl/lib/intel64:/opt/tbb/lib/intel64:/usr/lib/atlas-base/atlas/:
