@@ -12,10 +12,11 @@ class OutputLog(object):
     __metaclass__= Singleton
 
     def __init__(self):
-        output_file_name = './results/double_encoder_' + str(datetime.datetime.now()) + '.txt'
+        output_file_name = 'double_encoder_' + str(datetime.datetime.now()) + '.txt'
         self.output_file = open(output_file_name, 'w+')
 
     def write(self, message):
+        print message
         self.output_file.write(message + '\n')
         self.output_file.flush()
 
