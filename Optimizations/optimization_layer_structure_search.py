@@ -61,9 +61,9 @@ class OptimizationLayerStructureSearch(OptimizationBase):
                 best_correlation = correlation
                 self.hyper_parameters.layer_sizes = hyper_parameters.layer_sizes
 
-            OutputLog().write('%s, %f, %s, %f\n' % (print_list(hyper_parameters.layer_sizes),
-                                                    correlation,
-                                                    execution_time))
+            OutputLog().write('%s, %f, %f\n' % (print_list(hyper_parameters.layer_sizes),
+                                                correlation,
+                                                execution_time))
 
         OutputLog().write('----------------------------------------------------------')
 
