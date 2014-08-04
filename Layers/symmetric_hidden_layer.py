@@ -39,36 +39,41 @@ class SymmetricHiddenLayer(object):
             if not y is None:
                 self.update_y(y)
 
-        def update_x(self, x, weights=None, bias=None, input_size=None):
+        def update_x(self, x, weights=None, input_size=None):
 
             if x:
 
                 self.x = x
 
-                if weights is None or bias is None:
+                if weights is None:
                     self._initialize_input_weights(input_size)
 
                 else:
                     self.Wx = weights
-                    self.bias_x = bias
+
+
+                self.bias_x = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
+                                                name='bias_x' + '_' + self.name)
 
                 self.x_params = [self.Wx, self.bias_x]
                 self.output_forward = self.compute_forward_hidden()
 
-        def update_y(self, y, weights=None, bias=None, output_size=None):
+        def update_y(self, y, weights=None, output_size=None):
 
             #if x2 is provided compute backward(x2)
             if y:
 
                 self.y = y
 
-                if weights is None or bias is None:
+                if weights is None:
                     self._initialize_output_weights(output_size)
 
                 else:
                     self.Wy = weights
-                    self.bias_y = bias
 
+
+                self.bias_y = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
+                                                name='bias_y' + '_' + self.name)
 
                 self.y_params = [self.Wy, self.bias_y]
                 self.output_backward = self.compute_backward_hidden()
@@ -94,12 +99,6 @@ class SymmetricHiddenLayer(object):
             # WXtoH corresponds to the weights between the input and the hidden layer
             self.Wx = Wx
 
-            bias_x = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
-                                   name='bias_x' + '_' + self.name)
-
-            # bHtoX corresponds to the bias between the return hidden layer and the input
-            self.bias_x = bias_x
-
         def _initialize_output_weights(self, output_size):
 
             if output_size is None:
@@ -119,12 +118,6 @@ class SymmetricHiddenLayer(object):
 
             # WHtoY corresponds to the weights between the hidden layer and the output
             self.Wy = Wy
-
-            bias_y = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
-                                   name='bias_y' + '_' + self.name)
-
-            # bHtoY corresponds to the bias between the hidden layer and the output
-            self.bias_y = bias_y
 
         def compute_forward_hidden(self):
             return self.activation_hidden(Tensor.dot(self.x, self.Wx) + self.bias_x)

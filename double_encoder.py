@@ -50,8 +50,8 @@ if __name__ == '__main__':
         optimization.perform_optimization(training_strategy)
 
     #training the system with the optimized parameters
-    stacked_double_encoder = training_strategy.train(training_set_x=data_set.training_set[0].T,
-                                                     training_set_y=data_set.training_set[1].T,
+    stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0].T,
+                                                     training_set_y=data_set.trainset[1].T,
                                                      hyper_parameters=configuration.hyper_parameters,
                                                      regularization_methods=regularization_methods.values(),
                                                      activation_method=sigmoid)
