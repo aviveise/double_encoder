@@ -34,7 +34,7 @@ class OptimizationBatchSize(OptimizationBase):
                         self.step,
                         dtype=config.floatX):
 
-            batch_size = self.training_set[0].shape[0] * i
+            batch_size = int(self.training_set[0].shape[0] * i)
 
             hyper_parameters.batch_size = batch_size
 
