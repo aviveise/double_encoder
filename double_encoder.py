@@ -17,41 +17,45 @@ from configuration import Configuration
 from MISC.container import Container
 from MISC.utils import ConfigSectionMap
 
-if __name__ == '__main__':
+class DoubleEncoder(object):
 
-    data_set_config = sys.argv[1]
-    run_time_config = sys.argv[2]
+    @staticmethod
+    def run(training_strategy):
 
-    training_strategy = IterativeTrainingStrategy()
-    regularization_methods = {}
+        data_set_config = sys.argv[1]
+        run_time_config = sys.argv[2]
 
-    data_config = ConfigParser.ConfigParser()
-    data_config.read(data_set_config)
-    data_parameters = ConfigSectionMap("dataset_parameters", data_config)
+        regularization_methods = {}
 
-    #construct data set
-    data_set = Container().create(data_parameters['name'], data_parameters)
+        data_config = ConfigParser.ConfigParser()
+        data_config.read(data_set_config)
+        data_parameters = ConfigSectionMap("dataset_parameters", data_config)
 
-    #parse runtime configuration
-    configuration = Configuration(run_time_config)
+        #construct data set
+        data_set = Container().create(data_parameters['name'], data_parameters)
 
-    configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
+        #parse runtime configuration
+        configuration = Configuration(run_time_config)
 
-    #building regularization methods
-    for regularization_parameters in configuration.regularizations_parameters:
+        configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
 
-        regularization_methods[regularization_parameters['type']] = Container().create(regularization_parameters['type'], regularization_parameters)
+        #building regularization methods
+        for regularization_parameters in configuration.regularizations_parameters:
 
-    #performing optimizations for various parameters
-    for optimization_parameters in configuration.optimizations_parameters:
+            regularization_methods[regularization_parameters['type']] = Container().create(regularization_parameters['type'], regularization_parameters)
 
-        args = (data_set, optimization_parameters, configuration.hyper_parameters, regularization_methods)
-        optimization = Container().create(optimization_parameters['type'], *args)
-        optimization.perform_optimization(training_strategy)
+        #performing optimizations for various parameters
+        for optimization_parameters in configuration.optimizations_parameters:
 
-    #training the system with the optimized parameters
-    stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0].T,
-                                                     training_set_y=data_set.trainset[1].T,
-                                                     hyper_parameters=configuration.hyper_parameters,
-                                                     regularization_methods=regularization_methods.values(),
-                                                     activation_method=sigmoid)
+            args = (data_set, optimization_parameters, configuration.hyper_parameters, regularization_methods)
+            optimization = Container().create(optimization_parameters['type'], *args)
+            optimization.perform_optimization(training_strategy)
+
+        #training the system with the optimized parameters
+        stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0].T,
+                                                         training_set_y=data_set.trainset[1].T,
+                                                         hyper_parameters=configuration.hyper_parameters,
+                                                         regularization_methods=regularization_methods.values(),
+                                                         activation_method=sigmoid)
+
+        return stacked_double_encoder

@@ -12,7 +12,6 @@ import theano.printing
 
 class SymmetricHiddenLayer(object):
 
-
         def __init__(self, numpy_range, x=None, y=None, hidden_layer_size=0, name='',
                      activation_hidden=None, activation_output=None):
 

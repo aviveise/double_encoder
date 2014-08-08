@@ -19,17 +19,17 @@ class SymmetricDropoutHiddenLayer(SymmetricHiddenLayer):
         self._p = dropout_probability
 
     def compute_forward_hidden(self):
-        output = super(SymmetricHiddenLayer, self).compute_forward_hidden()
+        output = super(SymmetricDropoutHiddenLayer, self).compute_forward_hidden()
         return self._dropout_from_layer(output)
 
     def compute_backward_hidden(self):
-        output = super(SymmetricHiddenLayer, self).compute_backward_hidden()
+        output = super(SymmetricDropoutHiddenLayer, self).compute_backward_hidden()
         return self._dropout_from_layer(output)
 
-    def _dropout_from_layer(self, layer, p):
+    def _dropout_from_layer(self, layer):
 
         stream = RandomStreams(self.numpy_range.randint(999999))
 
-        mask = stream.binomial(size=layer.shape, n=1, p=(1-self._p))
+        mask = stream.binomial(size=layer.shape, n=1, p=(1-self._p), dtype=theano.config.floatX)
 
         return layer * Tensor.cast(mask, theano.config.floatX)
