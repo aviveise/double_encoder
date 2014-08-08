@@ -22,7 +22,7 @@ class OptimizationRegularizationWeight(OptimizationBase):
     def perform_optimization(self, training_strategy):
 
         OutputLog().write('----------------------------------------------------------')
-        OutputLog().write('batch_size layer_sizes correlations cca_correlations time\n')
+        OutputLog().write('weight layer_sizes correlations cca_correlations time\n')
 
         regularization_methods = self.regularization_methods.copy()
         best_correlation = 0

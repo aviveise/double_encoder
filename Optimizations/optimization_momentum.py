@@ -22,7 +22,7 @@ class OptimizationMomentum(OptimizationBase):
     def perform_optimization(self, training_strategy):
 
         OutputLog().write('----------------------------------------------------------')
-        OutputLog().write('batch_size layer_sizes correlations cca_correlations time\n')
+        OutputLog().write('momentum layer_sizes correlations cca_correlations time\n')
 
         hyper_parameters = self.hyper_parameters.copy()
         best_correlation = 0
