@@ -87,10 +87,12 @@ class DoubleEncoder(object):
         for regularization in regularization_methods.values():
             regularization.print_regularization(OutputLog())
 
-        OutputLog().write('results:')
+        OutputLog().write('results:\n')
 
-        OutputLog().write('%s, %f\n' % (correlation,
-                                        execution_time))
+        OutputLog().write('correlation execution_time\n')
+
+        OutputLog().write('%f%%, %f\n' % (float(correlation) * 100,
+                                          execution_time))
 
 
         return stacked_double_encoder

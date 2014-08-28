@@ -12,14 +12,14 @@ class WeightDecayRegularization(RegularizationBase):
 
     def __init__(self, regularization_parameters):
         super(WeightDecayRegularization, self).__init__(regularization_parameters)
-        self.regularization_type = regularization_parameters['weight_decay_type']
+        self.normal_type = regularization_parameters['weight_decay_type']
 
     def compute(self, symmetric_double_encoder):
 
-        if self.regularization_type == 'L1':
+        if self.normal_type == 'L1':
             regularization = self._compute_L1(symmetric_double_encoder)
 
-        elif self.regularization_type == 'L2':
+        elif self.normal_type == 'L2':
             regularization = self._compute_L2(symmetric_double_encoder)
 
         else:
@@ -47,4 +47,4 @@ class WeightDecayRegularization(RegularizationBase):
 
         super(WeightDecayRegularization, self).print_regularization(output_stream)
 
-        output_stream.write('weight_decay_type: %s' % self.regularization_type)
+        output_stream.write('weight_decay_type: %s' % self.normal_type)
