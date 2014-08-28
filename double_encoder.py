@@ -5,17 +5,24 @@ import os
 import datetime
 import ConfigParser
 
+import traceback
+from time import clock
+
 from theano.tensor.nnet import sigmoid
 from training_strategy.iterative_training_strategy import IterativeTrainingStrategy
 
 from Optimizations.optimization_base import OptimizationBase
 from DataSetReaders.dataset_base import DatasetBase
 from Regularizations.regularization_base import RegularizationBase
+from testers.double_encoder_tester import DoubleEncoderTester
+
+from correlation_test import CorrelationTest
 
 from configuration import Configuration
 
 from MISC.container import Container
 from MISC.utils import ConfigSectionMap
+from MISC.logger import OutputLog
 
 class DoubleEncoder(object):
 
@@ -51,11 +58,39 @@ class DoubleEncoder(object):
             optimization = Container().create(optimization_parameters['type'], *args)
             optimization.perform_optimization(training_strategy)
 
-        #training the system with the optimized parameters
-        stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0].T,
-                                                         training_set_y=data_set.trainset[1].T,
-                                                         hyper_parameters=configuration.hyper_parameters,
-                                                         regularization_methods=regularization_methods.values(),
-                                                         activation_method=sigmoid)
+        start = clock()
+
+        try:
+
+            #training the system with the optimized parameters
+            stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0].T,
+                                                             training_set_y=data_set.trainset[1].T,
+                                                             hyper_parameters=configuration.hyper_parameters,
+                                                             regularization_methods=regularization_methods.values(),
+                                                             activation_method=sigmoid)
+
+            correlation = CorrelationTest(data_set.testset[0].T, data_set.testset[0].T).test(DoubleEncoderTester(stacked_double_encoder, 1))
+
+        except:
+            print 'Exception: \n'
+            print traceback.format_exc()
+            raise
+
+        execution_time = clock() - start
+
+        OutputLog().write('Test results : ')
+
+        configuration.hyper_parameters.print_parameters(OutputLog())
+
+        OutputLog().write('Regularizations:')
+
+        for regularization in regularization_methods.values():
+            regularization.print_regularization(OutputLog())
+
+        OutputLog().write('results:')
+
+        OutputLog().write('%s, %f\n' % (correlation,
+                                        execution_time))
+
 
         return stacked_double_encoder
