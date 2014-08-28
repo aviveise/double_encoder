@@ -78,7 +78,7 @@ class DoubleEncoder(object):
 
         execution_time = clock() - start
 
-        OutputLog().write('Test results : ')
+        OutputLog().write('Test results : \n')
 
         configuration.hyper_parameters.print_parameters(OutputLog())
 

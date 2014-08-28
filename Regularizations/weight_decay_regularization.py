@@ -42,3 +42,9 @@ class WeightDecayRegularization(RegularizationBase):
             regularization += (layer.Wx ** 2).sum() + (layer.Wy ** 2).sum()
 
         return regularization
+
+    def print_regularization(self, output_stream):
+
+        super(WeightDecayRegularization, self).print_regularization(output_stream)
+
+        output_stream.write('weight_decay_type: %s' % self.regularization_type)

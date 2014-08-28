@@ -3,6 +3,8 @@ __author__ = 'aviv'
 import os
 import sys
 
+from MISC.utils import print_list
+
 class HyperParameters(object):
 
     def __init__(self, layer_sizes = [0],
@@ -27,15 +29,14 @@ class HyperParameters(object):
 
     def print_parameters(self, output_stream):
 
-        output_stream.write('Hyperparameters:\n')
-        output_stream.write('learning_rate: %f\n'
+        output_stream.write('Hyperparameters:')
+
+        output_stream.write('layer_sizes : %s\n'
+                            'learning_rate: %f\n'
                             'batch_size: %d\n'
                             'epochs: %d\n'
-                            'Momentum: %f\n' % (self.learning_rate,
+                            'Momentum: %f\n' % (print_list(self.layer_sizes),
+                                                self.learning_rate,
                                                 self.batch_size,
                                                 self.epochs,
-                                                self.momentum,
-                                                self.regularization_type,
-                                                self.regularization_parameters['weight']))
-
-        output_stream.flush()
+                                                self.momentum))
