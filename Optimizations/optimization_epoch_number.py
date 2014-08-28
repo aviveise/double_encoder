@@ -22,7 +22,7 @@ class OptimizationEpochNumber(OptimizationBase):
     def perform_optimization(self, training_strategy):
 
         OutputLog().write('----------------------------------------------------------')
-        OutputLog().write('epochs layer_sizes correlations cca_correlations time')
+        OutputLog().write('epochs correlations cca_correlations time')
 
 
         hyper_parameters = self.hyper_parameters.copy()

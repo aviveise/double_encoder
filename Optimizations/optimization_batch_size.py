@@ -22,7 +22,7 @@ class OptimizationBatchSize(OptimizationBase):
     def perform_optimization(self, training_strategy):
 
         OutputLog().write('----------------------------------------------------------')
-        OutputLog().write('batch_size layer_sizes correlations cca_correlations time')
+        OutputLog().write('batch_size correlations cca_correlations time')
 
         hyper_parameters = self.hyper_parameters.copy()
 
