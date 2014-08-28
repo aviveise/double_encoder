@@ -51,7 +51,7 @@ class OptimizationBase(object):
                                                      regularization_methods.values(),
                                                      sigmoid)
 
-            correlation = CorrelationTest(self.tuning_set[0].T, self.tuning_set[0].T).\
+            correlation = CorrelationTest(self.tuning_set[0].T, self.tuning_set[1].T).\
                 test(DoubleEncoderTester(double_encoder, 1))
 
         except:
