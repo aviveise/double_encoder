@@ -78,16 +78,16 @@ class DoubleEncoder(object):
 
         execution_time = clock() - start
 
-        OutputLog().write('Test results : \n')
+        OutputLog().write('\nTest results : \n')
 
         configuration.hyper_parameters.print_parameters(OutputLog())
 
-        OutputLog().write('Regularizations:')
+        OutputLog().write('\nRegularizations:')
 
         for regularization in regularization_methods.values():
             regularization.print_regularization(OutputLog())
 
-        OutputLog().write('results:\n')
+        OutputLog().write('\nResults:\n')
 
         OutputLog().write('correlation execution_time\n')
 
