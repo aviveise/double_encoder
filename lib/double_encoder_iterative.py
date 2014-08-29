@@ -1,5 +1,5 @@
-from lib.double_encoder import DoubleEncoder
-from lib.training_strategy.iterative_training_strategy import IterativeTrainingStrategy
+from double_encoder import DoubleEncoder
+from training_strategy.iterative_training_strategy import IterativeTrainingStrategy
 
 __author__ = 'aviv'
 
