@@ -1,28 +1,22 @@
 __author__ = 'aviv'
 
 import sys
-import os
-import datetime
 import ConfigParser
 
 import traceback
 from time import clock
 
 from theano.tensor.nnet import sigmoid
-from training_strategy.iterative_training_strategy import IterativeTrainingStrategy
 
-from Optimizations.optimization_base import OptimizationBase
-from DataSetReaders.dataset_base import DatasetBase
-from Regularizations.regularization_base import RegularizationBase
-from testers.double_encoder_tester import DoubleEncoderTester
+from lib.testers.double_encoder_tester import DoubleEncoderTester
 
-from correlation_test import CorrelationTest
+from lib.correlation_test import CorrelationTest
 
-from configuration import Configuration
+from lib.configuration import Configuration
 
-from MISC.container import Container
-from MISC.utils import ConfigSectionMap
-from MISC.logger import OutputLog
+from lib.MISC.container import Container
+from lib.MISC.utils import ConfigSectionMap
+from lib.MISC.logger import OutputLog
 
 class DoubleEncoder(object):
 

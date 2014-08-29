@@ -3,7 +3,7 @@ __author__ = 'aviv'
 import theano.tensor as Tensor
 
 from numpy.random import RandomState
-from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
+from lib.Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
 
 class StackedDoubleEncoder(object):

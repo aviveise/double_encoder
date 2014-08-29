@@ -1,11 +1,9 @@
 __author__ = 'aviv'
 
-import os
-import sys
 import numpy
-
-from MISC.utils import center, unitnorm
 from numpy.linalg import svd
+
+from lib.MISC.utils import center, unitnorm
 
 class CorrelationTest(object):
 
