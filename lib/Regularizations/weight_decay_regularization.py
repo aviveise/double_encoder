@@ -1,6 +1,6 @@
 __author__ = 'aviv'
 
-from lib.Regularizations.regularization_base import RegularizationBase
+from regularization_base import RegularizationBase
 from lib.MISC.container import ContainerRegisterMetaClass
 
 class WeightDecayRegularization(RegularizationBase):

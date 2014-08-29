@@ -1,7 +1,7 @@
 import ConfigParser
 
 from lib.MISC.utils import ConfigSectionMap
-from lib.hyper_parameters import HyperParameters
+from hyper_parameters import HyperParameters
 
 __author__ = 'Aviv Eisenschtat'
 

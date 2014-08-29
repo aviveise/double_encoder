@@ -10,9 +10,9 @@ from theano.tensor.nnet import sigmoid
 
 from lib.testers.double_encoder_tester import DoubleEncoderTester
 
-from lib.correlation_test import CorrelationTest
+from correlation_test import CorrelationTest
 
-from lib.configuration import Configuration
+from configuration import Configuration
 
 from lib.MISC.container import Container
 from lib.MISC.utils import ConfigSectionMap

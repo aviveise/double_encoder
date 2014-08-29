@@ -1,6 +1,6 @@
 from numpy.random import RandomState
 
-from lib.Optimizations.optimization_base import OptimizationBase
+from optimization_base import OptimizationBase
 
 from lib.MISC.container import ContainerRegisterMetaClass
 from lib.MISC.utils import print_list

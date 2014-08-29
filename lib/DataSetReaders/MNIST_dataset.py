@@ -3,7 +3,7 @@ import gzip
 import theano
 
 from lib.MISC.container import ContainerRegisterMetaClass
-from lib.DataSetReaders.dataset_base import DatasetBase
+from dataset_base import DatasetBase
 
 class MNISTDataSet(DatasetBase):
 

@@ -4,7 +4,7 @@ import numpy
 from PIL import Image
 from theano import config
 
-from lib.DataSetReaders.dataset_base import DatasetBase
+from dataset_base import DatasetBase
 from lib.MISC.container import ContainerRegisterMetaClass
 
 TRAINING_PERCENT = 0.8

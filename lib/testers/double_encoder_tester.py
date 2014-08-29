@@ -2,7 +2,7 @@ __author__ = 'aviv'
 
 from theano import function
 
-from lib.testers.tester_base import TesterBase
+from tester_base import TesterBase
 
 
 class DoubleEncoderTester(TesterBase):

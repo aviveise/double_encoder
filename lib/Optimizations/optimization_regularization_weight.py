@@ -1,6 +1,7 @@
 from numpy import arange
 from theano import config
-from lib.Optimizations.optimization_base import OptimizationBase
+
+from optimization_base import OptimizationBase
 
 from lib.MISC.container import ContainerRegisterMetaClass
 from lib.MISC.logger import OutputLog

@@ -6,7 +6,7 @@ import cv2
 from theano import config
 
 from lib.MISC.container import ContainerRegisterMetaClass
-from lib.DataSetReaders.dataset_base import DatasetBase
+from dataset_base import DatasetBase
 
 
 TRAINING_PERCENT = 0.8

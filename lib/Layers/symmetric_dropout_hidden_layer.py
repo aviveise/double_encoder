@@ -6,7 +6,7 @@ import theano.printing
 
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from lib.Layers.symmetric_hidden_layer import SymmetricHiddenLayer
+from symmetric_hidden_layer import SymmetricHiddenLayer
 
 class SymmetricDropoutHiddenLayer(SymmetricHiddenLayer):
 
