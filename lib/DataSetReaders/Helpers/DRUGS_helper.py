@@ -2,7 +2,7 @@ import math
 
 import scipy.io
 import numpy
-from lib.MISC import utils
+from MISC import utils
 
 
 __author__ = 'aviv'

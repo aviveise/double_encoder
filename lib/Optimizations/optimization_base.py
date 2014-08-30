@@ -6,9 +6,9 @@ from numpy.random import RandomState
 from theano.tensor.nnet import sigmoid
 
 from lib.MISC.logger import OutputLog
-from lib.training_strategy.iterative_training_strategy import IterativeTrainingStrategy
+from lib.TrainingStrategy.iterative_training_strategy import IterativeTrainingStrategy
 from lib.correlation_test import CorrelationTest
-from lib.testers.double_encoder_tester import DoubleEncoderTester
+from lib.Testers.double_encoder_tester import DoubleEncoderTester
 
 
 __author__ = 'aviv eisenschtat'

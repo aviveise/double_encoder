@@ -1,6 +1,6 @@
-from lib.MISC import utils
+from MISC import utils
 
-from lib.DataSetReaders.XRBM_dataset import XRBMDataSet
+from DataSetReaders.XRBM_dataset import XRBMDataSet
 
 __author__ = 'aviv'
 

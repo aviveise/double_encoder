@@ -3,7 +3,7 @@ import gzip
 
 import numpy
 
-from lib.DataSetReaders.XRBM_dataset import XRBMRawDataSet
+from DataSetReaders.XRBM_dataset import XRBMRawDataSet
 
 
 if __name__ == '__main__':

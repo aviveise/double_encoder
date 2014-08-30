@@ -8,15 +8,15 @@ from time import clock
 
 from theano.tensor.nnet import sigmoid
 
-from lib.testers.double_encoder_tester import DoubleEncoderTester
+from Testers.double_encoder_tester import DoubleEncoderTester
 
 from correlation_test import CorrelationTest
 
 from configuration import Configuration
 
 from lib.MISC.container import Container
-from lib.MISC.utils import ConfigSectionMap
-from lib.MISC.logger import OutputLog
+from MISC.utils import ConfigSectionMap
+from MISC.logger import OutputLog
 
 class DoubleEncoder(object):
 

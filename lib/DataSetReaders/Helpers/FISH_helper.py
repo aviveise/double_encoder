@@ -1,4 +1,4 @@
-from lib.DataSetReaders.FISH_dataset import FISHDataSet
+from DataSetReaders.FISH_dataset import FISHDataSet
 __author__ = 'aviv'
 
 

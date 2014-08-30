@@ -1,7 +1,7 @@
 import gzip
 import cPickle
 
-from lib.DataSetReaders.JAPAN_dataset import JAPANDataSetVideo
+from DataSetReaders.JAPAN_dataset import JAPANDataSetVideo
 __author__ = 'aviv'
 
 

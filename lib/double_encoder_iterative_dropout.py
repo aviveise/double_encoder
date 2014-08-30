@@ -1,5 +1,5 @@
 from double_encoder import DoubleEncoder
-from lib.training_strategy.iterative_dropout_training_strategy import IterativeDropoutTrainingStrategy
+from TrainingStrategy.iterative_dropout_training_strategy import IterativeDropoutTrainingStrategy
 
 __author__ = 'aviv'
 

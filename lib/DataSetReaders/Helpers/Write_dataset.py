@@ -1,8 +1,8 @@
 import sys
 
-from lib.configuration import CrossEncoderParameters
+from configuration import CrossEncoderParameters
 
-from lib.DataSetReaders.dataset_factory import DatasetFactory
+from DataSetReaders.dataset_factory import DatasetFactory
 
 __author__ = 'aviv'
 

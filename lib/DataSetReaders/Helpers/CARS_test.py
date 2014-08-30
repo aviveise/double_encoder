@@ -1,4 +1,4 @@
-from lib.DataSetReaders.CARS_dataset import CARSDataSetTar
+from DataSetReaders.CARS_dataset import CARSDataSetTar
 __author__ = 'aviv'
 
 

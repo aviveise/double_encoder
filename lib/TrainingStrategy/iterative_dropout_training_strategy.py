@@ -1,5 +1,5 @@
 from lib.Layers.symmetric_dropout_hidden_layer import SymmetricDropoutHiddenLayer
-from lib.training_strategy.iterative_training_strategy import IterativeTrainingStrategy
+from iterative_training_strategy import IterativeTrainingStrategy
 
 
 class IterativeDropoutTrainingStrategy(IterativeTrainingStrategy):

@@ -2,7 +2,7 @@ __author__ = 'aviv'
 
 import datetime
 
-from lib.MISC.singleton import Singleton
+from singleton import Singleton
 
 
 class OutputLog(object):

@@ -1,11 +1,11 @@
 __author__ = 'aviv'
 
 from theano import shared
-from lib.training_strategy.training_strategy import TrainingStrategy
+from training_strategy import TrainingStrategy
 from lib.stacked_double_encoder import StackedDoubleEncoder
 from lib.Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
-from lib.trainer import Trainer
+from trainer import Trainer
 
 class IterativeTrainingStrategy(TrainingStrategy):
 

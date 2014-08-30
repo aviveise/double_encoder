@@ -3,7 +3,7 @@ __author__ = 'aviv'
 import numpy
 from numpy.linalg import svd
 
-from lib.MISC.utils import center, unitnorm
+from MISC.utils import center, unitnorm
 
 class CorrelationTest(object):
 

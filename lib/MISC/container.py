@@ -1,9 +1,8 @@
 import abc
 
-from lib.MISC.singleton import Singleton
+from singleton import Singleton
 
 __author__ = 'aviv'
-
 
 class ContainerRegisterMetaClass(abc.ABCMeta):
 
@@ -15,7 +14,6 @@ class Container(object):
     __metaclass__ = Singleton
 
     def __init__(self):
-
         self.items = {}
 
     def register(self, name, type):

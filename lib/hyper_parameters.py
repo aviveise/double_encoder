@@ -1,6 +1,6 @@
 __author__ = 'aviv'
 
-from lib.MISC.utils import print_list
+from MISC.utils import print_list
 
 class HyperParameters(object):
 
