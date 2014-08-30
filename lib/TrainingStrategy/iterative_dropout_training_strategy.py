@@ -1,8 +1,13 @@
 from Layers.symmetric_dropout_hidden_layer import SymmetricDropoutHiddenLayer
 from iterative_training_strategy import IterativeTrainingStrategy
 
+from MISC.logger import OutputLog
 
 class IterativeDropoutTrainingStrategy(IterativeTrainingStrategy):
+
+    def __init__(self):
+        super(IterativeDropoutTrainingStrategy, self).__init__()
+        OutputLog().write('\nStrategy: Iterative Dropout')
 
 
     def _add_cross_encoder_layer(self, layer_size, symmetric_double_encoder, activation_method):

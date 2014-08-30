@@ -5,9 +5,15 @@ from training_strategy import TrainingStrategy
 from stacked_double_encoder import StackedDoubleEncoder
 from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
+from MISC.logger import OutputLog
+
 from trainer import Trainer
 
 class IterativeTrainingStrategy(TrainingStrategy):
+
+    def __init__(self):
+        super(IterativeTrainingStrategy, self).__init__()
+        OutputLog().write('\nStrategy: Iterative')
 
     def train(self,
               training_set_x,
