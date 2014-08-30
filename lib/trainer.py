@@ -35,6 +35,8 @@ class Trainer(object):
 
             print 'epoch (%d) ,Loss = %f\n' % (epoch, loss / n_training_batches)
 
+        del model
+
     @staticmethod
     def _build_model(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
 
