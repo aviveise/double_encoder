@@ -2,7 +2,7 @@ import cPickle
 import gzip
 import theano
 
-from lib.MISC.container import ContainerRegisterMetaClass
+from MISC.container import ContainerRegisterMetaClass
 from dataset_base import DatasetBase
 
 class MNISTDataSet(DatasetBase):

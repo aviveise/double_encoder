@@ -5,9 +5,9 @@ import random
 import theano
 import numpy
 
-from lib.MISC.utils import center as center_function, unitnorm
-from lib.MISC.whiten_transform import WhitenTransform
-from lib.MISC.logger import OutputLog
+from MISC.utils import center as center_function, unitnorm
+from MISC.whiten_transform import WhitenTransform
+from MISC.logger import OutputLog
 
 __author__ = 'aviv'
 

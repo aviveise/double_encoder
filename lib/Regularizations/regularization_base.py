@@ -2,7 +2,7 @@ __author__ = 'aviv'
 
 import abc
 
-from lib.MISC.logger import OutputLog
+from MISC.logger import OutputLog
 
 
 class RegularizationBase(object):

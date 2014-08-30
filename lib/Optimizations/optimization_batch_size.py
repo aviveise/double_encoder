@@ -2,8 +2,8 @@ from numpy import arange
 from theano import config
 from optimization_base import OptimizationBase
 
-from lib.MISC.container import ContainerRegisterMetaClass
-from lib.MISC.logger import OutputLog
+from MISC.container import ContainerRegisterMetaClass
+from MISC.logger import OutputLog
 
 class OptimizationBatchSize(OptimizationBase):
 

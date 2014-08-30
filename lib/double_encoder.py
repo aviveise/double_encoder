@@ -3,6 +3,10 @@ __author__ = 'aviv'
 import sys
 import ConfigParser
 
+import DataSetReaders
+import Regularizations
+import Optimizations
+
 import traceback
 from time import clock
 
@@ -14,7 +18,7 @@ from correlation_test import CorrelationTest
 
 from configuration import Configuration
 
-from lib.MISC.container import Container
+from MISC.container import Container
 from MISC.utils import ConfigSectionMap
 from MISC.logger import OutputLog
 

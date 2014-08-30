@@ -1,4 +1,4 @@
-from lib.Layers.symmetric_dropout_hidden_layer import SymmetricDropoutHiddenLayer
+from Layers.symmetric_dropout_hidden_layer import SymmetricDropoutHiddenLayer
 from iterative_training_strategy import IterativeTrainingStrategy
 
 

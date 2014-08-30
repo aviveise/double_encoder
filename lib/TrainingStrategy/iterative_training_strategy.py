@@ -2,8 +2,8 @@ __author__ = 'aviv'
 
 from theano import shared
 from training_strategy import TrainingStrategy
-from lib.stacked_double_encoder import StackedDoubleEncoder
-from lib.Layers.symmetric_hidden_layer import SymmetricHiddenLayer
+from stacked_double_encoder import StackedDoubleEncoder
+from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
 from trainer import Trainer
 

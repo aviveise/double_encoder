@@ -5,10 +5,10 @@ from time import clock
 from numpy.random import RandomState
 from theano.tensor.nnet import sigmoid
 
-from lib.MISC.logger import OutputLog
-from lib.TrainingStrategy.iterative_training_strategy import IterativeTrainingStrategy
-from lib.correlation_test import CorrelationTest
-from lib.Testers.double_encoder_tester import DoubleEncoderTester
+from MISC.logger import OutputLog
+from TrainingStrategy.iterative_training_strategy import IterativeTrainingStrategy
+from correlation_test import CorrelationTest
+from Testers.double_encoder_tester import DoubleEncoderTester
 
 
 __author__ = 'aviv eisenschtat'

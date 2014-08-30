@@ -2,9 +2,9 @@ from numpy.random import RandomState
 
 from optimization_base import OptimizationBase
 
-from lib.MISC.container import ContainerRegisterMetaClass
-from lib.MISC.utils import print_list
-from lib.MISC.logger import OutputLog
+from MISC.container import ContainerRegisterMetaClass
+from MISC.utils import print_list
+from MISC.logger import OutputLog
 
 class OptimizationLayerStructureSearch(OptimizationBase):
 
