@@ -36,7 +36,7 @@ class OptimizationMomentum(OptimizationBase):
 
             if correlation > best_correlation:
                 best_correlation = correlation
-                self.hyper_parameters.batch_size = i
+                self.hyper_parameters.momentum = i
 
             OutputLog().write('%f, %s, %f\n' % (i,
                                                 correlation,

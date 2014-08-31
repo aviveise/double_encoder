@@ -34,7 +34,7 @@ class OptimizationEpochNumber(OptimizationBase):
 
             if correlation > best_correlation:
                 best_correlation = correlation
-                self.hyper_parameters.batch_size = int(i)
+                self.hyper_parameters.epochs = int(i)
 
             OutputLog().write('%f, %s, %f\n' % (i,
                                                 correlation,
