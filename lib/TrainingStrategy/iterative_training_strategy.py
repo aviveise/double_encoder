@@ -14,6 +14,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
     def __init__(self):
         super(IterativeTrainingStrategy, self).__init__()
         OutputLog().write('\nStrategy: Iterative')
+        self.name = 'iterative'
 
     def train(self,
               training_set_x,
@@ -64,3 +65,6 @@ class IterativeTrainingStrategy(TrainingStrategy):
                                                activation_output=activation_method)
 
         symmetric_double_encoder.add_hidden_layer(symmetric_layer)
+
+    def _set_parameters(self, parameters):
+        return

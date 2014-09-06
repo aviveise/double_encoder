@@ -20,3 +20,7 @@ class TrainingStrategy(object):
               regularization_methods,
               activation_method):
         return
+
+    @abc.abstractmethod
+    def _set_parameters(self, parameters):
+        return

@@ -14,15 +14,21 @@ class Configuration(object):
 
         self.optimizations_parameters = []
         self.regularizations_parameters = []
+        self.strategy_parameters = {}
 
         sections = config.sections()
         for section in sections:
 
+            map = ConfigSectionMap(section, config)
+
             if section.startswith('optimization_'):
-                self.optimizations_parameters.append(ConfigSectionMap(section, config))
+                self.optimizations_parameters.append(map)
 
             elif section.startswith('regularization_'):
-                self.regularizations_parameters.append(ConfigSectionMap(section, config))
+                self.regularizations_parameters.append(map)
+
+            elif section.startswith('strategy_'):
+                self.strategy_parameters[map['name']] = map
 
         self.hyper_parameters = self._parse_training_parameters(ConfigSectionMap("hyper_parameters", config))
 
