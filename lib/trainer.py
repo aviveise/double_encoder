@@ -11,6 +11,9 @@ from theano import function
 from theano import config
 from theano import shared
 from theano import Out
+from theano import printing
+
+from numpy.linalg import norm
 
 class Trainer(object):
 
@@ -47,6 +50,9 @@ class Trainer(object):
         var_x = symmetric_double_encoder.var_x
         var_y = symmetric_double_encoder.var_y
 
+        #x_tilde = printing.Print('x_tilde: ')(x_tilde)
+        #y_tilde = printing.Print('y_tilde: ')(y_tilde)
+
         #Index for iterating batches
         index = Tensor.lscalar()
 
@@ -73,6 +79,7 @@ class Trainer(object):
 
             updates = OrderedDict()
             for param, gradient, model_update in zip(params, gradients, model_updates):
+
                 delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
                 updates[param] = param + delta
                 updates[model_update] = delta
