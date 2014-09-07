@@ -25,23 +25,23 @@ class WhitenTransform(object):
 
         U, S, V = linalg.svd(centered, 0, 1)
 
-        centered[:, 0: k] = U[:, 0: k]
-
         eps = numpy.exp(-8) * S[0]
         scale = numpy.sqrt(colNum - 1)
         n_new = 0
+
+        self._w = numpy.ndarray([k, k])
 
         for f in xrange(k):
 
             if S[f] >= eps:
                 S[n_new] = S[f]
-                centered[:, n_new] = centered[:, f] * (scale / S[f])
+                self._w[n_new, :] = U[f, :] * (scale / S[f])
                 n_new += 1
 
                 if n_new == maxD:
                     break
 
-        self._w = centered[:, 0: n_new].T
+        self._w = self._w[0:n_new, :]
 
     def transform(self, data):
 
