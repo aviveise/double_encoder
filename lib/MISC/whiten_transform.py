@@ -29,7 +29,7 @@ class WhitenTransform(object):
         scale = numpy.sqrt(colNum - 1)
         n_new = 0
 
-        self._w = numpy.ndarray([k, k])
+        self._w = numpy.ndarray([k, k], dtype=config.floatX)
 
         for f in xrange(k):
 
