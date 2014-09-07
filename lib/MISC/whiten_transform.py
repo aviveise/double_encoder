@@ -12,14 +12,14 @@ class WhitenTransform(object):
 
     def __init__(self, data, maxD=-1):
 
-        rowNum = data.T.shape[0]
-        colNum = data.T.shape[1]
+        rowNum = data.shape[0]
+        colNum = data.shape[1]
 
         alpha = 1 / float(colNum)
         ones = numpy.ones([colNum, 1], dtype=config.floatX)
-        self._v = alpha * numpy.dot(data.T, ones)
+        self._v = alpha * numpy.dot(data, ones)
 
-        centered = data.T - numpy.dot(self._v, ones.T)
+        centered = data - numpy.dot(self._v, ones.T)
 
         k = min(colNum, rowNum)
 
@@ -45,8 +45,8 @@ class WhitenTransform(object):
 
     def transform(self, data):
 
-        numCol = data.T.shape[1]
+        numCol = data.shape[1]
         ones = numpy.ones([1, numCol], dtype=config.floatX)
-        centered = data.T - numpy.dot(self._v, ones)
+        centered = data - numpy.dot(self._v, ones)
         transformedData = numpy.dot(self._w, centered)
-        return transformedData.T
+        return transformedData
