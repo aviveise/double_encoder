@@ -43,7 +43,7 @@ class XRBMDataSet(DatasetBase):
         endPos = f.tell()
         f.seek(0, os.SEEK_SET)
 
-        col_num = int(endPos / numpy.finfo(numpy.float32).nexp / row_num)
+        col_num = int(endPos / numpy.finfo(numpy.float64).nexp / row_num)
 
         if max_col_num > -1:
             col_num = max(col_num, max_col_num)
@@ -52,7 +52,7 @@ class XRBMDataSet(DatasetBase):
 
         for i in xrange(col_num):
             for j in xrange(row_num):
-                set[j, i] = struct.unpack('d', f.read(4))[0]
+                set[j, i] = struct.unpack('d', f.read(8))[0]
 
         f.close()
 
