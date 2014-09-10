@@ -50,8 +50,8 @@ class Trainer(object):
         var_x = symmetric_double_encoder.var_x
         var_y = symmetric_double_encoder.var_y
 
-        #x_tilde = printing.Print('x_tilde: ')(x_tilde)
-        #y_tilde = printing.Print('y_tilde: ')(y_tilde)
+        x_tilde = printing.Print('x_tilde: ')(x_tilde)
+        y_tilde = printing.Print('y_tilde: ')(y_tilde)
 
         #Index for iterating batches
         index = Tensor.lscalar()
