@@ -22,10 +22,10 @@ class SymmetricHiddenLayer(object):
             self.activation_output = activation_output
 
             if self.activation_hidden is None:
-                self.activation_hidden = lambda x: x * (x > 0)
+                self.activation_hidden = Tensor.nnet.sigmoid #lambda x: x * (x > 0)
 
             if self.activation_output is None:
-                self.activation_output = lambda x: x * (x > 0)
+                self.activation_output = Tensor.nnet.sigmoid #lambda x: x * (x > 0)
 
             self.x = 0
             self.y = 0
