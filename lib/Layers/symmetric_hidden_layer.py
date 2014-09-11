@@ -66,7 +66,7 @@ class SymmetricHiddenLayer(object):
                 self.x_params = [self.Wx, self.bias_x, self.bias_x_prime]
 
                 self.output_forward = self.compute_forward_hidden()
-                #self.output_forward = theano.printing.Print('x_hid: ')(self.compute_forward_hidden())
+                self.output_forward = theano.printing.Print('x_hid: ')(self.compute_forward_hidden())
 
         def update_y(self, y, weights=None, bias_y=None, bias_y_prime=None, output_size=None):
 
