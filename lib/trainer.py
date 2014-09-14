@@ -36,6 +36,9 @@ class Trainer(object):
             for index in xrange(n_training_batches):
                 loss += model(index)
 
+            for layer in symmetric_double_encoder:
+                layer.print_weights()
+
             print 'epoch (%d) ,Loss = %f\n' % (epoch, loss / n_training_batches)
 
         del model

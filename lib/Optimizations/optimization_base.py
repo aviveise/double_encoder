@@ -52,7 +52,7 @@ class OptimizationBase(object):
                                                      sigmoid)
 
             correlation = CorrelationTest(self.test_set[0].T, self.test_set[1].T).\
-                test(DoubleEncoderTester(double_encoder, 1))
+                test(DoubleEncoderTester(double_encoder, 0))
 
         except:
 

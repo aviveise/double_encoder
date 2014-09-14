@@ -25,7 +25,7 @@ class SymmetricHiddenLayer(object):
                 self.activation_hidden = Tensor.nnet.sigmoid #lambda x: x * (x > 0)
 
             if self.activation_output is None:
-                self.activation_output = Tensor.nnet.sigmoid #lambda x: x * (x > 0)
+                self.activation_output = Tensor.nnet.sigmoid
 
             self.x = 0
             self.y = 0
@@ -51,12 +51,21 @@ class SymmetricHiddenLayer(object):
                     self.Wx = weights
 
                 if bias_x is None:
+                    #self.bias_x = theano.shared(value=numpy.asarray(self.numpy_range.normal(loc=0.0, scale=.01, size=self.hidden_layer_size),
+                    #                                                dtype=theano.config.floatX),
+                    #                            name='bias_x' + '_' + self.name)
+
                     self.bias_x = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                                 name='bias_x' + '_' + self.name)
                 else:
                     self.bias_x = bias_x
 
                 if bias_x_prime is None:
+                    #self.bias_x_prime = theano.shared(value=numpy.asarray(self.numpy_range.normal(loc=0.0, scale=.01, size=input_size),
+                    #                                                dtype=theano.config.floatX),
+                    #                                  name='bias_x_prime' + '_' + self.name)
+
+
                     self.bias_x_prime = theano.shared(value=numpy.zeros(input_size, dtype=theano.config.floatX),
                                                       name='bias_x_prime' + '_' + self.name)
                 else:
@@ -83,12 +92,19 @@ class SymmetricHiddenLayer(object):
 
 
                 if bias_y is None:
+                    #self.bias_y = theano.shared(value=numpy.asarray(self.numpy_range.normal(loc=0.0, scale=.01, size=self.hidden_layer_size),
+                    #                                                dtype=theano.config.floatX),
+                    #                            name='bias_y' + '_' + self.name)
                     self.bias_y = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                                 name='bias_y' + '_' + self.name)
                 else:
                     self.bias_y = bias_y
 
                 if bias_y_prime is None:
+                    #self.bias_y_prime = theano.shared(value=numpy.asarray(self.numpy_range.normal(loc=0.0, scale=.01, size=output_size),
+                    #                                                dtype=theano.config.floatX),
+                    #                                  name='bias_y_prime' + '_' + self.name)
+
                     self.bias_y_prime = theano.shared(value=numpy.zeros(output_size, dtype=theano.config.floatX),
                                                       name='bias_y_prime' + '_' + self.name)
                 else:
@@ -123,11 +139,6 @@ class SymmetricHiddenLayer(object):
             if output_size is None:
                 raise Exception("output size not provided")
 
-            # WHtoY is initialized with `initial_WXtoH` which is uniformely sampled
-            # from -4*sqrt(6./(n_visible+n_hidden)) and
-            # 4*sqrt(6./(n_hidden+n_visible))the output of uniform if
-            # converted using asarray to dtype
-            # theano.config.floatX so that the code is runable on GPU
             initial_Wy = numpy.asarray(self.numpy_range.uniform(low=-4 * numpy.sqrt(6. / (self.hidden_layer_size + output_size)),
                                                                 high=4 * numpy.sqrt(6. / (self.hidden_layer_size + output_size)),
                                                                 size=(output_size, self.hidden_layer_size)),
@@ -150,6 +161,20 @@ class SymmetricHiddenLayer(object):
         def reconstruct_x(self):
             return self.activation_output(Tensor.dot(self.output_backward, self.Wx.T) + self.bias_x_prime)
 
+        def print_weights(self):
+
+            print('Wx: ')
+            print(self.Wx.eval())
+            print('Wy: ')
+            print(self.Wy.eval())
+            print('Bx: ')
+            print(self.bias_x.eval())
+            print('By: ')
+            print(self.bias_y.eval())
+            print('Bx_prime: ')
+            print(self.bias_x_prime.eval())
+            print('By_prime: ')
+            print(self.bias_y_prime.eval())
         #
         # #Regularization methods for different kinds of regularization types
         # def sparsity_forward(self, ru=0.05):

@@ -67,7 +67,7 @@ class DoubleEncoder(object):
                                                              regularization_methods=regularization_methods.values(),
                                                              activation_method=None)
 
-            correlation = CorrelationTest(data_set.testset[0].T, data_set.testset[1].T).test(DoubleEncoderTester(stacked_double_encoder, 1))
+            correlation = CorrelationTest(data_set.testset[0].T, data_set.testset[1].T).test(DoubleEncoderTester(stacked_double_encoder, 0))
 
         except:
             print 'Exception: \n'

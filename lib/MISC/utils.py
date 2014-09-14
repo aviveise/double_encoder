@@ -142,7 +142,7 @@ def unitnorm(M):
 
         norm = numpy.linalg.norm(M[i, :])
         if norm != 0:
-            M[i, :] /= numpy.linalg.norm(M[i, :])
+            M[i, :] /= norm
 
     return M
 

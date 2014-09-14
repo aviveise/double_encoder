@@ -5,7 +5,7 @@ import theano.tensor as Tensor
 from theano import printing
 from numpy.random import RandomState
 from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
-
+from theano import shared
 
 class StackedDoubleEncoder(object):
 
@@ -65,7 +65,6 @@ class StackedDoubleEncoder(object):
             #connecting the X of new layer with the Y of the last layer
             symmetric_layer.update_y(self.var_y, output_size=self.output_size)
             symmetric_layer.update_x(x=last_layer.output_forward, input_size=last_layer.hidden_layer_size)
-
 
             Wy = symmetric_layer.Wx.T
             bias_y = symmetric_layer.bias_x_prime
