@@ -30,7 +30,7 @@ if __name__ == '__main__':
     #construct data set
     data_set = Container().create(data_parameters['name'], data_parameters)
 
-    robjects.r('source("rca.r")')
+    robjects.r('source("./References/rca.r")')
 
     print 'training rcca'
 
