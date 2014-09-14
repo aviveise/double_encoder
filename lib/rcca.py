@@ -22,6 +22,7 @@ def GetMatrix(data):
 if __name__ == '__main__':
 
     data_set_config = sys.argv[1]
+    rca_location = sys.argv[2]
 
     data_config = ConfigParser.ConfigParser()
     data_config.read(data_set_config)
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     #construct data set
     data_set = Container().create(data_parameters['name'], data_parameters)
 
-    robjects.r('source("./References/rca.r")')
+    robjects.r('source("%s")' % rca_location)
 
     print 'training rcca'
 
