@@ -4,7 +4,7 @@ import sys
 import ConfigParser
 import rpy2.robjects.numpy2ri as numpy2ri
 import rpy2.robjects as robjects
-import DataSetReaders.dataset_base
+import DataSetReaders
 
 from MISC.container import Container
 from MISC.utils import ConfigSectionMap
