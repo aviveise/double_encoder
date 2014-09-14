@@ -62,6 +62,12 @@ rcca_eval <- function(rcca,x,y){
   list(x=rcca$augx(x)%*%rcca$a,y=rcca$augy(y)%*%rcca$b)
 }
 
+rcca_cor <- function(rcca_eval, top){
+    result <- svd(rcca_eval$x%*%t(rcca_eval$y), nu=top,nv=top)
+    values <- result$d
+    print(sum(abs(values[1:top])))
+}
+
 rpca_fit <- function(x,k,type) {
   augx <- aug(x,k,type)
   list(augx=augx,pca=prcomp(augx(x)))
