@@ -49,3 +49,5 @@ if __name__ == '__main__':
                                         y=numpy2ri.numpy2ri(data_set.testset[1].T))
 
     print 'done'
+
+    rcca_cor = robjects.r('rcca_cor')(rcca_eval=rcca_eval,top=112)
