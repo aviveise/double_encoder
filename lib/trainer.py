@@ -20,6 +20,7 @@ class Trainer(object):
     @staticmethod
     def train(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
 
+
         model = Trainer._build_model(train_set_x,
                                      train_set_y,
                                      hyper_parameters,
@@ -30,16 +31,21 @@ class Trainer(object):
         #Calculating number of batches
         n_training_batches = train_set_x.get_value(borrow=True).shape[0] / hyper_parameters.batch_size
 
+        print('------------------------')
+        symmetric_double_encoder[0].print_weights()
+        print('------------------------')
+
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
             loss = 0
             for index in xrange(n_training_batches):
                 loss += model(index)
 
-            for layer in symmetric_double_encoder:
-                layer.print_weights()
-
             print 'epoch (%d) ,Loss = %f\n' % (epoch, loss / n_training_batches)
+
+        print('------------------------')
+        symmetric_double_encoder[0].print_weights()
+        print('------------------------')
 
         del model
 
@@ -60,10 +66,10 @@ class Trainer(object):
         index = Tensor.lscalar()
 
         #Compute the loss of the forward encoding as L2 loss
-        loss_backward = ((var_x - x_tilde) ** 2).sum(axis=1).sum() / hyper_parameters.batch_size
+        loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
 
         #Compute the loss of the backward encoding as L2 loss
-        loss_forward = ((var_y - y_tilde) ** 2).sum(axis=1).sum() / hyper_parameters.batch_size
+        loss_forward = ((var_y - y_tilde) ** 2).sum() / hyper_parameters.batch_size
 
         loss = loss_backward + loss_forward
 
@@ -76,14 +82,15 @@ class Trainer(object):
 
         if hyper_parameters.momentum > 0:
 
-            model_updates = OrderedDict([(p, shared(value=numpy.zeros(p.get_value().shape,
-                                                                      dtype=config.floatX),
-                                                    name='inc_' + p.name)) for p in params])
+            model_updates = [shared(value=numpy.zeros(p.get_value().shape, dtype=config.floatX),
+                                                    name='inc_' + p.name) for p in params]
 
             updates = OrderedDict()
-            for param, gradient, model_update in zip(params, gradients, model_updates):
+            zipped = zip(params, gradients, model_updates)
+            for param, gradient, model_update in zipped:
 
                 delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
+
                 updates[param] = param + delta
                 updates[model_update] = delta
 
