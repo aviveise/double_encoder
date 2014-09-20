@@ -28,7 +28,8 @@ class IterativeDropoutTrainingStrategy(IterativeTrainingStrategy):
     def set_parameters(self, parameters):
 
         try:
-            self.probability = parameters[self.name]['probability']
+            self.probability = float(parameters[self.name]['probability'])
+            print 'setting dropout probability: %f' % self.probability
 
         finally:
             return
