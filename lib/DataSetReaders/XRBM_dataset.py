@@ -70,17 +70,17 @@ class XRBMDebug(XRBMDataSet):
         train_x1_file_name = self.dataset_path + '/XRMB[JW11,numfr1=7,numfr2=7,fold0,training].dat'
         train_x2_file_name = self.dataset_path + '/MFCC[JW11,numfr1=7,numfr2=7,fold0,training].dat'
 
-        self.trainset = (self.ReadBin(train_x1_file_name, 112, 500), self.ReadBin(train_x2_file_name, 273, 500))
+        self.trainset = (self.ReadBin(train_x1_file_name, 112, 5000), self.ReadBin(train_x2_file_name, 273, 5000))
 
         test_x1_file_name = self.dataset_path + '/XRMB[JW11,numfr1=7,numfr2=7,fold0,testing].dat'
         test_x2_file_name = self.dataset_path + '/MFCC[JW11,numfr1=7,numfr2=7,fold0,testing].dat'
 
-        self.testset = (self.ReadBin(test_x1_file_name, 112, 70), self.ReadBin(test_x2_file_name, 273, 70))
+        self.testset = (self.ReadBin(test_x1_file_name, 112, 700), self.ReadBin(test_x2_file_name, 273, 700))
 
         tuning_x1_file_name = self.dataset_path + '/XRMB[JW11,numfr1=7,numfr2=7,fold0,tuning].dat'
         tuning_x2_file_name = self.dataset_path + '/MFCC[JW11,numfr1=7,numfr2=7,fold0,tuning].dat'
 
-        self.tuning = (self.ReadBin(tuning_x1_file_name, 112, 50), self.ReadBin(tuning_x2_file_name, 273, 50))
+        self.tuning = (self.ReadBin(tuning_x1_file_name, 112, 500), self.ReadBin(tuning_x2_file_name, 273, 500))
 
 
 class XRBMDataSetOld(object):

@@ -2,6 +2,7 @@ __author__ = 'aviv'
 
 from regularization_base import RegularizationBase
 from MISC.container import ContainerRegisterMetaClass
+from theano import tensor as Tensor
 
 class WeightDecayRegularization(RegularizationBase):
 
@@ -11,13 +12,13 @@ class WeightDecayRegularization(RegularizationBase):
         super(WeightDecayRegularization, self).__init__(regularization_parameters)
         self.normal_type = regularization_parameters['weight_decay_type']
 
-    def compute(self, symmetric_double_encoder):
+    def compute(self, symmetric_double_encoder, params):
 
         if self.normal_type == 'L1':
-            regularization = self._compute_L1(symmetric_double_encoder)
+            regularization = self._compute_L1(symmetric_double_encoder, params)
 
         elif self.normal_type == 'L2':
-            regularization = self._compute_L2(symmetric_double_encoder)
+            regularization = self._compute_L2(symmetric_double_encoder, params)
 
         else:
             raise Exception('unknown weight decay regularization type')
@@ -32,13 +33,16 @@ class WeightDecayRegularization(RegularizationBase):
 
         return regularization
 
-    def _compute_L2(self, symmetric_double_encoder):
+    def _compute_L2(self, symmetric_double_encoder, params):
 
         regularization = 0
-        for layer in symmetric_double_encoder:
-            regularization += (layer.Wx ** 2).sum() + (layer.Wy ** 2).sum()
-            #regularization += (layer.bias_x ** 2).sum() + (layer.bias_y ** 2).sum()
-            #regularization += (layer.bias_x_prime ** 2).sum() + (layer.bias_y_prime ** 2).sum()
+        for param in params:
+            regularization += Tensor.sum(param ** 2)
+
+        #for layer in symmetric_double_encoder:
+        #    regularization += (layer.Wx ** 2).sum() + (layer.Wy ** 2).sum()
+        #    regularization += (layer.bias_x ** 2).sum() + (layer.bias_y ** 2).sum()
+        #    regularization += (layer.bias_x_prime ** 2).sum() + (layer.bias_y_prime ** 2).sum()
 
         return regularization
 
