@@ -31,9 +31,9 @@ class Trainer(object):
         #Calculating number of batches
         n_training_batches = train_set_x.get_value(borrow=True).shape[0] / hyper_parameters.batch_size
 
-        print('------------------------')
-        symmetric_double_encoder[0].print_weights()
-        print('------------------------')
+        #print('------------------------')
+        #symmetric_double_encoder[0].print_weights()
+        #print('------------------------')
 
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
@@ -43,9 +43,9 @@ class Trainer(object):
 
             print 'epoch (%d) ,Loss = %f\n' % (epoch, loss / n_training_batches)
 
-        print('------------------------')
-        symmetric_double_encoder[0].print_weights()
-        print('------------------------')
+        #print('------------------------')
+        #symmetric_double_encoder[0].print_weights()
+        #print('------------------------')
 
         del model
 
