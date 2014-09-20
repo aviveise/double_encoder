@@ -35,8 +35,8 @@ if __name__ == '__main__':
 
     print 'training rcca'
 
-    rcca_fit = robjects.r('rcca_fit')(x=numpy2ri.numpy2ri(data_set.trainset[0]),
-                                      y=numpy2ri.numpy2ri(data_set.trainset[1]),
+    rcca_fit = robjects.r('rcca_fit')(x=numpy2ri.numpy2ri(data_set.trainset[0].T),
+                                      y=numpy2ri.numpy2ri(data_set.trainset[1].T),
                                       kx=data_set.trainset[0].shape[0],
                                       ky=data_set.trainset[1].shape[0],
                                       top=112,
@@ -45,8 +45,8 @@ if __name__ == '__main__':
     print 'evaluating rcca'
 
     rcca_eval = robjects.r('rcca_eval')(rcca=rcca_fit,
-                                        x=numpy2ri.numpy2ri(data_set.testset[0]),
-                                        y=numpy2ri.numpy2ri(data_set.testset[1]))
+                                        x=numpy2ri.numpy2ri(data_set.testset[0].T),
+                                        y=numpy2ri.numpy2ri(data_set.testset[1].T))
 
     print 'done'
 
