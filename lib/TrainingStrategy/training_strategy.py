@@ -22,5 +22,5 @@ class TrainingStrategy(object):
         return
 
     @abc.abstractmethod
-    def _set_parameters(self, parameters):
+    def set_parameters(self, parameters):
         return

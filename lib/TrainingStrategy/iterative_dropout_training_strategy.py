@@ -25,7 +25,7 @@ class IterativeDropoutTrainingStrategy(IterativeTrainingStrategy):
 
         symmetric_double_encoder.add_hidden_layer(symmetric_layer)
 
-    def _set_parameters(self, parameters):
+    def set_parameters(self, parameters):
 
         try:
             self.probability = parameters[self.name]['probability']

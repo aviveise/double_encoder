@@ -44,6 +44,8 @@ class DoubleEncoder(object):
 
         configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
 
+        training_strategy.set_parameters(configuration.strategy_parameters)
+
         #building regularization methods
         for regularization_parameters in configuration.regularizations_parameters:
 
