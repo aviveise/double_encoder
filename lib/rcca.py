@@ -15,9 +15,9 @@ if __name__ == '__main__':
 
     data_set_config = sys.argv[1]
     rca_location = sys.argv[2]
-    kx = sys.argv[3]
-    ky = sys.argv[4]
-    top = sys.argv[5]
+    kx = int(sys.argv[3])
+    ky = int(sys.argv[4])
+    top = int(sys.argv[5])
 
     data_config = ConfigParser.ConfigParser()
     data_config.read(data_set_config)

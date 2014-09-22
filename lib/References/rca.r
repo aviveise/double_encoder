@@ -12,6 +12,7 @@ geigen <- function (A,B,C,top) {
   Bfacinv <- solve(Bfac)
   Cfacinv <- solve(Cfac)
   D       <- t(Bfacinv)%*%A%*%Cfacinv
+
   if (p >= q) {
       result <- svd(D,nu=top,nv=top)
       values <- result$d
