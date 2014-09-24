@@ -45,7 +45,7 @@ aug <- function(x,k,type="fourier") {
   if(type == "nystrom") {
     w <- x[sample(1:nrow(x),k),]
     print('end aug')
-    return(function(x0) kernelMatrix(rbfdot(s),x0,w))
+    return(function(x0) {kernelMatrix(rbfdot(s),x0,w)})
 
   }
   
@@ -68,20 +68,10 @@ rcca_fit <- function(x,y,kx,ky,type,top) {
 
 rcca_eval <- function(rcca,x,y){
   print('enter rcca_eval')
-  x <- rcca$cor
-  print(x)
+  t <- rcca$cor
+  print(t)
   print('end rcca_eval')
   list(x=rcca$augx(x)%*%rcca$a,y=rcca$augy(y)%*%rcca$b)
-}
-
-rcca_cor <- function(rcca_eval, top){
-    print('enter rcca_cor')
-    result <- svd(rcca_eval$x%*%t(rcca_eval$y), nu=top,nv=top)
-    print('1')
-    values <- result$d
-    print('2')
-    print(sum(abs(values[1:top])))
-    print('enter rcca_end')
 }
 
 rpca_fit <- function(x,k,type) {

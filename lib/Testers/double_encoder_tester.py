@@ -23,9 +23,6 @@ class DoubleEncoderTester(TesterBase):
 
     def _build_model(self):
 
-        #x1_tilde = self._correlation_optimizer.reconstruct_y()
-        #x2_tilde = self._correlation_optimizer.var_y
-
         x1_tilde = self._correlation_optimizer[self._layer_num].compute_forward_hidden()
         x2_tilde = self._correlation_optimizer[self._layer_num].compute_backward_hidden()
 

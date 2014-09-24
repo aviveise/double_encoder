@@ -45,4 +45,4 @@ if __name__ == '__main__':
 
     print 'done'
 
-    rcca_cor = robjects.r('rcca_cor')(rcca_eval=rcca_eval,top=112)
+    rcca_cor = robjects.r('rcca_cor')(rcca_eval=rcca_eval,top=top)
