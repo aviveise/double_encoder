@@ -25,15 +25,17 @@ class CorrelationTest(object):
         forward = unitnorm(center(x))
         backward = unitnorm(center(y))
 
-        if svd_sum:
-            return svd(numpy.dot(forward, backward.T), compute_uv=False).sum()
+        return numpy.trace(numpy.dot(forward, backward.T))
 
-        else:
-            correlation = numpy.ndarray([forward.shape[0], 1])
+        #if svd_sum:
+        #    return svd(numpy.dot(forward, backward.T), compute_uv=False).sum()
 
-            for i in xrange(forward.shape[0]):
-                correlation[i] = numpy.corrcoef(forward, backward)[0, 1]
+        #else:
+        #    correlation = numpy.ndarray([forward.shape[0], 1])
 
-            return correlation.sum()
+        #   for i in xrange(forward.shape[0]):
+        #        correlation[i] = numpy.corrcoef(forward, backward)[0, 1]
+
+        #    return correlation.sum()
 
 
