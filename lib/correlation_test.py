@@ -25,8 +25,13 @@ class CorrelationTest(object):
         cov = numpy.dot(forward, backward.T)
         s = numpy.linalg.svd(cov,compute_uv=0)
 
+        p = numpy.corrcoef(x, y)[0:x.shape[0] - 1, x.shape[0]:(2 * x.shape[0] - 1)]
+
         print cov.sum()
         print s.sum()
+        print p.sum()
+        print p.diagonal().sum()
+
 
         diag = numpy.abs(numpy.diagonal(numpy.dot(forward, backward.T)))
         diag.sort()
