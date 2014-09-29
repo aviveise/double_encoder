@@ -12,6 +12,7 @@ from time import clock
 
 from theano.tensor.nnet import sigmoid
 
+from Testers.double_encoder_cca_tester import DoubleEncoderCCATester
 from Testers.double_encoder_tester import DoubleEncoderTester
 
 from correlation_test import CorrelationTest
@@ -92,7 +93,7 @@ class DoubleEncoder(object):
         OutputLog().write('correlation execution_time\n')
 
         OutputLog().write('%f%%, %f\n' % (float(correlation) * 100,
-                                          execution_time))
+                                        execution_time))
 
 
         return stacked_double_encoder
