@@ -1,7 +1,7 @@
 __author__ = 'aviv'
 
 from theano import function
-from tester_base import TransformerBase
+from transformer_base import TransformerBase
 
 
 class DoubleEncoderTransformer(TransformerBase):
