@@ -4,6 +4,8 @@ import sys
 import ConfigParser
 
 import traceback
+import DataSetReaders
+
 from time import clock
 
 from configuration import Configuration

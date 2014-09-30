@@ -1,10 +1,9 @@
 __author__ = 'aviv'
 
 import numpy
-from sklearn.cross_decomposition import CCA
-from MISC.utils import center, unitnorm
-from tester_base import TesterBase
 
+from tester_base import TesterBase
+from MISC.utils import center, unitnorm
 
 class TraceCorrelationTester(TesterBase):
 
