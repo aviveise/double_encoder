@@ -5,6 +5,7 @@ import ConfigParser
 
 import traceback
 import DataSetReaders
+import Regularizations
 
 from time import clock
 
