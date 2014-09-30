@@ -21,8 +21,8 @@ class CCACorraltionTester(TesterBase):
         self.cca.fit(train_x_tilde, train_y_tilde)
         x_tilde, y_tilde = self.cca.transform(x, y)
 
-        forward = unitnorm(center(x))
-        backward = unitnorm(center(y))
+        forward = unitnorm(center(x_tilde))
+        backward = unitnorm(center(y_tilde))
 
         s = numpy.linalg.svd(numpy.dot(forward, backward.T), compute_uv=False)
 
