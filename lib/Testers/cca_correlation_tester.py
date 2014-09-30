@@ -8,7 +8,7 @@ from MISC.utils import unitnorm, center
 
 class CCACorraltionTester(TesterBase):
 
-    def __init__(self, test_set_x, test_set_y, train_set_x, train_set_y, dim):
+    def __init__(self, test_set_x, test_set_y, train_set_x, train_set_y, dim=50):
         super(CCACorraltionTester, self).__init__(test_set_x, test_set_y)
 
         self.cca = CCA(n_components=dim)
