@@ -203,7 +203,7 @@ def cca_representation(x, y , eta=0, apply_r=True):
 
         return xi, yi
 
-def cca_web2(x, y, xi=None, regfactor=None):
+def cca_web2(x, y, xi=None, regfactor=0):
         #
         # CCA calculate canonical correlations
         #
