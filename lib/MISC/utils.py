@@ -247,7 +247,7 @@ def cca_web2(x, y, xi=None, regfactor=None):
         inv_c_xx = numpy.linalg.inv(c_xx)
         inv_c_yy = numpy.linalg.inv(c_yy)
 
-        d = min(size_x,size_y)
+        d = min(size_x, size_y)
         mx = numpy.dot(numpy.dot(numpy.dot(inv_c_xx, c_xy), inv_c_yy), c_yx)
 
         if d < size_x:
