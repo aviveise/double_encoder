@@ -3,19 +3,13 @@ __author__ = 'aviv'
 import sys
 import ConfigParser
 
-import DataSetReaders
-import Regularizations
-import Optimizations
-
 import traceback
 from time import clock
 
-from theano.tensor.nnet import sigmoid
+from Transformers.double_encoder_tester import DoubleEncoderTransformer
 
-from Testers.double_encoder_cca_tester import DoubleEncoderCCATester
-from Testers.double_encoder_tester import DoubleEncoderTester
-
-from correlation_test import CorrelationTest
+from Testers.trace_correlation_tester import TraceCorrelationTester
+from Testers.cca_correlation_tester import CCACorraltionTester
 
 from configuration import Configuration
 
@@ -70,7 +64,13 @@ class DoubleEncoder(object):
                                                              regularization_methods=regularization_methods.values(),
                                                              activation_method=None)
 
-            correlation = CorrelationTest(data_set.testset[0].T, data_set.testset[1].T).test(DoubleEncoderTester(stacked_double_encoder, 0))
+            #correlation = TraceCorrelationTester(data_set.testset[0].T, data_set.testset[1].T).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
+
+            correlation = CCACorraltionTester(data_set.testset[0].T,
+                                              data_set.testset[1].T,
+                                              data_set.trainset[0].T,
+                                              data_set.trainset[1].T).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
+
 
         except:
             print 'Exception: \n'
@@ -92,7 +92,7 @@ class DoubleEncoder(object):
 
         OutputLog().write('correlation execution_time\n')
 
-        OutputLog().write('%f%%, %f\n' % (float(correlation) * 100,
+        OutputLog().write('%f, %f\n' % (float(correlation),
                                         execution_time))
 
 

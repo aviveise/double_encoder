@@ -1,13 +1,13 @@
 __author__ = 'aviv'
 
 from theano import function
-from tester_base import TesterBase
+from tester_base import TransformerBase
 
 
-class DoubleEncoderTester(TesterBase):
+class DoubleEncoderTransformer(TransformerBase):
 
     def __init__(self, double_encoder, layer_num):
-        super(DoubleEncoderTester, self).__init__(double_encoder)
+        super(DoubleEncoderTransformer, self).__init__(double_encoder)
 
         self._layer_num = layer_num
 

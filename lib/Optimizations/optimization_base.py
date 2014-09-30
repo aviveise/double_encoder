@@ -7,8 +7,8 @@ from theano.tensor.nnet import sigmoid
 
 from MISC.logger import OutputLog
 from TrainingStrategy.iterative_training_strategy import IterativeTrainingStrategy
-from correlation_test import CorrelationTest
-from Testers.double_encoder_tester import DoubleEncoderTester
+from Testers.trace_correlation_tester import TraceCorrelationTester
+from Transformers.double_encoder_tester import DoubleEncoderTransformer
 
 
 __author__ = 'aviv eisenschtat'
@@ -51,8 +51,8 @@ class OptimizationBase(object):
                                                      regularization_methods.values(),
                                                      sigmoid)
 
-            correlation = CorrelationTest(self.test_set[0].T, self.test_set[1].T).\
-                test(DoubleEncoderTester(double_encoder, 0))
+            correlation = TraceCorrelationTester(self.test_set[0].T, self.test_set[1].T).\
+                test(DoubleEncoderTransformer(double_encoder, 0))
 
         except:
 
