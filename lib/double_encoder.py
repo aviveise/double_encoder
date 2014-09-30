@@ -6,12 +6,12 @@ import ConfigParser
 import traceback
 from time import clock
 
-from Transformers.double_encoder_tester import DoubleEncoderTransformer
+from configuration import Configuration
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
 from Testers.cca_correlation_tester import CCACorraltionTester
 
-from configuration import Configuration
+from Transformers.double_encoder_tester import DoubleEncoderTransformer
 
 from MISC.container import Container
 from MISC.utils import ConfigSectionMap
