@@ -18,13 +18,13 @@ class CCACorraltionTester(TesterBase):
 
         train_x_tilde, train_y_tilde = transformer.compute_outputs(self.train_set_x, self.train_set_y)
 
-        wx, wy, r = cca_web2(train_x_tilde, train_y_tilde)
+        wx, wy, r = cca_web2(train_x_tilde.T, train_y_tilde.T)
 
-        x_tilde = numpy.dot(x, wx)
-        y_tilde = numpy.dot(y, wy)
+        x_tilde = numpy.dot(x.T, wx)
+        y_tilde = numpy.dot(y.T, wy)
 
-        forward = unitnorm(center(x_tilde))
-        backward = unitnorm(center(y_tilde))
+        forward = unitnorm(center(x_tilde.T))
+        backward = unitnorm(center(y_tilde.T))
 
         s = numpy.linalg.svd(numpy.dot(forward, backward.T), compute_uv=False)
 
