@@ -12,6 +12,7 @@ class CCACorraltionTester(TesterBase):
 
         self.train_set_x = train_set_x
         self.train_set_y = train_set_y
+        self.dim = dim
 
     def _find_correlation(self, x, y, transformer):
 
@@ -22,26 +23,29 @@ class CCACorraltionTester(TesterBase):
         x_tilde = numpy.dot(wx, x)
         y_tilde = numpy.dot(wy, y)
 
-        forward = center(x_tilde)
-        backward = center(y_tilde)
+        forward = unitnorm(center(x_tilde))
+        backward = unitnorm(center(y_tilde))
 
-        u_x, s_x, v_x = numpy.linalg.svd(forward)
-        u_y, s_y, v_y = numpy.linalg.svd(backward)
+        diag = numpy.abs(numpy.diagonal(numpy.dot(forward, backward.T)))
+        diag.sort()
+        diag = diag[::-1]
 
-        k = min(forward.shape[1], forward.shape[0])
+        #forward = center(x_tilde)
+        #backward = center(y_tilde)
 
-        temp_x = numpy.dot(u_x[:, 0:k], v_x[0:k, :])
-        temp_y = numpy.dot(u_y[:, 0:k], v_y[0:k, :])
+        #u_x, s_x, v_x = numpy.linalg.svd(forward)
+        #u_y, s_y, v_y = numpy.linalg.svd(backward)
 
-        corr = numpy.dot(temp_x, temp_y.T)
+        #k = min(forward.shape[1], forward.shape[0])
 
-        s = numpy.linalg.svd(corr, compute_uv=False)
+        #temp_x = numpy.dot(u_x[:, 0:k], v_x[0:k, :])
+        #temp_y = numpy.dot(u_y[:, 0:k], v_y[0:k, :])
 
-        #forward = unitnorm(center(x_tilde))
-        #backward = unitnorm(center(y_tilde))
+        #corr = numpy.dot(temp_x, temp_y.T)
 
-        #s = numpy.linalg.svd(numpy.dot(forward, backward.T), compute_uv=False)
+        #s = numpy.linalg.svd(corr, compute_uv=False)
 
-        return numpy.sum(s[0:115])
+        #return numpy.sum(s[0:50])
 
+        return sum(diag[0:50])
 

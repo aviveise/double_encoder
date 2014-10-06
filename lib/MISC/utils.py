@@ -203,7 +203,7 @@ def cca_representation(x, y , eta=0, apply_r=True):
 
         return xi, yi
 
-def cca_web2(x, y, xi=None, regfactor=0):
+def cca_web2(x, y, xi=None, regfactor=0, regfactor2=0):
         #
         # CCA calculate canonical correlations
         #
@@ -225,13 +225,16 @@ def cca_web2(x, y, xi=None, regfactor=0):
         else:
             xi = xi / numpy.linalg.norm(xi) * numpy.sqrt(x.shape[0])
 
+        if not regfactor2:
+            regfactor2 = 10 ** (-8)
+
         z = numpy.concatenate([x, y])
 
         covariance = numpy.cov(z)
         size_x = x.shape[0]
         size_y = y.shape[0]
 
-        c_xx = covariance[0:size_x, 0:size_x] + (10 ** (-8)) * numpy.eye(size_x)
+        c_xx = covariance[0:size_x, 0:size_x] + regfactor2 * numpy.eye(size_x)
 
         if regfactor != 0:
             c_xx += numpy.diag(xi)*(scipy.sparse.linalg.eigs(c_xx, k=1, which='LM')[0] / regfactor)
@@ -239,7 +242,7 @@ def cca_web2(x, y, xi=None, regfactor=0):
         c_xy = covariance[0:size_x, size_x:size_x+size_y]
         c_yx = c_xy.conj().transpose()
 
-        c_yy = covariance[size_x:size_x+size_y, size_x:size_x+size_y] + (10 ** (-8)) * numpy.eye(size_y)
+        c_yy = covariance[size_x:size_x+size_y, size_x:size_x+size_y] + regfactor2 * numpy.eye(size_y)
 
         if regfactor != 0:
             c_yy += numpy.eye(size_y)*(scipy.sparse.linalg.eigs(c_yy, k=1, which='LM')[0] / regfactor)
