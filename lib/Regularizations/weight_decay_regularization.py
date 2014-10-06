@@ -39,11 +39,6 @@ class WeightDecayRegularization(RegularizationBase):
         for param in params:
             regularization += Tensor.sum(param ** 2)
 
-        #for layer in symmetric_double_encoder:
-        #    regularization += (layer.Wx ** 2).sum() + (layer.Wy ** 2).sum()
-        #    regularization += (layer.bias_x ** 2).sum() + (layer.bias_y ** 2).sum()
-        #    regularization += (layer.bias_x_prime ** 2).sum() + (layer.bias_y_prime ** 2).sum()
-
         return regularization
 
     def print_regularization(self, output_stream):

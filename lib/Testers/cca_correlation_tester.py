@@ -42,6 +42,6 @@ class CCACorraltionTester(TesterBase):
 
         #s = numpy.linalg.svd(numpy.dot(forward, backward.T), compute_uv=False)
 
-        return numpy.sum(s[0:50])
+        return numpy.sum(s[0:115])
 
 
