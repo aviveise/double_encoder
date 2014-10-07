@@ -5,7 +5,10 @@ import ConfigParser
 import rpy2.robjects.numpy2ri as numpy2ri
 import rpy2.robjects as robjects
 import DataSetReaders
+import numpy
 
+from Testers.trace_correlation_tester import TraceCorrelationTester
+from Transformers.identity_transform import IdentityTransformer
 from MISC.container import Container
 from MISC.utils import ConfigSectionMap
 
@@ -43,6 +46,18 @@ if __name__ == '__main__':
                                         x=numpy2ri.numpy2ri(data_set.testset[0].T),
                                         y=numpy2ri.numpy2ri(data_set.testset[1].T))
 
+    x = numpy.array(rcca_eval[0])
+    y = numpy.array(rcca_eval[1])
+
+    trace_correlation = TraceCorrelationTester(x, y).test(IdentityTransformer())
+
+    print '\nResults:\n'
+
+    print 'trace: correlation\n'
+
+    print '%f%%\n' % float(trace_correlation)
+
+
+
     print 'done'
 
-    rcca_cor = robjects.r('rcca_cor')(rcca_eval=rcca_eval,top=top)

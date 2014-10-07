@@ -8,7 +8,7 @@ from theano.tensor.nnet import sigmoid
 from MISC.logger import OutputLog
 from TrainingStrategy.iterative_training_strategy import IterativeTrainingStrategy
 from Testers.trace_correlation_tester import TraceCorrelationTester
-from Transformers.double_encoder_tester import DoubleEncoderTransformer
+from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 
 
 __author__ = 'aviv eisenschtat'

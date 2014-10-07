@@ -39,9 +39,9 @@ class TraceCorrelationTester(TesterBase):
         diag.sort()
         diag = diag[::-1]
 
-        print sum(diag)
+        print sum(diag[0:50])
 
-        return (numpy.sum(diag) / diag.shape[0]) * 100
+        return sum(diag[0:50])
 
 
 
