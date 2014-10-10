@@ -5,6 +5,7 @@ import cPickle
 import gzip
 
 import numpy
+import rpy2.robjects as robjects
 
 from theano import config
 
@@ -82,7 +83,6 @@ class XRBMDebug(XRBMDataSet):
 
         self.tuning = (self.ReadBin(tuning_x1_file_name, 112, 500), self.ReadBin(tuning_x2_file_name, 273, 500))
 
-
 class XRBMDataSetOld(object):
 
     def __init__(self, file_path):
@@ -129,3 +129,23 @@ class XRBMDataSetOld(object):
                 train_index += 1
 
         return [train_result, test_result, test_samples]
+
+class XRBMDataSetRCCA(DatasetBase):
+
+    __metaclass__ = ContainerRegisterMetaClass
+
+    def __init__(self, data_set_parameters):
+        super(XRBMDataSetRCCA, self).__init__(data_set_parameters)
+
+    def build_dataset(self):
+
+        os.system('cat ./DataSet/XRMB/xrmb* > xrmb.data')
+        xrmb = robjects.r('load')(self.dataset_path)
+
+        self.trainset = numpy.array(robjects.r['x_tr']).T[:, 1:30000], numpy.array(robjects.r['y_tr']).T[:, 1:30000]
+
+        self.tuning = numpy.array(robjects.r['x_tr']).T[:, 30000:40000], numpy.array(robjects.r['y_tr']).T[:, 30000:40000]
+
+        self.testset = numpy.array(robjects.r['x_te']).T, numpy.array(robjects.r['y_te']).T
+
+
