@@ -1,8 +1,7 @@
 library(kernlab)
 
 geigen <- function (A,B,C,top) {
-  print('enter geigen')
-  p       <- nrow(B)
+  p       <- nrow(B) 
   q       <- nrow(C) 
   s       <- min(c(p,q))
   B       <- (B+t(B))/2
@@ -12,7 +11,6 @@ geigen <- function (A,B,C,top) {
   Bfacinv <- solve(Bfac)
   Cfacinv <- solve(Cfac)
   D       <- t(Bfacinv)%*%A%*%Cfacinv
-
   if (p >= q) {
       result <- svd(D,nu=top,nv=top)
       values <- result$d
@@ -24,18 +22,15 @@ geigen <- function (A,B,C,top) {
       L      <- Bfacinv %*% result$v
       M      <- Cfacinv %*% result$u
   }
-  print('end geigen')
   list(cor=values, xcoef=L, ycoef=M)
 }
 
 rcc <- function (X,Y,l1,l2,top) {
-  print('enter rcc')
   geigen(cov(X,Y),var(X)+diag(l1,ncol(X)),
                   var(Y)+diag(l2,ncol(Y)),top)
 }
 
 aug <- function(x,k,type="fourier") {
-    print('enter aug')
   s <- sigest(x,scaled=NULL)[2]
 
   if(type == "linear") {
@@ -44,9 +39,7 @@ aug <- function(x,k,type="fourier") {
   
   if(type == "nystrom") {
     w <- x[sample(1:nrow(x),k),]
-    print('end aug')
-    return(function(x0) {kernelMatrix(rbfdot(s),x0,w)})
-
+    return(function(x0) kernelMatrix(rbfdot(s),x0,w))
   }
   
   if(type == "fourier") {
@@ -58,19 +51,13 @@ aug <- function(x,k,type="fourier") {
 }
 
 rcca_fit <- function(x,y,kx,ky,type,top) {
-  print('enter rcca_fit')
   augx <- aug(x,kx,type)
   augy <- aug(y,ky,type)
   C    <- rcc(augx(x),augy(y),1e-10,1e-10,top)
-  print('end rcca_fit')
   list(cor=sum(abs(C$cor[1:top])),a=C$xcoef,b=C$ycoef,augx=augx,augy=augy)
 }
 
 rcca_eval <- function(rcca,x,y){
-  print('enter rcca_eval')
-  t <- rcca$cor
-  print(t)
-  print('end rcca_eval')
   list(x=rcca$augx(x)%*%rcca$a,y=rcca$augy(y)%*%rcca$b)
 }
 
@@ -83,4 +70,26 @@ rpca_eval <- function(rpca,x) {
   predict(rpca$pca,rpca$augx(x))
 }
 
+dataset   <- "xrmb"
+algorithm <- "nystrom"
 
+if(dataset == "xrmb") {
+  system('cat xrmb* > xrmb.data')
+  load('xrmb.data')
+  x_tr <- x_tr[1:30000,]
+  y_tr <- y_tr[1:30000,]
+  top    <- 112
+} else {
+  load('mnist.data')
+  top  <- 50
+}
+
+for(k in c(1000,2000,3000,4000,5000,6000)){
+  t1     <- Sys.time()
+  cca    <- rcca_fit(x_tr,y_tr,k,k,algorithm,top)
+  t2     <- Sys.time()
+  print(t2-t1)
+  cca_te <- rcca_eval(cca,x_te,y_te)
+  r_te   <- sum(sapply(1:top,function(i) abs(cor(cca_te$x[,i],cca_te$y[,i]))))
+  print(sprintf("%s-%i on %s has %.2f/%.2f in %.2f",algorithm,k,dataset,cca$cor,r_te,t2-t1))
+}

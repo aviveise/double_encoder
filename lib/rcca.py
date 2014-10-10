@@ -31,10 +31,13 @@ if __name__ == '__main__':
 
     robjects.r('source("%s")' % rca_location)
 
-    #mnist = robjects.r('load')('/home/aviv/Project/DoubleEncoder/DataSet/MNIST_SPLIT/mnist.data')
+    mnist = robjects.r('load')('/home/aviv/Project/DoubleEncoder/DataSet/MNIST_SPLIT/mnist.data')
 
-    #x1 = numpy.array(robjects.r['x_tr'])
-    #x2 = numpy.array(robjects.r['y_tr'])
+    x1_rcca = numpy.array(robjects.r['x_tr'])
+    x2_rcca = numpy.array(robjects.r['y_tr'])
+
+    x1_dataset = data_set.trainset[1]
+    x2_dataset = data_set.trainset[0]
 
     #x1_test = numpy.array(robjects.r['x_te'])
     #x2_test = numpy.array(robjects.r['y_te'])
