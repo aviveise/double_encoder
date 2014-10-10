@@ -7,12 +7,12 @@ from MISC.utils import unitnorm, center, cca_web2
 
 class CCACorraltionTester(TesterBase):
 
-    def __init__(self, test_set_x, test_set_y, train_set_x, train_set_y, dim=50):
+    def __init__(self, test_set_x, test_set_y, train_set_x, train_set_y, top=50):
         super(CCACorraltionTester, self).__init__(test_set_x, test_set_y)
 
         self.train_set_x = train_set_x
         self.train_set_y = train_set_y
-        self.dim = dim
+        self.top = top
 
     def _find_correlation(self, x, y, transformer):
 
@@ -47,5 +47,5 @@ class CCACorraltionTester(TesterBase):
 
         #return numpy.sum(s[0:50])
 
-        return sum(diag[0:50])
+        return sum(diag[0:self.top])
 

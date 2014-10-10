@@ -27,6 +27,7 @@ class DoubleEncoder(object):
 
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
+        top = sys.argv[3]
 
         regularization_methods = {}
 
@@ -67,12 +68,12 @@ class DoubleEncoder(object):
                                                              regularization_methods=regularization_methods.values(),
                                                              activation_method=None)
 
-            trace_correlation = TraceCorrelationTester(data_set.testset[0].T, data_set.testset[1].T).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
+            trace_correlation = TraceCorrelationTester(data_set.testset[0].T, data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 
             cca_correlation = CCACorraltionTester(data_set.testset[0].T,
                                                   data_set.testset[1].T,
                                                   data_set.trainset[0].T,
-                                                  data_set.trainset[1].T).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
+                                                  data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 
 
         except:
