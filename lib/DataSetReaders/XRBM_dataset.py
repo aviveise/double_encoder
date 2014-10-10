@@ -139,8 +139,8 @@ class XRBMDataSetRCCA(DatasetBase):
 
     def build_dataset(self):
 
-        os.system('cat ./DataSet/XRMB/xrmb* > xrmb.data')
-        xrmb = robjects.r('load')(self.dataset_path)
+        os.system('cat %s/xrmb* > xrmb.data' % self.dataset_path)
+        xrmb = robjects.r('load')(self.dataset_path + '/xrmb.data')
 
         self.trainset = numpy.array(robjects.r['x_tr']).T[:, 1:30000], numpy.array(robjects.r['y_tr']).T[:, 1:30000]
 
