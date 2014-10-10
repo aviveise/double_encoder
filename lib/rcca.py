@@ -6,7 +6,6 @@ import rpy2.robjects.numpy2ri as numpy2ri
 import rpy2.robjects as robjects
 import DataSetReaders
 import numpy
-import matplotlib.pyplot as plt
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
 from Transformers.identity_transform import IdentityTransformer
@@ -32,21 +31,14 @@ if __name__ == '__main__':
 
     robjects.r('source("%s")' % rca_location)
 
-    mnist = robjects.r('load')('/home/aviv/Project/DoubleEncoder/DataSet/MNIST_SPLIT/mnist.data')
+    #mnist = robjects.r('load')('/home/aviv/Project/DoubleEncoder/DataSet/MNIST_SPLIT/mnist.data')
 
-    x1 = numpy.array(robjects.r['x_tr'])
-    x2 = numpy.array(robjects.r['y_tr'])
+    #x1 = numpy.array(robjects.r['x_tr'])
+    #x2 = numpy.array(robjects.r['y_tr'])
 
-    x1_test = numpy.array(robjects.r['x_te'])
-    x2_test = numpy.array(robjects.r['y_te'])
+    #x1_test = numpy.array(robjects.r['x_te'])
+    #x2_test = numpy.array(robjects.r['y_te'])
 
-    plt.imshow(x1_test.T[:, 1].reshape([14, 28]))
-    plt.gray()
-    plt.show()
-
-    plt.imshow(x2_test.T[:, 1].reshape([14, 28]))
-    plt.gray()
-    plt.show()
 
     print 'training rcca'
 
