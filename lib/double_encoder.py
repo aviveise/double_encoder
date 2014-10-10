@@ -27,7 +27,7 @@ class DoubleEncoder(object):
 
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
-        top = sys.argv[3]
+        top = int(sys.argv[3])
 
         regularization_methods = {}
 
@@ -96,7 +96,7 @@ class DoubleEncoder(object):
 
         OutputLog().write('trace: correlation execution_time\n')
 
-        OutputLog().write('%f%%, %f\n' % (float(trace_correlation),
+        OutputLog().write('%f, %f\n' % (float(trace_correlation),
                                           execution_time))
 
         OutputLog().write('cca: correlation execution_time\n')

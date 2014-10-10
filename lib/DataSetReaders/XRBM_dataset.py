@@ -144,7 +144,7 @@ class XRBMDataSetRCCA(DatasetBase):
 
         self.trainset = numpy.array(robjects.r['x_tr']).T[:, 1:30001], numpy.array(robjects.r['y_tr']).T[:, 1:30001]
 
-        self.tuning = numpy.array(robjects.r['x_tr']).T[:, 30001:40000], numpy.array(robjects.r['y_tr']).T[:, 30001:40000]
+        self.tuning = numpy.array(robjects.r['x_tr']).T[:, 30001:40001], numpy.array(robjects.r['y_tr']).T[:, 30001:40001]
 
         self.testset = numpy.array(robjects.r['x_te']).T, numpy.array(robjects.r['y_te']).T
 

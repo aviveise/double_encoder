@@ -47,5 +47,5 @@ class CCACorraltionTester(TesterBase):
 
         #return numpy.sum(s[0:50])
 
-        return sum(diag[0:self.top])
+        return sum(diag[0:self.top + 1])
 

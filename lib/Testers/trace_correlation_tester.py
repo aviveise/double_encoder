@@ -7,7 +7,7 @@ from MISC.utils import center, unitnorm
 
 class TraceCorrelationTester(TesterBase):
 
-    def __init__(self, test_set_x, test_set_y, top):
+    def __init__(self, test_set_x, test_set_y, top=50):
         super(TraceCorrelationTester, self).__init__(test_set_x, test_set_y)
 
         self.top = top
@@ -41,9 +41,7 @@ class TraceCorrelationTester(TesterBase):
         diag.sort()
         diag = diag[::-1]
 
-        print sum(diag[0:self.top])
-
-        return sum(diag[0:self.top])
+        return sum(diag[0:self.top + 1])
 
 
 
