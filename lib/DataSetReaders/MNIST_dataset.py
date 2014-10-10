@@ -44,9 +44,11 @@ class MNISTDataSetRCCA(DatasetBase):
 
         mnist = robjects.r('load')(self.dataset_path)
 
-        self.trainset = numpy.array(robjects.r['x_tr']).T, numpy.array(robjects.r['y_tr']).T
+        self.trainset = numpy.array(robjects.r['x_tr']).T.astype(theano.config.floatX, copy=False), \
+                        numpy.array(robjects.r['y_tr']).T.astype(theano.config.floatX, copy=False)
 
-        self.testset = numpy.array(robjects.r['x_te']).T, numpy.array(robjects.r['y_te']).T
+        self.testset = numpy.array(robjects.r['x_te']).T.astype(theano.config.floatX, copy=False), \
+                       numpy.array(robjects.r['y_te']).T.astype(theano.config.floatX, copy=False)
 
         x1_train_set, x1_tuning_set, test_samples = self.produce_optimization_sets(self.trainset[0])
         x2_train_set, x2_tuning_set, test_samples = self.produce_optimization_sets(self.trainset[1], test_samples)
