@@ -18,7 +18,7 @@ class OptimizationBase(object):
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, data_set, optimization_parameters, hyper_parameters, regularization_methods):
+    def __init__(self, data_set, optimization_parameters, hyper_parameters, regularization_methods, top=50):
 
         OutputLog().write('\nCreating optimization: ' + optimization_parameters['type'])
 
@@ -33,6 +33,7 @@ class OptimizationBase(object):
         self.hyper_parameters = hyper_parameters
         self.regularization_methods = regularization_methods
         self.random_range = RandomState()
+        self.top = top
 
     def train(self, training_strategy=IterativeTrainingStrategy, hyper_parameters=None, regularization_methods=None):
 
@@ -51,7 +52,7 @@ class OptimizationBase(object):
                                                      regularization_methods.values(),
                                                      sigmoid)
 
-            correlation = TraceCorrelationTester(self.test_set[0].T, self.test_set[1].T).\
+            correlation = TraceCorrelationTester(self.test_set[0].T, self.test_set[1].T, self.top).\
                 test(DoubleEncoderTransformer(double_encoder, 0))
 
         except:

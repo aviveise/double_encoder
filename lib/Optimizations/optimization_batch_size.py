@@ -9,8 +9,8 @@ class OptimizationBatchSize(OptimizationBase):
 
     __metaclass__ = ContainerRegisterMetaClass
 
-    def __init__(self, data_set, optimization_parameters, hyper_parameters, regularization_methods):
-        super(OptimizationBatchSize, self).__init__(data_set, optimization_parameters, hyper_parameters, regularization_methods)
+    def __init__(self, data_set, optimization_parameters, hyper_parameters, regularization_methods, top=50):
+        super(OptimizationBatchSize, self).__init__(data_set, optimization_parameters, hyper_parameters, regularization_methods, top)
 
         self.start_value = float(optimization_parameters['start_value'])
         self.end_value = float(optimization_parameters['end_value'])
