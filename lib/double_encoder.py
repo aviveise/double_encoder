@@ -54,7 +54,7 @@ class DoubleEncoder(object):
         #performing optimizations for various parameters
         for optimization_parameters in configuration.optimizations_parameters:
 
-            args = (data_set, optimization_parameters, configuration.hyper_parameters, regularization_methods)
+            args = (data_set, optimization_parameters, configuration.hyper_parameters, regularization_methods, top)
             optimization = Container().create(optimization_parameters['type'], *args)
             optimization.perform_optimization(training_strategy)
 
