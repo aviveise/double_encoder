@@ -20,6 +20,8 @@ class PairWiseCorrelationRegularization(RegularizationBase):
             forward = layer.output_forward.T
             backward = layer.output_backward.T
 
+            regularization += ((forward - backward) ** 2).sum()
+
             mean_forward = Tensor.mean(forward, axis=1, dtype=Tensor.config.floatX)
             mean_backward = Tensor.mean(backward, axis=1, dtype=Tensor.config.floatX)
 
@@ -27,10 +29,13 @@ class PairWiseCorrelationRegularization(RegularizationBase):
             backward_centered = backward - mean_backward.reshape([backward.shape[0], 1])
 
             regularization += ((Tensor.dot(forward_centered, forward_centered.T) - Tensor.eye(forward.shape[0], dtype=Tensor.config.floatX)) ** 2).sum()
-            #regularization -= (Tensor.dot(forward_centered, forward_centered.T) ** 2).sum()
+            #regularization -= Tensor.diagonal(Tensor.dot(forward_centered, forward_centered.T)).sum()
+            regularization -= (Tensor.dot(forward_centered, forward_centered.T) ** 2).sum()
 
-            regularization += ((Tensor.dot(backward_centered, backward_centered.T) - Tensor.eye(backward.shape[0],dtype=Tensor.config.floatX)) ** 2).sum()
-            #regularization -= (Tensor.dot(backward_centered, backward_centered.T) ** 2).sum()
+            regularization += ((Tensor.dot(backward_centered, backward_centered.T) - Tensor.eye(backward.shape[0], dtype=Tensor.config.floatX)) ** 2).sum()
+            #regularization -= Tensor.diagonal(Tensor.dot(backward_centered, backward_centered.T)).sum()
+            regularization -= (Tensor.dot(backward_centered, backward_centered.T) ** 2).sum()
+
 
         return regularization
 
