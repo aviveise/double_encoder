@@ -71,10 +71,10 @@ class DoubleEncoder(object):
 
             trace_correlation = TraceCorrelationTester(data_set.testset[0].T, data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 
-            cca_correlation = CCACorraltionTester(data_set.testset[0].T,
-                                                  data_set.testset[1].T,
-                                                  data_set.trainset[0].T,
-                                                  data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
+            #cca_correlation = CCACorraltionTester(data_set.testset[0].T,
+            #                                      data_set.testset[1].T,
+            #                                      data_set.trainset[0].T,
+            #                                      data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 
 
         except:
@@ -100,10 +100,10 @@ class DoubleEncoder(object):
         OutputLog().write('%f, %f\n' % (float(trace_correlation),
                                           execution_time))
 
-        OutputLog().write('cca: correlation execution_time\n')
+        #OutputLog().write('cca: correlation execution_time\n')
 
-        OutputLog().write('%f, %f\n' % (float(cca_correlation),
-                                        execution_time))
+        #OutputLog().write('%f, %f\n' % (float(cca_correlation),
+        #                                execution_time))
 
 
         return stacked_double_encoder
