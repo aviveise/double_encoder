@@ -53,8 +53,8 @@ class TraceCorrelationTester(TesterBase):
 
         diag = numpy.abs(numpy.diagonal(corr))
 
-        print 'correlations: %f\n' % sum(diag)
-        print 'cross correlations: %f\n' % sum(corr) - sum(diag)
+        print 'correlations: %f\n' % numpy.sum(diag)
+        print 'cross correlations: %f\n' % (numpy.sum(numpy.abs(corr)) - numpy.sum(diag))
 
         diag.sort()
         diag = diag[::-1]
