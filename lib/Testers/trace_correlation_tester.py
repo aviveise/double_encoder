@@ -34,12 +34,33 @@ class TraceCorrelationTester(TesterBase):
         #forward = unitnorm(center(x))
         #backward = unitnorm(center(y))
 
+        print 'x variance: \n'
+        print numpy.var(x, axis=1)
+
+        print '\ny variance: \n'
+        print numpy.var(y, axis=1)
+
+        print '\nx mean:\n'
+        print numpy.mean(x, axis=1)
+
+        print '\ny mean:\n'
+        print numpy.mean(y, axis=1)
+
         forward = unitnorm(center(x))
         backward = unitnorm(center(y))
 
-        diag = numpy.abs(numpy.diagonal(numpy.dot(forward, backward.T)))
+        corr = numpy.dot(forward, backward.T)
+
+        diag = numpy.abs(numpy.diagonal(corr))
+
+        print 'correlations: %f\n' % sum(diag)
+        print 'cross correlations: %f\n' % sum(corr) - sum(diag)
+
         diag.sort()
         diag = diag[::-1]
+
+        print 'correlations:\n'
+        print diag
 
         return sum(diag[0:self.top + 1])
 
