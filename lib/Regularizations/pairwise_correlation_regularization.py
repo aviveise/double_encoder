@@ -42,7 +42,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 regularization -= (Tensor.dot(backward_centered, backward_centered.T) ** 2).sum()
 
 
-        return regularization
+        return self.weight * regularization
 
 
     def print_regularization(self, output_stream):
