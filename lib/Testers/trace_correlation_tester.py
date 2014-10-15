@@ -34,17 +34,18 @@ class TraceCorrelationTester(TesterBase):
         #forward = unitnorm(center(x))
         #backward = unitnorm(center(y))
 
-        print 'x variance: \n'
-        print numpy.var(x, axis=1)
 
-        print '\ny variance: \n'
-        print numpy.var(y, axis=1)
+        x_var = numpy.var(x, axis=1)
+        y_var = numpy.var(y, axis=1)
 
-        print '\nx mean:\n'
-        print numpy.mean(x, axis=1)
+        x_mean = numpy.mean(x, axis=1)
+        y_mean = numpy.mean(y, axis=1)
 
-        print '\ny mean:\n'
-        print numpy.mean(y, axis=1)
+        print 'x variance: mean %f, var %f\n' % (numpy.mean(x_var), numpy.var(x_var))
+        print 'y variance: mean %f, var %f\n' % (numpy.mean(y_var), numpy.var(y_var))
+
+        print 'x mean: mean %f, var %f\n' % (numpy.mean(x_mean), numpy.var(x_mean))
+        print 'y mean: mean %f, var %f\n' % (numpy.mean(y_mean), numpy.var(y_mean))
 
         forward = unitnorm(center(x))
         backward = unitnorm(center(y))
@@ -65,4 +66,14 @@ class TraceCorrelationTester(TesterBase):
         return sum(diag[0:self.top + 1])
 
 
+    def print_array(self, a):
 
+        if a is None:
+            return
+
+        print ('array %d: ' % a.shape[0])
+
+        for i in xrange(a.shape[0]):
+            print '%f ' % a[i]
+
+        print '\n'

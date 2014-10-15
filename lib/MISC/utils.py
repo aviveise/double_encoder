@@ -315,7 +315,13 @@ def cca_web2(x, y, xi=None, regfactor=0, regfactor2=0):
 def ConfigSectionMap(section, config):
 
     dict1 = {}
-    options = config.options(section)
+
+    try:
+        options = config.options(section)
+
+    except:
+        return None
+
     for option in options:
         try:
             dict1[option] = config.get(section, option)
