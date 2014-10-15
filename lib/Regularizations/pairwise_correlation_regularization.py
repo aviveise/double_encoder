@@ -32,14 +32,17 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
             if self.euc_length:
                 regularization += ((forward_centered - backward_centered) ** 2).sum()
+                print 'added euc reg'
 
             if self.pair_wise:
                 regularization += ((Tensor.dot(forward_centered, forward_centered.T) - Tensor.eye(forward.shape[0], dtype=Tensor.config.floatX)) ** 2).sum()
                 regularization += ((Tensor.dot(backward_centered, backward_centered.T) - Tensor.eye(backward.shape[0], dtype=Tensor.config.floatX)) ** 2).sum()
+                print 'added pair reg'
 
             if self.variance:
                 regularization -= (Tensor.dot(forward_centered, forward_centered.T) ** 2).sum()
                 regularization -= (Tensor.dot(backward_centered, backward_centered.T) ** 2).sum()
+                print 'added var reg'
 
 
         return self.weight * regularization
