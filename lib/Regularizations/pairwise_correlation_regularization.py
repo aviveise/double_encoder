@@ -21,14 +21,14 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
         for layer in symmetric_double_encoder:
 
-            forward = layer.output_forward.T
-            backward = layer.output_backward.T
+            forward = layer.output_forward
+            backward = layer.output_backward
 
-            mean_forward = Tensor.mean(forward, axis=1, dtype=Tensor.config.floatX)
-            mean_backward = Tensor.mean(backward, axis=1, dtype=Tensor.config.floatX)
+            mean_forward = Tensor.mean(forward, axis=0, dtype=Tensor.config.floatX)
+            mean_backward = Tensor.mean(backward, axis=0, dtype=Tensor.config.floatX)
 
-            forward_centered = forward - mean_forward.reshape([forward.shape[0], 1])
-            backward_centered = backward - mean_backward.reshape([backward.shape[0], 1])
+            forward_centered = forward - mean_forward
+            backward_centered = backward - mean_backward
 
             if self.euc_length:
                 regularization += Tensor.mean((forward_centered - backward_centered) ** 2)
