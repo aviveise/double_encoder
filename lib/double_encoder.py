@@ -21,16 +21,10 @@ from MISC.container import Container
 from MISC.utils import ConfigSectionMap
 from MISC.logger import OutputLog
 
-import numpy
-
 class DoubleEncoder(object):
 
     @staticmethod
     def run(training_strategy):
-
-        data_set_config = sys.argv[1]
-        run_time_config = sys.argv[2]
-        top = int(sys.argv[3])
 
         regularization_methods = {}
 
