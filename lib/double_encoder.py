@@ -21,6 +21,8 @@ from MISC.container import Container
 from MISC.utils import ConfigSectionMap
 from MISC.logger import OutputLog
 
+import numpy
+
 class DoubleEncoder(object):
 
     @staticmethod
