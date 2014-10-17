@@ -12,15 +12,15 @@ class IterativeDropoutTrainingStrategy(IterativeTrainingStrategy):
         self.probability = 0.5
 
 
-    def _add_cross_encoder_layer(self, layer_size, symmetric_double_encoder, activation_method):
+    def _add_cross_encoder_layer(self, layer_size, symmetric_double_encoder, activation_hidden, activation_output):
 
         layer_count = len(symmetric_double_encoder)
 
         symmetric_layer = SymmetricDropoutHiddenLayer(numpy_range=self._random_range,
                                                       hidden_layer_size=layer_size,
                                                       name="layer" + str(layer_count),
-                                                      activation_hidden=activation_method,
-                                                      activation_output=activation_method,
+                                                      activation_hidden=activation_hidden,
+                                                      activation_output=activation_output,
                                                       dropout_probability=self.probability)
 
         symmetric_double_encoder.add_hidden_layer(symmetric_layer)

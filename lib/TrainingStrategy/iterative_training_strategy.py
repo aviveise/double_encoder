@@ -39,7 +39,10 @@ class IterativeTrainingStrategy(TrainingStrategy):
         for layer_size in hyper_parameters.layer_sizes:
 
             print '--------Adding Layer of Size - %d--------\n' % layer_size
-            self._add_cross_encoder_layer(layer_size, symmetric_double_encoder, activation_method)
+            self._add_cross_encoder_layer(layer_size,
+                                          symmetric_double_encoder,
+                                          hyper_parameters.method_in,
+                                          hyper_parameters.method_out)
 
             params = []
             params.extend(symmetric_double_encoder[-1].x_params)
@@ -54,15 +57,15 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
         return symmetric_double_encoder
 
-    def _add_cross_encoder_layer(self, layer_size, symmetric_double_encoder, activation_method):
+    def _add_cross_encoder_layer(self, layer_size, symmetric_double_encoder, activation_hidden, activation_output):
 
         layer_count = len(symmetric_double_encoder)
 
         symmetric_layer = SymmetricHiddenLayer(numpy_range=self._random_range,
                                                hidden_layer_size=layer_size,
                                                name="layer" + str(layer_count),
-                                               activation_hidden=activation_method,
-                                               activation_output=activation_method)
+                                               activation_hidden=activation_hidden,
+                                               activation_output=activation_output)
 
         symmetric_double_encoder.add_hidden_layer(symmetric_layer)
 

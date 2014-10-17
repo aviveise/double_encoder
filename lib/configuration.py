@@ -2,6 +2,7 @@ import ConfigParser
 
 from MISC.utils import ConfigSectionMap
 from hyper_parameters import HyperParameters
+import theano.tensor as Tensor
 
 __author__ = 'Aviv Eisenschtat'
 
@@ -43,12 +44,16 @@ class Configuration(object):
         epochs = int(training_section['epochs'])
         momentum = float(training_section['momentum'])
         layer_sizes = map(int, training_section['layer_sizes'].split())
+        method_in = self.convert_method(training_section['method_in'])
+        method_out = self.convert_method(training_section['method_out'])
 
         return HyperParameters(layer_sizes=layer_sizes,
                                learning_rate=learning_rate,
                                batch_size=batch_size,
                                epochs=epochs,
-                               momentum=momentum)
+                               momentum=momentum,
+                               method_in=method_in,
+                               method_out=method_out)
 
     def _parse_dcca_training_parameters(self, training_section):
 
@@ -84,3 +89,17 @@ class Configuration(object):
                                    gaussianStdDevI=[gaussianStdDevI_side1, gaussianStdDevI_side2],
                                    gaussianStdDevH=[gaussianStdDevH_side1, gaussianStdDevH_side2],
                                    backpropReg=backpropReg)
+
+    def convert_method(self, method_string):
+
+        if method_string == 'sigmoid':
+            return Tensor.nnet.sigmoid
+
+        elif method_string == 'relu':
+            return lambda x: x * (x > 0)
+
+        elif method_string == 'hard_sigmoid':
+            return Tensor.nnet.hard_sigmoid
+
+        else:
+            raise 'method unknown'

@@ -1,5 +1,7 @@
 __author__ = 'aviv'
 
+import theano.tensor as Tensor
+
 from MISC.utils import print_list
 
 class HyperParameters(object):
@@ -8,13 +10,17 @@ class HyperParameters(object):
                        learning_rate = 0,
                        batch_size = 0,
                        epochs = 0,
-                       momentum = 0):
+                       momentum = 0,
+                       method_in=Tensor.nnet.sigmoid,
+                       method_out=Tensor.nnet.sigmoid):
 
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.epochs = epochs
         self.momentum = momentum
         self.layer_sizes = layer_sizes
+        self.method_in = method_in
+        self.method_out = method_out
 
     def copy(self):
 
@@ -22,7 +28,9 @@ class HyperParameters(object):
                                self.learning_rate,
                                self.batch_size,
                                self.epochs,
-                               self.momentum)
+                               self.momentum,
+                               self.method_in,
+                               self.method_out)
 
     def print_parameters(self, output_stream):
 
@@ -32,8 +40,12 @@ class HyperParameters(object):
                             'learning_rate: %f\n'
                             'batch_size: %d\n'
                             'epochs: %d\n'
-                            'Momentum: %f\n' % (print_list(self.layer_sizes),
+                            'Momentum: %f\n'
+                            'method_in: %s\n'
+                            'method_out: %s \n' % (print_list(self.layer_sizes),
                                                 self.learning_rate,
                                                 self.batch_size,
                                                 self.epochs,
-                                                self.momentum))
+                                                self.momentum,
+                                                self.method_in.__str__(),
+                                                self.method_out.__str__()))
