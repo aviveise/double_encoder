@@ -40,8 +40,8 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 print 'added pair reg'
 
             if self.variance:
-                regularization -= Tensor.mean(Tensor.dot(forward_centered, forward_centered.T))
-                regularization -= Tensor.mean(Tensor.dot(backward_centered, backward_centered.T))
+                regularization -= Tensor.mean(Tensor.dot(forward_centered, forward_centered.T) ** 2)
+                regularization -= Tensor.mean(Tensor.dot(backward_centered, backward_centered.T) ** 2)
                 print 'added var reg'
 
 
