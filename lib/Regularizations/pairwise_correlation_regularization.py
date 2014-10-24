@@ -3,6 +3,14 @@ __author__ = 'aviv'
 from regularization_base import RegularizationBase
 from MISC.container import ContainerRegisterMetaClass
 from theano import tensor as Tensor
+from theano import scan as scan
+from theano import printing as Printing
+from theano import shared as share
+from numpy import zeros as zeros
+
+import theano.tensor.nlinalg as nlinalg
+import theano.tensor.slinalg as slinalg
+
 
 class PairWiseCorrelationRegularization(RegularizationBase):
 
@@ -14,6 +22,9 @@ class PairWiseCorrelationRegularization(RegularizationBase):
         self.euc_length = bool(int(regularization_parameters['euc_length']))
         self.pair_wise = bool(int(regularization_parameters['pair_wise_correlation']))
         self.variance = bool(int(regularization_parameters['variance']))
+        self.corr = bool(int(regularization_parameters['corr']))
+        self.reg1 = float(regularization_parameters['regularization_param1'])
+        self.reg2 = float(regularization_parameters['regularization_param2'])
 
     def compute(self, symmetric_double_encoder, params):
 
@@ -24,25 +35,37 @@ class PairWiseCorrelationRegularization(RegularizationBase):
             forward = layer.output_forward
             backward = layer.output_backward
 
-            mean_forward = Tensor.mean(forward, axis=0, dtype=Tensor.config.floatX)
-            mean_backward = Tensor.mean(backward, axis=0, dtype=Tensor.config.floatX)
+            forward = Printing.Print('forward: ')(forward)
 
-            forward_centered = forward - mean_forward
-            backward_centered = backward - mean_backward
+            forward_centered = (forward - Tensor.mean(forward, axis=0)).T
+            backward_centered = (backward - Tensor.mean(backward, axis=0)).T
+
+            forward_var = Tensor.dot(forward_centered, forward_centered.T) + self.reg1 * Tensor.eye(forward_centered.shape[0])
+            backward_var = Tensor.dot(backward_centered, backward_centered.T) + self.reg2 * Tensor.eye(backward_centered.shape[0])
+
+            e11 = self._compute_square_chol(forward_var, layer.hidden_layer_size)
+            e22 = self._compute_square_chol(backward_var, layer.hidden_layer_size)
+            e12 = Tensor.dot(forward_centered, backward_centered.T)
+
+            corr = Tensor.dot(Tensor.dot(e11, e12), e22)
 
             if self.euc_length:
-                regularization += Tensor.mean((forward_centered - backward_centered) ** 2)
+                regularization += ((forward_centered - backward_centered) ** 2).sum()
                 print 'added euc reg'
 
             if self.pair_wise:
-                regularization += Tensor.mean((Tensor.dot(forward_centered, forward_centered.T) - Tensor.eye(forward.shape[0], dtype=Tensor.config.floatX)) ** 2)
-                regularization += Tensor.mean((Tensor.dot(backward_centered, backward_centered.T) - Tensor.eye(backward.shape[0], dtype=Tensor.config.floatX)) ** 2)
+                regularization += ((forward_var - Tensor.eye(forward.shape[0], dtype=Tensor.config.floatX)) ** 2).sum()
+                regularization += ((backward_var - Tensor.eye(backward.shape[0], dtype=Tensor.config.floatX)) ** 2).sum()
                 print 'added pair reg'
 
             if self.variance:
-                regularization += Tensor.mean(Tensor.dot(forward_centered, forward_centered.T))
-                regularization += Tensor.mean(Tensor.dot(backward_centered, backward_centered.T))
+                regularization -= forward_var.sum()
+                regularization -= backward_var.sum()
                 print 'added var reg'
+
+            if self.corr:
+               regularization += Tensor.sqrt(Tensor.nlinalg.trace(corr))
+
 
 
         return self.weight * regularization
@@ -51,3 +74,16 @@ class PairWiseCorrelationRegularization(RegularizationBase):
     def print_regularization(self, output_stream):
 
         super(PairWiseCorrelationRegularization, self).print_regularization(output_stream)
+
+    def _compute_square_chol(self, a, n):
+
+        w, v = Tensor.nlinalg.eigh(a,'U')
+
+        k = share(zeros([n, n]))
+
+        for i in xrange(n):
+            k += Tensor.sqrt(w[i]) + Tensor.dot(v[:, i].reshape([n, 1]), v[:, i].reshape([1, n]))
+
+        return Tensor.slinalg.cholesky(k)
+
+
