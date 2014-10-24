@@ -87,6 +87,6 @@ class PairWiseCorrelationRegularization(RegularizationBase):
         #for i in xrange(n):
         #    k += Tensor.sqrt(w[i]) + Tensor.dot(v[:, i].reshape([n, 1]), v[:, i].reshape([1, n]))
 
-        return Tensor.slinalg.cholesky(k)
+        return k
 
 
