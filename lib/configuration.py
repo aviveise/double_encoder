@@ -102,4 +102,4 @@ class Configuration(object):
             return Tensor.nnet.hard_sigmoid
 
         else:
-            raise 'method unknown'
+            raise Exception('method unknown')
