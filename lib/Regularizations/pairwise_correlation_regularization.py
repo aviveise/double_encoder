@@ -81,12 +81,12 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
         k = share(zeros([n, n]))
 
-        result = scan(lambda eig,eigU:{k:k + Tensor.sqrt(eig) * Tensor.dot(eigU.reshape([n, 1]), eigU.reshape([1, n]))},
+        result = scan(lambda eig, eigU:{k:k + Tensor.sqrt(eig) * Tensor.dot(eigU.reshape([n, 1]), eigU.reshape([1, n]))},
                         sequences=[w, v.T])
 
         #for i in xrange(n):
         #    k += Tensor.sqrt(w[i]) + Tensor.dot(v[:, i].reshape([n, 1]), v[:, i].reshape([1, n]))
 
-        return Tensor.slinalg.cholesky(result)
+        return Tensor.slinalg.cholesky(k)
 
 
