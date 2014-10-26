@@ -32,8 +32,6 @@ class OptimizationLayerStructure(OptimizationBase):
 
         for layer_number in xrange(int(self.layer_number_start), int(self.layer_number_end)):
 
-
-
             for iteration in xrange(int(self.rounds_number)):
 
                 hyper_parameters.layer_sizes = random_rng.uniform(self.start_value,
