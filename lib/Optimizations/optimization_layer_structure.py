@@ -36,7 +36,7 @@ class OptimizationLayerStructure(OptimizationBase):
 
                 hyper_parameters.layer_sizes = random_rng.uniform(self.start_value,
                                                                   self.end_value,
-                                                                  layer_size)
+                                                                  layer_number)
 
                 hyper_parameters.layer_sizes = [int(round(layer_size)) for layer_size in hyper_parameters.layer_sizes]
 
