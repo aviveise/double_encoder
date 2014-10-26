@@ -17,7 +17,8 @@ class OptimizationLayerStructure(OptimizationBase):
         self.start_value = int(optimization_parameters['start_value'])
         self.end_value = int(optimization_parameters['end_value'])
         self.rounds_number = int(optimization_parameters['rounds_number'])
-        self.layer_number = int(optimization_parameters['hidden_layer_number'])
+        self.layer_number_end = int(optimization_parameters['hidden_layer_number_end'])
+        self.layer_number_start = int(optimization_parameters['hidden_layer_number_start'])
 
     def perform_optimization(self, training_strategy):
 
@@ -28,29 +29,33 @@ class OptimizationLayerStructure(OptimizationBase):
         random_rng = RandomState()
         best_correlation = 0
 
-        for iteration in xrange(int(self.rounds_number)):
 
-            hyper_parameters.layer_sizes = random_rng.uniform(self.start_value,
-                                                              self.end_value,
-                                                              self.layer_number)
+        for layer_number in xrange(int(self.layer_number_start), int(self.layer_number_end)):
 
-            hyper_parameters.layer_sizes = [int(round(layer_size)) for layer_size in hyper_parameters.layer_sizes]
 
-            if self.symmetric_layers:
-                for i in xrange(int(round(len(hyper_parameters.layer_sizes) / 2))):
-                    hyper_parameters.layer_sizes[len(hyper_parameters.layer_sizes) - (i + 1)] = \
-                        hyper_parameters.layer_sizes[i]
 
-            correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters)
+            for iteration in xrange(int(self.rounds_number)):
 
-            if correlation > best_correlation:
+                hyper_parameters.layer_sizes = random_rng.uniform(self.start_value,
+                                                                  self.end_value,
+                                                                  layer_size)
 
-                best_correlation = correlation
-                self.hyper_parameters.layer_sizes = hyper_parameters.layer_sizes
+                hyper_parameters.layer_sizes = [int(round(layer_size)) for layer_size in hyper_parameters.layer_sizes]
 
-            OutputLog().write('%s, %f, %f\n' % (print_list(hyper_parameters.layer_sizes),
-                                                correlation,
-                                                execution_time))
+                if self.symmetric_layers:
+                    for i in xrange(layer_number):
+                        hyper_parameters.layer_sizes[-i] = hyper_parameters.layer_sizes[i]
+
+                correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters)
+
+                if correlation > best_correlation:
+
+                    best_correlation = correlation
+                    self.hyper_parameters.layer_sizes = hyper_parameters.layer_sizes
+
+                OutputLog().write('%s, %f, %f\n' % (print_list(hyper_parameters.layer_sizes),
+                                                    correlation,
+                                                    execution_time))
 
 
         OutputLog().write('----------------------------------------------------------')
