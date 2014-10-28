@@ -42,7 +42,7 @@ class OptimizationLayerStructure(OptimizationBase):
 
                 if self.symmetric_layers:
                     for i in xrange(layer_number):
-                        hyper_parameters.layer_sizes[-i] = hyper_parameters.layer_sizes[i]
+                        hyper_parameters.layer_sizes[layer_number - i] = hyper_parameters.layer_sizes[i]
 
                 correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters)
 

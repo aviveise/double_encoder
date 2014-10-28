@@ -1,15 +1,13 @@
 __author__ = 'aviv'
 
-from regularization_base import RegularizationBase
-from MISC.container import ContainerRegisterMetaClass
 from theano import tensor as Tensor
 from theano import scan as scan
 from theano import printing as Printing
-from theano import shared as share
-from numpy import zeros as zeros
-
 import theano.tensor.nlinalg as nlinalg
-import theano.tensor.slinalg as slinalg
+import theano.printing as printing
+
+from regularization_base import RegularizationBase
+from MISC.container import ContainerRegisterMetaClass
 
 
 class PairWiseCorrelationRegularization(RegularizationBase):
@@ -64,7 +62,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 print 'added var reg'
 
             if self.corr:
-               regularization += Tensor.sqrt(Tensor.nlinalg.trace(corr))
+               regularization += Tensor.sqrt(Tensor.sum(corr))
 
 
 
@@ -77,13 +75,12 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
     def _compute_square_chol(self, a, n):
 
-        w, v = Tensor.nlinalg.eigh(a,'U')
+        w, v = Tensor.nlinalg.eigh(a,'L')
 
-        k = share(zeros([n, n]))
+        result = scan(lambda prior_results, eigs, eigv: Tensor.sqrt(eigs) * Tensor.dot(eigv.dimshuffle(0, 'x'), eigv.dimshuffle('x', 0)),
+                      outputs_info=Tensor.zeros_like(a),
+                      sequences=[w, v.T])
 
-        result = scan(lambda eig, eigU:{k:k + Tensor.sqrt(eig) * Tensor.dot(eigU.reshape([n, 1]), eigU.reshape([1, n]))},
-                        sequences=[w, v.T])
-
-        return k
+        return printing.Print('result: ')(result[0])
 
 
