@@ -30,7 +30,7 @@ class OptimizationLayerStructure(OptimizationBase):
         best_correlation = 0
 
 
-        for layer_number in xrange(int(self.layer_number_start), int(self.layer_number_end)):
+        for layer_number in xrange(int(self.layer_number_start), int(self.layer_number_end + 1)):
 
             for iteration in xrange(int(self.rounds_number)):
 
@@ -42,7 +42,7 @@ class OptimizationLayerStructure(OptimizationBase):
 
                 if self.symmetric_layers:
                     for i in xrange(layer_number):
-                        hyper_parameters.layer_sizes[layer_number - i] = hyper_parameters.layer_sizes[i]
+                        hyper_parameters.layer_sizes[(layer_number - 1) - i] = hyper_parameters.layer_sizes[i]
 
                 correlation, execution_time = self.train(training_strategy=training_strategy, hyper_parameters=hyper_parameters)
 
