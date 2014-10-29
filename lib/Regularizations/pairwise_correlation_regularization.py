@@ -78,6 +78,6 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                                sequences=[w, v.T],
                                non_sequences=n)
 
-        return result
+        return result[-1]
 
 
