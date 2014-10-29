@@ -73,7 +73,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
         w, v = Tensor.nlinalg.eigh(a,'L')
 
-        result, updates = scan(lambda eigs, eigv, prior_results, size: Tensor.sqrt(eigs) * Tensor.dot(eigv.reshape([1, size]), eigv.reshape([size, 1])),
+        result, updates = scan(lambda eigs, eigv, prior_results, size: Tensor.sqrt(eigs) * Tensor.dot(eigv.reshape([size, 1]), eigv.reshape([1, size])),
                                outputs_info=Tensor.zeros_like(a),
                                sequences=[w, v.T],
                                non_sequences=n)
