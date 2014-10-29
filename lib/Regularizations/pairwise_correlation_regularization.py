@@ -75,7 +75,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
         result, updates = scan(lambda eigs, eigv, prior_results: Tensor.sqrt(eigs) * Tensor.dot(eigv.dimshuffle(0, 'x'), eigv.dimshuffle('x', 0)),
                                outputs_info=Tensor.zeros_like(a),
-                               sequences=[w, [v.T]])
+                               sequences=[w, v.T])
 
         return result
 
