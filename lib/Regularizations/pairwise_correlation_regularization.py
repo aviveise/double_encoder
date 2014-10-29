@@ -4,7 +4,6 @@ from theano import tensor as Tensor
 from theano import scan as scan
 from theano import printing as Printing
 import theano.tensor.nlinalg as nlinalg
-import theano.printing as printing
 
 from regularization_base import RegularizationBase
 from MISC.container import ContainerRegisterMetaClass
@@ -77,12 +76,10 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
         w, v = Tensor.nlinalg.eigh(a,'L')
 
-        v = printing.Print('V: ')(v)
-
         result, updates = scan(lambda eigs, eigv, prior_results: Tensor.sqrt(eigs) * Tensor.dot(eigv.dimshuffle(0, 'x'), eigv.dimshuffle('x', 0)),
                                outputs_info=Tensor.zeros_like(a),
                                sequences=[w, v.T])
 
-        return printing.Print('result: ')(result)
+        return result
 
 
