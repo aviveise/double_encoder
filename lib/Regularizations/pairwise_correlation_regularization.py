@@ -79,10 +79,10 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
         v = printing.Print('V: ')(v)
 
-        result = scan(lambda prior_results, eigs, eigv: Tensor.sqrt(eigs) * Tensor.dot(eigv.dimshuffle((0, 'x')), eigv.dimshuffle(('x', 0))),
-                      outputs_info=Tensor.zeros_like(a),
-                      sequences=[w, v.T])
+        result, updates = scan(lambda eigs, eigv, prior_results: Tensor.sqrt(eigs) * Tensor.dot(eigv.dimshuffle(0, 'x'), eigv.dimshuffle('x', 0)),
+                               outputs_info=Tensor.zeros_like(a),
+                               sequences=[w, v.T])
 
-        return printing.Print('result: ')(result[0])
+        return printing.Print('result: ')(result)
 
 
