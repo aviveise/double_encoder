@@ -2,7 +2,6 @@ __author__ = 'aviv'
 
 from theano import tensor as Tensor
 from theano import scan as scan
-from theano import printing as Printing
 import theano.tensor.nlinalg as nlinalg
 
 from regularization_base import RegularizationBase
@@ -31,8 +30,6 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
             forward = layer.output_forward
             backward = layer.output_backward
-
-            forward = Printing.Print('forward: ')(forward)
 
             forward_centered = (forward - Tensor.mean(forward, axis=0)).T
             backward_centered = (backward - Tensor.mean(backward, axis=0)).T
@@ -78,7 +75,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
         result, updates = scan(lambda eigs, eigv, prior_results: Tensor.sqrt(eigs) * Tensor.dot(eigv.dimshuffle(0, 'x'), eigv.dimshuffle('x', 0)),
                                outputs_info=Tensor.zeros_like(a),
-                               sequences=[w, v.T])
+                               sequences=[w, [v.T]])
 
         return result
 
