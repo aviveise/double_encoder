@@ -1,8 +1,5 @@
 __author__ = 'aviv'
 
-import sys
-import os
-
 import numpy
 import theano.tensor as Tensor
 
@@ -11,9 +8,7 @@ from theano import function
 from theano import config
 from theano import shared
 from theano import Out
-from theano import printing
 
-from numpy.linalg import norm
 
 class Trainer(object):
 
@@ -43,9 +38,9 @@ class Trainer(object):
 
             print 'epoch (%d) ,Loss = %f\n' % (epoch, loss / n_training_batches)
 
-        #print('------------------------')
-        #symmetric_double_encoder[0].print_weights()
-        #print('------------------------')
+        print('------------------------')
+        symmetric_double_encoder[0].print_weights()
+        print('------------------------')
 
         del model
 
