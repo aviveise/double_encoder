@@ -1,9 +1,12 @@
 __author__ = 'aviv'
 
+import sys
+
 import numpy
 
 from tester_base import TesterBase
 from MISC.utils import cca_web2, calculate_mardia, calculate_trace, calculate_corrcoef
+
 
 class CCACorraltionTester(TesterBase):
 
@@ -35,12 +38,19 @@ class CCACorraltionTester(TesterBase):
         print 'x mean: mean %f, var %f\n' % (numpy.mean(x_mean), numpy.var(x_mean))
         print 'y mean: mean %f, var %f\n' % (numpy.mean(y_mean), numpy.var(y_mean))
 
+        sys.stdout.flush()
 
         print calculate_trace(x_tilde, y_tilde, self.top)
+        sys.stdout.flush()
+
         print calculate_corrcoef(x_tilde, y_tilde, self.top)
+        sys.stdout.flush()
 
         result = calculate_mardia(x_tilde, y_tilde, self.top)
 
         print result
+        sys.stdout.flush()
+
+        return result
 
 
