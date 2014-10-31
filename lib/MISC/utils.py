@@ -354,3 +354,55 @@ def convertInt2Bitarray(number):
         number = number >> 1
 
     return result
+
+def calculate_square(x):
+
+    w, v = numpy.linalg.eigh(x)
+
+    n = x.shape[0]
+    result = numpy.zeros(x.shape)
+
+    for i in xrange(x.shape[0]):
+        result += numpy.sqrt(w[i]) * numpy.dot(v[:, i].reshape(n, 1), v[:, i].reshape(1, n))
+
+    return result
+
+def calculate_mardia(self, x, y, top):
+
+    x_centered = (x - numpy.mean(x, axis=0)).T
+    y_centered = (y - numpy.mean(y, axis=0)).T
+
+    forward_var = numpy.dot(x_centered, x_centered.T)
+    backward_var = numpy.dot(y_centered, y_centered.T)
+
+    e11 = calculate_square(forward_var)
+    e22 = calculate_square(backward_var)
+    e12 = numpy.dot(x_centered, y_centered.T)
+
+    corr = numpy.dot(numpy.dot(e11, e12), e22)
+
+    s = numpy.linalg.svd(corr,compute_uv=0)
+
+    return sum(s[0, top + 1])
+
+
+def calculate_trace(x ,y, top):
+
+    centered_x = center(x)
+    centered_y = center(y)
+
+    forward = unitnorm(centered_x)
+    backward = unitnorm(centered_y)
+
+    diag = numpy.abs(numpy.diagonal(numpy.dot(forward, backward.T)))
+    diag.sort()
+    diag = diag[::-1]
+
+    corr = numpy.dot(forward, backward.T)
+
+    print 'trace_correlations: %f\n' % numpy.sum(diag)
+    print 'trace cross correlations: %f\n' % (numpy.sum(numpy.abs(corr)) - numpy.sum(diag))
+
+
+    return sum(diag[0:top + 1])
+

@@ -3,7 +3,7 @@ __author__ = 'aviv'
 import numpy
 
 from tester_base import TesterBase
-from MISC.utils import unitnorm, center, cca_web2
+from MISC.utils import cca_web2, calculate_mardia, calculate_trace
 
 class CCACorraltionTester(TesterBase):
 
@@ -23,29 +23,23 @@ class CCACorraltionTester(TesterBase):
         x_tilde = numpy.dot(wx, x)
         y_tilde = numpy.dot(wy, y)
 
-        forward = unitnorm(center(x_tilde))
-        backward = unitnorm(center(y_tilde))
+        x_var = numpy.var(x_tilde, axis=1)
+        y_var = numpy.var(y_tilde, axis=1)
 
-        diag = numpy.abs(numpy.diagonal(numpy.dot(forward, backward.T)))
-        diag.sort()
-        diag = diag[::-1]
+        x_mean = numpy.mean(x_tilde, axis=1)
+        y_mean = numpy.mean(y_tilde, axis=1)
 
-        #forward = center(x_tilde)
-        #backward = center(y_tilde)
+        print 'x variance: mean %f, var %f\n' % (numpy.mean(x_var), numpy.var(x_var))
+        print 'y variance: mean %f, var %f\n' % (numpy.mean(y_var), numpy.var(y_var))
 
-        #u_x, s_x, v_x = numpy.linalg.svd(forward)
-        #u_y, s_y, v_y = numpy.linalg.svd(backward)
+        print 'x mean: mean %f, var %f\n' % (numpy.mean(x_mean), numpy.var(x_mean))
+        print 'y mean: mean %f, var %f\n' % (numpy.mean(y_mean), numpy.var(y_mean))
 
-        #k = min(forward.shape[1], forward.shape[0])
 
-        #temp_x = numpy.dot(u_x[:, 0:k], v_x[0:k, :])
-        #temp_y = numpy.dot(u_y[:, 0:k], v_y[0:k, :])
+        print calculate_trace(x_tilde, y_tilde, self.top)
 
-        #corr = numpy.dot(temp_x, temp_y.T)
+        result = calculate_mardia(x_tilde, y_tilde, self.top)
 
-        #s = numpy.linalg.svd(corr, compute_uv=False)
+        print result
 
-        #return numpy.sum(s[0:50])
-
-        return sum(diag[0:self.top + 1])
 

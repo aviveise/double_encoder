@@ -38,9 +38,9 @@ class Trainer(object):
 
             print 'epoch (%d) ,Loss = %f\n' % (epoch, loss / n_training_batches)
 
-        print('------------------------')
-        symmetric_double_encoder[0].print_weights()
-        print('------------------------')
+        #print('------------------------')
+        #symmetric_double_encoder[0].print_weights()
+        #print('------------------------')
 
         del model
 
