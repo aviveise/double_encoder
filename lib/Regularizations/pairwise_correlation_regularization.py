@@ -58,7 +58,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 print 'added var reg'
 
             if self.corr:
-               regularization += Tensor.sqrt(Tensor.sum(corr))
+               regularization += Tensor.sqrt(Tensor.sum(Tensor.nlinalg.trace(corr)))
 
 
 

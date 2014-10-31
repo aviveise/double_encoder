@@ -367,7 +367,7 @@ def calculate_square(x):
 
     return result
 
-def calculate_mardia(self, x, y, top):
+def calculate_mardia(x, y, top):
 
     x_centered = (x - numpy.mean(x, axis=0)).T
     y_centered = (y - numpy.mean(y, axis=0)).T
@@ -386,7 +386,7 @@ def calculate_mardia(self, x, y, top):
     return sum(s[0, top + 1])
 
 
-def calculate_trace(x ,y, top):
+def calculate_trace(x, y, top):
 
     centered_x = center(x)
     centered_y = center(y)

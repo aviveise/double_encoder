@@ -20,6 +20,10 @@ class DoubleEncoderTransformer(TransformerBase):
         model = self._build_model()
         return model(test_set_x, test_set_y)
 
+    def compute_reconstructions(self, test_x, test_y):
+        model = self._build_reconstruction_model()
+        return model(test_x, test_y)
+
     def _build_model(self):
 
         x1_tilde = self._correlation_optimizer[self._layer_num].compute_forward_hidden()
@@ -29,4 +33,12 @@ class DoubleEncoderTransformer(TransformerBase):
 
         return correlation_test_model
 
+    def _build_reconstruction_model(self):
+
+        x_tilde = self._correlation_optimizer.reconstruct_x()
+        y_tilde = self._correlation_optimizer.reconstruct_y()
+
+        correlation_test_model = function([self._x, self._y], [x_tilde, y_tilde])
+
+        return correlation_test_model
 

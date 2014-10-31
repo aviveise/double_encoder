@@ -1,12 +1,19 @@
 __author__ = 'aviv'
 
+import numpy
+from theano import tensor as Tensor
+from theano import scan
+from theano.tensor import nlinalg
+from theano.compat.python2x import OrderedDict
+from theano import function
+from theano import config
 from theano import shared
+from theano import Out
+
 from training_strategy import TrainingStrategy
 from stacked_double_encoder import StackedDoubleEncoder
 from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
-
 from MISC.logger import OutputLog
-
 from trainer import Trainer
 
 class IterativeTrainingStrategy(TrainingStrategy):
@@ -55,7 +62,98 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           params=params,
                           regularization_methods=regularization_methods)
 
+        #self._train_hidden_layer(training_set_x, training_set_y, 0, symmetric_double_encoder, hyper_parameters)
+
         return symmetric_double_encoder
+
+    def _train_hidden_layer(self, training_x, training_y, layer_num, symmetric_double_encoder, hyper_parameters):
+
+        #Index for iterating batches
+        index = Tensor.lscalar()
+
+        layer = symmetric_double_encoder[layer_num]
+
+        params = []
+        params.extend(layer.x_hidden_params)
+        params.extend(layer.y_hidden_params)
+
+        var_x = symmetric_double_encoder.var_x
+        var_y = symmetric_double_encoder.var_y
+
+        forward = layer.output_forward
+        backward = layer.output_backward
+
+        forward_centered = (forward - Tensor.mean(forward, axis=0)).T
+        backward_centered = (backward - Tensor.mean(backward, axis=0)).T
+
+        forward_var = Tensor.dot(forward_centered, forward_centered.T) + 0.1 * Tensor.eye(forward_centered.shape[0])
+        backward_var = Tensor.dot(backward_centered, backward_centered.T) + 0.1 * Tensor.eye(backward_centered.shape[0])
+
+        e11 = self._compute_square_chol(forward_var, layer.hidden_layer_size)
+        e22 = self._compute_square_chol(backward_var, layer.hidden_layer_size)
+        e12 = Tensor.dot(forward_centered, backward_centered.T)
+
+        corr = Tensor.dot(Tensor.dot(e11, e12), e22)
+
+        loss = Tensor.sqrt(Tensor.sum(corr))
+
+         #the result is gradients for each parameter of the cross encoder
+        gradients = Tensor.grad(loss, params)
+
+        if hyper_parameters.momentum > 0:
+
+            model_updates = [shared(value=numpy.zeros(p.get_value().shape, dtype=config.floatX),
+                                                    name='inc_' + p.name) for p in params]
+
+            updates = OrderedDict()
+            zipped = zip(params, gradients, model_updates)
+            for param, gradient, model_update in zipped:
+
+                delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
+
+                updates[param] = param + delta
+                updates[model_update] = delta
+
+        else:
+            #generate the list of updates, each update is a round in the decent
+            updates = []
+            for param, gradient in zip(params, gradients):
+                updates.append((param, param - hyper_parameters.learning_rate * gradient))
+
+
+        #Building the theano function
+        #input : batch index
+        #output : both losses
+        #updates : gradient decent updates for all params
+        #givens : replacing inputs for each iteration
+        model = function(inputs=[index],
+                         outputs=Out((Tensor.cast(loss, config.floatX)), borrow=True),
+                         updates=updates,
+                         givens={var_x: training_x[index * hyper_parameters.batch_size:
+                                                            (index + 1) * hyper_parameters.batch_size, :],
+                                 var_y: training_y[index * hyper_parameters.batch_size:
+                                                            (index + 1) * hyper_parameters.batch_size, :]})
+
+                #Calculating number of batches
+        n_training_batches = training_x.get_value(borrow=True).shape[0] / hyper_parameters.batch_size
+
+        #print('------------------------')
+        #symmetric_double_encoder[0].print_weights()
+        #print('------------------------')
+
+        #The training phase, for each epoch we train on every batch
+        for epoch in numpy.arange(hyper_parameters.epochs):
+            loss = 0
+            for index in xrange(n_training_batches):
+                loss += model(index)
+
+            print 'epoch (%d) ,Loss = %f\n' % (epoch, loss / n_training_batches)
+
+        #print('------------------------')
+        #symmetric_double_encoder[0].print_weights()
+        #print('------------------------')
+
+        del model
 
     def _add_cross_encoder_layer(self, layer_size, symmetric_double_encoder, activation_hidden, activation_output):
 
@@ -71,3 +169,16 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
     def set_parameters(self, parameters):
         return
+
+    def _compute_square_chol(self, a, n):
+
+        w, v = Tensor.nlinalg.eigh(a,'L')
+
+        result, updates = scan(lambda eigs, eigv, prior_results, size: Tensor.sqrt(eigs) * Tensor.dot(eigv.reshape([size, 1]), eigv.reshape([1, size])),
+                               outputs_info=Tensor.zeros_like(a),
+                               sequences=[w, v.T],
+                               non_sequences=n)
+
+        return result[-1]
+
+
