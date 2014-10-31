@@ -3,7 +3,7 @@ __author__ = 'aviv'
 import numpy
 
 from tester_base import TesterBase
-from MISC.utils import calculate_mardia, calculate_trace
+from MISC.utils import calculate_mardia, calculate_trace, calculate_corrcoef
 
 class TraceCorrelationTester(TesterBase):
 
@@ -27,6 +27,7 @@ class TraceCorrelationTester(TesterBase):
         print 'y mean: mean %f, var %f\n' % (numpy.mean(y_mean), numpy.var(y_mean))
 
         print calculate_trace(x, y, self.top)
+        print calculate_corrcoef(x, y, self.top)
 
         result = calculate_mardia(x, y, self.top)
 

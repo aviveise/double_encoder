@@ -385,7 +385,6 @@ def calculate_mardia(x, y, top):
 
     return sum(s[0, top + 1])
 
-
 def calculate_trace(x, y, top):
 
     centered_x = center(x)
@@ -406,3 +405,16 @@ def calculate_trace(x, y, top):
 
     return sum(diag[0:top + 1])
 
+def calculate_corrcoef(x, y, top):
+
+    n = x.shape[0]
+    corr = numpy.corrcoef(x, y)
+
+    corr = corr[0: n + 1, n + 1: 2 * n + 1]
+
+
+    diag = numpy.abs(numpy.diagonal(corr))
+    diag.sort()
+    diag = diag[::-1]
+
+    return numpy.sum(diag[0:top + 1])

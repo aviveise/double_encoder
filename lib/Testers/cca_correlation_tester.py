@@ -3,7 +3,7 @@ __author__ = 'aviv'
 import numpy
 
 from tester_base import TesterBase
-from MISC.utils import cca_web2, calculate_mardia, calculate_trace
+from MISC.utils import cca_web2, calculate_mardia, calculate_trace, calculate_corrcoef
 
 class CCACorraltionTester(TesterBase):
 
@@ -37,6 +37,7 @@ class CCACorraltionTester(TesterBase):
 
 
         print calculate_trace(x_tilde, y_tilde, self.top)
+        print calculate_corrcoef(x_tilde, y_tilde, self.top)
 
         result = calculate_mardia(x_tilde, y_tilde, self.top)
 
