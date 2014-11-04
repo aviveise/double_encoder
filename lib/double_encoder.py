@@ -18,6 +18,9 @@ from MISC.container import Container
 from MISC.utils import ConfigSectionMap
 from MISC.logger import OutputLog
 
+import DataSetReaders
+import Regularizations
+
 class DoubleEncoder(object):
 
     @staticmethod
