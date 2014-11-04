@@ -33,7 +33,7 @@ class TraceCorrelationTester(TesterBase):
 
         print 'trace:\n'
 
-        result =  calculate_trace(x, y, self.top)
+        result = calculate_trace(x, y, self.top)
 
         print 'trace = %f\n' % result
         sys.stdout.flush()
