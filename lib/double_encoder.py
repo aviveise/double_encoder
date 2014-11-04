@@ -10,6 +10,7 @@ from time import clock
 from configuration import Configuration
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
+from Testers.cca_correlation_tester import CCACorraltionTester
 
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 
@@ -18,7 +19,6 @@ from MISC.utils import ConfigSectionMap
 from MISC.logger import OutputLog
 
 class DoubleEncoder(object):
-
 
     @staticmethod
     def run(training_strategy):
@@ -68,10 +68,10 @@ class DoubleEncoder(object):
 
             trace_correlation = TraceCorrelationTester(data_set.testset[0].T, data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 
-            #cca_correlation = CCACorraltionTester(data_set.testset[0].T,
-            #                                      data_set.testset[1].T,
-            #                                      data_set.trainset[0].T,
-            #                                      data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
+            cca_correlation = CCACorraltionTester(data_set.testset[0].T,
+                                                  data_set.testset[1].T,
+                                                  data_set.trainset[0].T,
+                                                  data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 
 
         except:
@@ -97,10 +97,26 @@ class DoubleEncoder(object):
         OutputLog().write('%f, %f\n' % (float(trace_correlation),
                                           execution_time))
 
-        #OutputLog().write('cca: correlation execution_time\n')
+        OutputLog().write('cca: correlation execution_time\n')
 
-        #OutputLog().write('%f, %f\n' % (float(cca_correlation),
-        #                                execution_time))
+        OutputLog().write('%f, %f\n' % (float(cca_correlation),
+                                        execution_time))
 
+        #x_test = data_set.testset[0][: ,0]
+        #x_test.reshape([x_test.shape[0], 1])
+
+        #y_test = data_set.testset[1][: ,0]
+        #y_test.reshape([x_test.shape[0], 1])
+
+        #print x_test.shape
+
+        #x_tilde, y_tilde = DoubleEncoderTransformer(stacked_double_encoder,0).compute_reconstructions(x_test,
+        #                                                                                              y_test)
+
+        #image_x = Image.fromarray(x_tilde)
+        #image_y = Image.fromarray(y_tilde)
+
+        #image_x.save('x_tilde.png')
+        #image_y.save('y_tilde.png')
 
         return stacked_double_encoder
