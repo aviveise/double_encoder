@@ -20,6 +20,7 @@ from MISC.logger import OutputLog
 
 import DataSetReaders
 import Regularizations
+import Optimizations
 
 class DoubleEncoder(object):
 
