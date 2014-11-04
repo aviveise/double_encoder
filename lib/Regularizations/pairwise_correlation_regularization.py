@@ -53,8 +53,8 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 print 'added pair reg'
 
             if self.variance:
-                regularization -= forward_var.sum()
-                regularization -= backward_var.sum()
+                regularization -= (Tensor.sum(Tensor.nlinalg.trace(forward_var)))
+                regularization -= (Tensor.sum(Tensor.nlinalg.trace(backward_var)))
                 print 'added var reg'
 
             if self.corr:

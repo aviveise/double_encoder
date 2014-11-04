@@ -40,15 +40,17 @@ class CCACorraltionTester(TesterBase):
 
         sys.stdout.flush()
 
-        print calculate_trace(x_tilde, y_tilde, self.top)
+        print 'cca:\n'
+
+        print 'trace = %f\n' % calculate_trace(x_tilde, y_tilde, self.top)
         sys.stdout.flush()
 
-        print calculate_corrcoef(x_tilde, y_tilde, self.top)
+        print 'corrcoef = %f\n' % calculate_corrcoef(x_tilde, y_tilde, self.top)
         sys.stdout.flush()
 
         result = calculate_mardia(x_tilde, y_tilde, self.top)
 
-        print result
+        print 'mardia = %f\n' % result
         sys.stdout.flush()
 
         return result

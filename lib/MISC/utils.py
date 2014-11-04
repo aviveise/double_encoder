@@ -383,7 +383,7 @@ def calculate_mardia(x, y, top):
 
     s = numpy.linalg.svd(corr,compute_uv=0)
 
-    return sum(s[0, top + 1])
+    return sum(s[0:top + 1])
 
 def calculate_trace(x, y, top):
 

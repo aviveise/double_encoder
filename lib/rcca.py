@@ -4,13 +4,13 @@ import sys
 import ConfigParser
 import rpy2.robjects.numpy2ri as numpy2ri
 import rpy2.robjects as robjects
-import DataSetReaders
 import numpy
+
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
 from Transformers.identity_transform import IdentityTransformer
-from MISC.container import Container
 from MISC.utils import ConfigSectionMap
+from MISC.container import Container
 
 __author__ = 'aviv'
 

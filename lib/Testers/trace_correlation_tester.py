@@ -5,6 +5,7 @@ import sys
 import numpy
 
 from tester_base import TesterBase
+
 from MISC.utils import calculate_mardia, calculate_trace, calculate_corrcoef
 
 
@@ -30,16 +31,20 @@ class TraceCorrelationTester(TesterBase):
         print 'y mean: mean %f, var %f\n' % (numpy.mean(y_mean), numpy.var(y_mean))
         sys.stdout.flush()
 
-        print calculate_trace(x, y, self.top)
+        print 'trace:\n'
+
+        print 'trace = %f\n' % calculate_trace(x, y, self.top)
         sys.stdout.flush()
 
-        print calculate_corrcoef(x, y, self.top)
+        print 'corrcoef = %f\n' % calculate_corrcoef(x, y, self.top)
         sys.stdout.flush()
 
         result = calculate_mardia(x, y, self.top)
 
-        print result
+        print 'mardia = %f\n' % result
         sys.stdout.flush()
+
+        return result
 
 
     def print_array(self, a):

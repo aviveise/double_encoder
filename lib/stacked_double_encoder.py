@@ -2,10 +2,8 @@ __author__ = 'aviv'
 
 import theano.tensor as Tensor
 
-from theano import printing
 from numpy.random import RandomState
 from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
-from theano import shared
 
 class StackedDoubleEncoder(object):
 
