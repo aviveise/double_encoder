@@ -403,18 +403,18 @@ def calculate_trace(x, y, top):
     print 'trace cross correlations: %f\n' % (numpy.sum(numpy.abs(corr)) - numpy.sum(diag))
 
 
-    return sum(diag[0:top + 1])
+    return sum(diag[0:top])
 
 def calculate_corrcoef(x, y, top):
 
     n = x.shape[0]
     corr = numpy.corrcoef(x, y)
 
-    corr = corr[0: n + 1, n + 1: 2 * n + 1]
+    corr = corr[0: n, n + 1: 2 * n]
 
 
     diag = numpy.abs(numpy.diagonal(corr))
     diag.sort()
     diag = diag[::-1]
 
-    return numpy.sum(diag[0:top + 1])
+    return numpy.sum(diag[0:top])
