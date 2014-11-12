@@ -36,12 +36,14 @@ class TraceCorrelationTester(TesterBase):
         print 'trace = %f\n' % calculate_trace(x, y, self.top)
         sys.stdout.flush()
 
-        result = calculate_corrcoef(x, y, self.top)
+        #result = calculate_corrcoef(x, y, self.top)
 
-        print 'corrcoef = %f\n' % result
-        sys.stdout.flush()
+        #print 'corrcoef = %f\n' % result
+        #sys.stdout.flush()
 
-        print 'mardia = %f\n' % calculate_mardia(x, y, self.top)
+        result = calculate_mardia(x, y, self.top)
+
+        print 'mardia = %f\n' % result
         sys.stdout.flush()
 
         return result
