@@ -50,7 +50,8 @@ class OptimizationBase(object):
                                                      self.training_set[1].T,
                                                      hyper_parameters,
                                                      regularization_methods.values(),
-                                                     sigmoid)
+                                                     sigmoid,
+                                                     top=self.top)
 
             correlation = TraceCorrelationTester(self.test_set[0].T, self.test_set[1].T, self.top).\
                 test(DoubleEncoderTransformer(double_encoder, 0))

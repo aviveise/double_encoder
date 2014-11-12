@@ -68,7 +68,8 @@ class DoubleEncoder(object):
                                                              training_set_y=data_set.trainset[1].T,
                                                              hyper_parameters=configuration.hyper_parameters,
                                                              regularization_methods=regularization_methods.values(),
-                                                             activation_method=None)
+                                                             activation_method=None,
+                                                             top=top)
 
             trace_correlation = TraceCorrelationTester(data_set.testset[0].T, data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 

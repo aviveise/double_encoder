@@ -21,6 +21,8 @@ class StackedDoubleEncoder(object):
         if numpy_range is None:
             numpy_range = RandomState()
 
+        self.numpy_range = numpy_range
+
         if hidden_layers is None or len(hidden_layers) == 0:
             return
 

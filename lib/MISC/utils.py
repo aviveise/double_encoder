@@ -369,21 +369,32 @@ def calculate_square(x):
 
 def calculate_mardia(x, y, top):
 
-    x_centered = (x - numpy.mean(x, axis=0)).T
-    y_centered = (y - numpy.mean(y, axis=0)).T
+    set_size = x.shape[1]
+    dim = x.shape[0]
 
-    forward_var = numpy.dot(x_centered, x_centered.T)
-    backward_var = numpy.dot(y_centered, y_centered.T)
+    ones = numpy.ones([set_size, set_size])
 
-    e11 = calculate_square(forward_var)
-    e22 = calculate_square(backward_var)
-    e12 = numpy.dot(x_centered, y_centered.T)
+    x_centered = x - numpy.dot(x, ones) / set_size
+    y_centered = y - numpy.dot(y, ones) / set_size
 
-    corr = numpy.dot(numpy.dot(e11, e12), e22)
+    s11 = numpy.diag(numpy.diag(numpy.dot(x_centered, x_centered.T))) / (set_size - 1) + 10**(-8) * numpy.eye(dim, dim)
+    s22 = numpy.diag(numpy.diag(numpy.dot(y_centered, y_centered.T))) / (set_size - 1) + 10**(-8) * numpy.eye(dim, dim)
+    s12 = numpy.diag(numpy.diag(numpy.dot(x_centered, y_centered.T))) / (set_size - 1)
 
-    s = numpy.linalg.svd(corr,compute_uv=0)
+    #s11_chol = scipy.linalg.cholesky(s11, lower=False)
+    #s22_chol = scipy.linalg.cholesky(s22, lower=False)
 
-    return sum(s[0:top + 1])
+    s11_chol = scipy.linalg.sqrtm(s11)
+    s22_chol = scipy.linalg.sqrtm(s22)
+
+    s11_chol_inv = scipy.linalg.inv(s11_chol)
+    s22_chol_inv = scipy.linalg.inv(s22_chol)
+
+    mat_T = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
+
+    s = numpy.linalg.svd(mat_T, compute_uv=0)
+
+    return numpy.sum(s[0:top])
 
 def calculate_trace(x, y, top):
 

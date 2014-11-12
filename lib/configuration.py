@@ -46,6 +46,9 @@ class Configuration(object):
         layer_sizes = map(int, training_section['layer_sizes'].split())
         method_in = self.convert_method(training_section['method_in'])
         method_out = self.convert_method(training_section['method_out'])
+        output_layer_size = int(training_section['output_layer_size'])
+        reg1 = float(training_section['reg1'])
+        reg2 = float(training_section['reg2'])
 
         return HyperParameters(layer_sizes=layer_sizes,
                                learning_rate=learning_rate,
@@ -53,7 +56,10 @@ class Configuration(object):
                                epochs=epochs,
                                momentum=momentum,
                                method_in=method_in,
-                               method_out=method_out)
+                               method_out=method_out,
+                               output_layer_size=output_layer_size,
+                               reg1=reg1,
+                               reg2=reg2)
 
     def _parse_dcca_training_parameters(self, training_section):
 

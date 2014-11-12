@@ -18,7 +18,8 @@ class TrainingStrategy(object):
               training_set_y,
               hyper_parameters,
               regularization_methods,
-              activation_method):
+              activation_method,
+              top=50):
         return
 
     @abc.abstractmethod
