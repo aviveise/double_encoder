@@ -57,10 +57,8 @@ class OptimizationBase(object):
                 test(DoubleEncoderTransformer(double_encoder, 0))
 
         except:
-            print 'exception:'
-            print traceback.format_exc()
-            print ''
-            return 0
+            print 'exception while training'
+            return 0, 0
 
         execution_time = clock() - start
 
