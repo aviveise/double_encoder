@@ -48,8 +48,8 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 print 'added euc reg'
 
             if self.pair_wise:
-                regularization += ((forward_var - Tensor.eye(forward.shape[0], dtype=Tensor.config.floatX)) ** 2).sum()
-                regularization += ((backward_var - Tensor.eye(backward.shape[0], dtype=Tensor.config.floatX)) ** 2).sum()
+                regularization += ((forward_var - Tensor.eye(forward.shape[1], dtype=Tensor.config.floatX)) ** 2).sum()
+                regularization += ((backward_var - Tensor.eye(backward.shape[1], dtype=Tensor.config.floatX)) ** 2).sum()
                 print 'added pair reg'
 
             if self.variance:

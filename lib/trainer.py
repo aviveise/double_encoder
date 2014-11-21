@@ -97,6 +97,7 @@ class Trainer(object):
 
         loss = loss_backward + loss_forward
 
+
         #Add the regularization method computations to the loss
         loss += sum([regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods])
 
