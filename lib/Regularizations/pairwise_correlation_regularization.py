@@ -2,7 +2,9 @@ __author__ = 'aviv'
 
 from theano import tensor as Tensor
 from theano import scan as scan
+from theano import printing as printing
 import theano.tensor.nlinalg as nlinalg
+
 
 from regularization_base import RegularizationBase
 from MISC.container import ContainerRegisterMetaClass
@@ -34,8 +36,10 @@ class PairWiseCorrelationRegularization(RegularizationBase):
             forward_centered = (forward - Tensor.mean(forward, axis=0)).T
             backward_centered = (backward - Tensor.mean(backward, axis=0)).T
 
-            forward_var = Tensor.dot(forward_centered, forward_centered.T) + self.reg1 * Tensor.eye(forward_centered.shape[0])
-            backward_var = Tensor.dot(backward_centered, backward_centered.T) + self.reg2 * Tensor.eye(backward_centered.shape[0])
+            forward_var = Tensor.dot(forward_centered, forward_centered.T)# + self.reg1 * Tensor.eye(forward_centered.shape[0])
+            backward_var = Tensor.dot(backward_centered, backward_centered.T)# + self.reg2 * Tensor.eye(backward_centered.shape[0])
+
+            forward_var = printing.Print('var: ')(forward_var)
 
             e11 = self._compute_square_chol(forward_var, layer.hidden_layer_size)
             e22 = self._compute_square_chol(backward_var, layer.hidden_layer_size)
@@ -48,13 +52,17 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 print 'added euc reg'
 
             if self.pair_wise:
-                regularization += ((forward_var - Tensor.eye(forward.shape[1], dtype=Tensor.config.floatX)) ** 2).sum()
-                regularization += ((backward_var - Tensor.eye(backward.shape[1], dtype=Tensor.config.floatX)) ** 2).sum()
+                regularization += ((forward_var - Tensor.nlinalg.diag(Tensor.nlinalg.diag(forward_var)))).sum()
+                regularization += ((backward_var - Tensor.nlinalg.diag(Tensor.nlinalg.diag(backward_var)))).sum()
+
+
+                #regularization += ((forward_var - Tensor.eye(forward.shape[1], dtype=Tensor.config.floatX))).sum()
+                #regularization += ((backward_var - Tensor.eye(backward.shape[1], dtype=Tensor.config.floatX))).sum()
                 print 'added pair reg'
 
             if self.variance:
-                regularization -= (Tensor.sum(Tensor.nlinalg.trace(forward_var)))
-                regularization -= (Tensor.sum(Tensor.nlinalg.trace(backward_var)))
+                regularization -= (Tensor.nlinalg.trace(forward_var ** 2))
+                regularization -= (Tensor.nlinalg.trace(backward_var ** 2))
                 print 'added var reg'
 
             if self.corr:

@@ -124,12 +124,12 @@ class SymmetricHiddenLayer(object):
             if input_size is None:
                 raise Exception("input size not provided")
 
-            #initial_Wx = numpy.asarray(self.numpy_range.uniform(low=-4 * numpy.sqrt(6. / (self.hidden_layer_size + input_size)),
-            #                                                    high=4 * numpy.sqrt(6. / (self.hidden_layer_size + input_size)),
-            #                                                    size=(input_size, self.hidden_layer_size)),
-            #                                                    dtype=theano.config.floatX)
+            initial_Wx = numpy.asarray(self.numpy_range.uniform(low=-4 * numpy.sqrt(6. / (self.hidden_layer_size + input_size)),
+                                                                high=4 * numpy.sqrt(6. / (self.hidden_layer_size + input_size)),
+                                                                size=(input_size, self.hidden_layer_size)),
+                                                                dtype=theano.config.floatX)
 
-            initial_Wx = numpy.asarray(self.numpy_range.normal(0, 1, size=(input_size, self.hidden_layer_size)), dtype=theano.config.floatX)
+            #initial_Wx = numpy.asarray(self.numpy_range.normal(0, 1, size=(input_size, self.hidden_layer_size)), dtype=theano.config.floatX)
 
             # WXtoH corresponds to the weights between the input and the hidden layer
             self.Wx = theano.shared(value=initial_Wx, name='Wx' + '_' + self.name)
@@ -139,12 +139,12 @@ class SymmetricHiddenLayer(object):
             if output_size is None:
                 raise Exception("output size not provided")
 
-            #initial_Wy = numpy.asarray(self.numpy_range.uniform(low=-4 * numpy.sqrt(6. / (self.hidden_layer_size + output_size)),
-            #                                                    high=4 * numpy.sqrt(6. / (self.hidden_layer_size + output_size)),
-            #                                                    size=(output_size, self.hidden_layer_size)),
-            #                                                    dtype=theano.config.floatX)
+            initial_Wy = numpy.asarray(self.numpy_range.uniform(low=-4 * numpy.sqrt(6. / (self.hidden_layer_size + output_size)),
+                                                                high=4 * numpy.sqrt(6. / (self.hidden_layer_size + output_size)),
+                                                                size=(output_size, self.hidden_layer_size)),
+                                                                dtype=theano.config.floatX)
 
-            initial_Wy = numpy.asarray(self.numpy_range.normal(0, 1, size=(output_size, self.hidden_layer_size)), dtype=theano.config.floatX)
+            #initial_Wy = numpy.asarray(self.numpy_range.normal(0, 1, size=(output_size, self.hidden_layer_size)), dtype=theano.config.floatX)
 
             # WHtoY corresponds to the weights between the hidden layer and the output
             self.Wy = theano.shared(value=initial_Wy, name='Wy' + '_' + self.name)
