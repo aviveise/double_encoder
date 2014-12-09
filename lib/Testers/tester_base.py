@@ -9,8 +9,22 @@ class TesterBase(object):
         self._y = test_set_y
 
     def test(self, transformer):
+
         x_tilde, y_tilde = transformer.compute_outputs(self._x, self._y)
-        return self._find_correlation(x_tilde.T, y_tilde.T, transformer)
+        correlation = 0
+        zipped = zip(x_tilde, y_tilde)
+        index = 0
+
+        for x, y in zipped:
+
+            print 'result - layer %d' % index
+            index += 1
+
+            correlation_temp = self._find_correlation(x.T, y.T, transformer)
+            if correlation_temp > correlation:
+                correlation = correlation_temp
+
+        return correlation
 
     @abc.abstractmethod
     def _find_correlation(self, x, y, transformer):
