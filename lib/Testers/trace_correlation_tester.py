@@ -18,8 +18,8 @@ class TraceCorrelationTester(TesterBase):
 
     def _find_correlation(self, x, y, transformer):
 
-        x_var = numpy.var(x, axis=1)
-        y_var = numpy.var(y, axis=1)
+        x_var = numpy.var(x, axis=0)
+        y_var = numpy.var(y, axis=0)
 
         x_mean = numpy.mean(x, axis=1)
         y_mean = numpy.mean(y, axis=1)
