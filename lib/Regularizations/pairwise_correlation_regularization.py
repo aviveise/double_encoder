@@ -39,8 +39,6 @@ class PairWiseCorrelationRegularization(RegularizationBase):
             forward_var = Tensor.dot(forward_centered, forward_centered.T)# + self.reg1 * Tensor.eye(forward_centered.shape[0])
             backward_var = Tensor.dot(backward_centered, backward_centered.T)# + self.reg2 * Tensor.eye(backward_centered.shape[0])
 
-            forward_var = printing.Print('var: ')(forward_var)
-
             e11 = self._compute_square_chol(forward_var, layer.hidden_layer_size)
             e22 = self._compute_square_chol(backward_var, layer.hidden_layer_size)
             e12 = Tensor.dot(forward_centered, backward_centered.T)

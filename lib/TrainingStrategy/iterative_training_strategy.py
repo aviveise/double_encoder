@@ -36,12 +36,11 @@ class IterativeTrainingStrategy(TrainingStrategy):
         training_set_x = shared(training_set_x, 'training_set_x', borrow=True)
         training_set_y = shared(training_set_y, 'training_set_y', borrow=True)
 
-        symmetric_double_encoder = CorrelatedStackedDoubleEncoder(hidden_layers=[],
-                                                                  numpy_range=self._random_range,
-                                                                  input_size=training_set_x.get_value(borrow=True).shape[1],
-                                                                  output_size=training_set_y.get_value(borrow=True).shape[1],
-                                                                  activation_method=activation_method,
-                                                                  top=top)
+        symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+                                                        numpy_range=self._random_range,
+                                                        input_size=training_set_x.get_value(borrow=True).shape[1],
+                                                        output_size=training_set_y.get_value(borrow=True).shape[1],
+                                                        activation_method=activation_method)
 
         #In this phase we train the stacked encoder one layer at a time
         #once a layer was added, weights not belonging to the new layer are
@@ -65,15 +64,15 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           params=params,
                           regularization_methods=regularization_methods)
 
-        params = symmetric_double_encoder.output_params
+        #params = symmetric_double_encoder.output_params
 
-        Trainer.train_output_layer(train_set_x=training_set_x,
-                                   train_set_y=training_set_y,
-                                   hyper_parameters=hyper_parameters,
-                                   symmetric_double_encoder=symmetric_double_encoder,
-                                   params=params,
-                                   regularization_methods=regularization_methods,
-                                   top=top)
+        #Trainer.train_output_layer(train_set_x=training_set_x,
+        #                           train_set_y=training_set_y,
+        #                           hyper_parameters=hyper_parameters,
+        #                           symmetric_double_encoder=symmetric_double_encoder,
+        #                           params=params,
+        #                           regularization_methods=regularization_methods,
+        #                           top=top)
 
         return symmetric_double_encoder
 
