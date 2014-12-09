@@ -28,6 +28,14 @@ class DatasetBase(object):
 
         self.build_dataset()
 
+        if center:
+            center_function(self.trainset[0])
+            center_function(self.tuning[0])
+            center_function(self.testset[0])
+            center_function(self.trainset[1])
+            center_function(self.tuning[1])
+            center_function(self.testset[1])
+
         if normalize:
             unitnorm(self.trainset[0])
             unitnorm(self.tuning[0])
@@ -36,13 +44,6 @@ class DatasetBase(object):
             unitnorm(self.tuning[1])
             unitnorm(self.testset[1])
 
-        if center:
-            center_function(self.trainset[0])
-            center_function(self.tuning[0])
-            center_function(self.testset[0])
-            center_function(self.trainset[1])
-            center_function(self.tuning[1])
-            center_function(self.testset[1])
 
         if whiten:
             transform_0 = WhitenTransform(self.trainset[0])
