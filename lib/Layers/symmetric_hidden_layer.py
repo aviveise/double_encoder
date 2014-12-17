@@ -92,7 +92,7 @@ class SymmetricHiddenLayer(object):
                     #self.bias_y = theano.shared(value=numpy.asarray(self.numpy_range.normal(loc=0.0, scale=.01, size=self.hidden_layer_size),
                     #                                                dtype=theano.config.floatX),
                     #                            name='bias_y' + '_' + self.name)
-                    self.bias_y = theano.shared(value=numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
+                    self.bias_y = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                                 name='bias_y' + '_' + self.name)
                 else:
                     self.bias_y = bias_y
@@ -102,7 +102,7 @@ class SymmetricHiddenLayer(object):
                     #                                                dtype=theano.config.floatX),
                     #                                  name='bias_y_prime' + '_' + self.name)
 
-                    self.bias_y_prime = theano.shared(value=numpy.ones(output_size, dtype=theano.config.floatX),
+                    self.bias_y_prime = theano.shared(value=numpy.zeros(output_size, dtype=theano.config.floatX),
                                                       name='bias_y_prime' + '_' + self.name)
                 else:
                     self.bias_y_prime = bias_y_prime
