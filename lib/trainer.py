@@ -111,10 +111,10 @@ class Trainer(object):
         index = Tensor.lscalar()
 
         #Compute the loss of the forward encoding as L2 loss
-        loss_backward = Tensor.sqrt(((var_x - x_tilde) ** 2).sum()) / hyper_parameters.batch_size
+        loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
 
         #Compute the loss of the backward encoding as L2 loss
-        loss_forward = Tensor.sqrt(((var_y - y_tilde) ** 2).sum()) / hyper_parameters.batch_size
+        loss_forward = ((var_y - y_tilde) ** 2).sum() / hyper_parameters.batch_size
 
         loss = loss_backward + loss_forward
 
