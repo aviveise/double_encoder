@@ -111,7 +111,6 @@ class SymmetricHiddenLayer(object):
                 self.y_hidden_params = [self.Wy, self.bias_y]
 
                 self.output_backward = self.compute_backward_hidden()
-                #self.output_backward = theano.printing.Print('y_hid: ')(self.compute_backward_hidden())
 
         def _initialize_input_weights(self, input_size):
 
@@ -165,6 +164,12 @@ class SymmetricHiddenLayer(object):
         def reconstruct_x(self):
             return self.activation_output(Tensor.dot(self.output_backward, self.Wx.T) + self.bias_x_prime)
 
+        def input_x(self):
+            return self.x
+
+        def input_y(self):
+            return self.y
+
         def print_weights(self):
 
             print('Wx: ')
@@ -179,7 +184,7 @@ class SymmetricHiddenLayer(object):
             print(self.bias_x_prime.eval())
             print('By_prime: ')
             print(self.bias_y_prime.eval())
-        #
+
         # #Regularization methods for different kinds of regularization types
         # def sparsity_forward(self, ru=0.05):
         #

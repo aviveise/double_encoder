@@ -17,7 +17,7 @@ class CCACorraltionTester(TesterBase):
         self.train_set_y = train_set_y
         self.top = top
 
-    def _find_correlation(self, x, y, transformer):
+    def _calculate_metric(self, x, y, transformer):
 
         train_x_tilde, train_y_tilde = transformer.compute_outputs(self.train_set_x, self.train_set_y)
 

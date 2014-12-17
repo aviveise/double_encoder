@@ -107,5 +107,8 @@ class Configuration(object):
         elif method_string == 'hard_sigmoid':
             return Tensor.nnet.hard_sigmoid
 
+        elif method_string == 'none':
+            return lambda x: x
+
         else:
             raise Exception('method unknown')

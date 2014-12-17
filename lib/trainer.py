@@ -1,10 +1,15 @@
 __author__ = 'aviv'
 
+import sys
 import numpy
 import theano.tensor as Tensor
 import theano.tensor.nlinalg
 import theano.tensor.slinalg
 
+from Testers.trace_correlation_tester import TraceCorrelationTester
+from Transformers.double_encoder_transformer import DoubleEncoderTransformer
+
+from tabulate import tabulate
 
 from theano import printing as Printing
 from theano.compat.python2x import OrderedDict
@@ -12,12 +17,22 @@ from theano import function
 from theano import config
 from theano import shared
 from theano import Out
+from theano import pp
 
 
 class Trainer(object):
 
     @staticmethod
-    def train(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
+    def train(train_set_x,
+              train_set_y,
+              hyper_parameters,
+              symmetric_double_encoder,
+              params,
+              regularization_methods,
+              print_verbose=False,
+              top=50,
+              validation_set_x=None,
+              validation_set_y=None):
 
 
         model = Trainer._build_model(train_set_x,
@@ -30,21 +45,28 @@ class Trainer(object):
         #Calculating number of batches
         n_training_batches = train_set_x.get_value(borrow=True).shape[0] / hyper_parameters.batch_size
 
-        #print('------------------------')
-        #symmetric_double_encoder[0].print_weights()
-        #print('------------------------')
-
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
-            loss = 0
+
+            loss_forward = 0
+            loss_backward = 0
+
             for index in xrange(n_training_batches):
-                loss += model(index)
+                loss_forward_temp, loss_backward_temp = model(index)
+                loss_forward += loss_forward_temp
+                loss_backward += loss_backward_temp
 
-            print 'epoch (%d) ,Loss = %f\n' % (epoch, loss / n_training_batches)
+            if print_verbose and not validation_set_y is None and not validation_set_x is None:
 
-        #print('------------------------')
-        #symmetric_double_encoder[0].print_weights()
-        #print('------------------------')
+                print '----------epoch (%d)----------\n' % epoch
+
+                trace_correlation = TraceCorrelationTester(validation_set_x.T, validation_set_y.T, top).\
+                    test(DoubleEncoderTransformer(symmetric_double_encoder, 0))
+
+            else:
+                print 'epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
+                                                                  loss_backward / n_training_batches,
+                                                                  loss_forward / n_training_batches)
 
         del model
 
@@ -72,7 +94,6 @@ class Trainer(object):
 
         del model
 
-
     @staticmethod
     def _build_model(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
 
@@ -90,16 +111,17 @@ class Trainer(object):
         index = Tensor.lscalar()
 
         #Compute the loss of the forward encoding as L2 loss
-        loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
+        loss_backward = Tensor.sqrt(((var_x - x_tilde) ** 2).sum()) / hyper_parameters.batch_size
 
         #Compute the loss of the backward encoding as L2 loss
-        loss_forward = ((var_y - y_tilde) ** 2).sum() / hyper_parameters.batch_size
+        loss_forward = Tensor.sqrt(((var_y - y_tilde) ** 2).sum()) / hyper_parameters.batch_size
 
         loss = loss_backward + loss_forward
 
-
         #Add the regularization method computations to the loss
-        loss += sum([regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods])
+        loss += sum([regularization_method.compute(symmetric_double_encoder) for regularization_method in regularization_methods])
+
+        sys.stdout.flush()
 
         #Computing the gradient for the stochastic gradient decent
         #the result is gradients for each parameter of the cross encoder
@@ -132,7 +154,8 @@ class Trainer(object):
         #updates : gradient decent updates for all params
         #givens : replacing inputs for each iteration
         model = function(inputs=[index],
-                         outputs=Out((Tensor.cast(loss, config.floatX)), borrow=True),
+                         outputs=[Out((Tensor.cast(loss_backward, config.floatX)), borrow=True),
+                                  Out((Tensor.cast(loss_forward, config.floatX)), borrow=True)],
                          updates=updates,
                          givens={var_x: train_set_x[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size, :],

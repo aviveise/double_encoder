@@ -29,7 +29,7 @@ class OptimizationBase(object):
             raise ValueError('dataset cannot be none')
 
         self.training_set = data_set.trainset
-        self.test_set = data_set.tuning
+        self.validation_set = data_set.tuning
         self.hyper_parameters = hyper_parameters
         self.regularization_methods = regularization_methods
         self.random_range = RandomState()
@@ -53,7 +53,7 @@ class OptimizationBase(object):
                                                      sigmoid,
                                                      top=self.top)
 
-            correlation = TraceCorrelationTester(self.test_set[0].T, self.test_set[1].T, self.top).\
+            correlation = TraceCorrelationTester(self.validation_set[0].T, self.validation_set[1].T, self.top).\
                 test(DoubleEncoderTransformer(double_encoder, 0))
 
         except:

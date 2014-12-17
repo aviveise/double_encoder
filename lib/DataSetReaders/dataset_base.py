@@ -44,7 +44,6 @@ class DatasetBase(object):
             unitnorm(self.tuning[1])
             unitnorm(self.testset[1])
 
-
         if whiten:
             transform_0 = WhitenTransform(self.trainset[0])
             transform_1 = WhitenTransform(self.trainset[1])

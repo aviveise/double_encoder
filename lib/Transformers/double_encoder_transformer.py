@@ -20,43 +20,57 @@ class DoubleEncoderTransformer(TransformerBase):
         test_result_x = []
         test_result_y = []
 
+        last_input_x = test_set_x
+        last_input_y = test_set_y
+
+        hidden_output_model = self._build_hidden_model()
+        reconstruction_output_model = self._build_reconstruction_model()
+
+        hidden_values_x = []
+        hidden_values_y = []
+        output_values_x = []
+        output_values_y = []
+
+        outputs_hidden = hidden_output_model(test_set_x, test_set_y)
+        outputs_reconstruct = reconstruction_output_model(test_set_x, test_set_y)
+
+        for i in xrange(len(outputs_hidden) / 2):
+            hidden_values_x.append(outputs_hidden[2 * i])
+            hidden_values_y.append(outputs_hidden[2 * i + 1])
+
+
+        for i in xrange(len(outputs_reconstruct) / 2):
+            output_values_x.append(outputs_reconstruct[2 * i])
+            output_values_y.append(outputs_reconstruct[2 * i + 1])
+
+        return [hidden_values_x, hidden_values_y], [output_values_x, output_values_y]
+
+
+    def _build_hidden_model(self):
+
+        outputs = []
+
         for layer in self._correlation_optimizer:
-            model = self._build_model(layer)
-            x_tilde, y_tilde = model(test_set_x, test_set_y)
-            test_result_x.append(x_tilde)
-            test_result_y.append(y_tilde)
+            outputs.append(layer.compute_forward_hidden())
+            outputs.append(layer.compute_backward_hidden())
 
-        model = self._build_reconstruction_model()
-        x_tilde, y_tilde = model(test_set_x, test_set_y)
-
-        test_result_x.append(x_tilde)
-        test_result_y.append(test_set_x)
-
-        test_result_x.append(y_tilde)
-        test_result_y.append(test_set_y)
-
-        return test_result_x, test_result_y
-
-
-    def _build_model(self, layer):
-
-        x1_tilde = layer.compute_forward_hidden()
-        x2_tilde = layer.compute_backward_hidden()
-
-        correlation_test_model = function([self._x, self._y], [x1_tilde, x2_tilde])
+        correlation_test_model = function([self._x, self._y], outputs)
 
         return correlation_test_model
 
-    #def compute_reconstructions(self, test_x, test_y):
-    #    model = self._build_reconstruction_model()
-    #    return model(test_x, test_y)
-
     def _build_reconstruction_model(self):
 
-        x_tilde = self._correlation_optimizer.reconstruct_x()
-        y_tilde = self._correlation_optimizer.reconstruct_y()
+        outputs = []
 
-        correlation_test_model = function([self._x, self._y], [x_tilde, y_tilde])
+        for layer in self._correlation_optimizer:
+
+            outputs.append(layer.reconstruct_x())
+            outputs.append(layer.input_x())
+
+            outputs.append(layer.reconstruct_y())
+            outputs.append(layer.input_y())
+
+        correlation_test_model = function([self._x, self._y], outputs)
 
         return correlation_test_model
 

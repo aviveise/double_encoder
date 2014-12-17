@@ -19,7 +19,10 @@ class TrainingStrategy(object):
               hyper_parameters,
               regularization_methods,
               activation_method,
-              top=50):
+              top=50,
+              print_verbose=False,
+              validation_set_x=None,
+              validation_set_y=None):
         return
 
     @abc.abstractmethod

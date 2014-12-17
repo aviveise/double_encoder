@@ -10,39 +10,24 @@ class WeightDecayRegularization(RegularizationBase):
 
     def __init__(self, regularization_parameters):
         super(WeightDecayRegularization, self).__init__(regularization_parameters)
-        self.normal_type = regularization_parameters['weight_decay_type']
+        self._zeroing_param = float(regularization_parameters['zeroing_param'])
 
-    def compute(self, symmetric_double_encoder, params):
+    def compute(self, symmetric_double_encoder):
 
-        if self.normal_type == 'L1':
-            regularization = self._compute_L1(symmetric_double_encoder, params)
+        regularization = self._compute_L2(symmetric_double_encoder)
+        regularization = regularization - self._zeroing_param
 
-        elif self.normal_type == 'L2':
-            regularization = self._compute_L2(symmetric_double_encoder, params)
+        return (self.weight / 2) * regularization * (regularization > 0)
 
-        else:
-            raise Exception('unknown weight decay regularization type')
-
-        return (self.weight / 2) * regularization
-
-    def _compute_L1(self, symmetric_double_encoder):
+    def _compute_L2(self, symmetric_double_encoder):
 
         regularization = 0
+
         for layer in symmetric_double_encoder:
-            regularization += layer.Wx.sum() + layer.Wy.sum()
-
-        return regularization
-
-    def _compute_L2(self, symmetric_double_encoder, params):
-
-        regularization = 0
-        for param in params:
-            regularization += Tensor.sum(param ** 2)
+            regularization += Tensor.sum(layer.Wx ** 2)
+            regularization += Tensor.sum(layer.Wy ** 2)
 
         return regularization
 
     def print_regularization(self, output_stream):
-
         super(WeightDecayRegularization, self).print_regularization(output_stream)
-
-        output_stream.write('weight_decay_type: %s' % self.normal_type)

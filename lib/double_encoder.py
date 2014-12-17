@@ -10,7 +10,6 @@ from time import clock
 from configuration import Configuration
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
-from Testers.cca_correlation_tester import CCACorraltionTester
 
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 
@@ -69,7 +68,10 @@ class DoubleEncoder(object):
                                                              hyper_parameters=configuration.hyper_parameters,
                                                              regularization_methods=regularization_methods.values(),
                                                              activation_method=None,
-                                                             top=top)
+                                                             top=top,
+                                                             print_verbose=True,
+                                                             validation_set_x=data_set.tuning[0],
+                                                             validation_set_y=data_set.tuning[1])
 
             trace_correlation = TraceCorrelationTester(data_set.testset[0].T, data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 

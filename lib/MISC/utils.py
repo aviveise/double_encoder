@@ -143,6 +143,7 @@ def unitnorm(M):
         norm = numpy.linalg.norm(M[i, :])
         if norm != 0:
             M[i, :] /= norm
+            M[i, :] *= math.sqrt(M.shape[1])
 
     return M
 
@@ -404,17 +405,11 @@ def calculate_trace(x, y, top):
     forward = unitnorm(centered_x)
     backward = unitnorm(centered_y)
 
-    diag = numpy.abs(numpy.diagonal(numpy.dot(forward, backward.T)))
-    diag.sort()
-    diag = diag[::-1]
+    diagonal = numpy.abs(numpy.diagonal(numpy.dot(forward, backward.T)))
+    diagonal.sort()
+    diagonal = diagonal[::-1]
 
-    corr = numpy.dot(forward, backward.T)
-
-    print 'trace_correlations: %f\n' % numpy.sum(diag)
-    print 'trace cross correlations: %f\n' % (numpy.sum(numpy.abs(corr)) - numpy.sum(diag))
-
-
-    return sum(diag[0:top])
+    return sum(diagonal[0:top])
 
 def calculate_corrcoef(x, y, top):
 
@@ -429,3 +424,7 @@ def calculate_corrcoef(x, y, top):
     diag = diag[::-1]
 
     return numpy.sum(diag[0:top])
+
+def calculate_reconstruction_error(x, y):
+
+    return numpy.sqrt(((x - y) ** 2).sum()) / x.shape[1]

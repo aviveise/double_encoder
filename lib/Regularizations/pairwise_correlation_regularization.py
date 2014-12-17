@@ -24,7 +24,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
         self.reg1 = float(regularization_parameters['regularization_param1'])
         self.reg2 = float(regularization_parameters['regularization_param2'])
 
-    def compute(self, symmetric_double_encoder, params):
+    def compute(self, symmetric_double_encoder):
 
         regularization = 0;
 

@@ -17,7 +17,7 @@ class RegularizationBase(object):
         self.regularization_type = regularization_parameters['type']
 
     @abc.abstractmethod
-    def compute(self, symmetric_double_encoder, params):
+    def compute(self, symmetric_double_encoder):
         return
 
 

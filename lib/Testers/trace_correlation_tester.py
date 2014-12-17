@@ -6,7 +6,7 @@ import numpy
 
 from tester_base import TesterBase
 
-from MISC.utils import calculate_mardia, calculate_trace, calculate_corrcoef
+from MISC.utils import calculate_mardia, calculate_trace, calculate_corrcoef, calculate_reconstruction_error
 
 
 class TraceCorrelationTester(TesterBase):
@@ -16,38 +16,35 @@ class TraceCorrelationTester(TesterBase):
 
         self.top = top
 
-    def _find_correlation(self, x, y, transformer):
+    def _calculate_metric(self, x, y, transformer, print_row):
 
-        x_var = numpy.var(x, axis=0)
-        y_var = numpy.var(y, axis=0)
+        x_var = numpy.var(x, axis=1)
+        y_var = numpy.var(y, axis=1)
 
         x_mean = numpy.mean(x, axis=1)
         y_mean = numpy.mean(y, axis=1)
 
-        print 'x variance: mean %f, var %f\n' % (numpy.mean(x_var), numpy.var(x_var))
-        print 'y variance: mean %f, var %f\n' % (numpy.mean(y_var), numpy.var(y_var))
+        print_row.append(numpy.mean(x_var))
+        print_row.append(numpy.max(x_var))
+        print_row.append(numpy.mean(x_mean))
+        print_row.append(numpy.max(x_mean))
+        print_row.append(numpy.mean(y_var))
+        print_row.append(numpy.max(y_var))
+        print_row.append(numpy.mean(y_mean))
+        print_row.append(numpy.max(y_mean))
 
-        print 'x mean: mean %f, var %f\n' % (numpy.mean(x_mean), numpy.var(x_mean))
-        print 'y mean: mean %f, var %f\n' % (numpy.mean(y_mean), numpy.var(y_mean))
-        sys.stdout.flush()
 
-        print 'trace:\n'
+        trace_correlation = calculate_trace(x, y, self.top)
+        correlation_coefficients = calculate_corrcoef(x, y, self.top)
+        svd_correlation = calculate_mardia(x, y, self.top)
+        loss = calculate_reconstruction_error(x, y)
 
-        print 'trace = %f\n' % calculate_trace(x, y, self.top)
-        sys.stdout.flush()
+        print_row.append(trace_correlation)
+        print_row.append(correlation_coefficients)
+        print_row.append(svd_correlation)
+        print_row.append(loss)
 
-        #result = calculate_corrcoef(x, y, self.top)
-
-        #print 'corrcoef = %f\n' % result
-        #sys.stdout.flush()
-
-        result = calculate_mardia(x, y, self.top)
-
-        print 'mardia = %f\n' % result
-        sys.stdout.flush()
-
-        return result
-
+        return svd_correlation
 
     def print_array(self, a):
 
@@ -60,3 +57,18 @@ class TraceCorrelationTester(TesterBase):
             print '%f ' % a[i]
 
         print '\n'
+
+    def _headers(self):
+
+        return ['var_x (avg)',
+                'var_x (max)',
+                'mean_x (avg)',
+                'mean_x (max)',
+                'var_y (avg)',
+                'var_y (max)',
+                'mean_y (avg)',
+                'mean_y (max)',
+                'trace correlation',
+                'correlation coef',
+                'svd correlation',
+                'loss']

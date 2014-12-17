@@ -17,10 +17,10 @@ from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 from MISC.logger import OutputLog
 from trainer import Trainer
 
-class IterativeTrainingStrategy(TrainingStrategy):
+class IterativeNonSequentialTrainingStrategy(TrainingStrategy):
 
     def __init__(self):
-        super(IterativeTrainingStrategy, self).__init__()
+        super(IterativeNonSequentialTrainingStrategy, self).__init__()
         OutputLog().write('\nStrategy: Iterative')
         self.name = 'iterative'
 
@@ -45,30 +45,38 @@ class IterativeTrainingStrategy(TrainingStrategy):
                                                         output_size=training_set_y.get_value(borrow=True).shape[1],
                                                         activation_method=activation_method)
 
+        params = []
+
         #In this phase we train the stacked encoder one layer at a time
         #once a layer was added, weights not belonging to the new layer are
         #not changed
         for layer_size in hyper_parameters.layer_sizes:
 
-            print '--------Adding Layer of Size - %d--------\n' % layer_size
             self._add_cross_encoder_layer(layer_size,
                                           symmetric_double_encoder,
                                           hyper_parameters.method_in,
                                           hyper_parameters.method_out)
 
-            params = []
-            params.extend(symmetric_double_encoder[-1].x_hidden_params)
-            params.extend(symmetric_double_encoder[-1].y_params)
 
-            Trainer.train(train_set_x=training_set_x,
-                          train_set_y=training_set_y,
-                          hyper_parameters=hyper_parameters,
-                          symmetric_double_encoder=symmetric_double_encoder,
-                          params=params,
-                          regularization_methods=regularization_methods,
-                          print_verbose=print_verbose,
-                          validation_set_x=validation_set_x,
-                          validation_set_y=validation_set_y)
+        params = []
+        for layer in symmetric_double_encoder:
+            params.append(layer.Wx)
+            params.append(layer.bias_x)
+            params.append(layer.bias_y)
+
+        params.append(symmetric_double_encoder[0].bias_x_prime)
+        params.append(symmetric_double_encoder[-1].bias_y_prime)
+        params.append(symmetric_double_encoder[-1].Wy)
+
+        Trainer.train(train_set_x=training_set_x,
+                      train_set_y=training_set_y,
+                      hyper_parameters=hyper_parameters,
+                      symmetric_double_encoder=symmetric_double_encoder,
+                      params=params,
+                      regularization_methods=regularization_methods,
+                      print_verbose=print_verbose,
+                      validation_set_x=validation_set_x,
+                      validation_set_y=validation_set_y)
 
         return symmetric_double_encoder
 
