@@ -3,6 +3,7 @@ __author__ = 'aviv'
 from regularization_base import RegularizationBase
 from MISC.container import ContainerRegisterMetaClass
 from theano import tensor as Tensor
+from theano import printing as Printing
 
 class WeightDecayRegularization(RegularizationBase):
 
@@ -26,6 +27,8 @@ class WeightDecayRegularization(RegularizationBase):
         for layer in symmetric_double_encoder:
             regularization += Tensor.sum(layer.Wx ** 2)
             regularization += Tensor.sum(layer.Wy ** 2)
+
+        regularization = Printing.Print('regularization: ')(regularization)
 
         return regularization
 

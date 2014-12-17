@@ -16,7 +16,7 @@ class TesterBase(object):
 
         #Printing correlation scores for each hidden layer
         correlation = 0
-        zipped = zip(hidden_values[0], hidden_values[1], output_values[0], output_values[1])
+        zipped = zip(hidden_values[0], hidden_values[1])
         index = 0
 
         table_header = ['layer']
@@ -24,25 +24,37 @@ class TesterBase(object):
 
         table_rows = []
 
-        for x_hid, y_hid, x_out, y_out in zipped:
+        for x_hid, y_hid in zipped:
 
             row_hidden = ["layer {0} - hidden".format(index)]
-            row_recons = ["layer {0} - hidden".format(index)]
 
             index += 1
 
             #calculation correlation between hidden values
             correlation_temp_hidden = self._calculate_metric(x_hid.T, y_hid.T, transformer, row_hidden)
-            correlation_temp_reconstruct = self._calculate_metric(x_out.T, y_out.T, transformer, row_recons)
 
             table_rows.append(row_hidden)
+
+            if correlation_temp_hidden > correlation:
+                correlation = correlation_temp_hidden
+
+        zipped = zip(output_values[0], output_values[1])
+
+        index = 0
+
+        for x_rec, y_rec in zipped:
+
+            row_recons = ["layer {0} - recons".format(index / 2)]
+
+            index += 1
+
+            correlation_temp_reconstruct = self._calculate_metric(x_rec.T, y_rec.T, transformer, row_recons)
+
             table_rows.append(row_recons)
 
-            correlation_temp = max(correlation_temp_hidden,
-                                   correlation_temp_reconstruct)
+            if correlation_temp_reconstruct > correlation:
+                correlation = correlation_temp_reconstruct
 
-            if correlation_temp > correlation:
-                correlation = correlation_temp
 
 
         print tabulate(table_rows, headers=table_header)
