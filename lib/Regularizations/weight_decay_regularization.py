@@ -13,7 +13,7 @@ class WeightDecayRegularization(RegularizationBase):
         super(WeightDecayRegularization, self).__init__(regularization_parameters)
         self._zeroing_param = float(regularization_parameters['zeroing_param'])
 
-    def compute(self, symmetric_double_encoder):
+    def compute(self, symmetric_double_encoder, params):
 
         regularization = self._compute_L2(symmetric_double_encoder)
         regularization = regularization - self._zeroing_param

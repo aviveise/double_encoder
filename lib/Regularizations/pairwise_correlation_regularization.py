@@ -24,7 +24,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
         self.reg1 = float(regularization_parameters['regularization_param1'])
         self.reg2 = float(regularization_parameters['regularization_param2'])
 
-    def compute(self, symmetric_double_encoder):
+    def compute(self, symmetric_double_encoder, params):
 
         regularization = 0;
 
@@ -67,6 +67,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                regularization += Tensor.sqrt(Tensor.sum(Tensor.nlinalg.trace(corr)))
 
 
+        regularization = printing.Print('variance regularization: ')(regularization)
 
         return self.weight * regularization
 
