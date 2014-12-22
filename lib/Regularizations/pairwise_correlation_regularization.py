@@ -36,8 +36,8 @@ class PairWiseCorrelationRegularization(RegularizationBase):
             forward_centered = (forward - Tensor.mean(forward, axis=0)).T
             backward_centered = (backward - Tensor.mean(backward, axis=0)).T
 
-            forward_var = Tensor.dot(forward_centered, forward_centered.T)# + self.reg1 * Tensor.eye(forward_centered.shape[0])
-            backward_var = Tensor.dot(backward_centered, backward_centered.T)# + self.reg2 * Tensor.eye(backward_centered.shape[0])
+            forward_var = Tensor.dot(forward_centered, forward_centered.T) + self.reg1 * Tensor.eye(forward_centered.shape[0])
+            backward_var = Tensor.dot(backward_centered, backward_centered.T) + self.reg2 * Tensor.eye(backward_centered.shape[0])
 
             e11 = self._compute_square_chol(forward_var, layer.hidden_layer_size)
             e22 = self._compute_square_chol(backward_var, layer.hidden_layer_size)
@@ -50,20 +50,20 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 print 'added euc reg'
 
             if self.pair_wise:
-                regularization += ((forward_var - Tensor.nlinalg.diag(Tensor.nlinalg.diag(forward_var)))).sum()
-                regularization += ((backward_var - Tensor.nlinalg.diag(Tensor.nlinalg.diag(backward_var)))).sum()
-                print 'added pair reg'
+                regularization += ((forward_var - Tensor.nlinalg.diag(Tensor.nlinalg.diag(forward_var))) ** 2).sum()
+                regularization += ((backward_var - Tensor.nlinalg.diag(Tensor.nlinalg.diag(backward_var))) ** 2).sum()
+
+                regularization = Printing.Print('variance regularization: ')(regularization)
 
             if self.variance:
                 regularization -= (Tensor.nlinalg.trace(forward_var ** 2))
                 regularization -= (Tensor.nlinalg.trace(backward_var ** 2))
-                print 'added var reg'
+
+                regularization = Printing.Print('variance regularization: ')(regularization)
 
             if self.corr:
-               regularization += Tensor.sqrt(Tensor.sum(Tensor.nlinalg.trace(corr)))
+                regularization += Tensor.sqrt(Tensor.sum(Tensor.nlinalg.trace(corr)))
 
-
-        regularization = Printing.Print('variance regularization: ')(regularization)
 
         return self.weight * regularization
 
