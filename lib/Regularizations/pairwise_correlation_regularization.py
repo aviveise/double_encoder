@@ -2,7 +2,7 @@ __author__ = 'aviv'
 
 from theano import tensor as Tensor
 from theano import scan as scan
-from theano import printing as printing
+from theano import printing as Printing
 import theano.tensor.nlinalg as nlinalg
 
 
@@ -52,10 +52,6 @@ class PairWiseCorrelationRegularization(RegularizationBase):
             if self.pair_wise:
                 regularization += ((forward_var - Tensor.nlinalg.diag(Tensor.nlinalg.diag(forward_var)))).sum()
                 regularization += ((backward_var - Tensor.nlinalg.diag(Tensor.nlinalg.diag(backward_var)))).sum()
-
-
-                #regularization += ((forward_var - Tensor.eye(forward.shape[1], dtype=Tensor.config.floatX))).sum()
-                #regularization += ((backward_var - Tensor.eye(backward.shape[1], dtype=Tensor.config.floatX))).sum()
                 print 'added pair reg'
 
             if self.variance:
@@ -67,7 +63,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                regularization += Tensor.sqrt(Tensor.sum(Tensor.nlinalg.trace(corr)))
 
 
-        regularization = printing.Print('variance regularization: ')(regularization)
+        regularization = Printing.Print('variance regularization: ')(regularization)
 
         return self.weight * regularization
 
