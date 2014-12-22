@@ -28,8 +28,6 @@ class WeightDecayRegularization(RegularizationBase):
             regularization += Tensor.sum(layer.Wx ** 2)
             regularization += Tensor.sum(layer.Wy ** 2)
 
-        regularization = Printing.Print('weight regularization: ')(regularization)
-
         return regularization
 
     def print_regularization(self, output_stream):
