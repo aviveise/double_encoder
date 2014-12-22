@@ -26,7 +26,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
 
     def compute(self, symmetric_double_encoder, params):
 
-        regularization = 0;
+        regularization = 0
 
         for layer in symmetric_double_encoder:
 
