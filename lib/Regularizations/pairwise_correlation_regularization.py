@@ -63,7 +63,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 regularization = Printing.Print('variance regularization: ')(regularization)
 
             if self.mean:
-                regularization -= forward_centered.sum() - backward_centered.sum()
+                regularization -= (forward_centered ** 2).sum() - (backward_centered ** 2).sum()
 
             if self.corr:
                 regularization += Tensor.sqrt(Tensor.sum(Tensor.nlinalg.trace(corr)))
