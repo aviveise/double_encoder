@@ -21,6 +21,7 @@ class PairWiseCorrelationRegularization(RegularizationBase):
         self.pair_wise = bool(int(regularization_parameters['pair_wise_correlation']))
         self.variance = bool(int(regularization_parameters['variance']))
         self.corr = bool(int(regularization_parameters['corr']))
+        self.mean = bool(int(regularization_parameters['mean']))
         self.reg1 = float(regularization_parameters['regularization_param1'])
         self.reg2 = float(regularization_parameters['regularization_param2'])
 
@@ -60,6 +61,9 @@ class PairWiseCorrelationRegularization(RegularizationBase):
                 regularization -= (Tensor.nlinalg.trace(backward_var ** 2))
 
                 regularization = Printing.Print('variance regularization: ')(regularization)
+
+            if self.mean:
+                regularization -= forward_centered.sum() - backward_centered.sum()
 
             if self.corr:
                 regularization += Tensor.sqrt(Tensor.sum(Tensor.nlinalg.trace(corr)))
