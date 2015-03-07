@@ -32,3 +32,4 @@ class WeightDecayRegularization(RegularizationBase):
 
     def print_regularization(self, output_stream):
         super(WeightDecayRegularization, self).print_regularization(output_stream)
+        output_stream.write('regularization_weight_zeroing_param: %f' % self._zeroing_param)
