@@ -33,10 +33,13 @@ class TraceCorrelationTester(TesterBase):
         print_row.append(numpy.mean(y_mean))
         print_row.append(numpy.max(y_mean))
 
+        try:
+            trace_correlation = calculate_trace(x, y, self.top)
+            correlation_coefficients = calculate_corrcoef(x, y, self.top)
+            svd_correlation = calculate_mardia(x, y, self.top)
+        except:
+            return 0
 
-        trace_correlation = calculate_trace(x, y, self.top)
-        correlation_coefficients = calculate_corrcoef(x, y, self.top)
-        svd_correlation = calculate_mardia(x, y, self.top)
         loss = calculate_reconstruction_error(x, y)
 
         print_row.append(trace_correlation)
