@@ -108,10 +108,14 @@ class Trainer(object):
         index = Tensor.lscalar()
 
         #Compute the loss of the forward encoding as L2 loss
-        loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
+        #loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
+
+        loss_backward =(Tensor.dot(var_x, Tensor.log(x_tilde.T)) + Tensor.dot((Tensor.ones((hyper_parameters.batch_size, train_set_x.get_value().shape[1])) - var_x), (Tensor.ones((hyper_parameters.batch_size, train_set_x.get_value().shape[1])) - x_tilde).T)).sum()
 
         #Compute the loss of the backward encoding as L2 loss
-        loss_forward = ((var_y - y_tilde) ** 2).sum() / hyper_parameters.batch_size
+        #loss_forward = ((var_y - y_tilde) ** 2).sum() / hyper_parameters.batch_size
+
+        loss_forward =(Tensor.dot(var_y, Tensor.log(y_tilde.T)) + Tensor.dot((Tensor.ones((hyper_parameters.batch_size, train_set_y.get_value().shape[1])) - var_y), (Tensor.ones((hyper_parameters.batch_size, train_set_y.get_value().shape[1])) - y_tilde).T)).sum()
 
         loss = loss_backward + loss_forward
 
