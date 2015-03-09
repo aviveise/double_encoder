@@ -35,14 +35,10 @@ class IterativeTrainingStrategy(TrainingStrategy):
               validation_set_x=None,
               validation_set_y=None):
 
-        #need to convert the input into tensor variable
-        training_set_x = shared(training_set_x, 'training_set_x', borrow=True)
-        training_set_y = shared(training_set_y, 'training_set_y', borrow=True)
-
         symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                         numpy_range=self._random_range,
-                                                        input_size=training_set_x.get_value(borrow=True).shape[1],
-                                                        output_size=training_set_y.get_value(borrow=True).shape[1],
+                                                        input_size=training_set_x.shape[1],
+                                                        output_size=training_set_y.shape[1],
                                                         activation_method=activation_method)
 
         #In this phase we train the stacked encoder one layer at a time

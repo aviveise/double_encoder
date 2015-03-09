@@ -9,15 +9,19 @@ import theano.tensor.slinalg
 from Testers.trace_correlation_tester import TraceCorrelationTester
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 
-from tabulate import tabulate
-
-from theano import printing as Printing
 from theano.compat.python2x import OrderedDict
 from theano import function
 from theano import config
 from theano import shared
 from theano import Out
-from theano import pp
+from numpy.random import RandomState
+
+def shuffleDataSet(samplesX, samplesY, random_stream):
+
+    set_size = samplesX.shape[0]
+    indices = random_stream.permutation(set_size)
+
+    return samplesX[indices, :], samplesY[indices, :]
 
 
 class Trainer(object):
@@ -35,18 +39,27 @@ class Trainer(object):
               validation_set_y=None):
 
 
-        model = Trainer._build_model(train_set_x,
-                                     train_set_y,
-                                     hyper_parameters,
-                                     symmetric_double_encoder,
-                                     params,
-                                     regularization_methods)
 
         #Calculating number of batches
-        n_training_batches = train_set_x.get_value(borrow=True).shape[0] / hyper_parameters.batch_size
+        n_training_batches = train_set_x.shape[0] / hyper_parameters.batch_size
+
+        random_stream = RandomState()
 
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
+
+            train_set_x, train_set_y = shuffleDataSet(train_set_x, train_set_y, random_stream)
+
+            #need to convert the input into tensor variable
+            shared_train_set_x = shared(train_set_x, 'training_set_x', borrow=True)
+            shared_train_set_y = shared(train_set_y, 'training_set_y', borrow=True)
+
+            model = Trainer._build_model(shared_train_set_x,
+                                         shared_train_set_y,
+                                         hyper_parameters,
+                                         symmetric_double_encoder,
+                                         params,
+                                         regularization_methods)
 
             loss_forward = 0
             loss_backward = 0
@@ -108,14 +121,10 @@ class Trainer(object):
         index = Tensor.lscalar()
 
         #Compute the loss of the forward encoding as L2 loss
-        #loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
-
-        loss_backward =(Tensor.dot(var_x, Tensor.log(x_tilde.T)) + Tensor.dot((Tensor.ones((hyper_parameters.batch_size, train_set_x.get_value().shape[1])) - var_x), (Tensor.ones((hyper_parameters.batch_size, train_set_x.get_value().shape[1])) - x_tilde).T)).sum()
+        loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
 
         #Compute the loss of the backward encoding as L2 loss
-        #loss_forward = ((var_y - y_tilde) ** 2).sum() / hyper_parameters.batch_size
-
-        loss_forward =(Tensor.dot(var_y, Tensor.log(y_tilde.T)) + Tensor.dot((Tensor.ones((hyper_parameters.batch_size, train_set_y.get_value().shape[1])) - var_y), (Tensor.ones((hyper_parameters.batch_size, train_set_y.get_value().shape[1])) - y_tilde).T)).sum()
+        loss_forward = ((var_y - y_tilde) ** 2).sum() / hyper_parameters.batch_size
 
         loss = loss_backward + loss_forward
 
