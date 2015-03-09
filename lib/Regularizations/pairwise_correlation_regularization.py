@@ -37,8 +37,8 @@ class PairWiseCorrelationRegularization(RegularizationBase):
             forward_centered = (forward - Tensor.mean(forward, axis=0)).T
             backward_centered = (backward - Tensor.mean(backward, axis=0)).T
 
-            forward_var = Tensor.dot(forward_centered, forward_centered.T) + self.reg1 * Tensor.eye(forward_centered.shape[0])
-            backward_var = Tensor.dot(backward_centered, backward_centered.T) + self.reg2 * Tensor.eye(backward_centered.shape[0])
+            forward_var = Tensor.dot(forward_centered, forward_centered.T) + self.reg1 * Tensor.eye(forward_centered.shape[0], dtype=Tensor.config.floatX)
+            backward_var = Tensor.dot(backward_centered, backward_centered.T) + self.reg2 * Tensor.eye(backward_centered.shape[0], dtype=Tensor.config.floatX)
 
             e11 = self._compute_square_chol(forward_var, layer.hidden_layer_size)
             e22 = self._compute_square_chol(backward_var, layer.hidden_layer_size)

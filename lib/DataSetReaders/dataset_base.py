@@ -58,7 +58,7 @@ class DatasetBase(object):
     def produce_optimization_sets(self, train, test_samples=None):
 
         if test_samples == 0:
-            return [train, numpy.ndarray([0,0]), 0]
+            return [train, numpy.ndarray([0, 0]), 0]
 
         test_size = int(round(train.shape[1] / 10))
 
