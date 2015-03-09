@@ -76,8 +76,8 @@ class StackedDoubleEncoder(object):
             #refreshing the connection between Y and X of the other layers
             for layer in reversed(self._symmetric_layers):
 
-                #layer.update_y(input_y, output_size=layer_size)#, Wy)#, bias_y, bias_y_prime)
-                layer.update_y(input_y, Wy)#, bias_y, bias_y_prime)
+                layer.update_y(input_y, output_size=layer_size)#, Wy)#, bias_y, bias_y_prime)
+                #layer.update_y(input_y, Wy)#, bias_y, bias_y_prime)
 
                 Wy = layer.Wx.T
                 #bias_y = layer.bias_x_prime
