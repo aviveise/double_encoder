@@ -118,7 +118,7 @@ class Trainer(object):
         var_y = symmetric_double_encoder.var_y
 
         #Index for iterating batches
-        index = Tensor.lscalar()
+        index = Tensor.scalar()
 
         #Compute the loss of the forward encoding as L2 loss
         loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
@@ -177,7 +177,7 @@ class Trainer(object):
     @staticmethod
     def _build_model_output(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods, top):
 
-        index = Tensor.lscalar()
+        index = Tensor.scalar()
 
         var_x = symmetric_double_encoder.var_x
         var_y = symmetric_double_encoder.var_y
@@ -191,14 +191,14 @@ class Trainer(object):
         reg1 = hyper_parameters.reg1
         reg2 = hyper_parameters.reg2
 
-        ones = Tensor.ones([batch_size, batch_size])
+        ones = Tensor.ones([batch_size, batch_size], dtype=Tensor.config.floatX)
 
         centered_x = output_x - Tensor.dot(output_x, ones) / batch_size
         centered_y = output_y - Tensor.dot(output_y, ones) / batch_size
 
         s12 = Tensor.nlinalg.diag(Tensor.nlinalg.diag(Tensor.dot(centered_x, centered_y.T))) / (batch_size - 1)
-        s11 = Tensor.nlinalg.diag(Tensor.nlinalg.diag(Tensor.dot(centered_x, centered_x.T))) / (batch_size - 1) + reg1 * Tensor.eye(output_size, output_size)
-        s22 = Tensor.nlinalg.diag(Tensor.nlinalg.diag(Tensor.dot(centered_y, centered_y.T))) / (batch_size - 1) + reg2 * Tensor.eye(output_size, output_size)
+        s11 = Tensor.nlinalg.diag(Tensor.nlinalg.diag(Tensor.dot(centered_x, centered_x.T))) / (batch_size - 1) + reg1 * Tensor.eye(output_size, output_size, dtype=Tensor.config.floatX)
+        s22 = Tensor.nlinalg.diag(Tensor.nlinalg.diag(Tensor.dot(centered_y, centered_y.T))) / (batch_size - 1) + reg2 * Tensor.eye(output_size, output_size, dtype=Tensor.config.floatX)
 
         s11_chol = Tensor.slinalg.cholesky(s11)
         s22_chol = Tensor.slinalg.cholesky(s22)
