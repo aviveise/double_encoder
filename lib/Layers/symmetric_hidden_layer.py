@@ -47,21 +47,12 @@ class SymmetricHiddenLayer(object):
                     self.Wx = weights
 
                 if bias_x is None:
-                    #self.bias_x = theano.shared(value=numpy.asarray(self.numpy_range.normal(loc=0.0, scale=.01, size=self.hidden_layer_size),
-                    #                                                dtype=theano.config.floatX),
-                    #                            name='bias_x' + '_' + self.name)
-
                     self.bias_x = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                                 name='bias_x' + '_' + self.name)
                 else:
                     self.bias_x = bias_x
 
                 if bias_x_prime is None:
-                    #self.bias_x_prime = theano.shared(value=numpy.asarray(self.numpy_range.normal(loc=0.0, scale=.01, size=input_size),
-                    #                                                dtype=theano.config.floatX),
-                    #                                  name='bias_x_prime' + '_' + self.name)
-
-
                     self.bias_x_prime = theano.shared(value=numpy.zeros(input_size, dtype=theano.config.floatX),
                                                       name='bias_x_prime' + '_' + self.name)
                 else:
@@ -89,19 +80,12 @@ class SymmetricHiddenLayer(object):
 
 
                 if bias_y is None:
-                    #self.bias_y = theano.shared(value=numpy.asarray(self.numpy_range.normal(loc=0.0, scale=.01, size=self.hidden_layer_size),
-                    #                                                dtype=theano.config.floatX),
-                    #                            name='bias_y' + '_' + self.name)
                     self.bias_y = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                                 name='bias_y' + '_' + self.name)
                 else:
                     self.bias_y = bias_y
 
                 if bias_y_prime is None:
-                    #self.bias_y_prime = theano.shared(value=numpy.asarray(self.numpy_range.normal(loc=0.0, scale=.01, size=output_size),
-                    #                                                dtype=theano.config.floatX),
-                    #                                  name='bias_y_prime' + '_' + self.name)
-
                     self.bias_y_prime = theano.shared(value=numpy.zeros(output_size, dtype=theano.config.floatX),
                                                       name='bias_y_prime' + '_' + self.name)
                 else:
