@@ -118,7 +118,7 @@ class Trainer(object):
         var_y = symmetric_double_encoder.var_y
 
         #Index for iterating batches
-        index = Tensor.scalar()
+        index = Tensor.lscalar()
 
         #Compute the loss of the forward encoding as L2 loss
         loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
