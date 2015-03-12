@@ -23,6 +23,8 @@ class WeightOrthonormalRegularization(RegularizationBase):
             regularization += Tensor.sum((Tensor.dot(last_Wy, layer.Wx) -
                                Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size), dtype=Tensor.config.floatX)))
 
+            last_Wy = layer.Wy
+
         first_layer = symmetric_double_encoder[0]
         last_layer = symmetric_double_encoder[-1]
 
