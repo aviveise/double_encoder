@@ -167,8 +167,7 @@ class Trainer(object):
         #updates : gradient decent updates for all params
         #givens : replacing inputs for each iteration
         model = function(inputs=[index],
-                         outputs=[Out((Tensor.cast(loss_backward, config.floatX)), borrow=True),
-                                  Out((Tensor.cast(loss_forward, config.floatX)), borrow=True)],
+                         outputs=[loss_backward, loss_forward],
                          updates=updates,
                          givens={var_x: train_set_x[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size, :],
