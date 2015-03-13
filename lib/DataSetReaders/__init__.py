@@ -9,3 +9,5 @@ from JAPAN_dataset import JAPANDataSet
 from JAPAN_dataset import JAPANDataSetVideo
 from FISH_dataset import FISHDataSet
 from RAND_dataset import RANDDataSet
+from GUY_dataset import GUYDataSet
+from CUAVE_dataset import CUAVEDataSet
