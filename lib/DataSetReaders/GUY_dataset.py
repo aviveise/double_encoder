@@ -49,15 +49,15 @@ class GUYDataSet(DatasetBase):
 
         for i in range(training_sen_idx.shape[0]):
 
-            self.trainset[0][i, :] = CNN_output[int(images_sent_mapping[int(training_sen_idx[i])])]
-            self.trainset[1][i, :] = feature_vectors[int(training_sen_idx[i])]
+            self.trainset[0][i, :] = CNN_output[int(images_sent_mapping[int(training_sen_idx[i]) - 1]) - 1]
+            self.trainset[1][i, :] = feature_vectors[int(training_sen_idx[i]) - 1]
 
         for i in range(validation_sen_idx.shape[0]):
 
-            self.tuning[0][i, :] = CNN_output[int(images_sent_mapping[int(validation_sen_idx[i])])]
-            self.tuning[1][i, :] = feature_vectors[int(validation_sen_idx[i])]
+            self.tuning[0][i, :] = CNN_output[int(images_sent_mapping[int(validation_sen_idx[i]) - 1]) - 1]
+            self.tuning[1][i, :] = feature_vectors[int(validation_sen_idx[i]) - 1]
 
         for i in range(test_sen_idx.shape[0]):
 
-            self.testset[0][i, :] = CNN_output[int(test_sen_idx[int(validation_sen_idx[i])])]
-            self.testset[1][i, :] = feature_vectors[int(test_sen_idx[i])]
+            self.testset[0][i, :] = CNN_output[int(test_sen_idx[int(validation_sen_idx[i]) - 1]) - 1]
+            self.testset[1][i, :] = feature_vectors[int(test_sen_idx[i]) - 1]
