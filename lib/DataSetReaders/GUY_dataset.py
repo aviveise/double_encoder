@@ -59,5 +59,5 @@ class GUYDataSet(DatasetBase):
 
         for i in range(test_sen_idx.shape[0]):
 
-            self.testset[0][i, :] = CNN_output[int(test_sen_idx[int(validation_sen_idx[i]) - 1]) - 1]
+            self.testset[0][i, :] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
             self.testset[1][i, :] = feature_vectors[int(test_sen_idx[i]) - 1]
