@@ -121,15 +121,19 @@ class Trainer(object):
         index = Tensor.lscalar()
 
         #Compute the loss of the forward encoding as L2 loss
-        loss_backward = ((var_x - x_tilde) ** 2).sum() / hyper_parameters.batch_size
+        loss_backward = ((var_x - x_tilde) ** 2).sum(dtype=Tensor.config.floatX,
+                                                     acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
 
         #Compute the loss of the backward encoding as L2 loss
-        loss_forward = ((var_y - y_tilde) ** 2).sum() / hyper_parameters.batch_size
+        loss_forward = ((var_y - y_tilde) ** 2).sum(dtype=Tensor.config.floatX,
+                                                    acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
 
         loss = loss_backward + loss_forward
 
         #Add the regularization method computations to the loss
-        loss += sum([regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods])
+        loss += Tensor.sum([regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods],
+                            dtype=Tensor.config.floatX,
+                            acc_dtype=Tensor.config.floatX)
 
         sys.stdout.flush()
 
@@ -157,6 +161,8 @@ class Trainer(object):
             for param, gradient in zip(params, gradients):
                 updates.append((param, param - hyper_parameters.learning_rate * gradient))
 
+
+        theano.printing.debugprint(loss)
 
         #Building the theano function
         #input : batch index

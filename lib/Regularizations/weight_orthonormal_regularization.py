@@ -21,7 +21,9 @@ class WeightOrthonormalRegularization(RegularizationBase):
         for i in xrange(1, len(symmetric_double_encoder), 1):
             layer = symmetric_double_encoder[i]
             regularization += Tensor.sum((Tensor.dot(last_Wy, layer.Wx) -
-                               Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size), dtype=Tensor.config.floatX)))
+                               Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size), dtype=Tensor.config.floatX)),
+                                         dtype=Tensor.config.floatX,
+                                         acc_dtype=Tensor.config.floatX)
 
             last_Wy = layer.Wy
 
@@ -29,11 +31,15 @@ class WeightOrthonormalRegularization(RegularizationBase):
         last_layer = symmetric_double_encoder[-1]
 
         regularization += Tensor.sum((Tensor.dot(first_layer.Wx.T, first_layer.Wx) -
-                           Tensor.ones((first_layer.hidden_layer_size, first_layer.hidden_layer_size), dtype=Tensor.config.floatX)))
+                           Tensor.ones((first_layer.hidden_layer_size, first_layer.hidden_layer_size), dtype=Tensor.config.floatX)),
+                                     dtype=Tensor.config.floatX,
+                                     acc_dtype=Tensor.config.floatX)
 
 
         regularization += Tensor.sum((Tensor.dot(last_layer.Wy.T, last_layer.Wy) -
-                           Tensor.ones((last_layer.hidden_layer_size, last_layer.hidden_layer_size), dtype=Tensor.config.floatX)))
+                           Tensor.ones((last_layer.hidden_layer_size, last_layer.hidden_layer_size), dtype=Tensor.config.floatX)),
+                                     dtype=Tensor.config.floatX,
+                                     acc_dtype=Tensor.config.floatX)
 
 
         return regularization * self.weight

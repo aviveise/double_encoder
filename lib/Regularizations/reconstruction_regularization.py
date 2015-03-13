@@ -17,8 +17,14 @@ class ReconstructionRegularization(RegularizationBase):
 
         regularization = 0
         for layer in symmetric_double_encoder:
-            regularization += ((layer.input_y() - layer.reconstruct_y()) ** 2).sum()
-            regularization += ((layer.input_x() - layer.reconstruct_x()) ** 2).sum()
+
+            regularization += Tensor.sum((layer.input_y() - layer.reconstruct_y()) ** 2,
+                                         dtype=Tensor.config.floatX,
+                                         acc_dtype=Tensor.config.floatX)
+
+            regularization += Tensor.sum((layer.input_x() - layer.reconstruct_x()) ** 2,
+                                         dtype=Tensor.config.floatX,
+                                         acc_dtype=Tensor.config.floatX)
 
         regularization -= self._zeroing_param
 
