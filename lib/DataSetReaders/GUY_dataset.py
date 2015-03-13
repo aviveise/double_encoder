@@ -1,3 +1,4 @@
+import os
 import scipy.io
 import h5py
 import numpy
@@ -18,9 +19,9 @@ class GUYDataSet(DatasetBase):
 
     def build_dataset(self):
 
-        CNN_mat = h5py.File(self.dataset_path + 'visual_dataset_info.mat', "r+")
-        FV_mat = h5py.File(self.dataset_path + 'sentences_FV.mat', "r+")
-        idx_mat = h5py.File(self.dataset_path + 'dataset_info_idx.mat', "r+")
+        CNN_mat = h5py.File(os.path.join(self.dataset_path + 'visual_dataset_info.mat', "r+"))
+        FV_mat = h5py.File(os.path.join(self.dataset_path + 'sentences_FV.mat', "r+"))
+        idx_mat = h5py.File(os.path.join(self.dataset_path + 'dataset_info_idx.mat', "r+"))
 
         CNN_output = CNN_mat['image_vecs']
         feature_vectors = FV_mat['sent_vecs']

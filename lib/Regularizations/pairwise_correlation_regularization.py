@@ -10,12 +10,12 @@ from regularization_base import RegularizationBase
 from MISC.container import ContainerRegisterMetaClass
 
 
-class PairWiseCorrelationRegularization(RegularizationBase):
+class PairWiseCorrelationRegularizationDEPRECATED(RegularizationBase):
 
     __metaclass__ = ContainerRegisterMetaClass
 
     def __init__(self, regularization_parameters):
-        super(PairWiseCorrelationRegularization, self).__init__(regularization_parameters)
+        super(PairWiseCorrelationRegularizationDEPRECATED, self).__init__(regularization_parameters)
 
         self.euc_length = bool(int(regularization_parameters['euc_length']))
         self.pair_wise = bool(int(regularization_parameters['pair_wise_correlation']))
