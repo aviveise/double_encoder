@@ -12,7 +12,7 @@ class WeightOrthonormalRegularization(RegularizationBase):
     def __init__(self, regularization_parameters):
         super(WeightOrthonormalRegularization, self).__init__(regularization_parameters)
 
-    def compute(self, symmetric_double_encoder, params):
+    def computeA(self, symmetric_double_encoder, params):
 
         regularization = 0
 
@@ -43,6 +43,19 @@ class WeightOrthonormalRegularization(RegularizationBase):
 
 
         return regularization * self.weight
+
+    def compute(self, symmetric_double_encoder, params):
+
+        regularization = 0
+
+        for layer in symmetric_double_encoder:
+            regularization += Tensor.sum((Tensor.dot(layer.Wy, layer.Wy.T) -
+                                          Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size), dtype=Tensor.config.floatX))
+
+            regularization += Tensor.sum((Tensor.dot(layer.Wx.T, layer.Wx) -
+                                          Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size), dtype=Tensor.config.floatX))
+
+        return regularization * 0.5 * self.weight
 
 
     def print_regularization(self, output_stream):

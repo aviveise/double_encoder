@@ -24,6 +24,7 @@ def extractSpectogram(audio, window_width, window_overlap):
     specgram = 0
 
     length = len(audio)
+
     for i in range(0, length - window_width, window_overlap):
 
         cur_frame = audio[i: i + window_width]
@@ -38,7 +39,7 @@ def extractSpectogram(audio, window_width, window_overlap):
         for j in range(height):
 
             val = spec[j]
-            specgram[j, count] = math.sqrt(math.pow(val.real, 2)+math.pow(val.imag, 2))
+            specgram[j, count] = math.sqrt(math.pow(val.real, 2) + math.pow(val.imag, 2))
 
         count += 1
 
@@ -86,10 +87,12 @@ def getVideo(file, start_frames, frame_count, index):
             if len(face) == 0:
                 raise Exception('no face found')
 
-            face_gray = gray[max_face[1]: max_face[1] + max_face[3],
+            height = max_face[3]
+
+            face_gray = gray[max_face[1] + height * 0.2: max_face[1] + height,
                              max_face[0]: max_face[0] + max_face[2]]
 
-            mouths = mouth_detector.detectMultiScale(face_gray, 1.1, 3, 0, minSize=(40, 10))
+            mouths = mouth_detector.detectMultiScale(face_gray, 1.14, 5, 0, minSize=(70, 10))
 
             max_y = 0
             max_w = 0
@@ -97,9 +100,8 @@ def getVideo(file, start_frames, frame_count, index):
             mouth = None
             for mouth in mouths:
 
-                if mouth[2] > max_w and mouth[1] > max_y:
+                if mouth[1] > max_y:
                     max_y = mouth[1]
-                    max_w = mouth[2]
                     max_mouth = mouth
 
 
@@ -167,8 +169,8 @@ def getFrameStarts(file):
         start_time = datetime.strptime(words[0], '%M:%S.%f')
         end_time = datetime.strptime(words[1], '%M:%S.%f')
 
-        output_start += [start_time.second + start_time.microsecond * 0.000001]
-        output_end += [end_time.second + end_time.microsecond * 0.000001]
+        output_start += [start_time.minute * 60 + start_time.second + start_time.microsecond * 0.000001]
+        output_end += [end_time.minute * 60 + end_time.second + end_time.microsecond * 0.000001]
 
     return output_start, output_end
 
@@ -191,8 +193,8 @@ if __name__ == '__main__':
     for idx, file_path in enumerate(files):
 
         frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".lab"))
-        audio = getAudio(os.path.join(audio_path, file_path + ".wav"), frame_starts, 1)
-        video = getVideo(os.path.join(video_path, file_path + ".mpg"), frame_starts, 1, idx)
+        audio = getAudio(os.path.join(audio_path, file_path + ".wav"), frame_starts, 10)
+        video = getVideo(os.path.join(video_path, file_path + ".mpg"), frame_starts, 4, idx)
 
         if idx % 2 == 0:
             training_audio[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = audio
