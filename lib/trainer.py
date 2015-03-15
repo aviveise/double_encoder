@@ -240,7 +240,6 @@ class Trainer(object):
             for param, gradient in zip(params, gradients):
                 updates.append((param, param - hyper_parameters.learning_rate * gradient))
 
-
         #Building the theano function
         #input : batch index
         #output : both losses
