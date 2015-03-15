@@ -50,10 +50,10 @@ class WeightOrthonormalRegularization(RegularizationBase):
 
         for layer in symmetric_double_encoder:
             regularization += Tensor.sum((Tensor.dot(layer.Wy, layer.Wy.T) -
-                                          Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size), dtype=Tensor.config.floatX))
+                                          Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size), dtype=Tensor.config.floatX)))
 
             regularization += Tensor.sum((Tensor.dot(layer.Wx.T, layer.Wx) -
-                                          Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size), dtype=Tensor.config.floatX))
+                                          Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size), dtype=Tensor.config.floatX)))
 
         return regularization * 0.5 * self.weight
 

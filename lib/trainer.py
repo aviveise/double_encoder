@@ -174,9 +174,6 @@ class Trainer(object):
                                  var_y: train_set_y[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size, :]})
 
-
-        print model.maker.fgraph.toposort()
-
         return model
 
     @staticmethod
