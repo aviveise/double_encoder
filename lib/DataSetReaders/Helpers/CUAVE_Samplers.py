@@ -112,10 +112,8 @@ def getVideo(file, start_frames, frame_count, index):
                 mouth_gray = cv2.resize(mouth_gray, (80, 60))
 
             else:
-                cv2.imshow('s', frame)
-                cv2.waitKey(0)
-                cv2.imshow('f', face_gray)
-                cv2.waitKey(0)
+                print 'Could not detect mouth'
+                continue
 
             print 'processed video frame %i of %i' % (idx * frame_count + i + 1, 200)
 

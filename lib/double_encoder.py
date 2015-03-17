@@ -77,6 +77,10 @@ class DoubleEncoder(object):
             trace_correlation, x_best, y_best = TraceCorrelationTester(data_set.testset[0].T,
                                                                        data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 
+
+            train_trace_correlation, x_train_best, y_train_best = TraceCorrelationTester(data_set.trainset[0].T,
+                                                                                         data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
+
         except:
             print 'Exception: \n'
             print traceback.format_exc()
@@ -103,14 +107,22 @@ class DoubleEncoder(object):
         dirname, filename = os.path.split(os.path.abspath(__file__))
         filename = data_parameters['name'] + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '.mat'
 
-        export = {
-            'image_decca': x_best,
-            'sent_decca': y_best
+        export_test = {
+            'image_decca_test': x_best,
+            'sent_decca_test': y_best
+        }
+
+        export_train = {
+            'image_decca_train': x_train_best,
+            'sent_decca_train': y_train_best
         }
 
         try:
-            scipy.io.savemat(os.path.join(dirname, filename), export)
+            scipy.io.savemat(os.path.join(dirname, "train_" + filename), export_train)
+            scipy.io.savemat(os.path.join(dirname, "test_" + filename), export_test)
         except:
             'exporting to mat file failed'
 
         return stacked_double_encoder
+
+
