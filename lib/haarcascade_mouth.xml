@@ -2,7 +2,6 @@
 <!----------------------------------------------------------------------------
   25x15 Mouth detector computed with 7000 positive samples
 
-//////////////////////////////////////////////////////////////////////////
 | Contributors License Agreement
 | IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
 |   By downloading, copying, installing or using the software you agree 
@@ -39,7 +38,6 @@
 | NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 | SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  Back to
 | Top
-//////////////////////////////////////////////////////////////////////////
 
 RESEARCH USE:
 If you are using any of the detectors or involved ideas please cite one of these papers:
