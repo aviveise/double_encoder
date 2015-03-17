@@ -5,6 +5,7 @@ import numpy
 import theano.tensor as Tensor
 import theano.tensor.nlinalg
 import theano.tensor.slinalg
+import theano.printing
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
@@ -140,6 +141,8 @@ class Trainer(object):
         #Computing the gradient for the stochastic gradient decent
         #the result is gradients for each parameter of the cross encoder
         gradients = Tensor.grad(loss, params)
+
+        gradients = theano.printing.Print('gradients: ')(gradients)
 
         if hyper_parameters.momentum > 0:
 
