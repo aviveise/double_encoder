@@ -142,7 +142,7 @@ class Trainer(object):
         #the result is gradients for each parameter of the cross encoder
         gradients = Tensor.grad(loss, params)
 
-        gradients = theano.printing.Print('gradients: ')(gradients)
+
 
         if hyper_parameters.momentum > 0:
 
@@ -152,6 +152,8 @@ class Trainer(object):
             updates = OrderedDict()
             zipped = zip(params, gradients, model_updates)
             for param, gradient, model_update in zipped:
+
+                gradient = theano.printing.Print('gradients_' + param.name)(gradient)
 
                 delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
 
