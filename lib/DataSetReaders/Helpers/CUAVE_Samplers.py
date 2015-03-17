@@ -132,7 +132,7 @@ def getAudio(file, frame_time, frame_count):
 
         specgrams = extractSpectogram(data[int(frame_time[0][i] * FPS_AUDIO): int(frame_time[1][i] * FPS_AUDIO)],
                                       int(0.02 * FPS_AUDIO),
-                                      int(.01 * FPS_AUDIO))
+                                      int(0.01 * FPS_AUDIO))
         for j in range(frame_count):
 
             frame = specgrams[:, j]
@@ -192,17 +192,28 @@ if __name__ == '__main__':
 
     for idx, file_path in enumerate(files):
 
-        frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".lab"))
-        audio = getAudio(os.path.join(audio_path, file_path + ".wav"), frame_starts, 10)
-        video = getVideo(os.path.join(video_path, file_path + ".mpg"), frame_starts, 4, idx)
+        print 'processing file: ' + file_path
 
-        if idx % 2 == 0:
-            training_audio[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = audio
-            training_video[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = video
+        try:
 
-        if not idx % 2 == 0:
-            training_audio[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = audio
-            training_video[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = video
+            frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".lab"))
+            audio = getAudio(os.path.join(audio_path, file_path + ".wav"), frame_starts, 10)
+            video = getVideo(os.path.join(video_path, file_path + ".mpg"), frame_starts, 4, idx)
+
+            if idx % 2 == 0:
+                training_audio[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = audio
+                training_video[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = video
+
+            if not idx % 2 == 0:
+                training_audio[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = audio
+                training_video[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = video
+
+        except Exception:
+
+            print 'failed processing file'
+            print Exception.message
+
+
 
 
     labels = [i % 10 for i in range(50)]

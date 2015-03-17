@@ -1,9 +1,10 @@
 __author__ = 'aviv'
-
+import os
 import sys
 import ConfigParser
-
+import scipy.io
 import traceback
+import datetime
 
 from time import clock
 
@@ -73,13 +74,8 @@ class DoubleEncoder(object):
                                                              validation_set_x=data_set.tuning[0],
                                                              validation_set_y=data_set.tuning[1])
 
-            trace_correlation = TraceCorrelationTester(data_set.testset[0].T, data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
-
-            #cca_correlation = CCACorraltionTester(data_set.testset[0].T,
-            #                                      data_set.testset[1].T,
-            #                                      data_set.trainset[0].T,
-            #                                      data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
-
+            trace_correlation, x_best, y_best = TraceCorrelationTester(data_set.testset[0].T,
+                                                                       data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
 
         except:
             print 'Exception: \n'
@@ -102,28 +98,19 @@ class DoubleEncoder(object):
         OutputLog().write('trace: correlation execution_time\n')
 
         OutputLog().write('%f, %f\n' % (float(trace_correlation),
-                                          execution_time))
+                                        execution_time))
 
-        #OutputLog().write('cca: correlation execution_time\n')
+        dirname, filename = os.path.split(os.path.abspath(__file__))
+        filename = data_parameters['name'] + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '.mat'
 
-        #OutputLog().write('%f, %f\n' % (float(cca_correlation),
-        #                                execution_time))
+        export = {
+            'image_decca': x_best,
+            'sent_decca': y_best
+        }
 
-        #x_test = data_set.testset[0][: ,0]
-        #x_test.reshape([x_test.shape[0], 1])
-
-        #y_test = data_set.testset[1][: ,0]
-        #y_test.reshape([x_test.shape[0], 1])
-
-        #print x_test.shape
-
-        #x_tilde, y_tilde = DoubleEncoderTransformer(stacked_double_encoder,0).compute_reconstructions(x_test,
-        #                                                                                              y_test)
-
-        #image_x = Image.fromarray(x_tilde)
-        #image_y = Image.fromarray(y_tilde)
-
-        #image_x.save('x_tilde.png')
-        #image_y.save('y_tilde.png')
+        try:
+            scipy.io.savemat(os.path.join(dirname, filename), export)
+        except:
+            'exporting to mat file failed'
 
         return stacked_double_encoder

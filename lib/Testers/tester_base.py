@@ -16,6 +16,8 @@ class TesterBase(object):
 
         #Printing correlation scores for each hidden layer
         correlation = 0
+        x_best = 0
+        y_best = 0
         zipped = zip(hidden_values[0], hidden_values[1])
         index = 0
 
@@ -37,6 +39,8 @@ class TesterBase(object):
 
             if correlation_temp_hidden > correlation:
                 correlation = correlation_temp_hidden
+                x_best = x_hid
+                y_best = y_hid
 
         zipped = zip(output_values[0], output_values[1])
 
@@ -54,13 +58,14 @@ class TesterBase(object):
 
             if correlation_temp_reconstruct > correlation:
                 correlation = correlation_temp_reconstruct
-
+                x_best = x_rec
+                y_best = y_rec
 
 
         print tabulate(table_rows, headers=table_header)
         print '\n'
 
-        return correlation
+        return correlation, x_best, y_best
 
     @abc.abstractmethod
     def _calculate_metric(self, x, y, transformer, print_row):
