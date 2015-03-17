@@ -132,7 +132,7 @@ class Trainer(object):
         loss = loss_backward + loss_forward
 
         #Add the regularization method computations to the loss
-        loss += Tensor.sum([regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods],
+        loss += Tensor.sum([regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods if regularization_method.weight > 0],
                             dtype=Tensor.config.floatX,
                             acc_dtype=Tensor.config.floatX)
 
