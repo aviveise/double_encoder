@@ -147,7 +147,7 @@ class Trainer(object):
         if hyper_parameters.momentum > 0:
 
             model_updates = [shared(value=numpy.zeros(p.get_value().shape, dtype=config.floatX),
-                                                    name='inc_' + p.name) for p in params]
+                                                    name='inc_' + p.name, borrow=True) for p in params]
 
             updates = OrderedDict()
             zipped = zip(params, gradients, model_updates)
@@ -170,7 +170,7 @@ class Trainer(object):
         #updates : gradient decent updates for all params
         #givens : replacing inputs for each iteration
         model = function(inputs=[index],
-                         outputs=[loss_backward, loss_forward],
+                         outputs=[loss_backward, loss_forward, gradients],
                          updates=updates,
                          givens={var_x: train_set_x[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size, :],
