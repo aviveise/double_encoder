@@ -66,9 +66,9 @@ class Trainer(object):
             loss_backward = 0
 
             for index in xrange(n_training_batches):
-                loss_forward_temp, loss_backward_temp = model(index)
-                loss_forward += loss_forward_temp
-                loss_backward += loss_backward_temp
+                output = model(index)
+                loss_forward += output[0]
+                loss_backward += output[1]
 
             if print_verbose and not validation_set_y is None and not validation_set_x is None:
 
@@ -170,12 +170,14 @@ class Trainer(object):
         #updates : gradient decent updates for all params
         #givens : replacing inputs for each iteration
         model = function(inputs=[index],
-                         outputs=[loss_backward, loss_forward, gradients],
+                         outputs=[loss_backward, loss_forward],
                          updates=updates,
                          givens={var_x: train_set_x[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size, :],
                                  var_y: train_set_y[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size, :]})
+
+        theano.printing.debugprint(model.maker.fgraph.outputs)
 
         return model
 
@@ -252,5 +254,3 @@ class Trainer(object):
                                                             (index + 1) * hyper_parameters.batch_size, :],
                                  var_y: train_set_y[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size, :]})
-
-        return model
