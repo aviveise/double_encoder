@@ -153,8 +153,6 @@ class Trainer(object):
             zipped = zip(params, gradients, model_updates)
             for param, gradient, model_update in zipped:
 
-                gradient = theano.printing.Print('gradients_' + param.name)(gradient)
-
                 delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
 
                 updates[param] = param + delta
