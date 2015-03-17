@@ -143,8 +143,6 @@ class Trainer(object):
         #the result is gradients for each parameter of the cross encoder
         gradients = Tensor.grad(loss, params)
 
-
-
         if hyper_parameters.momentum > 0:
 
             model_updates = [shared(value=numpy.zeros(p.get_value().shape, dtype=config.floatX),
@@ -177,8 +175,6 @@ class Trainer(object):
                                                             (index + 1) * hyper_parameters.batch_size, :],
                                  var_y: train_set_y[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size, :]})
-
-        theano.printing.debugprint(model.maker.fgraph.outputs)
 
         return model
 
