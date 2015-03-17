@@ -98,5 +98,4 @@ class StackedDoubleEncoder(object):
     def _initialize_first_layer(self, layer):
         layer.update_x(self.var_x, input_size=self.input_size)
         layer.update_y(self.var_y, output_size=self.output_size)
-
-    def
+    
