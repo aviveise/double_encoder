@@ -77,16 +77,12 @@ def getVideo(file, start_frames, frame_count, index):
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             faces = face_detector.detectMultiScale(gray)
 
-            print 'processing frame: %i' % i
-
             max_w = 0
             for face in faces:
 
                 if face[2] > max_w:
                     max_w = face[2]
                     max_face = face
-
-            print 'detected %i faces' % len(faces)
 
             if len(face) == 0:
                 raise Exception('no face found')
@@ -110,10 +106,10 @@ def getVideo(file, start_frames, frame_count, index):
                     max_mouth = mouth
 
 
-            if not mouth is None:
+            if mouth is not None:
 
                 mouth_gray = face_gray[max_mouth[1]: max_mouth[1] + max_mouth[3], max_mouth[0]: max_mouth[0] + max_mouth[2]]
-                cv2.imwrite('~/mouths/mouth_%i_%i.jpg' % (index, (idx * frame_count + i + 1)), mouth_gray)
+                cv2.imwrite('/home/aviveise/double_encoder/lib/DataSetReaders/Helpers/mouths/mouth_%i_%i.jpg' % (index, (idx * frame_count + i + 1)), mouth_gray)
                 mouth_gray = cv2.resize(mouth_gray, (80, 60))
 
             else:
