@@ -193,9 +193,9 @@ if __name__ == '__main__':
 
         try:
 
-            frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".lab"))
-            audio = getAudio(os.path.join(audio_path, file_path + ".wav"), frame_starts, 10)
-            video = getVideo(os.path.join(video_path, file_path + ".mpg"), frame_starts, 4, idx)
+            frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".LAB"))
+            audio = getAudio(os.path.join(audio_path, file_path + ".WAV"), frame_starts, 10)
+            video = getVideo(os.path.join(video_path, file_path + ".MPG"), frame_starts, 4, idx)
 
             if idx % 2 == 0:
                 training_audio[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = audio
