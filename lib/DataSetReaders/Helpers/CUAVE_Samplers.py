@@ -47,7 +47,7 @@ def extractSpectogram(audio, window_width, window_overlap):
     return specgram
 
 
-def getVideo(file, start_frames, frame_count, index):
+def getVideo(file, start_frames, frame_count, index, file_name):
 
     capture = cv2.VideoCapture(file)
 
@@ -110,7 +110,7 @@ def getVideo(file, start_frames, frame_count, index):
             if mouth is not None:
 
                 mouth_gray = face_gray[max_mouth[1]: max_mouth[1] + max_mouth[3], max_mouth[0]: max_mouth[0] + max_mouth[2]]
-                cv2.imwrite('/home/aviveise/double_encoder/lib/DataSetReaders/Helpers/mouths/mouth_%i_%i.jpg' % (index, (idx * frame_count + i + 1)), mouth_gray)
+                cv2.imwrite('/home/aviveise/double_encoder/lib/DataSetReaders/Helpers/mouths/mouth_' + file_name + '_%i_%i.jpg' % (index, (idx * frame_count + i + 1)), mouth_gray)
                 mouth_gray = cv2.resize(mouth_gray, (80, 60))
 
             else:
@@ -207,7 +207,7 @@ if __name__ == '__main__':
 
                 frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".LAB"))
                 audio = getAudio(os.path.join(audio_path, file_path + ".WAV"), frame_starts, 10)
-                video = getVideo(os.path.join(video_path, file_path + ".MPG"), frame_starts, 4, idx)
+                video = getVideo(os.path.join(video_path, file_path + ".MPG"), frame_starts, 4, idx, file_path)
 
                 pickle_file = {
                     'frame_starts': frame_starts,
