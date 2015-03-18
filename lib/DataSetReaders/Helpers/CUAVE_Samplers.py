@@ -226,9 +226,7 @@ if __name__ == '__main__':
                 training_video[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = video
 
         except Exception:
-
-            print 'failed processing file'
-            raise
+            print 'failed processing file ' + file_path
 
 
     labels = [i % 10 for i in range(50)]
