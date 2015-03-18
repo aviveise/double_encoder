@@ -108,7 +108,7 @@ def getVideo(file, start_frames, frame_count, index):
             if not mouth is None:
 
                 mouth_gray = face_gray[max_mouth[1]: max_mouth[1] + max_mouth[3], max_mouth[0]: max_mouth[0] + max_mouth[2]]
-                cv2.imwrite('/home/aviv/Project/DoubleEncoder/lib/mouths/mouth_%i_%i.jpg' % (index, (idx * frame_count + i + 1)), mouth_gray)
+                cv2.imwrite('~/mouths/mouth_%i_%i.jpg' % (index, (idx * frame_count + i + 1)), mouth_gray)
                 mouth_gray = cv2.resize(mouth_gray, (80, 60))
 
             else:
