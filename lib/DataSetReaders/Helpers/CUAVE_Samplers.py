@@ -7,6 +7,7 @@ import cPickle
 import numpy
 import scipy
 import scipy.io.wavfile as wave
+import scipy.io
 
 from datetime import datetime
 
@@ -194,13 +195,13 @@ if __name__ == '__main__':
 
         try:
 
-            pickle_path = os.path.join('/home/aviveise/double_encoder/DataSet/CUAVE/pickle', file_path + '.p')
+            pickle_path = os.path.join('/home/aviveise/double_encoder/DataSet/CUAVE/pickle', file_path + '.mat')
 
             if os.path.exists(pickle_path):
-                file_pickle = cPickle.load(file(pickle_path, 'rb'))
-                audio = file_pickle['audio']
-                video = file_pickle['video']
-                frame_starts = file_pickle['frame_starts']
+                mat_file = scipy.io.loadmat(pickle_path)
+                audio = mat_file['audio']
+                video = mat_file['video']
+                frame_starts = mat_file['frame_starts']
 
             else:
 
@@ -208,13 +209,13 @@ if __name__ == '__main__':
                 audio = getAudio(os.path.join(audio_path, file_path + ".WAV"), frame_starts, 10)
                 video = getVideo(os.path.join(video_path, file_path + ".MPG"), frame_starts, 4, idx)
 
-                file = {
+                pickle_file = {
                     'frame_starts': frame_starts,
                     'audio': audio,
                     'video': video
                 }
 
-                cPickle.dumps(training_video, file(os.path.join('/home/aviveise/double_encoder/DataSet/CUAVE/pickle', file_path + '.p'), 'w+'))
+                scipy.io.savemat(pickle_path, pickle_file)
 
             if idx % 2 == 0:
                 training_audio[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = audio
