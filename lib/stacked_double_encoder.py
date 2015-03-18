@@ -98,4 +98,15 @@ class StackedDoubleEncoder(object):
     def _initialize_first_layer(self, layer):
         layer.update_x(self.var_x, input_size=self.input_size)
         layer.update_y(self.var_y, output_size=self.output_size)
-    
+
+    def getParams(self):
+
+        params_set = set()
+        for layer in self._symmetric_layers:
+            params_set.add(layer.y_hidden_params)
+            params_set.add(layer.x_hidden_params)
+
+        params_set.add(self._symmetric_layers[-1].y_params)
+        params_set.add(self._symmetric_layers[0].x_params)
+
+        return list(params_set)

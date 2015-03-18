@@ -55,8 +55,8 @@ def getVideo(file, start_frames, frame_count, index):
     frame_index = 0
     prev_index = 0
 
-    face_detector = cv2.CascadeClassifier("/home/aviv/Project/DoubleEncoder/lib/haarcascade_frontalface_default.xml")
-    mouth_detector = cv2.CascadeClassifier("/home/aviv/Project/DoubleEncoder/lib/haarcascade_mouth.xml")
+    face_detector = cv2.CascadeClassifier("../../haarcascade_frontalface_default.xml")
+    mouth_detector = cv2.CascadeClassifier("../../haarcascade_mouth.xml")
 
     frames = numpy.ndarray((50, 19200))
 
@@ -178,7 +178,6 @@ if __name__ == '__main__':
     video_path = sys.argv[1]
     audio_path = os.path.join(video_path, 'audio')
     label_path = os.path.join(video_path, 'labels')
-
 
     files = [f[:-4] for f in os.listdir(video_path) if os.path.isfile(os.path.join(video_path, f))]
 
