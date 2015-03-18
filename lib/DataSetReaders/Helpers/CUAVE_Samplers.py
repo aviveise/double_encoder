@@ -194,9 +194,27 @@ if __name__ == '__main__':
 
         try:
 
-            frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".LAB"))
-            audio = getAudio(os.path.join(audio_path, file_path + ".WAV"), frame_starts, 10)
-            video = getVideo(os.path.join(video_path, file_path + ".MPG"), frame_starts, 4, idx)
+            pickle_path = os.path.join('/home/aviveise/double_encoder/DataSet/CUAVE/pickle', file_path + '.p')
+
+            if os.path.exists(pickle_path):
+                file_pickle = cPickle.load(file(pickle_path, 'rb'))
+                audio = file_pickle['audio']
+                video = file_pickle['video']
+                frame_starts = file_pickle['frame_starts']
+
+            else:
+
+                frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".LAB"))
+                audio = getAudio(os.path.join(audio_path, file_path + ".WAV"), frame_starts, 10)
+                video = getVideo(os.path.join(video_path, file_path + ".MPG"), frame_starts, 4, idx)
+
+                file = {
+                    'frame_starts': frame_starts,
+                    'audio': audio,
+                    'video': video
+                }
+
+                cPickle.dumps(training_video, file(os.path.join('/home/aviveise/double_encoder/DataSet/CUAVE/pickle', file_path + '.p'), 'w+'))
 
             if idx % 2 == 0:
                 training_audio[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = audio
@@ -210,8 +228,6 @@ if __name__ == '__main__':
 
             print 'failed processing file'
             raise
-
-
 
 
     labels = [i % 10 for i in range(50)]
