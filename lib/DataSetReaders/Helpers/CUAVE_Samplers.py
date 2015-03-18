@@ -77,6 +77,8 @@ def getVideo(file, start_frames, frame_count, index):
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             faces = face_detector.detectMultiScale(gray)
 
+            print 'processing frame: %i' % i
+
             max_w = 0
             for face in faces:
 
@@ -84,8 +86,11 @@ def getVideo(file, start_frames, frame_count, index):
                     max_w = face[2]
                     max_face = face
 
+            print 'detected %i faces' % len(faces)
+
             if len(face) == 0:
                 raise Exception('no face found')
+
 
             height = max_face[3]
 
