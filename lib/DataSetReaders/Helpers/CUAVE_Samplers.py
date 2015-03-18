@@ -208,7 +208,7 @@ if __name__ == '__main__':
         except Exception:
 
             print 'failed processing file'
-            print Exception.message
+            raise
 
 
 
