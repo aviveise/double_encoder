@@ -103,10 +103,15 @@ class StackedDoubleEncoder(object):
 
         params_set = set()
         for layer in self._symmetric_layers:
-            params_set.add(layer.y_hidden_params)
-            params_set.add(layer.x_hidden_params)
+            for param in layer.y_hidden_params:
+                params_set.add(param)
+            for param in layer.x_hidden_params:
+                params_set.add(param)
 
-        params_set.add(self._symmetric_layers[-1].y_params)
-        params_set.add(self._symmetric_layers[0].x_params)
+        for param in self._symmetric_layers[-1].y_params:
+            params_set.add(param)
+        for param in self._symmetric_layers[0].x_params:
+            params_set.add(param)
+
 
         return list(params_set)

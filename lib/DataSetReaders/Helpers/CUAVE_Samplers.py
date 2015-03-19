@@ -195,7 +195,9 @@ if __name__ == '__main__':
 
         try:
 
-            pickle_path = os.path.join('/home/aviveise/double_encoder/DataSet/CUAVE/pickle', file_path + '.mat')
+            output_path = '/home/aviveise/double_encoder/DataSet/CUAVE/'
+
+            pickle_file = os.path.join(output_path + 'pickle', file_path + '.mat')
 
             if os.path.exists(pickle_path):
                 mat_file = scipy.io.loadmat(pickle_path)
@@ -231,10 +233,20 @@ if __name__ == '__main__':
 
     labels = [i % 10 for i in range(50)]
 
-    cPickle.dumps(training_video, file('./training_video.p', 'w+'))
-    cPickle.dumps(training_audio, file('./training_video.p', 'w+'))
+    training_dump = {
+        'audio': training_audio,
+        'video': training_video
+    }
 
-    cPickle.dumps(testing_video, file('./testing_video.p', 'w+'))
-    cPickle.dumps(testing_audio, file('./testing_audio.p', 'w+'))
+    testing_dump = {
+        'audio': testing_audio,
+        'video': testing_video
+    }
+
+    output_training = os.path.join(output_path, 'training.mat')
+    output_testing = os.path.join(output_path, 'testing.mat')
+
+    scipy.io.savemat(output_training, training_dump)
+    scipy.io.savemat(output_testing, testing_dump)
 
     cPickle.dumps(labels, file('./labels.p', 'w+'))
