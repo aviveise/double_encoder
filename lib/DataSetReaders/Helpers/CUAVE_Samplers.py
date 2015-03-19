@@ -26,6 +26,8 @@ def extractSpectogram(audio, window_width, window_overlap):
 
     length = len(audio)
 
+    print 'length: %i' % length
+
     for i in range(0, length - window_width, window_overlap):
 
         cur_frame = audio[i: i + window_width]
@@ -35,6 +37,7 @@ def extractSpectogram(audio, window_width, window_overlap):
         if i == 0:
             width = int(length/window_overlap)
             height = int(spec.size)
+            print 'width: %i, height: %i' % (width, height)
             specgram = numpy.empty([height, width])
 
         for j in range(height):
