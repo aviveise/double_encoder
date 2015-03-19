@@ -229,6 +229,7 @@ if __name__ == '__main__':
 
         except Exception:
             print 'failed processing file ' + file_path
+            raise
 
 
     labels = [i % 10 for i in range(50)]
