@@ -249,4 +249,4 @@ if __name__ == '__main__':
 
     scipy.io.savemat(output_training, training_dump)
     scipy.io.savemat(output_testing, testing_dump)
-    scipy.io.savemat(output_labels, labels)
+    scipy.io.savemat(output_labels, numpy.array(labels))
