@@ -197,7 +197,7 @@ if __name__ == '__main__':
 
             output_path = '/home/aviveise/double_encoder/DataSet/CUAVE/'
 
-            pickle_file = os.path.join(output_path + 'pickle', file_path + '.mat')
+            pickle_path = os.path.join(output_path + 'pickle', file_path + '.mat')
 
             if os.path.exists(pickle_path):
                 mat_file = scipy.io.loadmat(pickle_path)
