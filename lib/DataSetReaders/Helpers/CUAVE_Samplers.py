@@ -134,6 +134,7 @@ def getAudio(file, frame_time, frame_count):
     for i in range(len(frame_time[0])):
 
         print 'frames: %i - %i' % (int(frame_time[0][i] * FPS_AUDIO), int(frame_time[1][i] * FPS_AUDIO))
+        print 'window width: %i, window overlap: %i' % (int(0.02 * FPS_AUDIO), int(0.01 * FPS_AUDIO))
 
         specgrams = extractSpectogram(data[int(frame_time[0][i] * FPS_AUDIO): int(frame_time[1][i] * FPS_AUDIO)],
                                       int(0.02 * FPS_AUDIO),
