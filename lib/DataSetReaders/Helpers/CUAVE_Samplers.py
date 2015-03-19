@@ -233,20 +233,13 @@ if __name__ == '__main__':
 
     labels = [i % 10 for i in range(50)]
 
-    training_dump = {
-        'audio': training_audio,
-        'video': training_video
+    dump = {
+        'train_audio': training_audio,
+        'train_video': training_video,
+        'test_audio': testing_audio,
+        'test_video': testing_video,
+        'labels': labels
     }
 
-    testing_dump = {
-        'audio': testing_audio,
-        'video': testing_video
-    }
-
-    output_training = os.path.join(output_path, 'training.mat')
-    output_testing = os.path.join(output_path, 'testing.mat')
-    output_labels = os.path.join(output_path, 'labels.mat')
-
-    scipy.io.savemat(output_training, training_dump)
-    scipy.io.savemat(output_testing, testing_dump)
-    scipy.io.savemat(output_labels, numpy.array(labels))
+    output = os.path.join(output_path, 'output.mat')
+    scipy.io.savemat(output, dump)
