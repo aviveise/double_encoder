@@ -130,11 +130,11 @@ def getAudio(file, frame_time, frame_count):
 
     rate, data = wave.read(file)
 
-    print frame_time[1] - frame_time[0]
 
     frames = numpy.ndarray((50, 4830))
     for i in range(len(frame_time[0])):
 
+        print 'times: %f' % (frame_time[1][i] - frame_time[0][i])
         print 'frames: %i - %i' % (int(frame_time[0][i] * FPS_AUDIO), int(frame_time[1][i] * FPS_AUDIO))
         print 'window width: %i, window overlap: %i' % (int(0.02 * FPS_AUDIO), int(0.01 * FPS_AUDIO))
 
