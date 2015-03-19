@@ -245,8 +245,8 @@ if __name__ == '__main__':
 
     output_training = os.path.join(output_path, 'training.mat')
     output_testing = os.path.join(output_path, 'testing.mat')
+    output_labels = os.path.join(output_path, 'labels.mat')
 
     scipy.io.savemat(output_training, training_dump)
     scipy.io.savemat(output_testing, testing_dump)
-
-    cPickle.dumps(labels, file('./labels.p', 'w+'))
+    scipy.io.savemat(output_labels, labels)
