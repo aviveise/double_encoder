@@ -99,7 +99,7 @@ def getVideo(file, start_frames, frame_count, index, file_name):
                 raise Exception('no face found')
 
 
-            height = max_face[3]
+            height = max_face[3] * 1.1
 
             face_gray = gray[max_face[1] + height * 0.65: max_face[1] + height,
                              max_face[0]: max_face[0] + max_face[2]]
