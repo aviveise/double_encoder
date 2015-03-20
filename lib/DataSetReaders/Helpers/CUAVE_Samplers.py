@@ -99,9 +99,9 @@ def getVideo(file, start_frames, frame_count, index, file_name):
                 raise Exception('no face found')
 
 
-            height = max_face[3] * 1.05
+            height = max_face[3]
 
-            face_gray = gray[max_face[1] + height * 0.40: max_face[1] + height,
+            face_gray = gray[max_face[1] + height * 0.40: max_face[1] + height * 0.9,
                              max_face[0]: max_face[0] + max_face[2]]
 
             cv2.imwrite(os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i_face.jpg' % (index, (idx * frame_count + i + 1))), face_gray)
