@@ -104,7 +104,7 @@ def getVideo(file, start_frames, frame_count, index, file_name):
             face_gray = gray[max_face[1] + height * 0.65: max_face[1] + height,
                              max_face[0]: max_face[0] + max_face[2]]
 
-            #cv2.imwrite(os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i_face.jpg' % (index, (idx * frame_count + i + 1))), face_gray)
+            cv2.imwrite(os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i_face.jpg' % (index, (idx * frame_count + i + 1))), face_gray)
 
             mouths = mouth_detector.detectMultiScale(face_gray, 1.2, 3, 0, minSize=(50, 10))
 
