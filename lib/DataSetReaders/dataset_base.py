@@ -38,11 +38,13 @@ class DatasetBase(object):
 
         if normalize:
             unitnorm(self.trainset[0])
-            unitnorm(self.tuning[0])
             unitnorm(self.testset[0])
             unitnorm(self.trainset[1])
-            unitnorm(self.tuning[1])
             unitnorm(self.testset[1])
+
+            if self.tuning is not None:
+                unitnorm(self.tuning[1])
+                unitnorm(self.tuning[0])
 
         if whiten:
             transform_0 = WhitenTransform(self.trainset[0])

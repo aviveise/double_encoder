@@ -17,9 +17,9 @@ class CCACorraltionTester(TesterBase):
         self.train_set_y = train_set_y
         self.top = top
 
-    def _calculate_metric(self, x, y, transformer):
+    def _calculate_metric(self, x, y, transformer, hyperparamsers):
 
-        train_x_tilde, train_y_tilde = transformer.compute_outputs(self.train_set_x, self.train_set_y)
+        train_x_tilde, train_y_tilde = transformer.compute_outputs(self.train_set_x, self.train_set_y, hyperparamsers)
 
         wx, wy, r = cca_web2(train_x_tilde.T, train_y_tilde.T)
 

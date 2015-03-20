@@ -10,9 +10,9 @@ class TesterBase(object):
         self._x = test_set_x
         self._y = test_set_y
 
-    def test(self, transformer):
+    def test(self, transformer, hyperparamsers):
 
-        hidden_values, output_values = transformer.compute_outputs(self._x, self._y)
+        hidden_values, output_values = transformer.compute_outputs(self._x, self._y, hyperparamsers)
 
         #Printing correlation scores for each hidden layer
         correlation = 0

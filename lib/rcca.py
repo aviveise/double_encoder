@@ -61,7 +61,7 @@ if __name__ == '__main__':
     x = numpy.array(rcca_eval[0])
     y = numpy.array(rcca_eval[1])
 
-    trace_correlation = TraceCorrelationTester(x, y, top).test(IdentityTransformer())
+    trace_correlation = TraceCorrelationTester(x, y, top).test(IdentityTransformer(), None)
 
     print '\nResults:\n'
 

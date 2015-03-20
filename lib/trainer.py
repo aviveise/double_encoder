@@ -75,7 +75,8 @@ class Trainer(object):
                 print '----------epoch (%d)----------\n' % epoch
 
                 trace_correlation = TraceCorrelationTester(validation_set_x.T, validation_set_y.T, top).\
-                    test(DoubleEncoderTransformer(symmetric_double_encoder, 0))
+                    test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
+                         hyper_parameters)
 
             else:
                 print 'epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,

@@ -75,11 +75,13 @@ class DoubleEncoder(object):
                                                              validation_set_y=data_set.tuning[1])
 
             trace_correlation, x_best, y_best = TraceCorrelationTester(data_set.testset[0].T,
-                                                                       data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
+                                                                       data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+                                                                                                        configuration.hyper_parameters)
 
 
             train_trace_correlation, x_train_best, y_train_best = TraceCorrelationTester(data_set.trainset[0].T,
-                                                                                         data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
+                                                                                         data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+                                                                                                                           configuration.hyper_parameters)
 
         except:
             print 'Exception: \n'
