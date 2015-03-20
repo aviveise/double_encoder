@@ -86,7 +86,7 @@ def getVideo(file, start_frames, frame_count, index, file_name):
                 break
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = face_detector.detectMultiScale(gray, minSize=(230, 180))
+            faces = face_detector.detectMultiScale(gray, minSize=(230, 190))
 
             max_w = 0
             for face in faces:
