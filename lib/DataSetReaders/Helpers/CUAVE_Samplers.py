@@ -65,7 +65,25 @@ def getVideo(file, start_frames, frame_count, index, file_name):
 
     frames = numpy.ndarray((50, 19200))
 
-    frame_c = 0
+    frame_c = 1
+
+    success, frame = capture.read()
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_detector.detectMultiScale(gray, minSize=(230, 190))
+
+    max_w = 0
+    for face in faces:
+
+        if face[3] > max_w:
+            max_w = face[3]
+            max_face = face
+
+    if len(face) == 0:
+        raise Exception('no face found')
+
+    height = max_face[3]
+
 
     for idx, start_index in enumerate(start_frames[0]):
 
@@ -85,22 +103,8 @@ def getVideo(file, start_frames, frame_count, index, file_name):
                 print 'reading frame unsuccessful'
                 break
 
+
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = face_detector.detectMultiScale(gray, minSize=(230, 190))
-
-            max_w = 0
-            for face in faces:
-
-                if face[3] > max_w:
-                    max_w = face[3]
-                    max_face = face
-
-            if len(face) == 0:
-                raise Exception('no face found')
-
-
-            height = max_face[3]
-
             face_gray = gray[max_face[1] + height * 0.5: max_face[1] + height,
                              max_face[0]: max_face[0] + max_face[2]]
 
