@@ -79,9 +79,9 @@ def getVideo(file, start_frames, frame_count, index, file_name):
         max_w = 0
         for face in faces:
 
-        if face[3] > max_w:
-            max_w = face[3]
-            max_face = face
+            if face[3] > max_w:
+                max_w = face[3]
+                max_face = face
 
         if len(face) == 0:
             raise Exception('no face found')
