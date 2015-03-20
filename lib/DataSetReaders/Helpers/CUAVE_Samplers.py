@@ -251,8 +251,8 @@ if __name__ == '__main__':
                 training_video[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = video
 
             if not idx % 2 == 0:
-                training_audio[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = audio
-                training_video[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = video
+                testing_audio[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = audio
+                testing_video[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = video
 
         except Exception:
             print 'failed processing file ' + file_path
