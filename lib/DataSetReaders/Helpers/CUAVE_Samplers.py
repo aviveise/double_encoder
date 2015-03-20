@@ -65,22 +65,22 @@ def getVideo(file, start_frames, frame_count, index, file_name):
 
     frames = numpy.ndarray((50, 19200))
 
-    frame_count = 0
+    frame_c = 0
 
     for idx, start_index in enumerate(start_frames[0]):
 
         for i in range(int((start_index - prev_index) * FPS_VIDEO - frame_index)):
-            frame_count += 1
+            frame_c += 1
             success, frame = capture.read()
 
-        print 'frame: %i time: %f' % (frame_count, (frame_count / FPS_VIDEO))
+        print 'frame: %i time: %f' % (frame_c, (frame_c / FPS_VIDEO))
 
         prev_index = start_index
         frame_index = frame_count
         for i in range(frame_count):
 
             success, frame = capture.read()
-            frame_count += 1
+            frame_c += 1
             if not success:
                 print 'reading frame unsuccessful'
                 break
