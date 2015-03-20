@@ -101,10 +101,10 @@ def getVideo(file, start_frames, frame_count, index, file_name):
 
             height = max_face[3]
 
-            face_gray = gray[max_face[1] + height * 0.6: max_face[1] + height,
+            face_gray = gray[max_face[1] + height * 0.5: max_face[1] + height,
                              max_face[0]: max_face[0] + max_face[2]]
 
-            mouths = mouth_detector.detectMultiScale(face_gray, 1.2, 4, 0, minSize=(60, 10))
+            mouths = mouth_detector.detectMultiScale(face_gray, 1.2, 4, 0, minSize=(60, 50))
 
             max_y = 0
             max_w = 0
