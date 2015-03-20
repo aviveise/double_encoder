@@ -55,7 +55,9 @@ class DatasetBase(object):
 
         OutputLog().write('Training set size = %d' % self.trainset[0].shape[1])
         OutputLog().write('Test set size = %d' % self.testset[0].shape[1])
-        OutputLog().write('Tuning set size = %d' % self.tuning[0].shape[1])
+
+        if self.tuning is not None:
+            OutputLog().write('Tuning set size = %d' % self.tuning[0].shape[1])
 
     def produce_optimization_sets(self, train, test_samples=None):
 
