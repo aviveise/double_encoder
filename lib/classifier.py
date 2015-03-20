@@ -78,9 +78,6 @@ class Classifier(object):
                                                              validation_set_x=data_set.tuning[0],
                                                              validation_set_y=data_set.tuning[1])
 
-            trace_correlation, x_best, y_best = TraceCorrelationTester(data_set.testset[0].T,
-                                                                       data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0))
-
 
             transformer = GradientTransformer(stacked_double_encoder, stacked_double_encoder.getParams(), configuration.hyper_parameters)
 

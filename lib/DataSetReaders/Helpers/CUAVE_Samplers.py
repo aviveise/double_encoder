@@ -61,19 +61,21 @@ def getVideo(file, start_frames, frame_count, index, file_name):
 
     face_detector = cv2.CascadeClassifier("../../haarcascade_frontalface_default.xml")
     mouth_detector = cv2.CascadeClassifier("../../haarcascade_mouth.xml")
+    mouth_path = '/home/aviveise/double_encoder/lib/DataSetReaders/Helpers/mouths/' + file_name[0:3].upper()
 
     frames = numpy.ndarray((50, 19200))
 
     for idx, start_index in enumerate(start_frames[0]):
 
-        for i in range(int((start_index - prev_index) * FPS_VIDEO - frame_count)):
+        for i in range(int((start_index - prev_index - frame_index) * FPS_VIDEO)):
             success, frame = capture.read()
 
         prev_index = start_index
-
+        frame_index = frame_count
         for i in range(frame_count):
 
             success, frame = capture.read()
+
             if not success:
                 print 'reading frame unsuccessful'
                 break
@@ -113,7 +115,7 @@ def getVideo(file, start_frames, frame_count, index, file_name):
             if mouth is not None:
 
                 mouth_gray = face_gray[max_mouth[1]: max_mouth[1] + max_mouth[3], max_mouth[0]: max_mouth[0] + max_mouth[2]]
-                cv2.imwrite('/home/aviveise/double_encoder/lib/DataSetReaders/Helpers/mouths/mouth_' + file_name + '_%i_%i.jpg' % (index, (idx * frame_count + i + 1)), mouth_gray)
+                cv2.imwrite(os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i.jpg' % (index, (idx * frame_count + i + 1))), mouth_gray)
                 mouth_gray = cv2.resize(mouth_gray, (80, 60))
 
             else:
