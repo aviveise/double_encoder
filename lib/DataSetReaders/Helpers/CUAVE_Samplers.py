@@ -3,7 +3,9 @@ import os
 import string
 import math
 import cv2
+import h5py
 import cPickle
+import hickle
 import numpy
 import scipy
 import scipy.io.wavfile as wave
@@ -267,5 +269,6 @@ if __name__ == '__main__':
         'labels': labels
     }
 
-    output = os.path.join(output_path, 'output.mat')
-    scipy.io.savemat(output, dump)
+    output = os.path.join(output_path, 'output.hkl')
+    hickle.dump(dump, output, 'w')
+

@@ -138,6 +138,9 @@ def tile_raster_images(X, img_shape, tile_shape, tile_spacing=(0, 0),
 
 def unitnorm(M):
 
+    if M is None:
+        return
+
     for i in xrange(M.shape[0]):
 
         norm = numpy.linalg.norm(M[i, :])
@@ -148,6 +151,9 @@ def unitnorm(M):
     return M
 
 def center(M):
+
+    if M is None:
+        return
 
     M -= M.mean(axis=1).reshape([M.shape[0], 1]) * numpy.ones([1, M.shape[1]])
     return M
