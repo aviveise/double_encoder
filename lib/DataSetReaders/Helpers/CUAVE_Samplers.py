@@ -101,7 +101,7 @@ def getVideo(file, start_frames, frame_count, index, file_name):
 
             height = max_face[3]
 
-            face_gray = gray[max_face[1] + height * 0.55: max_face[1] + height,
+            face_gray = gray[max_face[1] + height * 0.7: max_face[1] + height,
                              max_face[0]: max_face[0] + max_face[2]]
 
             cv2.imwrite(os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i_face.jpg' % (index, (idx * frame_count + i + 1))), face_gray)
