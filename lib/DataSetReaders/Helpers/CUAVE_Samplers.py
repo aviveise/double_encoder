@@ -86,7 +86,7 @@ def getVideo(file, start_frames, frame_count, index, file_name):
                 break
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = face_detector.detectMultiScale(gray, minSize=(200, 150))
+            faces = face_detector.detectMultiScale(gray, minSize=(200, 160))
 
             max_w = 0
             for face in faces:
@@ -101,7 +101,7 @@ def getVideo(file, start_frames, frame_count, index, file_name):
 
             height = max_face[3]
 
-            face_gray = gray[max_face[1] + height * 0.40: max_face[1] + height * 0.9,
+            face_gray = gray[max_face[1] + height * 0.40: max_face[1] + height * 0.95,
                              max_face[0]: max_face[0] + max_face[2]]
 
             #cv2.imwrite(os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i_face.jpg' % (index, (idx * frame_count + i + 1))), face_gray)
