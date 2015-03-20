@@ -2,6 +2,7 @@ import os
 import scipy.io
 import h5py
 import hickle
+import numpy
 
 from theano import config
 
@@ -22,6 +23,6 @@ class CUAVEDataSet(DatasetBase):
         #data_set = scipy.io.loadmat(self.dataset_path)
         data_set = hickle.load(file(self.dataset_path, 'r'))
 
-        self.trainset = [data_set['train_video'].T, data_set['train_audio'].T]
-        self.testset = [data_set['test_video'].T, data_set['test_audio'].T]
+        self.trainset = [numpy.astype(data_set['train_video'].T, config.floatX), numpy.astype(data_set['train_audio'].T,config.floatX)]
+        self.testset = [numpy.astype(data_set['test_video'].T, config.floatX), numpy.astype(data_set['test_audio'].T, config.floatX)]
         self.tuning = self.testset
