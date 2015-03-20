@@ -271,4 +271,4 @@ if __name__ == '__main__':
 
     output = os.path.join(output_path, 'output.hkl')
     hickle.dump(dump, output, 'w')
-
+    hickle.load(output)

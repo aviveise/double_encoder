@@ -1,6 +1,7 @@
 import os
 import scipy.io
 import h5py
+import hickle
 
 from theano import config
 
@@ -19,7 +20,7 @@ class CUAVEDataSet(DatasetBase):
     def build_dataset(self):
 
         #data_set = scipy.io.loadmat(self.dataset_path)
-        data_set = h5py.File(self.dataset_path, 'r')
+        data_set = hickle.load(file(self.dataset_path, 'r'))
 
         self.trainset = [data_set['train_video'], data_set['train_audio']]
         self.testset = [data_set['test_video'], data_set['test_audio']]
