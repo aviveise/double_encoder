@@ -67,10 +67,10 @@ def getVideo(file, start_frames, frame_count, index, file_name):
 
     for idx, start_index in enumerate(start_frames[0]):
 
-        for i in range(int((start_index - prev_index - frame_index) * FPS_VIDEO)):
+        for i in range(int((start_index - prev_index) * FPS_VIDEO - frame_index)):
             success, frame = capture.read()
 
-        print 'start time: %f' % (start_index - prev_index - frame_index)
+        print 'start time: %f' % ((start_index - prev_index) - frame_index / FPS_VIDEO)
 
         prev_index = start_index
         frame_index = frame_count
