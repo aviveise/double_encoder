@@ -32,7 +32,7 @@ class GradientTransformer(TransformerBase):
 
             j = i
             while j == i:
-                j = numpy.random.uniform(high=number_of_batches, 1)
+                j = numpy.random.uniform(high=number_of_batches, size=1)
 
             length_x = min((i + 1) * batch_size, set_x.shape[0])
             length_y = min((j + 1) * batch_size, set_x.shape[0])
@@ -47,7 +47,7 @@ class GradientTransformer(TransformerBase):
 
             j = i
             while j == i:
-                j = numpy.random.uniform(high=number_of_batches, 1)
+                j = numpy.random.uniform(high=number_of_batches, size=1)
 
             length_x = min((i + 1) * batch_size, set_x.shape[0])
             length_y = min((j + 1) * batch_size, set_x.shape[0])
