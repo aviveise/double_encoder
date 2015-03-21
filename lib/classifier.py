@@ -86,11 +86,12 @@ class Classifier(object):
 
             svm_classifier = SVC(kernel='linear')
 
-            train_labels = numpy.ones((train_gradients.shape[0]))
+            train_labels = numpy.ones((train_gradients.shape[0] / 3))
+            numpy.append(train_labels, numpy.ones((train_gradients.shape[0] * 2 / 3)) * (-1))
 
             svm_classifier.fit(train_gradients, train_labels)
 
-            test_labels = svm_classifier.predict(test_gradients)
+            test_labels = svm_classifier.predict(test_gradients[0: (test_gradients / 3)])
 
             error = 1 - float(numpy.count_nonzero(test_labels)) / test_labels.shape[0]
 

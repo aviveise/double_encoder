@@ -18,9 +18,43 @@ class GradientTransformer(TransformerBase):
     def compute_outputs(self, set_x, set_y, batch_size):
 
         gradients = []
-        for i in range(set_x.shape[0]):
-            model = self._build_gradient_model()
-            gradients.append(model(set_x[i: i + batch_size, :], set_y[i: i + batch_size, :]))
+        model = self._build_gradient_model()
+        number_of_batches = set_x.shape[0] / batch_size
+
+
+        # generate positive samples
+        for i in range(number_of_batches):
+            length = min((i + 1) * batch_size, set_x.shape[0])
+            gradients.append(model(set_x[i * batch_size: length, :], set_y[i * batch_size: length, :]))
+
+        # generate positive samples
+        for i in range(number_of_batches):
+
+            j = i
+            while j == i:
+                j = numpy.random.uniform(high=number_of_batches, 1)
+
+            length_x = min((i + 1) * batch_size, set_x.shape[0])
+            length_y = min((j + 1) * batch_size, set_x.shape[0])
+
+            permutation = numpy.random.permutation(numpy.arange(j * batch_size, length_y))
+
+            gradients.append(model(set_x[i * batch_size: length_x, :], set_y[permutation, :]))
+
+
+        # generate positive samples
+        for i in range(number_of_batches):
+
+            j = i
+            while j == i:
+                j = numpy.random.uniform(high=number_of_batches, 1)
+
+            length_x = min((i + 1) * batch_size, set_x.shape[0])
+            length_y = min((j + 1) * batch_size, set_x.shape[0])
+
+            permutation = numpy.random.permutation(numpy.arange(j * batch_size, length_y))
+
+            gradients.append(model(set_x[i * batch_size: length_x, :], set_y[permutation, :]))
 
 
         results = numpy.ndarray((len(gradients), len(gradients[0])))

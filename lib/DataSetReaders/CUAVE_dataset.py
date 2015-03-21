@@ -22,7 +22,6 @@ class CUAVEDataSet(DatasetBase):
 
         #data_set = scipy.io.loadmat(self.dataset_path)
         data_set = hickle.load(file(self.dataset_path, 'r'))
-
         self.trainset = [data_set['train_video'].T.astype(config.floatX), data_set['train_audio'].T.astype(config.floatX)]
         self.testset = [data_set['test_video'].T.astype(config.floatX), data_set['test_audio'].T.astype(config.floatX)]
         self.tuning = self.testset
