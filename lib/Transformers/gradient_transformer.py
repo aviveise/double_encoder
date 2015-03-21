@@ -59,9 +59,12 @@ class GradientTransformer(TransformerBase):
 
             for grad_idx, gradient in enumerate(gradient_vector):
 
+                print gradient
                 if grad_idx == 0:
+
                     sample = numpy.array(gradient).reshape(-1)
                     continue
+
 
                 sample = numpy.concatenate(sample, numpy.array(gradient).reshape(-1))
 
