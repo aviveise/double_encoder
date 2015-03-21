@@ -63,6 +63,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           params=params,
                           regularization_methods=regularization_methods,
                           print_verbose=print_verbose,
+                          top=top,
                           validation_set_x=validation_set_x,
                           validation_set_y=validation_set_y)
 
