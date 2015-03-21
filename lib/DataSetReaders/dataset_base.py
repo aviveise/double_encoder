@@ -38,9 +38,9 @@ class DatasetBase(object):
             pca_dim1.fit(self.trainset[0])
             pca_dim2.fit(self.trainset[1])
 
-            self.trainset = (pca_dim1.transform(self.trainset[0]), pca_dim2.transform(self.trainset[1]))
-            self.testset = (pca_dim1.transform(self.testset[0]), pca_dim2.transform(self.testset[1]))
-            self.tuning = (pca_dim1.transform(self.tuning[0]), pca_dim2.transform(self.tuning[1]))
+            self.trainset = (pca_dim1.transform(self.trainset[0].T).T, pca_dim2.transform(self.trainset[1].T).T)
+            self.testset = (pca_dim1.transform(self.testset[0].T).T, pca_dim2.transform(self.testset[1].T).T)
+            self.tuning = (pca_dim1.transform(self.tuning[0].T).T, pca_dim2.transform(self.tuning[1].T).T)
 
         if center:
             center_function(self.trainset[0])
