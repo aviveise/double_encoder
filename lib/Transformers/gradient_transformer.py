@@ -60,10 +60,10 @@ class GradientTransformer(TransformerBase):
             for grad_idx, gradient in enumerate(gradient_vector):
 
                 if grad_idx == 0:
-                    sample = gradient.flatten()
+                    sample = numpy.array(gradient).flatten()
                     continue
 
-                sample = numpy.concatenate(sample, gradient.flatten())
+                sample = numpy.concatenate(sample, numpy.array(gradient).flatten())
 
             samples.append(sample)
 
@@ -96,6 +96,6 @@ class GradientTransformer(TransformerBase):
 
         gradients = Tensor.grad(loss, self._params)
 
-        model = function(inputs=[var_x, var_y],outputs=gradients)
+        model = function(inputs=[var_x, var_y], outputs=gradients)
 
         return model
