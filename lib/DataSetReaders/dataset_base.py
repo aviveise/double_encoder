@@ -5,7 +5,7 @@ import random
 import theano
 import numpy
 
-from sklearn.decomposition import pca
+from sklearn.decomposition import pca as PCA
 from MISC.utils import center as center_function, unitnorm
 from MISC.whiten_transform import WhitenTransform
 from MISC.logger import OutputLog
@@ -30,6 +30,18 @@ class DatasetBase(object):
 
         self.build_dataset()
 
+        if not pca[0] == 0 and not pca[1] == 0:
+
+            pca_dim1 = PCA(pca[0], whiten)
+            pca_dim2 = PCA(pca[1], whiten)
+
+            pca_dim1.fit(self.trainset[0])
+            pca_dim2.fit(self.trainset[1])
+
+            self.trainset = (pca_dim1.transform(self.trainset[0]), pca_dim2.transform(self.trainset[1]))
+            self.testset = (pca_dim1.transform(self.testset[0]), pca_dim2.transform(self.testset[1]))
+            self.tuning = (pca_dim1.transform(self.tuning[0]), pca_dim2.transform(self.tuning[1]))
+
         if center:
             center_function(self.trainset[0])
             center_function(self.tuning[0])
@@ -47,18 +59,6 @@ class DatasetBase(object):
             if self.tuning is not None:
                 unitnorm(self.tuning[1])
                 unitnorm(self.tuning[0])
-
-        if not pca[0] == 0 and not pca[1] == 0:
-
-            pca_dim1 = pca(pca[0], whiten)
-            pca_dim2 = pca(pca[1], whiten)
-
-            pca_dim1.fit(self.trainset[0])
-            pca_dim2.fit(self.trainset[1])
-
-            self.trainset = (pca_dim1.transform(self.trainset[0]), pca_dim2.transform(self.trainset[1]))
-            self.testset = (pca_dim1.transform(self.testset[0]), pca_dim2.transform(self.testset[1]))
-            self.tuning = (pca_dim1.transform(self.tuning[0]), pca_dim2.transform(self.tuning[1]))
 
         OutputLog().write('Training set size = %d' % self.trainset[0].shape[1])
         OutputLog().write('Test set size = %d' % self.testset[0].shape[1])
