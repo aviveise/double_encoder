@@ -60,10 +60,10 @@ class GradientTransformer(TransformerBase):
             for grad_idx, gradient in enumerate(gradient_vector):
 
                 if grad_idx == 0:
-                    sample = numpy.array(gradient).flatten()
+                    sample = numpy.array(gradient).flatten(1)
                     continue
 
-                sample = numpy.concatenate(sample, numpy.array(gradient).flatten())
+                sample = numpy.concatenate(sample, numpy.array(gradient).flatten(1))
 
             samples.append(sample)
 
