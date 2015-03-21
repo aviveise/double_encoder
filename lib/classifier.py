@@ -9,7 +9,7 @@ import numpy
 
 from time import clock
 
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 
 from configuration import Configuration
 
@@ -84,14 +84,19 @@ class Classifier(object):
             train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
             test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)
 
-            svm_classifier = SVC(kernel='linear')
+            svm_classifier = LinearSVC()
 
-            train_labels = numpy.ones((train_gradients.shape[0] / 3))
-            numpy.append(train_labels, numpy.ones((train_gradients.shape[0] * 2 / 3)) * (-1))
+            train_labels = []
+            for i in range(train_gradients.shape[0] / 10):
+                train_labels += range(10)
+
+            test_labels = []
+            for i in range(test_gradients.shape[0] / 10):
+                test_labels += range(10)
 
             svm_classifier.fit(train_gradients, train_labels)
 
-            test_labels = svm_classifier.predict(test_gradients[0: (test_gradients / 3)])
+            test_labels = svm_classifier.predict(test_gradients)
 
             error = 1 - float(numpy.count_nonzero(test_labels)) / test_labels.shape[0]
 

@@ -21,46 +21,57 @@ class GradientTransformer(TransformerBase):
         model = self._build_gradient_model()
         number_of_batches = set_x.shape[0] / batch_size
 
-
         # generate positive samples
-        for i in range(number_of_batches):
-            length = min((i + 1) * batch_size, set_x.shape[0])
-            gradients.append(model(set_x[i * batch_size: length, :], set_y[i * batch_size: length, :]))
+        for i in range(set_x.shape[0]):
+            gradients.append(model(set_x[i, :], set_y[i, :]))
 
-        # generate positive samples
-        for i in range(number_of_batches):
+        ## generate positive samples
+        #for i in range(number_of_batches):
 
-            j = i
-            while j == i:
-                j = numpy.random.uniform(high=number_of_batches, size=1)
+        #    j = i
+        #    while j == i:
+        #        j = numpy.random.uniform(high=number_of_batches, size=1)
 
-            length_x = min((i + 1) * batch_size, set_x.shape[0])
-            length_y = min((j + 1) * batch_size, set_x.shape[0])
+        #    length_x = min((i + 1) * batch_size, set_x.shape[0])
+        #    length_y = min((j + 1) * batch_size, set_x.shape[0])
 
-            permutation = numpy.random.permutation(numpy.arange(j * batch_size, length_y))
+        #    permutation = numpy.random.permutation(numpy.arange(j * batch_size, length_y))
 
-            gradients.append(model(set_x[i * batch_size: length_x, :], set_y[permutation, :]))
+        #    gradients.append(model(set_x[i * batch_size: length_x, :], set_y[permutation, :]))
 
 
         # generate positive samples
-        for i in range(number_of_batches):
+        #for i in range(number_of_batches):
 
-            j = i
-            while j == i:
-                j = numpy.random.uniform(high=number_of_batches, size=1)
+        #    j = i
+        #    while j == i:
+        #        j = numpy.random.uniform(high=number_of_batches, size=1)
 
-            length_x = min((i + 1) * batch_size, set_x.shape[0])
-            length_y = min((j + 1) * batch_size, set_x.shape[0])
+        #    length_x = min((i + 1) * batch_size, set_x.shape[0])
+        #    length_y = min((j + 1) * batch_size, set_x.shape[0])
 
-            permutation = numpy.random.permutation(numpy.arange(j * batch_size, length_y))
+        #    permutation = numpy.random.permutation(numpy.arange(j * batch_size, length_y))
 
-            gradients.append(model(set_x[i * batch_size: length_x, :], set_y[permutation, :]))
+        #    gradients.append(model(set_x[i * batch_size: length_x, :], set_y[permutation, :]))
 
-
-        results = numpy.ndarray((len(gradients), len(gradients[0])))
-
+        samples = []
         for index, gradient_vector in enumerate(gradients):
-            results[index, :] = numpy.array(gradient_vector)
+
+            for grad_idx, gradient in enumerate(gradient_vector):
+
+                if grad_idx == 0:
+                    sample = gradient.flatten()
+                    continue
+
+                sample = numpy.concatenate(sample, gradient.flatten())
+
+            samples.append(sample)
+
+
+        results = numpy.ndarray(len(samples), samples[0].shape[0])
+
+        for idx, sample in enumerate(samples):
+            results[idx, :] = sample
 
         return results
 
