@@ -57,21 +57,19 @@ class GradientTransformer(TransformerBase):
         samples = []
         for index, gradient_vector in enumerate(gradients):
 
-            print gradient_vector
             for grad_idx, gradient in enumerate(gradient_vector):
-
 
                 if grad_idx == 0:
                     sample = numpy.array(gradient).reshape(-1)
                 else:
                     sample = numpy.concatenate((sample, numpy.array(gradient).reshape(-1)))
 
-                print sample
+                print sample.shape[0]
 
             samples.append(sample)
 
 
-        results = numpy.ndarray(len(samples), samples[0].shape[0])
+        results = numpy.ndarray((len(samples), samples[0].shape[0]))
 
         for idx, sample in enumerate(samples):
             results[idx, :] = sample
