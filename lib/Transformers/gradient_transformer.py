@@ -96,6 +96,6 @@ class GradientTransformer(TransformerBase):
 
         gradients = Tensor.grad(loss, self._params)
 
-        model = function(inputs=[self._x, self._y],outputs=gradients)
+        model = function(inputs=[var_x, var_y],outputs=gradients)
 
         return model
