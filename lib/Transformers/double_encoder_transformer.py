@@ -17,12 +17,6 @@ class DoubleEncoderTransformer(TransformerBase):
 
     def compute_outputs(self, test_set_x, test_set_y, hyperparameters):
 
-        test_result_x = []
-        test_result_y = []
-
-        last_input_x = test_set_x
-        last_input_y = test_set_y
-
         hidden_output_model = self._build_hidden_model()
         reconstruction_output_model = self._build_reconstruction_model()
 
