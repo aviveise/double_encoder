@@ -64,11 +64,7 @@ class GradientTransformer(TransformerBase):
                 else:
                     sample = numpy.concatenate((sample, numpy.array(gradient).reshape(-1)))
 
-                print sample.shape[0]
-
             samples.append(sample)
-
-        print len(samples)
 
         results = numpy.ndarray((len(samples), samples[0].shape[0]))
 

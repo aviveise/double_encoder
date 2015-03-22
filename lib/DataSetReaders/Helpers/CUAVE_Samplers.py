@@ -11,6 +11,8 @@ import scipy
 import scipy.io.wavfile as wave
 import scipy.io
 
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
 from datetime import datetime
 
 __author__ = 'aviv'
@@ -65,7 +67,7 @@ def getVideo(file, start_frames, frame_count, index, file_name):
     mouth_detector = cv2.CascadeClassifier("../../haarcascade_mouth.xml")
     mouth_path = '/home/aviveise/double_encoder/lib/DataSetReaders/Helpers/mouths/' + file_name[0:3].upper()
 
-    frames = numpy.ndarray((50, 19200))
+    frames = numpy.ndarray((200, 4800))
 
     frame_c = 0
 
@@ -76,7 +78,6 @@ def getVideo(file, start_frames, frame_count, index, file_name):
             success, frame = capture.read()
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        #cv2.imwrite(os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i_face.jpg' % (index, (idx * frame_count + i + 1))), gray)
         faces = face_detector.detectMultiScale(gray, minSize=(190, 140))
 
         max_w = 0
@@ -91,52 +92,52 @@ def getVideo(file, start_frames, frame_count, index, file_name):
 
         height = max_face[3]
 
-
-        print 'frame: %i time: %f' % (frame_c, (frame_c / FPS_VIDEO))
-
         prev_index = start_index
         frame_index = frame_count
         for i in range(frame_count):
-
             success, frame = capture.read()
             frame_c += 1
             if not success:
                 print 'reading frame unsuccessful'
                 break
 
+            path = os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i.jpg' % (index, (idx * frame_count + i + 1)))
 
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            face_gray = gray[max_face[1] + height * 0.55: max_face[1] + height * 1.05,
-                             max_face[0]: max_face[0] + max_face[2]]
-
-            #cv2.imwrite(os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i_face.jpg' % (index, (idx * frame_count + i + 1))), face_gray)
-
-            mouths = mouth_detector.detectMultiScale(face_gray, 1.2, 4, 0, minSize=(50, 40))
-
-            max_y = 0
-            max_w = 0
-            max_mouth = None
-            mouth = None
-            for mouth in mouths:
-
-                if mouth[1] > max_y:
-                    max_y = mouth[1]
-                    max_mouth = mouth
-
-
-            if mouth is not None:
-
-                mouth_gray = face_gray[max_mouth[1]: max_mouth[1] + max_mouth[3], max_mouth[0]: max_mouth[0] + max_mouth[2]]
-                cv2.imwrite(os.path.join(mouth_path, 'mouth_' + file_name + '_%i_%i.jpg' % (index, (idx * frame_count + i + 1))), mouth_gray)
-                mouth_gray = cv2.resize(mouth_gray, (80, 60))
+            if os.path.exists(path):
+                mouth_gray = cv2.imread(path)
 
             else:
-                print 'Could not detect mouth'
-                continue
+
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                face_gray = gray[max_face[1] + height * 0.55: max_face[1] + height * 1.05,
+                                 max_face[0]: max_face[0] + max_face[2]]
+
+                mouths = mouth_detector.detectMultiScale(face_gray, 1.2, 4, 0, minSize=(50, 40))
+
+                max_y = 0
+                max_w = 0
+                max_mouth = None
+                mouth = None
+                for mouth in mouths:
+
+                    if mouth[1] > max_y:
+                        max_y = mouth[1]
+                        max_mouth = mouth
+
+
+                if mouth is not None:
+
+                    mouth_gray = face_gray[max_mouth[1]: max_mouth[1] + max_mouth[3], max_mouth[0]: max_mouth[0] + max_mouth[2]]
+                    cv2.imwrite(path, mouth_gray)
+                    mouth_gray = cv2.resize(mouth_gray, (80, 60))
+
+                else:
+                    print 'Could not detect mouth'
+                    continue
 
             print 'processed video frame %i of %i' % (idx * frame_count + i + 1, 200)
 
-            frames[idx, i * 4800: (i + 1) * 4800] = mouth_gray.flatten()
+            frames[idx * frame_count + i, :] = mouth_gray.flatten()
 
     return frames
 
@@ -147,9 +148,8 @@ def getAudio(file, frame_time, frame_count):
     window_width = int(0.02 * FPS_AUDIO)
     window_overlap = int(0.01 * FPS_AUDIO)
 
-    frames = numpy.ndarray((50, 4830))
+    frames = numpy.ndarray((500, 161))
     for i in range(len(frame_time[0])):
-
 
         frame_start = int(frame_time[0][i] * FPS_AUDIO)
         frame_end = int(frame_time[1][i] * FPS_AUDIO)
@@ -164,14 +164,9 @@ def getAudio(file, frame_time, frame_count):
 
             frame = specgrams[:, j]
 
-            even_indices = frame[::2]
-            odd_indices = frame[1::2]
-
-            frame = numpy.append(frame, odd_indices - even_indices)
-
             print 'processed audio %i of %i' % (i * frame_count + j + 1, 500)
 
-            frames[i, j * 483: (j + 1) * 483] = frame
+            frames[i * frame_count + j, :] = frame
 
     return frames
 
@@ -201,6 +196,34 @@ def getFrameStarts(file):
 
     return output_start, output_end
 
+def add_first_second_deriviatives(set):
+
+    #normalize set
+    normalized_set = normalize(numpy.norm(set),axis=1)
+
+    first_deriviative = numpy.ndarray(set.shape)
+    second_deriviative = numpy.ndarray(set.shape)
+
+    t = numpy.arange(set.shape[1])
+    dt = numpy.gradient(t)
+
+
+    for i in range(set.shape[0]):
+        first_deriviative[i, :] = numpy.gradient(normalized_set[i, :], dt)
+        second_deriviative[i, :] = numpy.gradient(first_deriviative[i ,:], dt)
+
+    return numpy.concatenate((set, first_deriviative, second_deriviative), axis=1)
+
+def group_frames(set, group_size):
+
+    grouped_set = numpy.ndarray((set.shape[0] / group_size, set.shape[1]))
+    line_size = set.shape[1]
+
+    for i in range(grouped_set.shape[0]):
+        for j in range(group_size):
+            grouped_set[i, j * line_size : (j + i) * line_size] = set[j * group_size + i, :]
+
+    return grouped_set
 
 if __name__ == '__main__':
 
@@ -215,6 +238,12 @@ if __name__ == '__main__':
 
     testing_video = numpy.ndarray((900, 19200))
     testing_audio = numpy.ndarray((900, 4830))
+
+    video_frames_training = numpy.ndarray((3600, 4800))
+    video_frames_testing = numpy.ndarray((3600, 4800))
+
+    audio_frames_training = numpy.ndarray((9000, 4800))
+    audio_frames_testing = numpy.ndarray((9000, 4800))
 
     for idx, file_path in enumerate(files):
 
@@ -247,26 +276,43 @@ if __name__ == '__main__':
                 scipy.io.savemat(pickle_path, pickle_file)
 
             if idx % 2 == 0:
-                training_audio[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = audio
-                training_video[(idx / 2) * 50: ((idx / 2) + 1) * 50, :] = video
+                audio_frames_training[(idx / 2) * 500: ((idx / 2) + 1) * 500, :] = audio
+                video_frames_training[(idx / 2) * 200: ((idx / 2) + 1) * 200, :] = video
 
             if not idx % 2 == 0:
-                testing_audio[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = audio
-                testing_video[((idx - 1) / 2) * 50: (((idx - 1) / 2) + 1) * 50, :] = video
+                audio_frames_testing[((idx - 1) / 2) * 500: (((idx - 1) / 2) + 1) * 500, :] = audio
+                video_frames_testing[((idx - 1) / 2) * 200: (((idx - 1) / 2) + 1) * 200, :] = video
 
         except Exception:
             print 'failed processing file ' + file_path
             raise
 
+    audio_frames_training = add_first_second_deriviatives(audio_frames_training)
+    audio_frames_testing = add_first_second_deriviatives(audio_frames_testing)
 
-    labels = [i % 10 for i in range(50)]
+    pca_video = PCA(n_components=32, whiten=True)
+    pca_audio = PCA(n_components=100, whiten=True)
+
+    audio_frames_training = pca_audio.fit_transform(audio_frames_training)
+    video_frames_training = pca_audio.fit_transform(video_frames_training)
+
+    audio_frames_testing = pca_audio.transform()
+    video_frames_testing = pca_video.transform()
+
+    video_frames_training= add_first_second_deriviatives(video_frames_training)
+    video_frames_testing = add_first_second_deriviatives(video_frames_testing)
+
+    video_frames_training  = group_frames(video_frames_training, 4)
+    video_frames_testing = group_frames(video_frames_testing, 4)
+
+    audio_frames_training = group_frames(audio_frames_training, 10)
+    audio_frames_testing = group_frames(audio_frames_testing, 10)
 
     dump = {
-        'train_audio': training_audio,
-        'train_video': training_video,
-        'test_audio': testing_audio,
-        'test_video': testing_video,
-        'labels': labels
+        'train_audio': audio_frames_training,
+        'train_video': video_frames_training,
+        'test_audio': audio_frames_testing,
+        'test_video': video_frames_testing,
     }
 
     output = os.path.join(output_path, 'output.hkl')
