@@ -119,11 +119,8 @@ class DoubleEncoder(object):
             'sent_decca_train': y_train_best
         }
 
-        try:
-            scipy.io.savemat(os.path.join(dirname, "train_" + filename), export_train)
-            scipy.io.savemat(os.path.join(dirname, "test_" + filename), export_test)
-        except:
-            'exporting to mat file failed'
+        scipy.io.savemat(os.path.join(dirname, "train_" + filename), export_train)
+        scipy.io.savemat(os.path.join(dirname, "test_" + filename), export_test)
 
         return stacked_double_encoder
 
