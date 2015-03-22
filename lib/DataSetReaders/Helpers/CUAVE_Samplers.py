@@ -287,8 +287,24 @@ if __name__ == '__main__':
             print 'failed processing file ' + file_path
             raise
 
+    print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
+                                                                  audio_frames_testing.shape[1],
+                                                                  audio_frames_training[0],
+                                                                  audio_frames_training[1])
+
+    print 'video frames shape - test [%i, %i], train [%i, %i]' % (video_frames_testing.shape[0],
+                                                                  video_frames_testing.shape[1],
+                                                                  video_frames_training[0],
+                                                                  video_frames_training[1])
+
     audio_frames_training = add_first_second_deriviatives(audio_frames_training)
     audio_frames_testing = add_first_second_deriviatives(audio_frames_testing)
+
+    print 'audio with deriviatives:'
+    print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
+                                                                  audio_frames_testing.shape[1],
+                                                                  audio_frames_training[0],
+                                                                  audio_frames_training[1])
 
     pca_video = PCA(n_components=32, whiten=True)
     pca_audio = PCA(n_components=100, whiten=True)
@@ -299,14 +315,47 @@ if __name__ == '__main__':
     audio_frames_testing = pca_audio.transform()
     video_frames_testing = pca_video.transform()
 
+    print 'audio & video after pca:'
+    print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
+                                                                  audio_frames_testing.shape[1],
+                                                                  audio_frames_training[0],
+                                                                  audio_frames_training[1])
+
+    print 'video frames shape - test [%i, %i], train [%i, %i]' % (video_frames_testing.shape[0],
+                                                                  video_frames_testing.shape[1],
+                                                                  video_frames_training[0],
+                                                                  video_frames_training[1])
+
+
     video_frames_training= add_first_second_deriviatives(video_frames_training)
     video_frames_testing = add_first_second_deriviatives(video_frames_testing)
+
+    print 'video with deriviatives:'
+    print 'video frames shape - test [%i, %i], train [%i, %i]' % (video_frames_testing.shape[0],
+                                                                  video_frames_testing.shape[1],
+                                                                  video_frames_training[0],
+                                                                  video_frames_training[1])
+
+    print 'video with grouped:'
+
 
     video_frames_training  = group_frames(video_frames_training, 4)
     video_frames_testing = group_frames(video_frames_testing, 4)
 
     audio_frames_training = group_frames(audio_frames_training, 10)
     audio_frames_testing = group_frames(audio_frames_testing, 10)
+
+    print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
+                                                                  audio_frames_testing.shape[1],
+                                                                  audio_frames_training[0],
+                                                                  audio_frames_training[1])
+
+    print 'video frames shape - test [%i, %i], train [%i, %i]' % (video_frames_testing.shape[0],
+                                                                  video_frames_testing.shape[1],
+                                                                  video_frames_training[0],
+                                                                  video_frames_training[1])
+
+
 
     dump = {
         'train_audio': audio_frames_training,
