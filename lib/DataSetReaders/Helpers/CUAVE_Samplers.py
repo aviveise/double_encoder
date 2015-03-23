@@ -291,13 +291,13 @@ if __name__ == '__main__':
 
     print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
                                                                   audio_frames_testing.shape[1],
-                                                                  audio_frames_training[0],
-                                                                  audio_frames_training[1])
+                                                                  audio_frames_training.shape[0],
+                                                                  audio_frames_training.shape[1])
 
     print 'video frames shape - test [%i, %i], train [%i, %i]' % (video_frames_testing.shape[0],
                                                                   video_frames_testing.shape[1],
-                                                                  video_frames_training[0],
-                                                                  video_frames_training[1])
+                                                                  video_frames_training.shape[0],
+                                                                  video_frames_training.shape[1])
 
     audio_frames_training = add_first_second_deriviatives(audio_frames_training)
     audio_frames_testing = add_first_second_deriviatives(audio_frames_testing)
@@ -305,8 +305,8 @@ if __name__ == '__main__':
     print 'audio with deriviatives:'
     print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
                                                                   audio_frames_testing.shape[1],
-                                                                  audio_frames_training[0],
-                                                                  audio_frames_training[1])
+                                                                  audio_frames_training.shape[0],
+                                                                  audio_frames_training.shape[1])
 
     pca_video = PCA(n_components=32, whiten=True)
     pca_audio = PCA(n_components=100, whiten=True)
@@ -320,13 +320,13 @@ if __name__ == '__main__':
     print 'audio & video after pca:'
     print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
                                                                   audio_frames_testing.shape[1],
-                                                                  audio_frames_training[0],
-                                                                  audio_frames_training[1])
+                                                                  audio_frames_training.shape[0],
+                                                                  audio_frames_training.shape[1])
 
     print 'video frames shape - test [%i, %i], train [%i, %i]' % (video_frames_testing.shape[0],
                                                                   video_frames_testing.shape[1],
-                                                                  video_frames_training[0],
-                                                                  video_frames_training[1])
+                                                                  video_frames_training.shape[0],
+                                                                  video_frames_training.shape[1])
 
 
     video_frames_training= add_first_second_deriviatives(video_frames_training)
@@ -335,8 +335,8 @@ if __name__ == '__main__':
     print 'video with deriviatives:'
     print 'video frames shape - test [%i, %i], train [%i, %i]' % (video_frames_testing.shape[0],
                                                                   video_frames_testing.shape[1],
-                                                                  video_frames_training[0],
-                                                                  video_frames_training[1])
+                                                                  video_frames_training.shape[0],
+                                                                  video_frames_training.shape[1])
 
     print 'video with grouped:'
 
@@ -349,13 +349,13 @@ if __name__ == '__main__':
 
     print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
                                                                   audio_frames_testing.shape[1],
-                                                                  audio_frames_training[0],
-                                                                  audio_frames_training[1])
+                                                                  audio_frames_training.shape[0],
+                                                                  audio_frames_training.shape[1])
 
     print 'video frames shape - test [%i, %i], train [%i, %i]' % (video_frames_testing.shape[0],
                                                                   video_frames_testing.shape[1],
-                                                                  video_frames_training[0],
-                                                                  video_frames_training[1])
+                                                                  video_frames_training.shape[0],
+                                                                  video_frames_training.shape[1])
 
 
 
