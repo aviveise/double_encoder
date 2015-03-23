@@ -167,7 +167,7 @@ def getAudio(file, frame_time, frame_count):
             frame = specgrams[:, j]
 
             print 'processed audio %i of %i' % (i * frame_count + j + 1, 500)
-            print frame
+            print sum(frame)
 
             frames[i * frame_count + j, :] = frame
 

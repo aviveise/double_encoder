@@ -27,7 +27,7 @@ class DoubleEncoderTransformer(TransformerBase):
         output_values_x = []
         output_values_y = []
 
-        number_of_batches = math.ceil(int(float(test_set_x.shape[0]) / hyperparameters.batch_size))
+        number_of_batches = int(math.ceil(int(float(test_set_x.shape[0]) / hyperparameters.batch_size)))
 
         outputs_hidden = None
         outputs_reconstruct = None
