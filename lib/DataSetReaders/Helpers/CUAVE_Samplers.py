@@ -244,8 +244,8 @@ if __name__ == '__main__':
     video_frames_training = numpy.ndarray((3600, 4800))
     video_frames_testing = numpy.ndarray((3600, 4800))
 
-    audio_frames_training = numpy.ndarray((9000, 966))
-    audio_frames_testing = numpy.ndarray((9000, 966))
+    audio_frames_training = numpy.ndarray((9000, 322))
+    audio_frames_testing = numpy.ndarray((9000, 322))
 
     for idx, file_path in enumerate(files):
 
