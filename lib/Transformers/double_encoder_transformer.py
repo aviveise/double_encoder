@@ -1,8 +1,10 @@
 __author__ = 'aviv'
+import numpy
+import math
 
 from theano import function
 from transformer_base import TransformerBase
-import numpy
+
 
 class DoubleEncoderTransformer(TransformerBase):
 
@@ -25,7 +27,7 @@ class DoubleEncoderTransformer(TransformerBase):
         output_values_x = []
         output_values_y = []
 
-        number_of_batches = int(test_set_x.shape[0] / hyperparameters.batch_size)
+        number_of_batches = math.ceil(int(float(test_set_x.shape[0]) / hyperparameters.batch_size))
 
         outputs_hidden = None
         outputs_reconstruct = None

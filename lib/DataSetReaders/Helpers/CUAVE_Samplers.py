@@ -167,6 +167,7 @@ def getAudio(file, frame_time, frame_count):
             frame = specgrams[:, j]
 
             print 'processed audio %i of %i' % (i * frame_count + j + 1, 500)
+            print frame
 
             frames[i * frame_count + j, :] = frame
 
@@ -310,10 +311,6 @@ if __name__ == '__main__':
 
     pca_video = PCA(n_components=96, whiten=True)
     pca_audio = PCA(n_components=100, whiten=True)
-
-    for i in range(audio_frames_testing.shape[0]):
-        print 'row %i' % i
-        print audio_frames_testing[i]
 
     audio_frames_training = pca_audio.fit_transform(audio_frames_training)
     video_frames_training = pca_audio.fit_transform(video_frames_training)
