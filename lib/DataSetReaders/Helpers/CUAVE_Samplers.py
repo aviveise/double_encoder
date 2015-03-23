@@ -106,9 +106,6 @@ def getVideo(file, start_frames, frame_count, index, file_name):
             if os.path.exists(path):
                 mouth_gray = cv2.imread(path)
                 mouth_gray = cv2.cvtColor(mouth_gray, cv2.COLOR_BGR2GRAY)
-
-                print mouth_gray
-
                 mouth_gray = cv2.resize(mouth_gray, (80, 60))
 
             else:
@@ -313,6 +310,8 @@ if __name__ == '__main__':
 
     pca_video = PCA(n_components=96, whiten=True)
     pca_audio = PCA(n_components=100, whiten=True)
+
+    print audio_frames_training
 
     audio_frames_training = pca_audio.fit_transform(audio_frames_training)
     video_frames_training = pca_audio.fit_transform(video_frames_training)

@@ -32,8 +32,8 @@ class DoubleEncoderTransformer(TransformerBase):
 
         for i in range(number_of_batches):
 
-            batch_x = test_set_x[i * number_of_batches: min((i + 1) * number_of_batches, test_set_x.shape[0]), :]
-            batch_y = test_set_y[i * number_of_batches: min((i + 1) * number_of_batches, test_set_y.shape[0]), :]
+            batch_x = test_set_x[i * hyperparameters.batch_size: min((i + 1) * hyperparameters.batch_size, test_set_x.shape[0]), :]
+            batch_y = test_set_y[i * hyperparameters.batch_size: min((i + 1) * hyperparameters.batch_size, test_set_y.shape[0]), :]
 
             outputs_hidden_batch = hidden_output_model(batch_x, batch_y)
             outputs_reconstruct_batch = reconstruction_output_model(batch_x, batch_y)
