@@ -263,8 +263,8 @@ if __name__ == '__main__':
 
             else:
 
-                frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".lab"))
-                audio = getAudio(os.path.join(audio_path, file_path + ".wav"), frame_starts, 10)
+                frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".LAB"))
+                audio = getAudio(os.path.join(audio_path, file_path + ".WAV"), frame_starts, 10)
                 video = getVideo(os.path.join(video_path, file_path + ".MPG"), frame_starts, 4, idx, file_path)
 
                 pickle_file = {
