@@ -166,8 +166,9 @@ def getAudio(file, frame_time, frame_count):
 
             frame = specgrams[:, j]
 
+            assert not numpy.any(numpy.isnan(frame) | numpy.isinf(frame))
+
             print 'processed audio %i of %i' % (i * frame_count + j + 1, 500)
-            print sum(frame)
 
             frames[i * frame_count + j, :] = frame
 
