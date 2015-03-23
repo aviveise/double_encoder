@@ -105,6 +105,7 @@ def getVideo(file, start_frames, frame_count, index, file_name):
 
             if os.path.exists(path):
                 mouth_gray = cv2.imread(path)
+                mouth_gray = cv2.cvtColor(mouth_gray, cv2.COLOR_BGR2GRAY)
                 mouth_gray = cv2.resize(mouth_gray, (80, 60))
 
             else:
