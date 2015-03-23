@@ -6,6 +6,7 @@ import theano.tensor as Tensor
 import theano.tensor.nlinalg
 import theano.tensor.slinalg
 import theano.printing
+import math
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
@@ -42,7 +43,7 @@ class Trainer(object):
 
 
         #Calculating number of batches
-        n_training_batches = train_set_x.shape[0] / hyper_parameters.batch_size
+        n_training_batches = int(train_set_x.shape[0] / hyper_parameters.batch_size)
 
         random_stream = RandomState()
 
