@@ -312,7 +312,7 @@ if __name__ == '__main__':
     pca_video = PCA(n_components=96, whiten=True)
     pca_audio = PCA(n_components=100, whiten=True)
 
-    for i in range(audio_frames_testing.shape[0])
+    for i in range(audio_frames_testing.shape[0]):
         print sum(audio_frames_testing[i])
 
     audio_frames_training = pca_audio.fit_transform(audio_frames_training)
