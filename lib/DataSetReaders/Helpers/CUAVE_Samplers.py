@@ -148,7 +148,7 @@ def getAudio(file, frame_time, frame_count):
     window_width = int(0.02 * FPS_AUDIO)
     window_overlap = int(0.01 * FPS_AUDIO)
 
-    frames = numpy.ndarray((500, 161))
+    frames = numpy.ndarray((500, 322))
     for i in range(len(frame_time[0])):
 
         frame_start = int(frame_time[0][i] * FPS_AUDIO)
@@ -234,16 +234,16 @@ if __name__ == '__main__':
     files = [f[:-4] for f in os.listdir(video_path) if os.path.isfile(os.path.join(video_path, f))]
 
     training_video = numpy.ndarray((900, 19200))
-    training_audio = numpy.ndarray((900, 4830))
+    training_audio = numpy.ndarray((900, 9660))
 
     testing_video = numpy.ndarray((900, 19200))
-    testing_audio = numpy.ndarray((900, 4830))
+    testing_audio = numpy.ndarray((900, 9660))
 
     video_frames_training = numpy.ndarray((3600, 4800))
     video_frames_testing = numpy.ndarray((3600, 4800))
 
-    audio_frames_training = numpy.ndarray((9000, 4800))
-    audio_frames_testing = numpy.ndarray((9000, 4800))
+    audio_frames_training = numpy.ndarray((9000, 966))
+    audio_frames_testing = numpy.ndarray((9000, 966))
 
     for idx, file_path in enumerate(files):
 
@@ -263,8 +263,8 @@ if __name__ == '__main__':
 
             else:
 
-                frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".LAB"))
-                audio = getAudio(os.path.join(audio_path, file_path + ".WAV"), frame_starts, 10)
+                frame_starts = getFrameStarts(os.path.join(label_path, file_path + ".lab"))
+                audio = getAudio(os.path.join(audio_path, file_path + ".wav"), frame_starts, 10)
                 video = getVideo(os.path.join(video_path, file_path + ".MPG"), frame_starts, 4, idx, file_path)
 
                 pickle_file = {
