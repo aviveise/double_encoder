@@ -201,7 +201,7 @@ def getFrameStarts(file):
 def add_first_second_deriviatives(set):
 
     #normalize set
-    normalized_set = normalize(numpy.norm(set),axis=1)
+    normalized_set = normalize(set, axis=1)
 
     first_deriviative = numpy.ndarray(set.shape)
     second_deriviative = numpy.ndarray(set.shape)
