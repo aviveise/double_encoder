@@ -312,8 +312,8 @@ if __name__ == '__main__':
     pca_video = PCA(n_components=96, whiten=True)
     pca_audio = PCA(n_components=100, whiten=True)
 
-    assert not numpy.any(numpy.isnan(audio_frames_training) | numpy.isinf(audio_frames_training))
-    assert not numpy.any(numpy.isnan(video_frames_training) | numpy.isinf(video_frames_training))
+    for i in range(audio_frames_testing.shape[0])
+        print sum(audio_frames_testing[i])
 
     audio_frames_training = pca_audio.fit_transform(audio_frames_training)
     video_frames_training = pca_audio.fit_transform(video_frames_training)
