@@ -29,7 +29,7 @@ class GradientTransformer(TransformerBase):
             for idx, gradient in enumerate(raw_sample_gradients):
                 sample_gradients[self._params[idx].name] = gradient
 
-            gradients[str(i)] = gradient
+            gradients[str(i)] = sample_gradients
 
         return gradients
 

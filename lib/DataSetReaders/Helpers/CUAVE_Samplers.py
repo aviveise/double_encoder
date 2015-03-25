@@ -314,7 +314,7 @@ if __name__ == '__main__':
     pca_audio = PCA(n_components=100, whiten=True)
 
     audio_frames_training = pca_audio.fit_transform(audio_frames_training)
-    video_frames_training = pca_audio.fit_transform(video_frames_training)
+    video_frames_training = pca_video.fit_transform(video_frames_training)
 
     audio_frames_testing = pca_audio.transform(audio_frames_testing)
     video_frames_testing = pca_video.transform(video_frames_testing)
