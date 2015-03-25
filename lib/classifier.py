@@ -69,7 +69,7 @@ class Classifier(object):
         layer = int(sys.argv[3])
 
         train_gradients = scipy.io.loadmat(file(train_gradient_path, 'rb'))
-        test_gradients = scipy.io.loadmat(file(test_gradient_path, 'rb'))
+        #test_gradients = scipy.io.loadmat(file(test_gradient_path, 'rb'))
 
         train_gradients = Classifier.merge_gradients(train_gradients, layer)
         test_gradients = Classifier.merge_gradients(test_gradients, layer)

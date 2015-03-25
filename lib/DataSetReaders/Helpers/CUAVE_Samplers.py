@@ -225,7 +225,7 @@ def group_frames(set, group_size):
 
     for i in range(grouped_set.shape[0]):
         for j in range(group_size):
-            grouped_set[i, j * line_size: (j + 1) * line_size] = set[j * group_size + i, :]
+            grouped_set[i, j * line_size: (j + 1) * line_size] = set[i * group_size + j, :]
 
     return grouped_set
 
