@@ -44,7 +44,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
         #In this phase we train the stacked encoder one layer at a time
         #once a layer was added, weights not belonging to the new layer are
         #not changed
-        for layer_size in hyper_parameters.layer_sizes:
+        for idx, layer_size in enumerate(hyper_parameters.layer_sizes):
 
             print '--------Adding Layer of Size - %d--------\n' % layer_size
             self._add_cross_encoder_layer(layer_size,
@@ -53,7 +53,13 @@ class IterativeTrainingStrategy(TrainingStrategy):
                                           hyper_parameters.method_out)
 
             params = []
-            params.extend(symmetric_double_encoder[-1].x_hidden_params)
+
+            if idx == 0:
+                params.extend(symmetric_double_encoder[0].x_params)
+
+            else:
+                params.extend(symmetric_double_encoder[-1].x_hidden_params)
+
             params.extend(symmetric_double_encoder[-1].y_params)
 
             Trainer.train(train_set_x=training_set_x,

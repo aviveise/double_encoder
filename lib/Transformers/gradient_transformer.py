@@ -17,61 +17,21 @@ class GradientTransformer(TransformerBase):
 
     def compute_outputs(self, set_x, set_y, batch_size):
 
-        gradients = []
+        gradients = {}
         model = self._build_gradient_model()
-        number_of_batches = set_x.shape[0] / batch_size
 
         # generate positive samples
         for i in range(set_x.shape[0]):
-            gradients.append(model(set_x[i, :].reshape((1, set_x.shape[1])), set_y[i, :].reshape(1, set_y.shape[1])))
 
-        ## generate positive samples
-        #for i in range(number_of_batches):
+            raw_sample_gradients = model(set_x[i, :].reshape((1, set_x.shape[1])), set_y[i, :].reshape(1, set_y.shape[1]))
+            sample_gradients = {}
 
-        #    j = i
-        #    while j == i:
-        #        j = numpy.random.uniform(high=number_of_batches, size=1)
+            for idx, gradient in enumerate(raw_sample_gradients):
+                sample_gradients[self._params[idx].name] = gradient
 
-        #    length_x = min((i + 1) * batch_size, set_x.shape[0])
-        #    length_y = min((j + 1) * batch_size, set_x.shape[0])
+            gradients[str(i)] = gradient
 
-        #    permutation = numpy.random.permutation(numpy.arange(j * batch_size, length_y))
-
-        #    gradients.append(model(set_x[i * batch_size: length_x, :], set_y[permutation, :]))
-
-
-        # generate positive samples
-        #for i in range(number_of_batches):
-
-        #    j = i
-        #    while j == i:
-        #        j = numpy.random.uniform(high=number_of_batches, size=1)
-
-        #    length_x = min((i + 1) * batch_size, set_x.shape[0])
-        #    length_y = min((j + 1) * batch_size, set_x.shape[0])
-
-        #    permutation = numpy.random.permutation(numpy.arange(j * batch_size, length_y))
-
-        #    gradients.append(model(set_x[i * batch_size: length_x, :], set_y[permutation, :]))
-
-        samples = []
-        for index, gradient_vector in enumerate(gradients):
-
-            for grad_idx, gradient in enumerate(gradient_vector):
-
-                if grad_idx == 0:
-                    sample = numpy.array(gradient).reshape(-1)
-                else:
-                    sample = numpy.concatenate((sample, numpy.array(gradient).reshape(-1)))
-
-            samples.append(sample)
-
-        results = numpy.ndarray((len(samples), samples[0].shape[0]))
-
-        for idx, sample in enumerate(samples):
-            results[idx, :] = sample
-
-        return results
+        return gradients
 
     def _build_gradient_model(self):
 

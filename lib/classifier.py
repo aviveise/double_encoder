@@ -6,6 +6,8 @@ import scipy.io
 import traceback
 import datetime
 import numpy
+import cPickle
+
 
 from time import clock
 
@@ -25,90 +27,70 @@ from MISC.logger import OutputLog
 import DataSetReaders
 import Regularizations
 import Optimizations
+import numpy
 
 class Classifier(object):
 
     @staticmethod
-    def run(training_strategy):
+    def merge_gradients(gradients, layer):
 
-        data_set_config = sys.argv[1]
-        run_time_config = sys.argv[2]
-        top = int(sys.argv[3])
+        merged_gradients = None
+        for sample in rang(len(gradients.keys())):
 
-        regularization_methods = {}
+            sample_gradients = gradients[str(sample)]
 
-        data_config = ConfigParser.ConfigParser()
-        data_config.read(data_set_config)
-        data_parameters = ConfigSectionMap("dataset_parameters", data_config)
+            if layer == -1:
 
-        #construct data set
-        data_set = Container().create(data_parameters['name'], data_parameters)
+                descriptor = None
+                for param in sample_gradients.keys():
 
-        #parse runtime configuration
-        configuration = Configuration(run_time_config)
+                    if param[0] == 'W':
 
-        configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
+                        if descriptor is None:
+                            descriptor = sample_gradients[param]
+                        else:
+                            numpy.concatenate((descriptor, sample_gradients[param].flatten()))
 
-        training_strategy.set_parameters(configuration.strategy_parameters)
+            else:
+                descriptor = numpy.concatenate((sample_gradients['Wx_layer' + str(layer).flatten()],
+                                                sample_gradients['Wy_layer' + str(layer).flatten()]))
 
-        #building regularization methods
-        for regularization_parameters in configuration.regularizations_parameters:
+            if merged_gradients is None:
+                merged_gradients = descriptor
+            else:
+                numpy.concatenate((merged_gradients, descriptor), axis=0)
+        return merged_gradients
 
-            regularization_methods[regularization_parameters['type']] = Container().create(regularization_parameters['type'], regularization_parameters)
+    @staticmethod
+    def run():
 
-        #performing optimizations for various parameters
-        for optimization_parameters in configuration.optimizations_parameters:
+        train_gradient_path = sys.argv[1]
+        test_gradient_path = sys.argv[2]
+        layer = int(sys.argv[3])
 
-            args = (data_set, optimization_parameters, configuration.hyper_parameters, regularization_methods, top)
-            optimization = Container().create(optimization_parameters['type'], *args)
-            optimization.perform_optimization(training_strategy)
+        train_gradients = scipy.io.loadmat(file(train_gradient_path, 'rb'))
+        test_gradients = scipy.io.loadmat(file(test_gradient_path, 'rb'))
 
-        start = clock()
+        train_gradients = Classifier.merge_gradients(train_gradients, layer)
+        test_gradients = Classifier.merge_gradients(test_gradients, layer)
 
-        try:
+        svm_classifier = LinearSVC()
 
-            #training the system with the optimized parameters
-            stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0].T,
-                                                             training_set_y=data_set.trainset[1].T,
-                                                             hyper_parameters=configuration.hyper_parameters,
-                                                             regularization_methods=regularization_methods.values(),
-                                                             activation_method=None,
-                                                             top=top,
-                                                             print_verbose=True,
-                                                             validation_set_x=data_set.tuning[0],
-                                                             validation_set_y=data_set.tuning[1])
+        train_labels = []
+        for i in range(train_gradients.shape[0] / 10):
+            train_labels += range(10)
 
+        test_labels = []
+        for i in range(test_gradients.shape[0] / 10):
+            test_labels += range(10)
 
-            transformer = GradientTransformer(stacked_double_encoder, stacked_double_encoder.getParams(), configuration.hyper_parameters)
+        svm_classifier.fit(train_gradients, train_labels)
 
-            train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
-            test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)
+        test_labels = svm_classifier.predict(test_gradients)
 
-            svm_classifier = LinearSVC()
+        error = 1 - float(numpy.count_nonzero(test_labels)) / test_labels.shape[0]
 
-            train_labels = []
-            for i in range(train_gradients.shape[0] / 10):
-                train_labels += range(10)
-
-            test_labels = []
-            for i in range(test_gradients.shape[0] / 10):
-                test_labels += range(10)
-
-            svm_classifier.fit(train_gradients, train_labels)
-
-            test_labels = svm_classifier.predict(test_gradients)
-
-            error = 1 - float(numpy.count_nonzero(test_labels)) / test_labels.shape[0]
-
-            OutputLog().write('\nerror: %f\n' % error)
-
-
-        except:
-            print 'Exception: \n'
-            print traceback.format_exc()
-            raise
-
-
+        OutputLog().write('\nerror: %f\n' % error)
 
         return stacked_double_encoder
 

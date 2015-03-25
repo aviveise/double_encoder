@@ -6,4 +6,4 @@ __author__ = 'aviv'
 
 if __name__ == '__main__':
 
-    Classifier.run(IterativeTrainingStrategy())
+    Classifier.run()
