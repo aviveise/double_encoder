@@ -220,19 +220,22 @@ def add_first_second_deriviatives(set):
 
 def group_frames(set, group_size):
 
-    grouped_set = numpy.ndarray((set.shape[0] / group_size, set.shape[1]))
+    grouped_set = None
 
-    print set.shape
-    print grouped_set.shape
-
-    line_size = set.shape[1]
-
-    print line_size
-
-    for i in range(grouped_set.shape[0]):
+    for i in range(int(set.shape[0] / group_size)):
+        sample = None
         for j in range(group_size):
-            grouped_set[i, j * line_size: (j + 1) * line_size] = set[i * group_size + j, :].flatten()
+            if j == 0:
+                sample = set[i * group_size + j, :]
+            else:
+                sample = numpy.concatenate((sample, set[i * group_size + j, :]), axis=1)
 
+        if grouped_set is None:
+            grouped_set = sample
+        else:
+            numpy.concatenate((grouped_set, sample), axis=0)
+
+    print grouped_set.shape
     return grouped_set
 
 if __name__ == '__main__':
