@@ -214,7 +214,7 @@ def add_first_second_deriviatives(set):
 
     for i in range(set.shape[0]):
         first_deriviative[i, :] = numpy.gradient(normalized_set[i, :], dt)
-        second_deriviative[i, :] = numpy.gradient(first_deriviative[i ,:], dt)
+        second_deriviative[i, :] = numpy.gradient(first_deriviative[i, :], dt)
 
     return numpy.concatenate((set, first_deriviative, second_deriviative), axis=1)
 
@@ -343,7 +343,7 @@ if __name__ == '__main__':
     print 'video with grouped:'
 
 
-    video_frames_training  = group_frames(video_frames_training, 4)
+    video_frames_training = group_frames(video_frames_training, 4)
     video_frames_testing = group_frames(video_frames_testing, 4)
 
     audio_frames_training = group_frames(audio_frames_training, 10)
