@@ -120,6 +120,9 @@ class Classifier(object):
         train_gradients = Classifier.merge_gradients(train_gradients, layer)
         test_gradients = Classifier.merge_gradients(test_gradients, layer)
 
+        OutputLog().write('Processed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
+        OutputLog().write('Processed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
+
         svm_classifier = LinearSVC()
 
         train_labels = []
