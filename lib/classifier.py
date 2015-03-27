@@ -96,9 +96,10 @@ class Classifier(object):
 
 
                 if output_gradients is None:
-                    output_gradients = descriptor
+                    output_gradients = descriptor.reshape(1, descriptor.shape[0])
                 else:
-                    output_gradients = numpy.concatenate((output_gradients, descriptor), axis=0)
+                    output_gradients = numpy.concatenate((output_gradients, descriptor.reshape(1, descriptor.shape[0])),
+                                                         axis=0)
 
             except:
                 OutputLog().write('failed processing sample: ' + sample)
