@@ -38,8 +38,10 @@ class DoubleEncoder(object):
         output_activations = False
 
         if outputs == 'gradients':
+            OutputLog().write('\nGradients is True\n')
             output_gradients = True
         elif outputs == 'activations':
+            OutputLog().write('\nActivations is True\n')
             output_activations = True
 
 
@@ -131,6 +133,8 @@ class DoubleEncoder(object):
 
         if output_activations:
 
+            OutputLog().write('\nOutput activations\n')
+
             for index in range(len(x_train)):
 
                 set_name_x = 'hidden_train_x_%i' % index
@@ -150,6 +154,8 @@ class DoubleEncoder(object):
 
 
         if output_gradients:
+
+            OutputLog().write('\nOutput gradients\n')
 
             transformer = GradientTransformer(stacked_double_encoder, stacked_double_encoder.getParams(), configuration.hyper_parameters)
 
