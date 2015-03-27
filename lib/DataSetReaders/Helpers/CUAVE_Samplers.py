@@ -228,10 +228,10 @@ def group_frames(set, group_size):
             if j == 0:
                 sample = set[i * group_size + j, :]
             else:
-                sample = numpy.concatenate((sample, set[i * group_size + j, :]), axis=1)
+                sample = numpy.concatenate((sample, set[i * group_size + j, :]))
 
         if grouped_set is None:
-            grouped_set = sample
+            grouped_set = sample.reshape((1, sample.shape[0]))
         else:
             grouped_set = numpy.concatenate((grouped_set, sample), axis=0)
 
