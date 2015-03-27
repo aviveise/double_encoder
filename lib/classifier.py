@@ -79,12 +79,10 @@ class Classifier(object):
                 descriptor = None
                 for param in sample_gradients.keys():
 
-                    print param
-
                     if param[0] == 'W':
 
                         if descriptor is None:
-                            descriptor = sample_gradients[param]
+                            descriptor = sample_gradients[param].flatten()
                         else:
                             numpy.concatenate((descriptor, sample_gradients[param].flatten()))
 
