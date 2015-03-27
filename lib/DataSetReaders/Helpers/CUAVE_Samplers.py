@@ -320,8 +320,8 @@ if __name__ == '__main__':
                                                                   audio_frames_training.shape[0],
                                                                   audio_frames_training.shape[1])
 
-    pca_video = PCA(n_components=96, whiten=True)
-    pca_audio = PCA(n_components=100, whiten=True)
+    pca_video = PCA(n_components=96, whiten=False)
+    pca_audio = PCA(n_components=100, whiten=False)
 
     audio_frames_training = pca_audio.fit_transform(audio_frames_training)
     video_frames_training = pca_video.fit_transform(video_frames_training)
@@ -378,6 +378,6 @@ if __name__ == '__main__':
         'test_video': video_frames_testing,
     }
 
-    output = os.path.join(output_path, 'output.hkl')
+    output = os.path.join(output_path, 'output_no_withen.hkl')
     hickle.dump(dump, output, 'w')
     hickle.load(output)
