@@ -69,7 +69,7 @@ class Classifier(object):
     @staticmethod
     def merge_gradients(gradients, layer):
 
-        merged_gradients = None
+        output_gradients = None
         samples = gradients.keys()
         samples.sort()
         for sample in samples:
@@ -95,16 +95,15 @@ class Classifier(object):
                                                     sample_gradients['Wy_layer' + str(layer).flatten()]))
 
 
-                if merged_gradients is None:
-                    merged_gradients = descriptor
+                if output_gradients is None:
+                    output_gradients = descriptor
                 else:
-                    numpy.concatenate((merged_gradients, descriptor), axis=0)
+                    numpy.concatenate((output_gradients, descriptor), axis=0)
 
             except:
-                OutputLog().write('failed processing sample' + sample)
-                print sample_gradients
+                OutputLog().write('failed processing sample: ' + sample)
 
-        return merged_gradients
+        return output_gradients
 
 
     @staticmethod
