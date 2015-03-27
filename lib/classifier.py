@@ -124,13 +124,13 @@ class Classifier(object):
 
         svm_classifier = LinearSVC()
 
-        train_labels = []
-        for i in range(train_gradients.shape[0] / 10):
-            train_labels += range(10)
+        train_labels = numpy.arange(10)
+        for i in range(train_gradients.shape[0] / 10 - 1):
+            train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
 
-        test_labels = []
+        test_labels = numpy.arange(10)
         for i in range(test_gradients.shape[0] / 10):
-            test_labels += range(10)
+            test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
 
         svm_classifier.fit(train_gradients, train_labels)
 
