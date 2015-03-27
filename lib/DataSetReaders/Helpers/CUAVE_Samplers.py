@@ -233,9 +233,10 @@ def group_frames(set, group_size):
         if grouped_set is None:
             grouped_set = sample
         else:
-            numpy.concatenate((grouped_set, sample), axis=0)
+            grouped_set = numpy.concatenate((grouped_set, sample), axis=0)
 
     print grouped_set.shape
+
     return grouped_set
 
 if __name__ == '__main__':
