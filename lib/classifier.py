@@ -79,6 +79,8 @@ class Classifier(object):
                 descriptor = None
                 for param in sample_gradients.keys():
 
+                    print param
+
                     if param[0] == 'W':
 
                         if descriptor is None:
