@@ -35,9 +35,11 @@ class Classifier(object):
     def merge_gradients(gradients, layer):
 
         merged_gradients = None
-        for sample in range(len(gradients.keys())):
+        for sample in range(len(gradients)):
 
             sample_gradients = gradients[str(sample)]
+
+            print sample_gradients
 
             if layer == -1:
 
