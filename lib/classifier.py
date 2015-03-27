@@ -74,7 +74,7 @@ class Classifier(object):
         samples.sort()
         for sample in samples:
 
-            sample_gradients = gradients[str(sample)]
+            sample_gradients = gradients[sample]
 
             if layer == -1:
 
