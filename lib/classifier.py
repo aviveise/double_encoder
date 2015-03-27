@@ -39,8 +39,6 @@ class Classifier(object):
 
             sample_gradients = gradients[str(sample)]
 
-            print sample_gradients
-
             if layer == -1:
 
                 descriptor = None
