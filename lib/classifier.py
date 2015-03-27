@@ -70,7 +70,8 @@ class Classifier(object):
     def merge_gradients(gradients, layer):
 
         merged_gradients = None
-        for sample in range(len(gradients)):
+        samples = gradients.keys().sort()
+        for sample in samples:
 
             sample_gradients = gradients[str(sample)]
 
