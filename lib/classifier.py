@@ -135,12 +135,13 @@ class Classifier(object):
 
         svm_classifier.fit(train_gradients, train_labels)
 
-        test_labels = svm_classifier.predict(test_gradients)
+        test_predictions = svm_classifier.predict(test_gradients)
 
-        error = 1 - float(numpy.count_nonzero(test_labels)) / test_labels.shape[0]
+        OutputLog().write('test labels:' + str(test_labels))
+        OutputLog().write('test predictions:' + str(test_predictions))
 
-        OutputLog().write('\nerror: %f\n' % error)
+        error = float(numpy.count_nonzero(test_predictions - test_labels)) / test_labels.shape[0] * 100
 
-        return stacked_double_encoder
+        OutputLog().write('\nerror: %f%%\n' % error)
 
 
