@@ -76,31 +76,36 @@ class Classifier(object):
 
             sample_gradients = gradients[sample]
 
-            if sample_gradients == []:
-                print sample
-                continue
+            try:
 
-            if layer == -1:
+                if layer == -1:
 
-                descriptor = None
-                for param in sample_gradients.keys():
+                    descriptor = None
+                    for param in sample_gradients.keys():
 
-                    if param[0] == 'W':
+                        if param[0] == 'W':
 
-                        if descriptor is None:
-                            descriptor = sample_gradients[param].flatten()
-                        else:
-                            numpy.concatenate((descriptor, sample_gradients[param].flatten()))
+                            if descriptor is None:
+                                descriptor = sample_gradients[param].flatten()
+                            else:
+                                numpy.concatenate((descriptor, sample_gradients[param].flatten()))
 
-            else:
-                descriptor = numpy.concatenate((sample_gradients['Wx_layer' + str(layer).flatten()],
-                                                sample_gradients['Wy_layer' + str(layer).flatten()]))
+                else:
+                    descriptor = numpy.concatenate((sample_gradients['Wx_layer' + str(layer).flatten()],
+                                                    sample_gradients['Wy_layer' + str(layer).flatten()]))
 
-            if merged_gradients is None:
-                merged_gradients = descriptor
-            else:
-                numpy.concatenate((merged_gradients, descriptor), axis=0)
+
+                if merged_gradients is None:
+                    merged_gradients = descriptor
+                else:
+                    numpy.concatenate((merged_gradients, descriptor), axis=0)
+
+            except:
+                OutputLog().write('failed processing sample' + sample)
+                print sample_gradients
+
         return merged_gradients
+
 
     @staticmethod
     def run():
