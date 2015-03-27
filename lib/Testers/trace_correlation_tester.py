@@ -38,9 +38,9 @@ class TraceCorrelationTester(TesterBase):
         trace_correlation = 0
 
         try:
+            svd_correlation = calculate_mardia(x, y, self.top)
             trace_correlation = calculate_trace(x, y, self.top)
             correlation_coefficients = calculate_corrcoef(x, y, self.top)
-            svd_correlation = calculate_mardia(x, y, self.top)
         except:
             print 'exception on loss calculation'
 
