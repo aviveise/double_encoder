@@ -60,6 +60,8 @@ class DatasetBase(object):
                 unitnorm(self.tuning[1])
                 unitnorm(self.tuning[0])
 
+
+        OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[0], self.trainset[1].shape[0]))
         OutputLog().write('Training set size = %d' % self.trainset[0].shape[1])
         OutputLog().write('Test set size = %d' % self.testset[0].shape[1])
 
