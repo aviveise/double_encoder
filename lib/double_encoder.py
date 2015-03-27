@@ -5,6 +5,7 @@ import ConfigParser
 import scipy.io
 import traceback
 import datetime
+import cPickle
 
 from time import clock
 
@@ -13,6 +14,7 @@ from configuration import Configuration
 from Testers.trace_correlation_tester import TraceCorrelationTester
 
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
+from Transformers.gradient_transformer import GradientTransformer
 
 from MISC.container import Container
 from MISC.utils import ConfigSectionMap
@@ -30,6 +32,17 @@ class DoubleEncoder(object):
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
         top = int(sys.argv[3])
+        outputs = sys.argv[4]
+
+        output_gradients = False
+        output_activations = False
+
+        if outputs == 'gradients':
+            output_gradients = True
+        elif outputs == 'activations':
+            output_activations = True
+
+
 
         regularization_methods = {}
 
@@ -74,14 +87,13 @@ class DoubleEncoder(object):
                                                              validation_set_x=data_set.tuning[0],
                                                              validation_set_y=data_set.tuning[1])
 
-            trace_correlation, x_best, y_best = TraceCorrelationTester(data_set.testset[0].T,
+            trace_correlation, x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
                                                                        data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                                                                                         configuration.hyper_parameters)
 
-
-            train_trace_correlation, x_train_best, y_train_best = TraceCorrelationTester(data_set.trainset[0].T,
-                                                                                         data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
-                                                                                                                           configuration.hyper_parameters)
+            train_trace_correlation, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
+                                                                             data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+                                                                                                               configuration.hyper_parameters)
 
         except:
             print 'Exception: \n'
@@ -106,21 +118,48 @@ class DoubleEncoder(object):
         OutputLog().write('%f, %f\n' % (float(trace_correlation),
                                         execution_time))
 
-        dirname, filename = os.path.split(os.path.abspath(__file__))
-        filename = data_parameters['name'] + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '.mat'
+        dir_name, filename = os.path.split(os.path.abspath(__file__))
+        filename = outputs + data_parameters['name'] + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 
         export_test = {
-            'image_decca_test': x_best,
-            'sent_decca_test': y_best
+            'best_layer': test_best_layer
         }
 
         export_train = {
-            'image_decca_train': x_train_best,
-            'sent_decca_train': y_train_best
+            'best_layer': train_best_layer
         }
 
-        scipy.io.savemat(os.path.join(dirname, "train_" + filename), export_train)
-        scipy.io.savemat(os.path.join(dirname, "test_" + filename), export_test)
+        if output_activations:
+
+            for index in range(len(x_train)):
+
+                set_name_x = 'hidden_train_x_%i' % index
+                set_name_y = 'hidden_train_y_%i' % index
+                export_train[set_name_x] = x_train[index]
+                export_train[set_name_y] = y_train[index]
+
+            for index in range(len(x_test)):
+
+                set_name_x = 'hidden_test_x_%i' % index
+                set_name_y = 'hidden_test_y_%i' % index
+                export_test[set_name_x] = x_test[index]
+                export_test[set_name_y] = y_test[index]
+
+            scipy.io.savemat(os.path.join(dir_name, "train_" + filename + '.mat'), export_train)
+            scipy.io.savemat(os.path.join(dir_name, "test_" + filename + '.mat'), export_test)
+
+
+        if output_gradients:
+
+            transformer = GradientTransformer(stacked_double_encoder, stacked_double_encoder.getParams(), configuration.hyper_parameters)
+
+            train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
+            test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)
+
+            scipy.io.savemat(os.path.join(dir_name, "train_" + filename + '.mat'), train_gradients)
+            scipy.io.savemat(os.path.join(dir_name, "test_" + filename + '.mat'), test_gradients)
+
+        stacked_double_encoder.export_encoder(dir_name)
 
         return stacked_double_encoder
 

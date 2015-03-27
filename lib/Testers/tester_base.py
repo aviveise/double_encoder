@@ -26,21 +26,27 @@ class TesterBase(object):
 
         table_rows = []
 
+        outputs_x = []
+        outputs_y = []
+        layer_id = 0
+
         for x_hid, y_hid in zipped:
 
             row_hidden = ["layer {0} - hidden".format(index)]
-
-            index += 1
 
             #calculation correlation between hidden values
             correlation_temp_hidden = self._calculate_metric(x_hid.T, y_hid.T, transformer, row_hidden)
 
             table_rows.append(row_hidden)
 
+            outputs_x.append(x_hid)
+            outputs_y.append(y_hid)
+
             if correlation_temp_hidden > correlation:
                 correlation = correlation_temp_hidden
-                x_best = x_hid
-                y_best = y_hid
+                layer_id = index
+
+            index += 1
 
         zipped = zip(output_values[0], output_values[1])
 
@@ -56,16 +62,10 @@ class TesterBase(object):
 
             table_rows.append(row_recons)
 
-            if correlation_temp_reconstruct > correlation:
-                correlation = correlation_temp_reconstruct
-                x_best = x_rec
-                y_best = y_rec
-
-
         print tabulate(table_rows, headers=table_header)
         print '\n'
 
-        return correlation, x_best, y_best
+        return correlation, outputs_x, outputs_y, layer_id
 
     @abc.abstractmethod
     def _calculate_metric(self, x, y, transformer, print_row):

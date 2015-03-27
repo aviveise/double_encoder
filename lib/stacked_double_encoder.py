@@ -1,5 +1,8 @@
 __author__ = 'aviv'
-
+import os
+import scipy
+import datetime
+import theano
 import theano.tensor as Tensor
 
 from numpy.random import RandomState
@@ -67,8 +70,6 @@ class StackedDoubleEncoder(object):
             symmetric_layer.update_x(x=last_layer.output_forward, input_size=last_layer.hidden_layer_size)
 
             Wy = symmetric_layer.Wx.T
-            #bias_y = symmetric_layer.bias_x_prime
-            #bias_y_prime = symmetric_layer.bias_x
             layer_size = symmetric_layer.hidden_layer_size
 
             input_y = symmetric_layer.output_backward
@@ -76,12 +77,10 @@ class StackedDoubleEncoder(object):
             #refreshing the connection between Y and X of the other layers
             for layer in reversed(self._symmetric_layers):
 
-                #layer.update_y(input_y, output_size=layer_size)#, Wy)#, bias_y, bias_y_prime)
                 layer.update_y(input_y, Wy)#, bias_y, bias_y_prime)
 
                 Wy = layer.Wx.T
-                #bias_y = layer.bias_x_prime
-                #bias_y_prime = layer.bias_x
+
                 input_y = layer.output_backward
                 layer_size = layer.hidden_layer_size
 
@@ -115,3 +114,83 @@ class StackedDoubleEncoder(object):
 
 
         return list(params_set)
+
+    def export_encoder(self, dir_name):
+
+        output = {
+            'layer_number': len(self._symmetric_layers)
+        }
+
+        filename = 'double_encoder_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '.mat'
+
+        for layer in self._symmetric_layers:
+
+            for param in layer.x_params:
+                output[param.name] = param.get_value(borrow=True)
+
+            for param in layer.y_params:
+                output[param.name] = param.get_value(borrow=True)
+
+        scipy.io.savemat(os.path.join(dir_name, filename), output)
+
+    def import_encoder(self, file_name, hyperparameters):
+
+        encoder = scipy.io.loadmat(file_name)
+
+        layer_number = encoder['layer_number']
+
+        x = self.var_x
+        y = self.var_y
+
+        for i in range(layer_number):
+
+            layer_name = 'layer' + str(i)
+
+            Wx = theano.shared(encoder['Wx' + '_' + layer_name],
+                               name='Wx' + '_' + layer_name,
+                               borrow=True)
+
+            Wy = theano.shared(encoder['Wy' + '_' + layer_name],
+                               name='Wy' + '_' + layer_name,
+                               borrow=True)
+
+            bias_x = theano.shared(encoder['bias_x' + '_' + layer_name].flatten(),
+                                   name='bias_x' + '_' + layer_name,
+                                   borrow=True)
+
+            bias_y = theano.shared(encoder['bias_y' + '_' + layer_name].flatten(),
+                                   name='bias_y' + '_' + layer_name,
+                                   borrow=True)
+
+            bias_x_prime = theano.shared(encoder['bias_x_prime' + '_' + layer_name].flatten(),
+                                         name='bias_x_prime' + '_' + layer_name,
+                                         borrow=True)
+
+            bias_y_prime = theano.shared(encoder['bias_y_prime' + '_' + layer_name].flatten(),
+                                         name='bias_y_prime' + '_' + layer_name,
+                                         borrow=True)
+
+            layer_size = Wx.get_value(borrow=True).shape[1]
+
+            layer = SymmetricHiddenLayer(numpy_range=self.numpy_range,
+                                         x=x,
+                                         y=y,
+                                         hidden_layer_size=layer_size,
+                                         name=layer_name,
+                                         activation_hidden=hyperparameters.method_in,
+                                         activation_output=hyperparameters.method_out,
+                                         Wx=Wx,
+                                         Wy=Wy,
+                                         biasX=bias_x,
+                                         biasY=bias_y,
+                                         bias_primeX=bias_x_prime,
+                                         bias_primeY=bias_y_prime)
+
+
+            x = layer.output_forward
+
+            for back_layer in reversed(self._symmetric_layers):
+                back_layer.update_y(layer.output_backward,generate_weights=False)
+
+
+            self._symmetric_layers.append(layer)

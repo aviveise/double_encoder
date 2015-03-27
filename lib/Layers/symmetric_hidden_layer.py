@@ -8,8 +8,20 @@ import theano.printing
 
 class SymmetricHiddenLayer(object):
 
-        def __init__(self, numpy_range, x=None, y=None, hidden_layer_size=0, name='',
-                     activation_hidden=None, activation_output=None):
+        def __init__(self,
+                     numpy_range,
+                     x=None,
+                     y=None,
+                     hidden_layer_size=0,
+                     name='',
+                     activation_hidden=None,
+                     activation_output=None,
+                     Wx = None,
+                     Wy = None,
+                     biasX = None,
+                     biasY = None,
+                     bias_primeX = None,
+                     bias_primeY = None):
 
             self.hidden_layer_size = hidden_layer_size
             self.numpy_range = numpy_range
@@ -28,17 +40,20 @@ class SymmetricHiddenLayer(object):
 
             # if x is provided compute forward(x)
             if not x is None:
-                self.update_x(x)
+                self.update_x(x, Wx, biasX, bias_primeX)
 
             #if y is provided compute backward(y)
             if not y is None:
-                self.update_y(y)
+                self.update_y(y, Wy, biasY, bias_primeY)
 
-        def update_x(self, x, weights=None, bias_x=None, bias_x_prime=None, input_size=None):
+        def update_x(self, x, weights=None, bias_x=None, bias_x_prime=None, input_size=None, generate_weights=True):
 
             if x:
 
                 self.x = x
+
+                if not generate_weights:
+                    return
 
                 if weights is None:
                     self._initialize_input_weights(input_size)
@@ -65,12 +80,15 @@ class SymmetricHiddenLayer(object):
                 self.output_forward = self.compute_forward_hidden()
                 #self.output_forward = theano.printing.Print('x_hid: ')(self.compute_forward_hidden())
 
-        def update_y(self, y, weights=None, bias_y=None, bias_y_prime=None, output_size=None):
+        def update_y(self, y, weights=None, bias_y=None, bias_y_prime=None, output_size=None, generate_weights=True):
 
             #if x2 is provided compute backward(x2)
             if y:
 
                 self.y = y
+
+                if not generate_weights:
+                    return
 
                 if weights is None:
                     self._initialize_output_weights(output_size)
