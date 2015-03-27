@@ -76,7 +76,9 @@ class Classifier(object):
 
             sample_gradients = gradients[sample]
 
-            print sample_gradients
+            if sample_gradients == []:
+                print sample
+                continue
 
             if layer == -1:
 
