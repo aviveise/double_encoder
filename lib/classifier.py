@@ -88,7 +88,7 @@ class Classifier(object):
                             if descriptor is None:
                                 descriptor = sample_gradients[param].flatten()
                             else:
-                                numpy.concatenate((descriptor, sample_gradients[param].flatten()))
+                                descriptor = numpy.concatenate((descriptor, sample_gradients[param].flatten()))
 
                 else:
                     descriptor = numpy.concatenate((sample_gradients['Wx_layer' + str(layer).flatten()],
