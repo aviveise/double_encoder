@@ -233,7 +233,7 @@ def group_frames(set, group_size):
         if grouped_set is None:
             grouped_set = sample.reshape((1, sample.shape[0]))
         else:
-            grouped_set = numpy.concatenate((grouped_set, sample), axis=0)
+            grouped_set = numpy.concatenate((grouped_set, sample.reshape((1, sample.shape[0]))), axis=0)
 
     print grouped_set.shape
 
