@@ -121,7 +121,12 @@ class DoubleEncoder(object):
                                         execution_time))
 
         dir_name, filename = os.path.split(os.path.abspath(__file__))
-        filename = outputs + data_parameters['name'] + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+        filename = outputs + '_' + data_parameters['name'] +'_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+
+        OutputLog().write('output dir:' + dir_name)
+        OutputLog().write('exporting double encoder:\n')
+
+        stacked_double_encoder.export_encoder(dir_name)
 
         export_test = {
             'best_layer': test_best_layer
@@ -164,8 +169,6 @@ class DoubleEncoder(object):
 
             scipy.io.savemat(os.path.join(dir_name, "train_" + filename + '.mat'), train_gradients)
             scipy.io.savemat(os.path.join(dir_name, "test_" + filename + '.mat'), test_gradients)
-
-        stacked_double_encoder.export_encoder(dir_name)
 
         return stacked_double_encoder
 
