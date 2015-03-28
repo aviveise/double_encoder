@@ -26,6 +26,8 @@ from Testers.trace_correlation_tester import TraceCorrelationTester
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 
 import DataSetReaders
+import Regularizations
+import Optimizations
 
 __author__ = 'aviv'
 
