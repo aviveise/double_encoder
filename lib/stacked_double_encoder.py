@@ -73,19 +73,17 @@ class StackedDoubleEncoder(object):
             symmetric_layer.update_x(x=last_layer.output_forward, input_size=last_layer.hidden_layer_size)
 
             Wy = symmetric_layer.Wx.T
-            layer_size = symmetric_layer.hidden_layer_size
 
             input_y = symmetric_layer.output_backward
 
             #refreshing the connection between Y and X of the other layers
             for layer in reversed(self._symmetric_layers):
 
-                layer.update_y(input_y, Wy)#, bias_y, bias_y_prime)
+                layer.update_y(input_y, Wy, layer.bias_y, layer.bias_y_prime)
 
                 Wy = layer.Wx.T
 
                 input_y = layer.output_backward
-                layer_size = layer.hidden_layer_size
 
         #adding the new layer to the list
         self._symmetric_layers.append(symmetric_layer)
@@ -162,10 +160,6 @@ class StackedDoubleEncoder(object):
                                name='Wx' + '_' + layer_name,
                                borrow=True)
 
-            Wy = theano.shared(encoder['Wy' + '_' + layer_name],
-                               name='Wy' + '_' + layer_name,
-                               borrow=True)
-
             bias_x = theano.shared(encoder['bias_x' + '_' + layer_name].flatten(),
                                    name='bias_x' + '_' + layer_name,
                                    borrow=True)
@@ -185,24 +179,47 @@ class StackedDoubleEncoder(object):
             layer_size = Wx.get_value(borrow=True).shape[1]
 
             layer = SymmetricHiddenLayer(numpy_range=self.numpy_range,
-                                         x=x,
-                                         y=y,
                                          hidden_layer_size=layer_size,
                                          name=layer_name,
                                          activation_hidden=hyperparameters.method_in,
-                                         activation_output=hyperparameters.method_out,
-                                         Wx=Wx,
-                                         Wy=Wy,
-                                         biasX=bias_x,
-                                         biasY=bias_y,
-                                         bias_primeX=bias_x_prime,
-                                         bias_primeY=bias_y_prime)
+                                         activation_output=hyperparameters.method_out)
+
+            wy_name = 'Wy' + '_' + layer_name
+
+            layer.update_x(x,
+               Wx=Wx,
+               bias_x=bias_x,
+               bias_x_prime=bias_x_prime)
 
 
-            x = layer.output_forward
+            if wy_name in encoder:
 
-            for back_layer in reversed(self._symmetric_layers):
-                back_layer.update_y(layer.output_backward,generate_weights=False)
+                Wy = theano.shared(encoder[wy_name],
+                                   name='Wy' + '_' + layer_name,
+                                   borrow=True)
 
+                layer.update_y(y,
+                               Wy=Wy,
+                               bias_y=bias_y,
+                               bias_y_prime=bias_y_prime,
+                               output_size=bias_y_prime.get_value(borrow=True).shape[0])
+
+            else:
+
+                layer.update_y(y,
+                               bias_y=bias_y,
+                               bias_y_prime=bias_y_prime,
+                               output_size=bias_y_prime.get_value(borrow=True).shape[0])
 
             self._symmetric_layers.append(layer)
+
+
+        y = self._symmetric_layers[-1].output_backward
+        Wy = self._symmetric_layers[-1].Wx.T
+
+        for back_layer in reversed(self._symmetric_layers[0:-1]):
+            back_layer.update_y(y, Wy, back_layer.bias_y, back_layer.bias_y_prime)
+            Wy = back_layer.Wx.T
+            y = back_layer.output_backward
+
+
