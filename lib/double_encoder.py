@@ -45,7 +45,6 @@ class DoubleEncoder(object):
             output_activations = True
 
 
-
         regularization_methods = {}
 
         data_config = ConfigParser.ConfigParser()

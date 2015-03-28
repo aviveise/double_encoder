@@ -187,7 +187,7 @@ class StackedDoubleEncoder(object):
             wy_name = 'Wy' + '_' + layer_name
 
             layer.update_x(x,
-               Wx=Wx,
+               weights=Wx,
                bias_x=bias_x,
                bias_x_prime=bias_x_prime)
 
@@ -199,7 +199,7 @@ class StackedDoubleEncoder(object):
                                    borrow=True)
 
                 layer.update_y(y,
-                               Wy=Wy,
+                               weights=Wy,
                                bias_y=bias_y,
                                bias_y_prime=bias_y_prime,
                                output_size=bias_y_prime.get_value(borrow=True).shape[0])
