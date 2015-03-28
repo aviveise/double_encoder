@@ -37,7 +37,6 @@ class GradientTransformer(TransformerBase):
             sample_gradients = {}
 
             for idx, gradient in enumerate(raw_sample_gradients):
-                OutputLog().write('exporting gradient for: ' + self._params[idx].name)
                 sample_gradients[self._params[idx].name] = gradient
 
             gradients[str(i)] = sample_gradients
