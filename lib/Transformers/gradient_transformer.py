@@ -1,11 +1,21 @@
+import scipy
+
+
 __author__ = 'aviv'
 
 import numpy
 
 from theano import function
 from theano import tensor as Tensor
-
+from MISC.logger import OutputLog
 from transformer_base import TransformerBase
+
+def lincompress(x):
+    U, S, V = scipy.linalg.svd(numpy.dot(x.T, x))
+    xc = numpy.dot(U, numpy.sqrt(S)).T
+    return xc
+
+
 
 class GradientTransformer(TransformerBase):
 
@@ -27,6 +37,7 @@ class GradientTransformer(TransformerBase):
             sample_gradients = {}
 
             for idx, gradient in enumerate(raw_sample_gradients):
+                OutputLog().write('exporting gradient for: ' + self._params[idx].name)
                 sample_gradients[self._params[idx].name] = gradient
 
             gradients[str(i)] = sample_gradients
