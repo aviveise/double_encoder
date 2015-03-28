@@ -1,3 +1,5 @@
+from lib.MISC.logger import OutputLog
+
 __author__ = 'aviv'
 import os
 import scipy
@@ -126,9 +128,11 @@ class StackedDoubleEncoder(object):
         for layer in self._symmetric_layers:
 
             for param in layer.x_params:
+                OutputLog().write('exporting param:' + param.name)
                 output[param.name] = param.get_value(borrow=True)
 
             for param in layer.y_params:
+                OutputLog().write('exporting param:' + param.name)
                 output[param.name] = param.get_value(borrow=True)
 
         scipy.io.savemat(os.path.join(dir_name, filename), output)
