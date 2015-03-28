@@ -178,6 +178,13 @@ class StackedDoubleEncoder(object):
                                          name='bias_y_prime' + '_' + layer_name,
                                          borrow=True)
 
+
+            print Wx.get_value(borrow=True).shape
+            print bias_x.get_value(borrow=True).shape
+            print bias_y.get_value(borrow=True).shape
+            print bias_y_prime.get_value(borrow=True).shape
+            print bias_y_prime.get_value(borrow=True).shape
+
             layer_size = Wx.get_value(borrow=True).shape[1]
 
             layer = SymmetricHiddenLayer(numpy_range=self.numpy_range,
