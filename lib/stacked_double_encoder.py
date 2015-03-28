@@ -129,11 +129,18 @@ class StackedDoubleEncoder(object):
 
             for param in layer.x_params:
                 OutputLog().write('exporting param:' + param.name)
-                output[param.name] = param.get_value(borrow=True)
+                try:
+                    output[param.name] = param.get_value(borrow=True)
+                except:
+                    OutputLog().write('Failed exporting param:' + param.name)
 
             for param in layer.y_params:
                 OutputLog().write('exporting param:' + param.name)
-                output[param.name] = param.get_value(borrow=True)
+
+                try:
+                    output[param.name] = param.get_value(borrow=True)
+                except:
+                    OutputLog().write('Failed exporting param:' + param.name)
 
         scipy.io.savemat(os.path.join(dir_name, filename), output)
 
