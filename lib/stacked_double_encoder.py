@@ -151,6 +151,8 @@ class StackedDoubleEncoder(object):
 
         layer_number = encoder['layer_number']
 
+        print 'importing %d layers' % layer_name
+
         x = self.var_x
         y = self.var_y
 
