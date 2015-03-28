@@ -160,31 +160,31 @@ class StackedDoubleEncoder(object):
 
             layer_name = 'layer' + str(i)
 
-            Wx = theano.shared(encoder['Wx' + '_' + layer_name],
-                               name='Wx' + '_' + layer_name,
+            Wx = theano.shared(encoder['Wx_' + layer_name],
+                               name='Wx_' + layer_name,
                                borrow=True)
 
-            bias_x = theano.shared(encoder['bias_x' + '_' + layer_name].flatten(),
-                                   name='bias_x' + '_' + layer_name,
+            bias_x = theano.shared(encoder['bias_x_' + layer_name].flatten(),
+                                   name='bias_x_' + layer_name,
                                    borrow=True)
 
-            bias_y = theano.shared(encoder['bias_y' + '_' + layer_name].flatten(),
-                                   name='bias_y' + '_' + layer_name,
+            bias_y = theano.shared(encoder['bias_y_' + layer_name].flatten(),
+                                   name='bias_y_' + layer_name,
                                    borrow=True)
 
-            bias_x_prime = theano.shared(encoder['bias_x_prime' + '_' + layer_name].flatten(),
-                                         name='bias_x_prime' + '_' + layer_name,
+            bias_x_prime = theano.shared(encoder['bias_x_prime_' + layer_name].flatten(),
+                                         name='bias_x_prime_' + layer_name,
                                          borrow=True)
 
-            bias_y_prime = theano.shared(encoder['bias_y_prime' + '_' + layer_name].flatten(),
-                                         name='bias_y_prime' + '_' + layer_name,
+            bias_y_prime = theano.shared(encoder['bias_y_prime_' + layer_name].flatten(),
+                                         name='bias_y_prime_' + layer_name,
                                          borrow=True)
 
 
             print Wx.get_value(borrow=True).shape
             print bias_x.get_value(borrow=True).shape
             print bias_y.get_value(borrow=True).shape
-            print bias_y_prime.get_value(borrow=True).shape
+            print bias_x_prime.get_value(borrow=True).shape
             print bias_y_prime.get_value(borrow=True).shape
 
             layer_size = Wx.get_value(borrow=True).shape[1]
@@ -218,10 +218,8 @@ class StackedDoubleEncoder(object):
 
             else:
 
-                layer.update_y(y,
-                               bias_y=bias_y,
-                               bias_y_prime=bias_y_prime,
-                               output_size=bias_y_prime.get_value(borrow=True).shape[0])
+                layer.bias_y = bias_y
+                layer.bias_y_prime = bias_y_prime
 
             self._symmetric_layers.append(layer)
 
