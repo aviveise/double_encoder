@@ -2,14 +2,16 @@
 
 __author__ = 'aviv'
 import os
-import scipy
 import datetime
+
+import scipy
 import theano
 import theano.tensor as Tensor
+from numpy.random import RandomState
 
 from MISC.logger import OutputLog
-from numpy.random import RandomState
 from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
+
 
 class StackedDoubleEncoder(object):
 
@@ -219,7 +221,7 @@ class StackedDoubleEncoder(object):
         Wy = self._symmetric_layers[-1].Wx.T
 
         for back_layer in reversed(self._symmetric_layers[0:-1]):
-            back_layer.update_y(y, Wy, back_layer.bias_y, back_layer.bias_y_prime)
+            back_layer.update_y(y, weights=Wy, bias_y=back_layer.bias_y, bias_y_prime=back_layer.bias_y_prime)
             Wy = back_layer.Wx.T
             y = back_layer.output_backward
 
