@@ -1,4 +1,4 @@
-from lib.MISC.logger import OutputLog
+
 
 __author__ = 'aviv'
 import os
@@ -7,6 +7,7 @@ import datetime
 import theano
 import theano.tensor as Tensor
 
+from MISC.logger import OutputLog
 from numpy.random import RandomState
 from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
