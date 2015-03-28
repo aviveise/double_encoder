@@ -114,8 +114,12 @@ class Classifier(object):
         test_gradient_path = sys.argv[2]
         layer = int(sys.argv[3])
 
+        OutputLog().write('reading gradients')
+
         train_gradients = loadmat(train_gradient_path)
         test_gradients = loadmat(test_gradient_path)
+
+        OutputLog().write('merging gradients')
 
         train_gradients = Classifier.merge_gradients(train_gradients, layer)
         test_gradients = Classifier.merge_gradients(test_gradients, layer)
