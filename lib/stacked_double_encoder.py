@@ -187,10 +187,11 @@ class StackedDoubleEncoder(object):
             wy_name = 'Wy' + '_' + layer_name
 
             layer.update_x(x,
-               weights=Wx,
-               bias_x=bias_x,
-               bias_x_prime=bias_x_prime)
+                           weights=Wx,
+                           bias_x=bias_x,
+                           bias_x_prime=bias_x_prime)
 
+            x = layer.output_forward
 
             if wy_name in encoder:
 
