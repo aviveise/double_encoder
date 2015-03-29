@@ -215,18 +215,20 @@ class StackedDoubleEncoder(object):
                                bias_y=bias_y,
                                bias_y_prime=bias_y_prime)
 
+                prop_y = layer.output_backward
+                Wy = layer.Wx.T
+
+                for back_layer in reversed(self._symmetric_layers):
+                    back_layer.update_y(prop_y, weights=Wy, bias_y=back_layer.bias_y, bias_y_prime=back_layer.bias_y_prime)
+                    Wy = back_layer.Wx.T
+                    prop_y = back_layer.output_backward
+
             else:
 
                 layer.bias_y = bias_y
                 layer.bias_y_prime = bias_y_prime
 
-            prop_y = layer.output_backward
-            Wy = layer.Wx.T
 
-            for back_layer in reversed(self._symmetric_layers):
-                back_layer.update_y(prop_y, weights=Wy, bias_y=back_layer.bias_y, bias_y_prime=back_layer.bias_y_prime)
-                Wy = back_layer.Wx.T
-                prop_y = back_layer.output_backward
 
             self._symmetric_layers.append(layer)
 
