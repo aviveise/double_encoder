@@ -206,6 +206,8 @@ class StackedDoubleEncoder(object):
 
             if wy_name in encoder:
 
+                OutputLog().write('Last layer')
+
                 Wy = theano.shared(encoder[wy_name],
                                    name='Wy' + '_' + layer_name,
                                    borrow=True)
