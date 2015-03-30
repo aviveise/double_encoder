@@ -61,8 +61,6 @@ def _todict(matobj):
 
 class Classifier(object):
 
-
-
     @staticmethod
     def merge_gradients(gradients, layer):
 
@@ -75,22 +73,12 @@ class Classifier(object):
 
             try:
 
-                if layer == -1:
-
-                    descriptor = None
-                    for param in sample_gradients.keys():
-
-                        if param[0] == 'W':
-
-                            if descriptor is None:
-                                descriptor = sample_gradients[param].flatten()
-                            else:
-                                descriptor = numpy.concatenate((descriptor, sample_gradients[param].flatten()))
-
-                else:
-                    descriptor = numpy.concatenate((sample_gradients['Wx_layer' + str(layer).flatten()],
-                                                    sample_gradients['Wy_layer' + str(layer).flatten()]))
-
+                descriptor = None
+                for param in sample_gradients.keys():
+                        if descriptor is None:
+                            descriptor = sample_gradients[param].flatten()
+                        else:
+                            descriptor = numpy.concatenate((descriptor, sample_gradients[param].flatten()))
 
                 if output_gradients is None:
                     output_gradients = descriptor.reshape(1, descriptor.shape[0])
@@ -137,7 +125,9 @@ class Classifier(object):
 
         OutputLog().write('calculating gradients')
 
-        transformer = GradientTransformer(symmetric_double_encoder, symmetric_double_encoder.getParams(), configuration.hyper_parameters)
+        params = symmetric_double_encoder[layer].weights
+
+        transformer = GradientTransformer(symmetric_double_encoder, params, configuration.hyper_parameters)
 
         train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
         test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)

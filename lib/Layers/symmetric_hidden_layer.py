@@ -76,9 +76,9 @@ class SymmetricHiddenLayer(object):
 
                 self.x_params = [self.Wx, self.bias_x, self.bias_x_prime]
                 self.x_hidden_params = [self.Wx, self.bias_x]
+                self.weights = [self.Wy, self.Wx]
 
                 self.output_forward = self.compute_forward_hidden()
-                #self.output_forward = theano.printing.Print('x_hid: ')(self.compute_forward_hidden())
 
         def update_y(self, y, weights=None, bias_y=None, bias_y_prime=None, output_size=None, generate_weights=True):
 
@@ -111,6 +111,7 @@ class SymmetricHiddenLayer(object):
 
                 self.y_params = [self.Wy, self.bias_y, self.bias_y_prime]
                 self.y_hidden_params = [self.Wy, self.bias_y]
+                self.weights = [self.Wy, self.Wx]
 
                 self.output_backward = self.compute_backward_hidden()
 
