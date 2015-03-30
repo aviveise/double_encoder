@@ -37,9 +37,9 @@ class GradientTransformer(TransformerBase):
             for idx, gradient in enumerate(model_gradients):
 
                 if idx == 0:
-                    sample_gradients = model_gradients.flatten()
+                    sample_gradients = model_gradients[idx].flatten()
                 else:
-                    sample_gradients = numpy.concatenate((sample_gradients, model_gradients.flatten()))
+                    sample_gradients = numpy.concatenate((sample_gradients, model_gradients[idx].flatten()))
 
             if i == 0:
                 gradients = sample_gradients.reshape((1, sample_gradients.shape[0]))
