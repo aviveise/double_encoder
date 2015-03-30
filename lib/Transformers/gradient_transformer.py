@@ -39,14 +39,14 @@ class GradientTransformer(TransformerBase):
                 if idx == 0:
                     sample_gradients = gradient.flatten()
                 else:
-                    sample_gradients = numpy.concatenate(sample_gradients, gradient.flatten())
+                    sample_gradients = numpy.concatenate((sample_gradients, gradient.flatten()))
 
             print sample_gradients.shape
 
             if i == 0:
                 gradients = sample_gradients.reshape((1, sample_gradients.shape[0]))
             else:
-                gradients = numpy.concatenate(gradients, sample_gradients)
+                gradients = numpy.concatenate((gradients, sample_gradients))
 
             print gradients.shape
 
