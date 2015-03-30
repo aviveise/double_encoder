@@ -39,6 +39,9 @@ class GradientTransformer(TransformerBase):
             else:
                 gradients = numpy.concatenate(gradients, sample_gradients)
 
+            print sample_gradients.shape
+            print gradients.shape
+
         return gradients
 
     def _build_gradient_model(self):
