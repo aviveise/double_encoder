@@ -125,7 +125,7 @@ class Classifier(object):
 
         OutputLog().write('calculating gradients')
 
-        params = symmetric_double_encoder[layer].weights
+        params = [symmetric_double_encoder[layer].Wx, symmetric_double_encoder[layer].Wy]
 
         transformer = GradientTransformer(symmetric_double_encoder, params, configuration.hyper_parameters)
 

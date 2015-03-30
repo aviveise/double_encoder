@@ -76,7 +76,6 @@ class SymmetricHiddenLayer(object):
 
                 self.x_params = [self.Wx, self.bias_x, self.bias_x_prime]
                 self.x_hidden_params = [self.Wx, self.bias_x]
-                self.weights = [self.Wy, self.Wx]
 
                 self.output_forward = self.compute_forward_hidden()
 
@@ -111,7 +110,6 @@ class SymmetricHiddenLayer(object):
 
                 self.y_params = [self.Wy, self.bias_y, self.bias_y_prime]
                 self.y_hidden_params = [self.Wy, self.bias_y]
-                self.weights = [self.Wy, self.Wx]
 
                 self.output_backward = self.compute_backward_hidden()
 
