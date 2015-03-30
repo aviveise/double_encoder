@@ -44,9 +44,10 @@ class GradientTransformer(TransformerBase):
             if i == 0:
                 gradients = sample_gradients.reshape((1, sample_gradients.shape[0]))
             else:
+                print "sample_gradients shape = {0}".format(sample_gradients.shape)
                 gradients = numpy.concatenate((gradients, sample_gradients.reshape((1, sample_gradients.shape[0]))))
 
-            print "gradient shape = {0}".format(gradients.shape)
+
 
         return gradients
 
