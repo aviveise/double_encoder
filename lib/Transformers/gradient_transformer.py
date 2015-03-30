@@ -35,10 +35,8 @@ class GradientTransformer(TransformerBase):
             sample_gradients = model(set_x[i, :].reshape((1, set_x.shape[1])), set_y[i, :].reshape(1, set_y.shape[1]))[0]
 
             if i == 0:
-                gradients = sample_gradients
+                gradients = sample_gradients.reshape((1, sample_gradients.shape[0]))
             else:
-                print sample_gradients.shape
-                print gradients.shape
                 gradients = numpy.concatenate(gradients, sample_gradients)
 
 

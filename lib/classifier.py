@@ -132,6 +132,8 @@ class Classifier(object):
 
         params = [symmetric_double_encoder[layer].Wx, symmetric_double_encoder[layer].Wy]
 
+        print symmetric_double_encoder[layer].Wx.get_value(borrow=True).shape
+
         transformer = GradientTransformer(symmetric_double_encoder, params, configuration.hyper_parameters)
 
         train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
