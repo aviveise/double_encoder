@@ -32,14 +32,23 @@ class GradientTransformer(TransformerBase):
         # generate positive samples
         for i in range(set_x.shape[0]):
 
-            sample_gradients = model(set_x[i, :].reshape((1, set_x.shape[1])), set_y[i, :].reshape(1, set_y.shape[1]))[0]
+            gradients = model(set_x[i, :].reshape((1, set_x.shape[1])), set_y[i, :].reshape(1, set_y.shape[1]))
+
+            for idx, gradient in enumerate(gradients):
+
+                if idx == 0:
+                    sample_gradients = gradient.flatten()
+                else:
+                    sample_gradients = numpy.concatenate(sample_gradients, gradient.flatten())
+
+            print sample_gradients.shape
 
             if i == 0:
                 gradients = sample_gradients.reshape((1, sample_gradients.shape[0]))
             else:
                 gradients = numpy.concatenate(gradients, sample_gradients)
 
-
+            print gradients.shape
 
         return gradients
 
@@ -63,8 +72,6 @@ class GradientTransformer(TransformerBase):
         loss = loss_backward + loss_forward
 
         gradients = Tensor.grad(loss, self._params)
-
-        gradients = Tensor.concatenate(gradients)
 
         model = function(inputs=[var_x, var_y], outputs=gradients)
 
