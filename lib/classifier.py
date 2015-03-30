@@ -149,7 +149,7 @@ class Classifier(object):
 
         compressed_data = lincompress(numpy.concatenate(train_gradients, test_gradients).T).T
 
-        train_gradients = compressed_data[0: train_gradients.shape[0], :]
+        train_gradients = compressed_data[:train_gradients.shape[0], :]
         test_gradients = compressed_data[train_gradients.shape[0]:, :]
 
         OutputLog().write('Compressed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
