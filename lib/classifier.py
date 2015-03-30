@@ -1,3 +1,6 @@
+from lib.stacked_double_encoder import StackedDoubleEncoder
+from numpy.random.mtrand import RandomState
+
 __author__ = 'aviv'
 import os
 import sys
@@ -110,14 +113,40 @@ class Classifier(object):
     @staticmethod
     def run():
 
-        train_gradient_path = sys.argv[1]
-        test_gradient_path = sys.argv[2]
-        layer = int(sys.argv[3])
+        data_set_config = sys.argv[1]
+        run_time_config = sys.argv[2]
+        double_encoder = sys.argv[3]
+        top = int(sys.argv[4])
+        layer = int(sys.argv[5])
 
-        OutputLog().write('reading gradients')
+        data_config = ConfigParser.ConfigParser()
+        data_config.read(data_set_config)
+        data_parameters = ConfigSectionMap("dataset_parameters", data_config)
 
-        train_gradients = loadmat(train_gradient_path)
-        test_gradients = loadmat(test_gradient_path)
+        #construct data set
+        data_set = Container().create(data_parameters['name'], data_parameters)
+
+        #parse runtime configuration
+        configuration = Configuration(run_time_config)
+        configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
+
+        training_set_x = data_set.trainset[0].T
+        training_set_y = data_set.trainset[1].T
+
+        symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+                                                        numpy_range=RandomState(),
+                                                        input_size=training_set_x.shape[1],
+                                                        output_size=training_set_y.shape[1],
+                                                        activation_method=None)
+
+        symmetric_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
+
+        OutputLog().write('calculating gradients')
+
+        transformer = GradientTransformer(symmetric_double_encoder, symmetric_double_encoder.getParams(), configuration.hyper_parameters)
+
+        train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
+        test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)
 
         OutputLog().write('merging gradients')
 

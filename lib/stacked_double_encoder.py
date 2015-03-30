@@ -180,7 +180,6 @@ class StackedDoubleEncoder(object):
                                          name='bias_y_prime_' + layer_name,
                                          borrow=True)
 
-
             print Wx.get_value(borrow=True).shape
             print bias_x.get_value(borrow=True).shape
             print bias_y.get_value(borrow=True).shape
@@ -226,11 +225,8 @@ class StackedDoubleEncoder(object):
                     prop_y = back_layer.output_backward
 
             else:
-
                 layer.bias_y = bias_y
                 layer.bias_y_prime = bias_y_prime
-
-
 
             self._symmetric_layers.append(layer)
 

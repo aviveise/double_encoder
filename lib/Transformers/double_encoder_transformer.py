@@ -89,8 +89,6 @@ class DoubleEncoderTransformer(TransformerBase):
             outputs.append(layer.reconstruct_y())
             outputs.append(layer.input_y())
 
-        theano.printing.debugprint(outputs)
-
         correlation_test_model = function([self._x, self._y], outputs)
 
         return correlation_test_model
