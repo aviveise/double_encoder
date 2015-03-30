@@ -90,7 +90,8 @@ class Classifier(object):
             except:
                 OutputLog().write('failed processing sample: ' + sample)
 
-            sample_gradients[samples] = 0
+            sample_gradients = 0
+            gradients[sample] = 0
             gc.collect()
 
         return output_gradients
