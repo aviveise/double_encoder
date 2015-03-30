@@ -32,7 +32,7 @@ class GradientTransformer(TransformerBase):
         # generate positive samples
         for i in range(set_x.shape[0]):
 
-            sample_gradients = model(set_x[i, :].reshape((1, set_x.shape[1])), set_y[i, :].reshape(1, set_y.shape[1]))
+            sample_gradients = model(set_x[i, :].reshape((1, set_x.shape[1])), set_y[i, :].reshape(1, set_y.shape[1]))[0]
 
             if i == 0:
                 gradients = sample_gradients
