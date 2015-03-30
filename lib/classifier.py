@@ -137,11 +137,6 @@ class Classifier(object):
         train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
         test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)
 
-        OutputLog().write('merging gradients')
-
-        train_gradients = Classifier.merge_gradients(train_gradients)
-        test_gradients = Classifier.merge_gradients(test_gradients)
-
         OutputLog().write('Processed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
         OutputLog().write('Processed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
 
