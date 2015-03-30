@@ -1,3 +1,4 @@
+import gc
 
 __author__ = 'aviv'
 import os
@@ -62,7 +63,7 @@ def _todict(matobj):
 class Classifier(object):
 
     @staticmethod
-    def merge_gradients(gradients, layer):
+    def merge_gradients(gradients):
 
         output_gradients = None
         samples = gradients.keys()
@@ -88,6 +89,9 @@ class Classifier(object):
 
             except:
                 OutputLog().write('failed processing sample: ' + sample)
+
+            sample_gradients[samples] = 0
+            gc.collect()
 
         return output_gradients
 
@@ -134,8 +138,8 @@ class Classifier(object):
 
         OutputLog().write('merging gradients')
 
-        train_gradients = Classifier.merge_gradients(train_gradients, layer)
-        test_gradients = Classifier.merge_gradients(test_gradients, layer)
+        train_gradients = Classifier.merge_gradients(train_gradients)
+        test_gradients = Classifier.merge_gradients(test_gradients)
 
         OutputLog().write('Processed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
         OutputLog().write('Processed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
