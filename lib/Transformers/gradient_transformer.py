@@ -10,13 +10,6 @@ from theano import tensor as Tensor
 from MISC.logger import OutputLog
 from transformer_base import TransformerBase
 
-def lincompress(x):
-    U, S, V = scipy.linalg.svd(numpy.dot(x.T, x))
-    xc = numpy.dot(U, numpy.sqrt(S)).T
-    return xc
-
-
-
 class GradientTransformer(TransformerBase):
 
     def __init__(self, double_encoder, params, hyperparameters):

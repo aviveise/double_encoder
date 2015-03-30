@@ -27,6 +27,11 @@ import DataSetReaders
 import Regularizations
 import Optimizations
 
+def lincompress(x):
+    U, S, V = scipy.linalg.svd(numpy.dot(x.T, x))
+    xc = numpy.dot(U, numpy.sqrt(S)).T
+    return xc
+
 def loadmat(filename):
     '''
     this function should be called instead of direct spio.loadmat
@@ -141,6 +146,14 @@ class Classifier(object):
 
         OutputLog().write('Processed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
         OutputLog().write('Processed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
+
+        compressed_data = lincompress(numpy.concatenate(train_gradients, test_gradients).T).T
+
+        train_gradients = compressed_data[0: train_gradients.shape[0], :]
+        test_gradients = compressed_data[train_gradients.shape[0]:, :]
+
+        OutputLog().write('Compressed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
+        OutputLog().write('Compressed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
 
         svm_classifier = LinearSVC()
 
