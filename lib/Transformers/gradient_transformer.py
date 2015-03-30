@@ -37,10 +37,11 @@ class GradientTransformer(TransformerBase):
             if i == 0:
                 gradients = sample_gradients
             else:
+                print sample_gradients.shape
+                print gradients.shape
                 gradients = numpy.concatenate(gradients, sample_gradients)
 
-            print sample_gradients.shape
-            print gradients.shape
+
 
         return gradients
 
