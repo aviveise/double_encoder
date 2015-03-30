@@ -1,23 +1,18 @@
-from lib.stacked_double_encoder import StackedDoubleEncoder
-from numpy.random.mtrand import RandomState
 
 __author__ = 'aviv'
 import os
 import sys
 import ConfigParser
 import scipy.io
-import traceback
-import datetime
 import numpy
-import cPickle
 
-
-from time import clock
+from numpy.random.mtrand import RandomState
 
 from sklearn.svm import SVC, LinearSVC
 
 from configuration import Configuration
 
+from stacked_double_encoder import StackedDoubleEncoder
 from Testers.trace_correlation_tester import TraceCorrelationTester
 
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
@@ -30,7 +25,6 @@ from MISC.logger import OutputLog
 import DataSetReaders
 import Regularizations
 import Optimizations
-import numpy
 
 def loadmat(filename):
     '''
