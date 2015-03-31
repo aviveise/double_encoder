@@ -1,3 +1,4 @@
+import gc
 import scipy
 
 
@@ -40,6 +41,7 @@ class GradientTransformer(TransformerBase):
                 gradients = numpy.concatenate((gradients, sample_gradients.reshape((1, sample_gradients.shape[0]))))
 
 
+        gc.collect()
         print "gradients shape = {0}".format(gradients.shape)
         return gradients
 

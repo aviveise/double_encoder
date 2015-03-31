@@ -147,7 +147,7 @@ class Classifier(object):
         OutputLog().write('Processed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
         OutputLog().write('Processed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
 
-        compressed_data = lincompress(numpy.concatenate(train_gradients, test_gradients).T).T
+        compressed_data = lincompress(numpy.concatenate((train_gradients, test_gradients)).T).T
 
         train_gradients = compressed_data[:train_gradients.shape[0], :]
         test_gradients = compressed_data[train_gradients.shape[0]:, :]
