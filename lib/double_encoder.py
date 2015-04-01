@@ -97,7 +97,7 @@ class DoubleEncoder(object):
                                                                                                                configuration.hyper_parameters)
 
         except:
-            print 'Exception: \n'
+            print 'Exception:'
             print traceback.format_exc()
             raise
 
