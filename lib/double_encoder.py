@@ -97,8 +97,7 @@ class DoubleEncoder(object):
                                                                                                                configuration.hyper_parameters)
 
         except:
-            print 'Exception:'
-            print traceback.format_exc()
+            OutputLog().write('\nException:\n')
             raise
 
         execution_time = clock() - start
