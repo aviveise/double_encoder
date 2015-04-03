@@ -9,8 +9,11 @@ from sklearn.decomposition import PCA
 from MISC.utils import center as center_function, unitnorm
 from MISC.whiten_transform import WhitenTransform
 from MISC.logger import OutputLog
+from MISC.utils import unitnorm_rows, unitnorm_cols
 
 __author__ = 'aviv'
+
+
 
 class DatasetBase(object):
 
@@ -23,7 +26,8 @@ class DatasetBase(object):
         self.testset = None
         self.tuning = None
         
-        normalize = bool(int(data_set_parameters['normalize']))
+        normalize_rows = bool(int(data_set_parameters['normalize_rows']))
+        normalize_cols = bool(int(data_set_parameters['normalize_cols']))
         center = bool(int(data_set_parameters['center']))
         whiten = bool(int(data_set_parameters['whiten']))
         pca = map(int, data_set_parameters['pca'].split())
@@ -50,15 +54,26 @@ class DatasetBase(object):
             center_function(self.tuning[1])
             center_function(self.testset[1])
 
-        if normalize:
-            unitnorm(self.trainset[0])
-            unitnorm(self.testset[0])
-            unitnorm(self.trainset[1])
-            unitnorm(self.testset[1])
+        if normalize_rows:
+            unitnorm_rows(self.trainset[0])
+            unitnorm_rows(self.testset[0])
+            unitnorm_rows(self.trainset[1])
+            unitnorm_rows(self.testset[1])
 
             if self.tuning is not None:
-                unitnorm(self.tuning[1])
-                unitnorm(self.tuning[0])
+                unitnorm_rows(self.tuning[1])
+                unitnorm_rows(self.tuning[0])
+
+        if normalize_cols:
+            unitnorm_cols(self.trainset[0])
+            unitnorm_cols(self.testset[0])
+            unitnorm_cols(self.trainset[1])
+            unitnorm_cols(self.testset[1])
+
+            if self.tuning is not None:
+                unitnorm_cols(self.tuning[1])
+                unitnorm_cols(self.tuning[0])
+
 
 
         OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[0], self.trainset[1].shape[0]))

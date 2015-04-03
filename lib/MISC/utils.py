@@ -136,7 +136,7 @@ def tile_raster_images(X, img_shape, tile_shape, tile_spacing=(0, 0),
                         ] = this_img * c
         return out_array
 
-def unitnorm(M):
+def unitnorm_rows(M):
 
     if M is None:
         return
@@ -146,7 +146,18 @@ def unitnorm(M):
         norm = numpy.linalg.norm(M[i, :])
         if norm != 0:
             M[i, :] /= norm
-            M[i, :] *= math.sqrt(M.shape[1])
+
+    return M
+
+def unitnorm_cols(M):
+    if M is None:
+        return
+
+    for i in xrange(M.shape[1]):
+
+        norm = numpy.linalg.norm(M[:, i])
+        if norm != 0:
+            M[:, i] /= norm
 
     return M
 
@@ -168,8 +179,8 @@ def print_list(list, percentage=False):
 
 def find_correlation(x, y, svd_sum=True):
 
-    forward = unitnorm(center(x))
-    backward = unitnorm(center(y))
+    forward = unitnorm_rows(center(x))
+    backward = unitnorm_rows(center(y))
 
     if svd_sum:
 
@@ -408,8 +419,8 @@ def calculate_trace(x, y, top):
     centered_x = center(x)
     centered_y = center(y)
 
-    forward = unitnorm(centered_x)
-    backward = unitnorm(centered_y)
+    forward = unitnorm_rows(centered_x)
+    backward = unitnorm_rows(centered_y)
 
     diagonal = numpy.abs(numpy.diagonal(numpy.dot(forward, backward.T)))
     diagonal.sort()
