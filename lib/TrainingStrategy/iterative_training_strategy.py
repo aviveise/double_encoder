@@ -33,7 +33,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
               top=50,
               print_verbose=False,
               validation_set_x=None,
-              validation_set_y=None):
+              validation_set_y=None,
+              dir_name=None):
 
         symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                         numpy_range=self._random_range,
@@ -72,6 +73,9 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           top=top,
                           validation_set_x=validation_set_x,
                           validation_set_y=validation_set_y)
+
+            if dir_name is not None:
+                symmetric_double_encoder.export_encoder(dir_name)
 
         return symmetric_double_encoder
 

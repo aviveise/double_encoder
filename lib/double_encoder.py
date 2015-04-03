@@ -44,6 +44,7 @@ class DoubleEncoder(object):
             OutputLog().write('\nActivations is True\n')
             output_activations = True
 
+        dir_name, filename = os.path.split(os.path.abspath(__file__))
 
         regularization_methods = {}
 
@@ -86,7 +87,8 @@ class DoubleEncoder(object):
                                                              top=top,
                                                              print_verbose=True,
                                                              validation_set_x=data_set.tuning[0],
-                                                             validation_set_y=data_set.tuning[1])
+                                                             validation_set_y=data_set.tuning[1],
+                                                             dir_name=dir_name)
 
             trace_correlation, x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
                                                                        data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
@@ -118,7 +120,7 @@ class DoubleEncoder(object):
         OutputLog().write('%f, %f\n' % (float(trace_correlation),
                                         execution_time))
 
-        dir_name, filename = os.path.split(os.path.abspath(__file__))
+
         filename = outputs + '_' + data_parameters['name'] +'_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 
         OutputLog().write('output dir:' + dir_name)
