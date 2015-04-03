@@ -129,7 +129,7 @@ class SymmetricHiddenLayer(object):
             #                                                    size=(input_size, self.hidden_layer_size)),
             #                                                    dtype=theano.config.floatX)
 
-            initial_Wx = numpy.asarray(self.numpy_range.normal(0, 0.01, size=(input_size, self.hidden_layer_size)), dtype=theano.config.floatX)
+            initial_Wx = numpy.asarray(self.numpy_range.normal(0, 1, size=(input_size, self.hidden_layer_size)), dtype=theano.config.floatX)
 
             # WXtoH corresponds to the weights between the input and the hidden layer
             self.Wx = theano.shared(value=initial_Wx, name='Wx' + '_' + self.name)
@@ -144,7 +144,7 @@ class SymmetricHiddenLayer(object):
             #                                                    size=(output_size, self.hidden_layer_size)),
             #                                                    dtype=theano.config.floatX)
 
-            initial_Wy = numpy.asarray(self.numpy_range.normal(0, 0.01, size=(output_size, self.hidden_layer_size)), dtype=theano.config.floatX)
+            initial_Wy = numpy.asarray(self.numpy_range.normal(0, 1, size=(output_size, self.hidden_layer_size)), dtype=theano.config.floatX)
 
             # WHtoY corresponds to the weights between the hidden layer and the output
             self.Wy = theano.shared(value=initial_Wy, name='Wy' + '_' + self.name)
