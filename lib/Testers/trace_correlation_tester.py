@@ -18,11 +18,11 @@ class TraceCorrelationTester(TesterBase):
 
     def _calculate_metric(self, x, y, transformer, print_row):
 
-        x_var = numpy.var(x, axis=1)
-        y_var = numpy.var(y, axis=1)
+        x_var = numpy.var(x, axis=0)
+        y_var = numpy.var(y, axis=0)
 
-        x_mean = numpy.mean(x, axis=1)
-        y_mean = numpy.mean(y, axis=1)
+        x_mean = numpy.mean(x, axis=0)
+        y_mean = numpy.mean(y, axis=0)
 
         print_row.append(numpy.mean(x_var))
         print_row.append(numpy.max(x_var))
