@@ -118,13 +118,18 @@ class StackedDoubleEncoder(object):
 
         return list(params_set)
 
-    def export_encoder(self, dir_name):
+    def export_encoder(self, dir_name, suffix=''):
 
         output = {
             'layer_number': len(self._symmetric_layers)
         }
 
-        filename = 'double_encoder_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '.mat'
+        filename = 'double_encoder_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+
+        if isinstance(suffix, basestring):
+            filename += '_' + suffix
+
+        filename += '.mat'
 
         for layer in self._symmetric_layers:
 
