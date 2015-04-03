@@ -6,7 +6,7 @@ import theano
 import numpy
 
 from sklearn.decomposition import PCA
-from MISC.utils import center as center_function, unitnorm
+from MISC.utils import center as center_function
 from MISC.whiten_transform import WhitenTransform
 from MISC.logger import OutputLog
 from MISC.utils import unitnorm_rows, unitnorm_cols
