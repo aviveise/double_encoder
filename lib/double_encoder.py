@@ -97,7 +97,7 @@ class DoubleEncoder(object):
                                                                                                                configuration.hyper_parameters)
 
         except:
-            OutputLog().write('\nException:\n')
+            OutputLog().write('\nExceptions:\n')
             raise
 
         execution_time = clock() - start
@@ -130,9 +130,20 @@ class DoubleEncoder(object):
             'best_layer': test_best_layer
         }
 
+        export_train = {
+            'best_layer': train_best_layer
+        }
+
         if output_activations:
 
             OutputLog().write('\nOutput activations\n')
+
+            for index in range(len(x_train)):
+
+                set_name_x = 'hidden_train_x_%i' % index
+                set_name_y = 'hidden_train_y_%i' % index
+                export_train[set_name_x] = x_train[index]
+                export_train[set_name_y] = y_train[index]
 
             for index in range(len(x_test)):
 
@@ -141,6 +152,7 @@ class DoubleEncoder(object):
                 export_test[set_name_x] = x_test[index]
                 export_test[set_name_y] = y_test[index]
 
+            scipy.io.savemat(os.path.join(dir_name, "train_" + filename + '.mat'), export_train)
             scipy.io.savemat(os.path.join(dir_name, "test_" + filename + '.mat'), export_test)
 
 
