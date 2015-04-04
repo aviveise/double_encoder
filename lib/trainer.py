@@ -155,9 +155,7 @@ class Trainer(object):
         if len(regularizations) > 0:
             loss += Tensor.sum(regularizations, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX)
 
-        sys.stdout.flush()
-
-        print 'Calculating gradinets'
+        print 'Calculating gradients'
 
         #Computing the gradient for the stochastic gradient decent
         #the result is gradients for each parameter of the cross encoder
