@@ -47,6 +47,11 @@ class Trainer(object):
 
         random_stream = RandomState()
 
+        shared_train_set_x = shared(numpy.zeros((hyper_parameters.batch_size, train_set_x.shape[1]),
+                                                dtype=Tensor.config.floatX), 'training_set_x', borrow=True)
+        shared_train_set_y = shared(numpy.zeros((hyper_parameters.batch_size, train_set_y.shape[1]),
+                                                dtype=Tensor.config.floatX), 'training_set_y', borrow=True)
+
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
 
@@ -56,8 +61,8 @@ class Trainer(object):
             train_set_x, train_set_y = shuffleDataSet(train_set_x, train_set_y, random_stream)
 
             #need to convert the input into tensor variable
-            shared_train_set_x = shared(train_set_x, 'training_set_x', borrow=True)
-            shared_train_set_y = shared(train_set_y, 'training_set_y', borrow=True)
+            shared_train_set_x.set_value(train_set_x, borrow=True)
+            shared_train_set_y.set_value(train_set_y, borrow=True)
 
             print 'Building model'
             model = Trainer._build_model(shared_train_set_x,

@@ -55,11 +55,15 @@ class WeightOrthonormalRegularization(RegularizationBase):
 
         for layer in symmetric_double_encoder:
 
+            print 'Adding orthonormal regularization for layer'
+
             Wy_Square = Tensor.dot(layer.Wy.T, layer.Wy)
             Wx_Square = Tensor.dot(layer.Wx.T, layer.Wx)
 
             regularization += Tensor.sum(abs(Wy_Square - Tensor.identity_like(Wy_Square)), dtype=Tensor.config.floatX)
             regularization += Tensor.sum(abs(Wx_Square - Tensor.identity_like(Wx_Square)), dtype=Tensor.config.floatX)
+
+        print 'Computing regularization'
 
         return regularization * (self.weight / 2) * (regularization > 0)
 
