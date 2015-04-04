@@ -29,7 +29,12 @@ import Optimizations
 
 def lincompress(x):
     U, S, V = scipy.linalg.svd(numpy.dot(x.T, x))
-    xc = numpy.dot(U, numpy.dot(numpy.sqrt(S), numpy.identity(S.shape[0]))).T
+    S_mat = numpy.dot(numpy.sqrt(S), numpy.identity(S.shape[0]))
+
+    print 's_shape {0}'.format(S.shape)
+    print 'S_mat {0}'.format(S_mat.shape)
+
+    xc = numpy.dot(U, S_mat).T
 
     return xc
 
