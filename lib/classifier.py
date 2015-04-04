@@ -109,7 +109,7 @@ class Classifier(object):
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
         double_encoder = sys.argv[3]
-        top = int(sys.argv[4])
+        compress = int(sys.argv[4])
         layer = int(sys.argv[5])
 
         data_config = ConfigParser.ConfigParser()
@@ -148,15 +148,18 @@ class Classifier(object):
         OutputLog().write('Processed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
         OutputLog().write('Processed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
 
-        compressed_data = lincompress(numpy.concatenate((train_gradients, test_gradients)).T).T
 
-        print 'Compressed data size: {0}'.format(compressed_data.shape)
+        if compress:
 
-        train_gradients = compressed_data[:train_gradients.shape[0], :]
-        test_gradients = compressed_data[train_gradients.shape[0]:, :]
+            compressed_data = lincompress(numpy.concatenate((train_gradients, test_gradients)).T).T
 
-        OutputLog().write('Compressed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
-        OutputLog().write('Compressed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
+            print 'Compressed data size: {0}'.format(compressed_data.shape)
+
+            train_gradients = compressed_data[:train_gradients.shape[0], :]
+            test_gradients = compressed_data[train_gradients.shape[0]:, :]
+
+            OutputLog().write('Compressed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
+            OutputLog().write('Compressed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
 
         svm_classifier = LinearSVC()
 
