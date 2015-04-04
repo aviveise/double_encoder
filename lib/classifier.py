@@ -165,7 +165,7 @@ class Classifier(object):
             train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
 
         test_labels = numpy.arange(10)
-        for i in range(test_gradients.shape[0] / 10):
+        for i in range(test_gradients.shape[0] / 10 - 1):
             test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
 
         svm_classifier.fit(train_gradients, train_labels)
