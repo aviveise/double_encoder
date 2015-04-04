@@ -150,6 +150,8 @@ class Trainer(object):
         #Add the regularization method computations to the loss
         regularizations = [regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods if regularization_method.weight > 0]
 
+        print 'Regularization number = {0}'.format(len(regularizations))
+
         if len(regularizations) > 0:
             loss += Tensor.sum(regularizations, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX)
 
