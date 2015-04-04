@@ -160,8 +160,7 @@ class Trainer(object):
 
             print 'Adding momentum'
 
-            model_updates = [shared(value=numpy.zeros(p.get_value().shape, dtype=config.floatX),
-                                                    name='inc_' + p.name, borrow=True) for p in params]
+            model_updates = [shared(p.get_value() * 0, borrow=True) for p in params]
 
             updates = OrderedDict()
             zipped = zip(params, gradients, model_updates)

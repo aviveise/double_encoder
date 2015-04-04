@@ -1,4 +1,8 @@
+import numpy
+
 l__author__ = 'aviv'
+import theano
+
 
 from regularization_base import RegularizationBase
 from MISC.container import ContainerRegisterMetaClass
@@ -50,15 +54,14 @@ class WeightOrthonormalRegularization(RegularizationBase):
         regularization = 0
 
         for layer in symmetric_double_encoder:
-            regularization += Tensor.sum((Tensor.dot(layer.Wy.T, layer.Wy) -
-                                          Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size),
-                                                      dtype=Tensor.config.floatX)), dtype=Tensor.config.floatX)
 
-            regularization += Tensor.sum((Tensor.dot(layer.Wx.T, layer.Wx) -
-                                          Tensor.ones((layer.hidden_layer_size, layer.hidden_layer_size),
-                                                      dtype=Tensor.config.floatX)), dtype=Tensor.config.floatX)
+            Wy_Square = Tensor.dot(layer.Wy.T, layer.Wy)
+            Wx_Square = Tensor.dot(layer.Wx.T, layer.Wx)
 
-        return regularization * 0.5 * self.weight - self._zeroing_param
+            regularization += Tensor.sum(abs(Wy_Square - Tensor.identity_like(Wy_Square)), dtype=Tensor.config.floatX)
+            regularization += Tensor.sum(abs(Wx_Square - Tensor.identity_like(Wx_Square)), dtype=Tensor.config.floatX)
+
+        return regularization * (self.weight / 2) * (regularization > 0)
 
 
     def print_regularization(self, output_stream):
