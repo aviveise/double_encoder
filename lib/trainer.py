@@ -50,12 +50,16 @@ class Trainer(object):
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
 
+            print '----------Starting Epoch ({0})-----------'.format(epoch)
+
+            print 'Shuffling dataset'
             train_set_x, train_set_y = shuffleDataSet(train_set_x, train_set_y, random_stream)
 
             #need to convert the input into tensor variable
             shared_train_set_x = shared(train_set_x, 'training_set_x', borrow=True)
             shared_train_set_y = shared(train_set_y, 'training_set_y', borrow=True)
 
+            print 'Building model'
             model = Trainer._build_model(shared_train_set_x,
                                          shared_train_set_y,
                                          hyper_parameters,
@@ -66,6 +70,7 @@ class Trainer(object):
             loss_forward = 0
             loss_backward = 0
 
+            print 'Training {0} batches'.format(n_training_batches)
             for index in xrange(n_training_batches):
                 output = model(index)
                 loss_forward += output[0]
