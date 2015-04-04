@@ -128,6 +128,8 @@ class Trainer(object):
         #Index for iterating batches
         index = Tensor.lscalar()
 
+        print 'Calculating Loss'
+
         #Compute the loss of the forward encoding as L2 loss
         loss_backward = ((var_x - x_tilde) ** 2).sum(dtype=Tensor.config.floatX,
                                                      acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
@@ -138,6 +140,8 @@ class Trainer(object):
 
         loss = loss_backward + loss_forward
 
+        print 'Adding regularization'
+
         #Add the regularization method computations to the loss
         regularizations = [regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods if regularization_method.weight > 0]
 
@@ -146,11 +150,15 @@ class Trainer(object):
 
         sys.stdout.flush()
 
+        print 'Calculating gradinets'
+
         #Computing the gradient for the stochastic gradient decent
         #the result is gradients for each parameter of the cross encoder
         gradients = Tensor.grad(loss, params)
 
         if hyper_parameters.momentum > 0:
+
+            print 'Adding momentum'
 
             model_updates = [shared(value=numpy.zeros(p.get_value().shape, dtype=config.floatX),
                                                     name='inc_' + p.name, borrow=True) for p in params]
@@ -169,6 +177,8 @@ class Trainer(object):
             updates = []
             for param, gradient in zip(params, gradients):
                 updates.append((param, param - hyper_parameters.learning_rate * gradient))
+
+        print 'Building function'
 
         #Building the theano function
         #input : batch index
