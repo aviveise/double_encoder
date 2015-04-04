@@ -1,15 +1,5 @@
 __author__ = 'aviv'
 
-import numpy
-from theano import tensor as Tensor
-from theano import scan
-from theano.tensor import nlinalg
-from theano.compat.python2x import OrderedDict
-from theano import function
-from theano import config
-from theano import shared
-from theano import Out
-
 from training_strategy import TrainingStrategy
 from stacked_double_encoder import StackedDoubleEncoder
 from correlated_stacked_double_encoder import CorrelatedStackedDoubleEncoder
@@ -95,16 +85,5 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
     def set_parameters(self, parameters):
         return
-
-    def _compute_square_chol(self, a, n):
-
-        w, v = Tensor.nlinalg.eigh(a,'L')
-
-        result, updates = scan(lambda eigs, eigv, prior_results, size: Tensor.sqrt(eigs) * Tensor.dot(eigv.reshape([size, 1]), eigv.reshape([1, size])),
-                               outputs_info=Tensor.zeros_like(a),
-                               sequences=[w, v.T],
-                               non_sequences=n)
-
-        return result[-1]
 
 
