@@ -164,7 +164,8 @@ class Classifier(object):
         clf = SGDClassifier()
 
         for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
-            clf.fit(sample, numpy.array(index % 10))
+            print sample.shape
+            clf.fit(sample, [index % 10])
 
         error = 0
         count = 0
