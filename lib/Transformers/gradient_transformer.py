@@ -49,9 +49,6 @@ class GradientTransformer(TransformerBase):
         #print "gradients shape = {0}".format(gradients.shape)
         #return gradients
 
-    def get_iterator(self, set_x, set_y, batch_size):
-
-
     def _build_gradient_model(self):
 
         #Retrieve the reconstructions of x and y
