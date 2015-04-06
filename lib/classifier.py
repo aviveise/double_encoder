@@ -178,6 +178,7 @@ class Classifier(object):
         test_predictions = []
         for index, sample in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
             prediction = clf.predict(sample)
+            print prediction
             if not prediction == index % 10:
                 error += 1
 
@@ -202,4 +203,4 @@ class Classifier(object):
 
         OutputLog().write('test predictions: {0}'.format(test_predictions))
 
-        OutputLog().write('\nerror: %f%%\n' % (error / count) * 100)
+        OutputLog().write('\nerror: %f%%\n' % error)
