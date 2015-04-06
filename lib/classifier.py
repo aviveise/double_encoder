@@ -183,8 +183,7 @@ class Classifier(object):
                 error += 1
 
             count += 1
-            test_predictions += prediction
-
+            test_predictions.extend(prediction)
 
         #svm_classifier = LinearSVC()
 
