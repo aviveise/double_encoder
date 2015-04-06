@@ -112,7 +112,6 @@ class Classifier(object):
         double_encoder = sys.argv[3]
         compress = int(sys.argv[4])
         layer = int(sys.argv[5])
-        method = sys.argv[6]
 
         data_config = ConfigParser.ConfigParser()
         data_config.read(data_set_config)
