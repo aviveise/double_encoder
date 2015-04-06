@@ -1,3 +1,4 @@
+from collections import Iterator
 import gc
 import scipy
 
@@ -10,6 +11,7 @@ from theano import function
 from theano import tensor as Tensor
 from MISC.logger import OutputLog
 from transformer_base import TransformerBase
+
 
 class GradientTransformer(TransformerBase):
 
@@ -35,15 +37,20 @@ class GradientTransformer(TransformerBase):
                 else:
                     sample_gradients = numpy.concatenate((sample_gradients, model_gradients[idx].flatten()))
 
-            if i == 0:
-                gradients = sample_gradients.reshape((1, sample_gradients.shape[0]))
-            else:
-                gradients = numpy.concatenate((gradients, sample_gradients.reshape((1, sample_gradients.shape[0]))))
+            yield sample_gradients
+
+            #if i == 0:
+            #    gradients = sample_gradients.reshape((1, sample_gradients.shape[0]))
+            #else:
+            #    gradients = numpy.concatenate((gradients, sample_gradients.reshape((1, sample_gradients.shape[0]))))
 
 
-        gc.collect()
-        print "gradients shape = {0}".format(gradients.shape)
-        return gradients
+        #gc.collect()
+        #print "gradients shape = {0}".format(gradients.shape)
+        #return gradients
+
+    def get_iterator(self, set_x, set_y, batch_size):
+
 
     def _build_gradient_model(self):
 
