@@ -162,9 +162,16 @@ class Classifier(object):
         #    OutputLog().write('Compressed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
 
         clf = SGDClassifier()
-
+        samples = []
+        labels = range(10)
         for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
-            clf.fit(sample.reshape((1, sample.shape[0])), [index % 10])
+
+            samples += sample.reshape((1, sample.shape[0]))
+            if index % 10 == 9:
+                clf.fit(samples, labels)
+                samples = []
+                gc.collect()
+        
 
         error = 0
         count = 0
