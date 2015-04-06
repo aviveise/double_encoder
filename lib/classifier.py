@@ -166,12 +166,12 @@ class Classifier(object):
         labels = range(10)
         for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
 
-            samples += sample.reshape((1, sample.shape[0]))
+            samples.extend(sample.reshape((1, sample.shape[0])))
             if index % 10 == 9:
                 clf.fit(samples, labels)
                 samples = []
                 gc.collect()
-        
+
 
         error = 0
         count = 0
