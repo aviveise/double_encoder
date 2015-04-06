@@ -196,6 +196,4 @@ class Classifier(object):
 
         OutputLog().write('test predictions: {0}'.format(test_predictions))
 
-        OutputLog().write('\nerror: %f%%\n' % (error / count) * 100
-
-
+        OutputLog().write('\nerror: %f%%\n' % (error / count) * 100)
