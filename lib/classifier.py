@@ -168,7 +168,7 @@ class Classifier(object):
 
             samples.extend(sample.reshape((1, sample.shape[0])))
             if index % 10 == 9:
-                clf.partial_fit(samples, labels, 10)
+                clf.partial_fit(samples, labels, labels)
                 samples = []
                 gc.collect()
 
