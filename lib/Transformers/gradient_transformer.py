@@ -28,7 +28,9 @@ class GradientTransformer(TransformerBase):
         # generate positive samples
         for i in range(set_x.shape[0]):
 
-            model_gradients = model(set_x[i, :].reshape((1, set_x.shape[1])), set_y[i, :].reshape(1, set_y.shape[1]))
+            self._correlation_optimizer.var_x.set_value(set_x[i, :].reshape((1, set_x.shape[1])))
+            self._correlation_optimizer.var_y.set_value(set_y[i, :].reshape((1, set_y.shape[1])))
+            model_gradients = model()
 
             for idx, gradient in enumerate(model_gradients):
 
@@ -70,6 +72,6 @@ class GradientTransformer(TransformerBase):
 
         gradients = Tensor.grad(loss, self._params)
 
-        model = function(inputs=[var_x, var_y], outputs=gradients)
+        model = function(inputs=[], outputs=gradients)
 
         return model
