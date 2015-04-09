@@ -131,8 +131,8 @@ class Classifier(object):
                                                         numpy_range=RandomState(),
                                                         input_size=training_set_x.shape[1],
                                                         output_size=training_set_y.shape[1],
-                                                        activation_method=None,
-                                                        batch_size=configuration.hyper_parameters.batch_size)
+                                                        batch_size=configuration.hyper_parameters.batch_size,
+                                                        activation_method=None)
 
         symmetric_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
 

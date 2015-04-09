@@ -15,8 +15,7 @@ from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
 class StackedDoubleEncoder(object):
 
-    def __init__(self, hidden_layers, numpy_range, input_size, output_size, activation_method=Tensor.nnet.sigmoid,
-                 batch_size):
+    def __init__(self, hidden_layers, numpy_range, input_size, output_size,batch_size, activation_method=Tensor.nnet.sigmoid):
 
         #Define x and y variables for input
         #self.var_x = Tensor.matrix('x')

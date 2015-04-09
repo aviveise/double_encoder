@@ -30,8 +30,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
                                                         numpy_range=self._random_range,
                                                         input_size=training_set_x.shape[1],
                                                         output_size=training_set_y.shape[1],
-                                                        activation_method=activation_method,
-                                                        batch_size=hyper_parameters.batch_size)
+                                                        batch_size=hyper_parameters.batch_size,
+                                                        activation_method=activation_method)
 
         #In this phase we train the stacked encoder one layer at a time
         #once a layer was added, weights not belonging to the new layer are
