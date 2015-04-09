@@ -69,10 +69,14 @@ def run():
 
     symmetric_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
 
+    OutputLog().write('Running on train')
+
     train_trace_correlation, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
                                                                        data_set.trainset[1].T, top).test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
                                                                                                          configuration.hyper_parameters)
 
+
+    OutputLog().write('Running on test')    
 
     trace_correlation, x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
                                                                data_set.testset[1].T, top).test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
