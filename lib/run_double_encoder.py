@@ -65,7 +65,8 @@ def run():
                                                     numpy_range=RandomState(),
                                                     input_size=training_set_x.shape[1],
                                                     output_size=training_set_y.shape[1],
-                                                    activation_method=None)
+                                                    activation_method=None,
+                                                    batch_size=configuration.hyper_parameters.batch_size)
 
     symmetric_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
 

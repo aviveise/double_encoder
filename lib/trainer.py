@@ -60,14 +60,8 @@ class Trainer(object):
             print 'Shuffling dataset'
             train_set_x, train_set_y = shuffleDataSet(train_set_x, train_set_y, random_stream)
 
-            #need to convert the input into tensor variable
-            shared_train_set_x.set_value(train_set_x, borrow=True)
-            shared_train_set_y.set_value(train_set_y, borrow=True)
-
             print 'Building model'
-            model = Trainer._build_model(shared_train_set_x,
-                                         shared_train_set_y,
-                                         hyper_parameters,
+            model = Trainer._build_model(hyper_parameters,
                                          symmetric_double_encoder,
                                          params,
                                          regularization_methods)
@@ -77,6 +71,13 @@ class Trainer(object):
 
             print 'Training {0} batches'.format(n_training_batches)
             for index in xrange(n_training_batches):
+
+                #need to convert the input into tensor variable
+                symmetric_double_encoder.var_x.set_value(train_set_x[index * hyper_parameters.batch_size:
+                                                            (index + 1) * hyper_parameters.batch_size, :], borrow=True)
+                symmetric_double_encoder.var_y.set_value(train_set_y[index * hyper_parameters.batch_size:
+                                                            (index + 1) * hyper_parameters.batch_size, :], borrow=True)
+
                 output = model(index)
                 loss_forward += output[0]
                 loss_backward += output[1]
@@ -121,7 +122,7 @@ class Trainer(object):
         del model
 
     @staticmethod
-    def _build_model(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods):
+    def _build_model(hyper_parameters, symmetric_double_encoder, params, regularization_methods):
 
         #Retrieve the reconstructions of x and y
         x_tilde = symmetric_double_encoder.reconstruct_x()
@@ -191,11 +192,7 @@ class Trainer(object):
         #givens : replacing inputs for each iteration
         model = function(inputs=[index],
                          outputs=[loss_backward, loss_forward],
-                         updates=updates,
-                         givens={var_x: train_set_x[index * hyper_parameters.batch_size:
-                                                            (index + 1) * hyper_parameters.batch_size, :],
-                                 var_y: train_set_y[index * hyper_parameters.batch_size:
-                                                            (index + 1) * hyper_parameters.batch_size, :]})
+                         updates=updates)
 
         return model
 

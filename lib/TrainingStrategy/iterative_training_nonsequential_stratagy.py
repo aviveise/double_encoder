@@ -43,7 +43,8 @@ class IterativeNonSequentialTrainingStrategy(TrainingStrategy):
                                                         numpy_range=self._random_range,
                                                         input_size=training_set_x.get_value(borrow=True).shape[1],
                                                         output_size=training_set_y.get_value(borrow=True).shape[1],
-                                                        activation_method=activation_method)
+                                                        activation_method=activation_method,
+                                                        batch_size=hyper_parameters.batch_size)
 
         params = []
 

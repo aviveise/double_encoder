@@ -1,4 +1,4 @@
-
+import numpy
 
 __author__ = 'aviv'
 import os
@@ -15,11 +15,18 @@ from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
 class StackedDoubleEncoder(object):
 
-    def __init__(self, hidden_layers, numpy_range, input_size, output_size, activation_method=Tensor.nnet.sigmoid):
+    def __init__(self, hidden_layers, numpy_range, input_size, output_size, activation_method=Tensor.nnet.sigmoid,
+                 batch_size):
 
         #Define x and y variables for input
-        self.var_x = Tensor.matrix('x')
-        self.var_y = Tensor.matrix('y')
+        #self.var_x = Tensor.matrix('x')
+        #self.var_y = Tensor.matrix('y')
+
+        self.var_x = theano.shared(numpy.zeros((batch_size, input_size), dtype=Tensor.config.floatX),
+                                   name='var_x')
+
+        self.var_y = theano.shared(numpy.zeros((batch_size, output_size), dtype=Tensor.config.floatX),
+                                   name='var_y')
 
         self.input_size = input_size
         self.output_size = output_size
