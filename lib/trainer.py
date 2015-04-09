@@ -73,7 +73,7 @@ class Trainer(object):
                 symmetric_double_encoder.var_y.set_value(train_set_y[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size, :], borrow=True)
 
-                output = model(index)
+                output = model()
                 loss_forward += output[0]
                 loss_backward += output[1]
 
