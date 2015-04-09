@@ -47,11 +47,6 @@ class Trainer(object):
 
         random_stream = RandomState()
 
-        shared_train_set_x = shared(numpy.zeros((hyper_parameters.batch_size, train_set_x.shape[1]),
-                                                dtype=Tensor.config.floatX), 'training_set_x', borrow=True)
-        shared_train_set_y = shared(numpy.zeros((hyper_parameters.batch_size, train_set_y.shape[1]),
-                                                dtype=Tensor.config.floatX), 'training_set_y', borrow=True)
-
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
 
