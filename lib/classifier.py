@@ -165,14 +165,14 @@ class Classifier(object):
         clf = SGDClassifier()
         samples = []
         labels = range(10)
-        for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
+        for epoch in range(10):
+            for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
 
-            samples.extend(sample.reshape((1, sample.shape[0])))
-            if index % 10 == 9:
-                clf.partial_fit(samples, labels, labels)
-                samples = []
-                gc.collect()
-
+                samples.extend(sample.reshape((1, sample.shape[0])))
+                if index % 10 == 9:
+                    clf.partial_fit(samples, labels, labels)
+                    samples = []
+                    gc.collect()
 
         error = 0
         count = 0
