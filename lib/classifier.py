@@ -165,7 +165,7 @@ class Classifier(object):
         clf = SGDClassifier()
         samples = []
         labels = range(10)
-        for epoch in range(10):
+        for epoch in range(configuration.hyper_parameters.epochs):
             for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
 
                 samples.extend(sample.reshape((1, sample.shape[0])))
