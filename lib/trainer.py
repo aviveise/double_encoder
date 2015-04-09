@@ -185,7 +185,7 @@ class Trainer(object):
         #output : both losses
         #updates : gradient decent updates for all params
         #givens : replacing inputs for each iteration
-        model = function(inputs=[index],
+        model = function(inputs=[],
                          outputs=[loss_backward, loss_forward],
                          updates=updates)
 
