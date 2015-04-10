@@ -67,6 +67,37 @@ def _todict(matobj):
             dict[strg] = elem
     return dict
 
+
+def test_transformer(transformer, data_set, configuration):
+
+    clf = SGDClassifier()
+    samples = []
+    labels = range(10)
+    for epoch in range(configuration.hyper_parameters.epochs):
+        for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
+
+            samples.extend(sample.reshape((1, sample.shape[0])))
+            if index % 10 == 9:
+                clf.partial_fit(samples, labels, labels)
+                samples = []
+                gc.collect()
+
+    error = 0
+    count = 0
+    test_predictions = []
+    for index, sample in enumerate(transformer_x.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+        prediction = clf.predict(sample)
+        print prediction
+        if not prediction == index % 10:
+            error += 1
+
+        count += 1
+        test_predictions.extend(prediction)
+
+    OutputLog().write('test predictions weight: {0}'.format(test_predictions))
+
+    OutputLog().write('\nerror: %f%%\n' % error)
+
 class Classifier(object):
 
     @staticmethod
@@ -138,11 +169,17 @@ class Classifier(object):
 
         OutputLog().write('calculating gradients')
 
-        params = [symmetric_double_encoder[layer].Wx, symmetric_double_encoder[layer].Wy]
+        params_x = [symmetric_double_encoder[layer].Wx]
+        params_y = [symmetric_double_encoder[layer].Wy]
 
         print symmetric_double_encoder[layer].Wx.get_value(borrow=True).shape
 
-        transformer = GradientTransformer(symmetric_double_encoder, params, configuration.hyper_parameters)
+        transformer_x = GradientTransformer(symmetric_double_encoder, params_x, configuration.hyper_parameters)
+        transformer_y = GradientTransformer(symmetric_double_encoder, params_y, configuration.hyper_parameters)
+
+        test_transformer(transformer_x, data_set, configuration)
+        test_transformer(transformer_y, data_set, configuration)
+
 
         #train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
         #test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)
@@ -162,29 +199,8 @@ class Classifier(object):
         #    OutputLog().write('Compressed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
         #    OutputLog().write('Compressed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
 
-        clf = SGDClassifier()
-        samples = []
-        labels = range(10)
-        for epoch in range(configuration.hyper_parameters.epochs):
-            for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
 
-                samples.extend(sample.reshape((1, sample.shape[0])))
-                if index % 10 == 9:
-                    clf.partial_fit(samples, labels, labels)
-                    samples = []
-                    gc.collect()
 
-        error = 0
-        count = 0
-        test_predictions = []
-        for index, sample in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
-            prediction = clf.predict(sample)
-            print prediction
-            if not prediction == index % 10:
-                error += 1
-
-            count += 1
-            test_predictions.extend(prediction)
 
         #svm_classifier = LinearSVC()
 
@@ -200,7 +216,3 @@ class Classifier(object):
 
         #test_predictions = svm_classifier.predict(test_gradients)
         #train_predictions = svm_classifier.predict(train_gradients)
-
-        OutputLog().write('test predictions: {0}'.format(test_predictions))
-
-        OutputLog().write('\nerror: %f%%\n' % error)
