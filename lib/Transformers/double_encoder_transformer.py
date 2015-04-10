@@ -37,8 +37,11 @@ class DoubleEncoderTransformer(TransformerBase):
             batch_x = test_set_x[i * hyperparameters.batch_size: min((i + 1) * hyperparameters.batch_size, test_set_x.shape[0]), :]
             batch_y = test_set_y[i * hyperparameters.batch_size: min((i + 1) * hyperparameters.batch_size, test_set_y.shape[0]), :]
 
-            outputs_hidden_batch = hidden_output_model(batch_x, batch_y)
-            outputs_reconstruct_batch = reconstruction_output_model(batch_x, batch_y)
+            self._correlation_optimizer.var_x.set_value(batch_x)
+            self._correlation_optimizer.var_y.set_value(batch_y)
+
+            outputs_hidden_batch = hidden_output_model()
+            outputs_reconstruct_batch = reconstruction_output_model()
 
             if i == 0:
                 outputs_hidden = outputs_hidden_batch
@@ -73,7 +76,7 @@ class DoubleEncoderTransformer(TransformerBase):
             outputs.append(layer.compute_forward_hidden())
             outputs.append(layer.compute_backward_hidden())
 
-        correlation_test_model = function([self._x, self._y], outputs)
+        correlation_test_model = function([], outputs)
 
         return correlation_test_model
 
@@ -89,7 +92,7 @@ class DoubleEncoderTransformer(TransformerBase):
             outputs.append(layer.reconstruct_y())
             outputs.append(layer.input_y())
 
-        correlation_test_model = function([self._x, self._y], outputs)
+        correlation_test_model = function([], outputs)
 
         return correlation_test_model
 
