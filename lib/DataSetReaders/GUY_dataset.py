@@ -27,13 +27,10 @@ class GUYDataSet(DatasetBase):
         feature_vectors = FV_mat['sent_vecs']
         images_sent_mapping = CNN_mat['image_idx_of_sent']
 
-        training_image_idx = idx_mat['trn_images_I']
         training_sen_idx = idx_mat['trn_sent_I']
 
-        validation_image_idx = idx_mat['dev_images_I']
         validation_sen_idx = idx_mat['dev_sent_I']
 
-        test_image_idx = idx_mat['tst_images_I']
         test_sen_idx = idx_mat['tst_sent_I']
 
         self.trainset = [numpy.ndarray((CNN_output.shape[1], training_sen_idx.shape[0]), dtype=config.floatX),
