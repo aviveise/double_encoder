@@ -70,7 +70,7 @@ def _todict(matobj):
 
 def test_transformer(transformer, data_set, configuration):
 
-    clf = SGDClassifier()
+    clf = SGDClassifier(alpha=0.005)
     samples = []
     labels = range(10)
     for epoch in range(configuration.hyper_parameters.epochs):
@@ -170,15 +170,27 @@ class Classifier(object):
 
         params_x = [symmetric_double_encoder[layer].Wx]
         params_y = [symmetric_double_encoder[layer].Wy]
+        params = [symmetric_double_encoder[layer].Wy, symmetric_double_encoder[layer].Wx]
+        params_var = [symmetric_double_encoder.var_x, symmetric_double_encoder.var_y]
 
         print symmetric_double_encoder[layer].Wx.get_value(borrow=True).shape
 
         transformer_x = GradientTransformer(symmetric_double_encoder, params_x, configuration.hyper_parameters)
         transformer_y = GradientTransformer(symmetric_double_encoder, params_y, configuration.hyper_parameters)
+        transformer = GradientTransformer(symmetric_double_encoder, params, configuration.hyper_parameters)
+        transformer_var = GradientTransformer(symmetric_double_encoder, params_var, configuration.hyper_parameters)
 
+        print 'Wx:'
         test_transformer(transformer_x, data_set, configuration)
+
+        print 'Wy:'
         test_transformer(transformer_y, data_set, configuration)
 
+        print 'Wx+Wy:'
+        test_transformer(transformer, data_set, configuration)
+
+        print 'var:'
+        test_transformer(transformer_var, data_set, configuration)
 
         #train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
         #test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)
