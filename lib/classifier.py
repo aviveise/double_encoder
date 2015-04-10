@@ -87,7 +87,6 @@ def test_transformer(transformer, data_set, configuration):
     test_predictions = []
     for index, sample in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
         prediction = clf.predict(sample)
-        print prediction
         if not prediction == index % 10:
             error += 1
 
