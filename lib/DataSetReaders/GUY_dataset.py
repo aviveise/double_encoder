@@ -36,6 +36,9 @@ class GUYDataSet(DatasetBase):
         test_image_idx = idx_mat['tst_images_I']
         test_sen_idx = idx_mat['tst_sent_I']
 
+        print CNN_output.shape
+        print feature_vectors.shape
+
         self.trainset = [numpy.ndarray((CNN_output.shape[0], training_sen_idx.shape[0]), dtype=config.floatX),
                          numpy.ndarray((feature_vectors[0].shape[0], training_sen_idx.shape[0]), dtype=config.floatX)]
 
