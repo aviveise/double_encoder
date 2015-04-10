@@ -33,8 +33,10 @@ class GUYDataSet(DatasetBase):
 
         test_sen_idx = idx_mat['tst_sent_I']
 
-        self.trainset = [numpy.ndarray((CNN_output.shape[1], training_sen_idx.shape[0]), dtype=config.floatX),
-                         numpy.ndarray((feature_vectors[0].shape[0], training_sen_idx.shape[0]), dtype=config.floatX)]
+        train_size = min(training_sen_idx.shape[0], 50000)
+
+        self.trainset = [numpy.ndarray((CNN_output.shape[1], train_size), dtype=config.floatX),
+                         numpy.ndarray((feature_vectors[0].shape[0], train_size), dtype=config.floatX)]
 
         self.tuning = [numpy.ndarray((CNN_output.shape[1], validation_sen_idx.shape[0]), dtype=config.floatX),
                        numpy.ndarray((feature_vectors[0].shape[0], validation_sen_idx.shape[0]), dtype=config.floatX)]
@@ -43,7 +45,7 @@ class GUYDataSet(DatasetBase):
                         numpy.ndarray((feature_vectors[0].shape[0], test_sen_idx.shape[0]), dtype=config.floatX)]
 
 
-        for i in range(min(training_sen_idx.shape[0], 50000)):
+        for i in range(train_size):
 
             self.trainset[0][:, i] = CNN_output[int(images_sent_mapping[int(training_sen_idx[i]) - 1]) - 1]
             self.trainset[1][:, i] = feature_vectors[int(training_sen_idx[i]) - 1]
