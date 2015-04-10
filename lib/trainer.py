@@ -53,7 +53,8 @@ class Trainer(object):
             print '----------Starting Epoch ({0})-----------'.format(epoch)
 
             print 'Shuffling dataset'
-            train_set_x, train_set_y = shuffleDataSet(train_set_x, train_set_y, random_stream)
+            #train_set_x, train_set_y = shuffleDataSet(train_set_x, train_set_y, random_stream)
+            indices = random_stream.permutation(train_set_x.shape[0])
 
             print 'Building model'
             model = Trainer._build_model(hyper_parameters,
@@ -68,10 +69,10 @@ class Trainer(object):
             for index in xrange(n_training_batches):
 
                 #need to convert the input into tensor variable
-                symmetric_double_encoder.var_x.set_value(train_set_x[index * hyper_parameters.batch_size:
-                                                            (index + 1) * hyper_parameters.batch_size, :], borrow=True)
-                symmetric_double_encoder.var_y.set_value(train_set_y[index * hyper_parameters.batch_size:
-                                                            (index + 1) * hyper_parameters.batch_size, :], borrow=True)
+                symmetric_double_encoder.var_x.set_value(train_set_x[indices[index * hyper_parameters.batch_size:
+                                                            (index + 1) * hyper_parameters.batch_size], :], borrow=True)
+                symmetric_double_encoder.var_y.set_value(train_set_y[indices[index * hyper_parameters.batch_size:
+                                                            (index + 1) * hyper_parameters.batch_size], :], borrow=True)
 
                 output = model()
                 loss_forward += output[0]
