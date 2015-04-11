@@ -172,7 +172,7 @@ class SymmetricHiddenLayer(object):
             if input_y is None:
                 return self.activation_output(Tensor.dot(self.output_forward_y, self.Wx.T) + self.bias_x_prime)
             else:
-                return self.activation_output(Tensor.dot(self.input_y, self.Wx.T) + self.bias_x_prime)
+                return self.activation_output(Tensor.dot(input_y, self.Wx.T) + self.bias_x_prime)
 
         def input_x(self):
             return self.x
