@@ -1,3 +1,5 @@
+from lib.stacked_auto_encoder_2 import StackedDoubleEncoder2
+
 __author__ = 'aviv'
 
 from training_strategy import TrainingStrategy
@@ -24,14 +26,23 @@ class IterativeTrainingStrategy(TrainingStrategy):
               print_verbose=False,
               validation_set_x=None,
               validation_set_y=None,
-              dir_name=None):
+              dir_name=None,
+              encoder_type='typaA'):
 
-        symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
-                                                        numpy_range=self._random_range,
-                                                        input_size=training_set_x.shape[1],
-                                                        output_size=training_set_y.shape[1],
-                                                        batch_size=hyper_parameters.batch_size,
-                                                        activation_method=activation_method)
+        if encoder_type == 'typeA':
+            symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+                                                            numpy_range=self._random_range,
+                                                            input_size=training_set_x.shape[1],
+                                                            output_size=training_set_y.shape[1],
+                                                            batch_size=hyper_parameters.batch_size,
+                                                            activation_method=activation_method)
+        else:
+            symmetric_double_encoder = StackedDoubleEncoder2(hidden_layers=[],
+                                                             numpy_range=self._random_range,
+                                                             input_size=training_set_x.shape[1],
+                                                             output_size=training_set_y.shape[1],
+                                                             batch_size=hyper_parameters.batch_size,
+                                                             activation_method=activation_method)
 
         #In this phase we train the stacked encoder one layer at a time
         #once a layer was added, weights not belonging to the new layer are
