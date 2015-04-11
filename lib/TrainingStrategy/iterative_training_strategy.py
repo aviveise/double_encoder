@@ -31,15 +31,15 @@ class IterativeTrainingStrategy(TrainingStrategy):
         if encoder_type == 'typeA':
             symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                             numpy_range=self._random_range,
-                                                            input_size=training_set_x.shape[1],
-                                                            output_size=training_set_y.shape[1],
+                                                            input_size_x=training_set_x.shape[1],
+                                                            input_size_y=training_set_y.shape[1],
                                                             batch_size=hyper_parameters.batch_size,
                                                             activation_method=activation_method)
         else:
             symmetric_double_encoder = StackedDoubleEncoder2(hidden_layers=[],
                                                              numpy_range=self._random_range,
-                                                             input_size=training_set_x.shape[1],
-                                                             output_size=training_set_y.shape[1],
+                                                             input_size_x=training_set_x.shape[1],
+                                                             input_size_y=training_set_y.shape[1],
                                                              batch_size=hyper_parameters.batch_size,
                                                              activation_method=activation_method)
 
