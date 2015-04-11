@@ -18,9 +18,6 @@ class StackedDoubleEncoder(object):
     def __init__(self, hidden_layers, numpy_range, input_size, output_size,batch_size, activation_method=Tensor.nnet.sigmoid):
 
         #Define x and y variables for input
-        #self.var_x = Tensor.matrix('x')
-        #self.var_y = Tensor.matrix('y')
-
         self.var_x = theano.shared(numpy.zeros((batch_size, input_size), dtype=Tensor.config.floatX),
                                    name='var_x')
 
@@ -77,30 +74,35 @@ class StackedDoubleEncoder(object):
             last_layer = self._symmetric_layers[-1]
 
             #connecting the X of new layer with the Y of the last layer
-            symmetric_layer.update_y(self.var_y, input_size=self.output_size)
-            symmetric_layer.update_x(x=last_layer.output_forward, input_size=last_layer.hidden_layer_size)
-
-            Wy = symmetric_layer.Wx.T
-
-            input_y = symmetric_layer.output_backward
-
-            #refreshing the connection between Y and X of the other layers
-            for layer in reversed(self._symmetric_layers):
-
-                layer.update_y(input_y, Wy, layer.bias_y)
-
-                Wy = layer.Wx.T
-
-                input_y = layer.output_backward
+            symmetric_layer.update_x(x=last_layer.output_forward_x, input_size=last_layer.hidden_layer_size)
+            symmetric_layer.update_y(y=last_layer.output_forward_y, input_size=last_layer.hidden_layer_size)
 
         #adding the new layer to the list
         self._symmetric_layers.append(symmetric_layer)
 
     def reconstruct_x(self, layer_num=0):
-        return self._symmetric_layers[layer_num].reconstruct_x()
 
-    def reconstruct_y(self, layer_num=-1):
-        return self._symmetric_layers[layer_num].reconstruct_y()
+        reconstructed_x = None
+
+        for index, layer in enumerate(reversed(self._symmetric_layers)):
+            reconstructed_x = layer.reconstruct_x(reconstructed_x)
+
+            if index == len(self._symmetric_layers) - layer_num - 1:
+                break;
+
+        return reconstructed_x
+
+    def reconstruct_y(self, layer_num=0):
+
+        reconstructed_y = None
+
+        for index, layer in enumerate(reversed(self._symmetric_layers)):
+            reconstructed_y = layer.reconstruct_y(reconstructed_y)
+
+            if index == len(self._symmetric_layers) - layer_num - 1:
+                break;
+
+        return reconstructed_x
 
     #Initialize the inputs of the first layer to be 'x' and 'y' variables
     def _initialize_first_layer(self, layer):
@@ -172,6 +174,10 @@ class StackedDoubleEncoder(object):
                                name='Wx_' + layer_name,
                                borrow=True)
 
+            Wy = theano.shared(encoder['Wy_' + layer_name],
+                               name='Wy_' + layer_name,
+                               borrow=True)
+
             bias_x = theano.shared(encoder['bias_x_' + layer_name].flatten(),
                                    name='bias_x_' + layer_name,
                                    borrow=True)
@@ -196,39 +202,20 @@ class StackedDoubleEncoder(object):
                                          activation_hidden=hyperparameters.method_in,
                                          activation_output=hyperparameters.method_out)
 
-            wy_name = 'Wy' + '_' + layer_name
+            last_layer = self._symmetric_layers[-1]
 
-            layer.update_x(x,
-                           weights=Wx,
-                           bias_x=bias_x,
-                           bias_x_prime=bias_x_prime)
+            #connecting the X of new layer with the Y of the last layer
+            symmetric_layer.update_x(x=last_layer.output_forward_x,
+                                     input_size=last_layer.hidden_layer_size,
+                                     weights=Wx,
+                                     bias_x=bias_x,
+                                     bias_x_prime=bias_x_prime)
 
-            x = layer.output_forward_x
-
-            if wy_name in encoder:
-
-                OutputLog().write('Last layer')
-
-                Wy = theano.shared(encoder[wy_name],
-                                   name='Wy' + '_' + layer_name,
-                                   borrow=True)
-
-                layer.update_y(y,
-                               weights=Wy,
-                               bias_y=bias_y,
-                               bias_y_prime=bias_y_prime)
-
-                prop_y = layer.output_forward_y
-                Wy = layer.Wx.T
-
-                for back_layer in reversed(self._symmetric_layers):
-                    back_layer.update_y(prop_y, weights=Wy, bias_y=back_layer.bias_y, bias_y_prime=back_layer.bias_y_prime)
-                    Wy = back_layer.Wx.T
-                    prop_y = back_layer.output_backward
-
-            else:
-                layer.bias_y = bias_y
-                layer.bias_y_prime = bias_y_prime
+            symmetric_layer.update_y(x=last_layer.output_forward_y,
+                                     input_size=last_layer.hidden_layer_size,
+                                     weights=Wy,
+                                     bias_y=bias_y,
+                                     bias_y_prime=bias_y_prime)
 
             self._symmetric_layers.append(layer)
 

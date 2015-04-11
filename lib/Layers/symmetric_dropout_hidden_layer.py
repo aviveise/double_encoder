@@ -18,12 +18,12 @@ class SymmetricDropoutHiddenLayer(SymmetricHiddenLayer):
 
         self._p = dropout_probability
 
-    def compute_forward_hidden(self):
-        output = super(SymmetricDropoutHiddenLayer, self).compute_forward_hidden()
+    def compute_forward_hidden_x(self):
+        output = super(SymmetricDropoutHiddenLayer, self).compute_forward_hidden_x()
         return self._dropout_from_layer(output)
 
-    def compute_backward_hidden(self):
-        output = super(SymmetricDropoutHiddenLayer, self).compute_backward_hidden()
+    def compute_forward_hidden_y(self):
+        output = super(SymmetricDropoutHiddenLayer, self).compute_forward_hidden_y()
         return self._dropout_from_layer(output)
 
     def _dropout_from_layer(self, layer):

@@ -73,8 +73,8 @@ class DoubleEncoderTransformer(TransformerBase):
         outputs = []
 
         for layer in self._correlation_optimizer:
-            outputs.append(layer.compute_forward_hidden())
-            outputs.append(layer.compute_backward_hidden())
+            outputs.append(layer.compute_forward_hidden_x())
+            outputs.append(layer.compute_forward_hidden_y())
 
         correlation_test_model = function([], outputs)
 
@@ -84,12 +84,12 @@ class DoubleEncoderTransformer(TransformerBase):
 
         outputs = []
 
-        for layer in self._correlation_optimizer:
+        for index, layer in enumerate(self._correlation_optimizer):
 
-            outputs.append(layer.reconstruct_x())
+            outputs.append(self._correlation_optimizer.reconstruct_x(index))
             outputs.append(layer.input_x())
 
-            outputs.append(layer.reconstruct_y())
+            outputs.append(self._correlation_optimizer.reconstruct_y(index))
             outputs.append(layer.input_y())
 
         correlation_test_model = function([], outputs)

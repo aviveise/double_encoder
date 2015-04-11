@@ -77,9 +77,9 @@ class SymmetricHiddenLayer(object):
                 self.x_params = [self.Wx, self.bias_x, self.bias_x_prime]
                 self.x_hidden_params = [self.Wx, self.bias_x]
 
-                self.output_forward = self.compute_forward_hidden()
+                self.output_forward_x = self.compute_forward_hidden_x()
 
-        def update_y(self, y, weights=None, bias_y=None, bias_y_prime=None, output_size=None, generate_weights=True):
+        def update_y(self, y, weights=None, bias_y=None, bias_y_prime=None, input_size=None, generate_weights=True):
 
             #if x2 is provided compute backward(x2)
             if y:
@@ -90,7 +90,7 @@ class SymmetricHiddenLayer(object):
                     return
 
                 if weights is None:
-                    self._initialize_output_weights(output_size)
+                    self._initialize_output_weights(input_size)
 
                 else:
                     self.Wy = weights
@@ -103,7 +103,7 @@ class SymmetricHiddenLayer(object):
                     self.bias_y = bias_y
 
                 if bias_y_prime is None:
-                    self.bias_y_prime = theano.shared(value=numpy.zeros(output_size, dtype=theano.config.floatX),
+                    self.bias_y_prime = theano.shared(value=numpy.zeros(input_size, dtype=theano.config.floatX),
                                                       name='bias_y_prime' + '_' + self.name)
                 else:
                     self.bias_y_prime = bias_y_prime
@@ -111,7 +111,7 @@ class SymmetricHiddenLayer(object):
                 self.y_params = [self.Wy, self.bias_y, self.bias_y_prime]
                 self.y_hidden_params = [self.Wy, self.bias_y]
 
-                self.output_backward = self.compute_backward_hidden()
+                self.output_forward_y = self.compute_forward_hidden_y()
 
         def _initialize_input_weights(self, input_size):
 
@@ -134,9 +134,9 @@ class SymmetricHiddenLayer(object):
             # WXtoH corresponds to the weights between the input and the hidden layer
             self.Wx = theano.shared(value=initial_Wx, name='Wx' + '_' + self.name)
 
-        def _initialize_output_weights(self, output_size):
+        def _initialize_output_weights(self, input_size):
 
-            if output_size is None:
+            if input_size is None:
                 raise Exception("output size not provided")
 
             #initial_Wy = numpy.asarray(self.numpy_range.uniform(low=-4 * numpy.sqrt(6. / (self.hidden_layer_size + output_size)),
@@ -144,26 +144,35 @@ class SymmetricHiddenLayer(object):
             #                                                    size=(output_size, self.hidden_layer_size)),
             #                                                    dtype=theano.config.floatX)
 
-            initial_Wy = numpy.asarray(self.numpy_range.normal(0, 1, size=(output_size, self.hidden_layer_size)), dtype=theano.config.floatX)
+            initial_Wy = numpy.asarray(self.numpy_range.normal(0, 1, size=(input_size, self.hidden_layer_size)), dtype=theano.config.floatX)
 
             # WHtoY corresponds to the weights between the hidden layer and the output
             self.Wy = theano.shared(value=initial_Wy, name='Wy' + '_' + self.name)
 
-        def compute_forward_hidden(self):
+        def compute_forward_hidden_x(self):
             result = self.activation_hidden(Tensor.dot(self.x, self.Wx) + self.bias_x)
             return result
 
-        def compute_backward_hidden(self):
+        def compute_forward_hidden_y(self):
             result = self.activation_hidden(Tensor.dot(self.y, self.Wy) + self.bias_y)
             return result
 
         #Given one input computes the network forward output
-        def reconstruct_y(self):
-            return self.activation_output(Tensor.dot(self.output_forward, self.Wy.T) + self.bias_y_prime)
+        def reconstruct_y(self, input_x=None):
+
+            if input_x is None:
+                return self.activation_output(Tensor.dot(self.output_forward_x, self.Wy.T) + self.bias_y_prime)
+
+            else:
+                return self.activation_output(Tensor.dot(input_x, self.Wy.T) + self.bias_y_prime)
 
         #Given one input computes the network backward output
-        def reconstruct_x(self):
-            return self.activation_output(Tensor.dot(self.output_backward, self.Wx.T) + self.bias_x_prime)
+        def reconstruct_x(self, input_y=None):
+
+            if input_y is None:
+                return self.activation_output(Tensor.dot(self.output_forward_y, self.Wx.T) + self.bias_x_prime)
+            else:
+                return self.activation_output(Tensor.dot(self.input_y, self.Wx.T) + self.bias_x_prime)
 
         def input_x(self):
             return self.x

@@ -16,15 +16,17 @@ class ReconstructionRegularization(RegularizationBase):
     def compute(self, symmetric_double_encoder, params):
 
         regularization = 0
-        for layer in symmetric_double_encoder:
+        for index, layer in enumerate(symmetric_double_encoder):
 
-            regularization += Tensor.sum((layer.input_y() - layer.reconstruct_y()),
-                                         dtype=Tensor.config.floatX,
-                                         acc_dtype=Tensor.config.floatX)
+            if not layer.input_y() == symmetric_double_encoder.var_y:
+                regularization += Tensor.sum((layer.input_y() - symmetric_double_encoder.reconstruct_y(index)),
+                                            dtype=Tensor.config.floatX,
+                                            acc_dtype=Tensor.config.floatX)
 
-            regularization += Tensor.sum((layer.input_x() - layer.reconstruct_x()),
-                                         dtype=Tensor.config.floatX,
-                                         acc_dtype=Tensor.config.floatX)
+            if not layer.input_x() == symmetric_double_encoder.var_x:
+                regularization += Tensor.sum((layer.input_x() - symmetric_double_encoder.reconstruct_x(index)),
+                                             dtype=Tensor.config.floatX,
+                                             acc_dtype=Tensor.config.floatX)
 
         regularization -= self._zeroing_param
 
