@@ -32,7 +32,7 @@ class StackedDoubleEncoder(object):
 
         self._symmetric_layers = []
 
-        if numpy_range is None:
+        if numpy_rang   e is None:
             numpy_range = RandomState()
 
         self.numpy_range = numpy_range
@@ -224,7 +224,7 @@ class StackedDoubleEncoder(object):
                 for back_layer in reversed(self._symmetric_layers):
                     back_layer.update_y(prop_y, weights=Wy, bias_y=back_layer.bias_y, bias_y_prime=back_layer.bias_y_prime)
                     Wy = back_layer.Wx.T
-                    prop_y = back_layer.output_backward
+                    prop_y = back_layer.output_forward_y
 
             else:
                 layer.bias_y = bias_y
