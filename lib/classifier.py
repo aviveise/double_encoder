@@ -28,8 +28,38 @@ import DataSetReaders
 import Regularizations
 import Optimizations
 
+
+def compute_square(data_set, transformer):
+
+    output = numpy.ndarray((data_set.trainset[0].shape[1] + data_set.testset[1].shape[1],
+                            data_set.trainset[0].shape[1] + data_set.testset[1].shape[1]))
+
+    for index_i, sample_i in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
+
+        for index_j, sample_j in enumerate(transformer.compute_outputs(data_set.trainset[0][:, index_i:].T,
+                                                                       data_set.trainset[1][:, index_i:].T, 1)):
+
+            output[index_i, index_j + index_i] = numpy.dot(sample_i, sample_j.reshape((sample_j.shape[0], 1)))
+            output[index_j + index_i, index_i] = output[index_i, index_j + index_i]
+
+        for index_j, sample_j in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+
+            output[index_i, index_j + data_set.trainset[0].shape[1]] = numpy.dot(sample_i,
+                                                                                   sample_j.reshape((sample_j.shape[0], 1)))
+
+            output[index_j + data_set.trainset[0].shape[1], index_i] = output[index_i,
+                                                                              index_j + data_set.trainset[0].shape[1]]
+
+    for index_i, sample_i in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+        for index_j, sample_j in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+            output[index_i + data_set.trainset[0].shape[1], index_j + data_set.trainset[0].shape[1]] = \
+                numpy.dot(sample_i, sample_j.reshape((sample_j.shape[0], 1)))
+
+    return output
+
+
 def lincompress(x):
-    U, S, V = scipy.linalg.svd(numpy.dot(x.T, x))
+    U, S, V = scipy.linalg.svd(numpy.dot(x))
     xc = numpy.dot(U, numpy.diag(numpy.sqrt(S))).T
 
     return xc
@@ -140,7 +170,7 @@ class Classifier(object):
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
         double_encoder = sys.argv[3]
-        compress = int(sys.argv[4])
+        type = int(sys.argv[4])
         layer = int(sys.argv[5])
 
         data_config = ConfigParser.ConfigParser()
@@ -180,50 +210,48 @@ class Classifier(object):
         transformer = GradientTransformer(symmetric_double_encoder, params, configuration.hyper_parameters)
         transformer_var = GradientTransformer(symmetric_double_encoder, params_var, configuration.hyper_parameters)
 
-        print 'Wx:'
-        test_transformer(transformer_x, data_set, configuration)
+        if type == 'SGD':
+            print 'Wx:'
+            test_transformer(transformer_x, data_set, configuration)
 
-        print 'Wy:'
-        test_transformer(transformer_y, data_set, configuration)
+            print 'Wy:'
+            test_transformer(transformer_y, data_set, configuration)
 
-        print 'Wx+Wy:'
-        test_transformer(transformer, data_set, configuration)
+            print 'Wx+Wy:'
+            test_transformer(transformer, data_set, configuration)
 
-        print 'var:'
-        test_transformer(transformer_var, data_set, configuration)
+            print 'var:'
+            test_transformer(transformer_var, data_set, configuration)
 
-        #train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
-        #test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)
+        else:
 
-        #OutputLog().write('Processed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
-        #OutputLog().write('Processed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
+            x = compute_square(data_set, transformer)
 
-        #if compress:
+            compressed_data = lincompress(x)
 
-        #    compressed_data = lincompress(numpy.concatenate((train_gradients, test_gradients)).T).T
+            train_gradients = compressed_data[:data_set.trainset.shape[1], :]
+            test_gradients = compressed_data[data_set.trainset.shape[1]:, :]
 
-        #    print 'Compressed data size: {0}'.format(compressed_data.shape)
+            svm_classifier = LinearSVC()
 
-        #    train_gradients = compressed_data[:train_gradients.shape[0], :]
-        #    test_gradients = compressed_data[train_gradients.shape[0]:, :]
+            train_labels = numpy.arange(10)
+            for i in range(train_gradients.shape[0] / 10 - 1):
+               train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
 
-        #    OutputLog().write('Compressed training set, sized: [%d, %d]' % (train_gradients.shape[0], train_gradients.shape[1]))
-        #    OutputLog().write('Compressed test set, sized: [%d, %d]' % (test_gradients.shape[0], test_gradients.shape[1]))
+            test_labels = numpy.arange(10)
+            for i in range(test_gradients.shape[0] / 10 - 1):
+               test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
+
+            svm_classifier.fit(train_gradients, train_labels)
+
+            test_predictions = svm_classifier.predict(test_gradients)
+            train_predictions = svm_classifier.predict(train_gradients)
+
+            OutputLog().write('test predictions:' + str(test_predictions))
+
+            error_test = float(numpy.count_nonzero(test_predictions - test_labels)) / test_labels.shape[0] * 100
+            error_train = float(numpy.count_nonzero(train_predictions - train_labels)) / train_predictions.shape[0] * 100
 
 
-
-
-        #svm_classifier = LinearSVC()
-
-        #train_labels = numpy.arange(10)
-        #for i in range(train_gradients.shape[0] / 10 - 1):
-        #    train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
-
-        #test_labels = numpy.arange(10)
-        #for i in range(test_gradients.shape[0] / 10 - 1):
-        #    test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
-
-        #svm_classifier.fit(train_gradients, train_labels)
-
-        #test_predictions = svm_classifier.predict(test_gradients)
-        #train_predictions = svm_classifier.predict(train_gradients)
+            OutputLog().write('\nerror train: %f%%\n' % error_train)
+            OutputLog().write('\nerror test: %f%%\n' % error_test)
