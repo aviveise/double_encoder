@@ -32,7 +32,7 @@ class StackedDoubleEncoder(object):
 
         self._symmetric_layers = []
 
-        if numpy_rang   e is None:
+        if numpy_range is None:
             numpy_range = RandomState()
 
         self.numpy_range = numpy_range
