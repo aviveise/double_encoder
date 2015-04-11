@@ -18,11 +18,11 @@ class ReconstructionRegularization(RegularizationBase):
         regularization = 0
         for layer in symmetric_double_encoder:
 
-            regularization += Tensor.sum((layer.input_y() - layer.reconstruct_y()) ** 2,
+            regularization += Tensor.sum((layer.input_y() - layer.reconstruct_y()),
                                          dtype=Tensor.config.floatX,
                                          acc_dtype=Tensor.config.floatX)
 
-            regularization += Tensor.sum((layer.input_x() - layer.reconstruct_x()) ** 2,
+            regularization += Tensor.sum((layer.input_x() - layer.reconstruct_x()),
                                          dtype=Tensor.config.floatX,
                                          acc_dtype=Tensor.config.floatX)
 
