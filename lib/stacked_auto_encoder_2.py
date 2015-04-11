@@ -88,7 +88,7 @@ class StackedDoubleEncoder2(object):
             reconstructed_x = layer.reconstruct_x(reconstructed_x)
 
             if index == len(self._symmetric_layers) - layer_num - 1:
-                break;
+                break
 
         return reconstructed_x
 
@@ -100,9 +100,9 @@ class StackedDoubleEncoder2(object):
             reconstructed_y = layer.reconstruct_y(reconstructed_y)
 
             if index == len(self._symmetric_layers) - layer_num - 1:
-                break;
+                break
 
-        return reconstructed_x
+        return reconstructed_y
 
     #Initialize the inputs of the first layer to be 'x' and 'y' variables
     def _initialize_first_layer(self, layer):
@@ -111,15 +111,10 @@ class StackedDoubleEncoder2(object):
 
     def getParams(self):
 
-        params_set = set()
+        params_set = []
         for layer in self._symmetric_layers:
-            for param in layer.x_hidden_params:
-                params_set.add(param)
-
-        for param in self._symmetric_layers[-1].y_params:
-            params_set.add(param)
-        for param in self._symmetric_layers[0].x_params:
-            params_set.add(param)
+            params_set.append(layer.x_params)
+            params_set.append(layer.y_params)
 
         return list(params_set)
 
