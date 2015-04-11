@@ -170,7 +170,7 @@ class Classifier(object):
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
         double_encoder = sys.argv[3]
-        type = int(sys.argv[4])
+        type = sys.argv[4]
         layer = int(sys.argv[5])
 
         data_config = ConfigParser.ConfigParser()
