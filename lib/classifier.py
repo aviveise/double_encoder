@@ -159,8 +159,8 @@ class Classifier(object):
 
         symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                         numpy_range=RandomState(),
-                                                        input_size=training_set_x.shape[1],
-                                                        output_size=training_set_y.shape[1],
+                                                        input_size_x=training_set_x.shape[1],
+                                                        input_size_y=training_set_y.shape[1],
                                                         batch_size=configuration.hyper_parameters.batch_size,
                                                         activation_method=None)
 

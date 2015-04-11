@@ -15,20 +15,20 @@ from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
 class StackedDoubleEncoder(object):
 
-    def __init__(self, hidden_layers, numpy_range, input_size, output_size,batch_size, activation_method=Tensor.nnet.sigmoid):
+    def __init__(self, hidden_layers, numpy_range, input_size_x, input_size_y, batch_size, activation_method=Tensor.nnet.sigmoid):
 
         #Define x and y variables for input
         #self.var_x = Tensor.matrix('x')
         #self.var_y = Tensor.matrix('y')
 
-        self.var_x = theano.shared(numpy.zeros((batch_size, input_size), dtype=Tensor.config.floatX),
+        self.var_x = theano.shared(numpy.zeros((batch_size, input_size_x), dtype=Tensor.config.floatX),
                                    name='var_x')
 
-        self.var_y = theano.shared(numpy.zeros((batch_size, output_size), dtype=Tensor.config.floatX),
+        self.var_y = theano.shared(numpy.zeros((batch_size, input_size_y), dtype=Tensor.config.floatX),
                                    name='var_y')
 
-        self.input_size = input_size
-        self.output_size = output_size
+        self.input_size_x = input_size_x
+        self.input_size_y = input_size_y
 
         self._symmetric_layers = []
 
@@ -77,7 +77,7 @@ class StackedDoubleEncoder(object):
             last_layer = self._symmetric_layers[-1]
 
             #connecting the X of new layer with the Y of the last layer
-            symmetric_layer.update_y(self.var_y, input_size=self.output_size)
+            symmetric_layer.update_y(self.var_y, input_size=self.input_size_y)
             symmetric_layer.update_x(x=last_layer.output_forward, input_size=last_layer.hidden_layer_size)
 
             Wy = symmetric_layer.Wx.T
@@ -104,8 +104,8 @@ class StackedDoubleEncoder(object):
 
     #Initialize the inputs of the first layer to be 'x' and 'y' variables
     def _initialize_first_layer(self, layer):
-        layer.update_x(self.var_x, input_size=self.input_size)
-        layer.update_y(self.var_y, input_size=self.output_size)
+        layer.update_x(self.var_x, input_size=self.input_size_x)
+        layer.update_y(self.var_y, input_size=self.input_size_y)
 
     def getParams(self):
 

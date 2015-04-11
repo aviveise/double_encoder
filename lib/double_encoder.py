@@ -33,6 +33,7 @@ class DoubleEncoder(object):
         run_time_config = sys.argv[2]
         top = int(sys.argv[3])
         outputs = sys.argv[4]
+        encoder_type = sys.argv[5]
 
         output_gradients = False
         output_activations = False
@@ -88,7 +89,8 @@ class DoubleEncoder(object):
                                                              print_verbose=True,
                                                              validation_set_x=data_set.tuning[0],
                                                              validation_set_y=data_set.tuning[1],
-                                                             dir_name=dir_name)
+                                                             dir_name=dir_name,
+                                                             encoder_type=encoder_type)
 
             trace_correlation, x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
                                                                        data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),

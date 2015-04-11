@@ -1,10 +1,9 @@
-from lib.stacked_auto_encoder_2 import StackedDoubleEncoder2
+from stacked_auto_encoder_2 import StackedDoubleEncoder2
 
 __author__ = 'aviv'
 
 from training_strategy import TrainingStrategy
 from stacked_double_encoder import StackedDoubleEncoder
-from correlated_stacked_double_encoder import CorrelatedStackedDoubleEncoder
 from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 from MISC.logger import OutputLog
 from trainer import Trainer

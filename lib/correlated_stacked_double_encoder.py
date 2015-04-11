@@ -7,8 +7,8 @@ from Layers.hidden_layer import HiddenLayer
 
 class CorrelatedStackedDoubleEncoder(StackedDoubleEncoder):
 
-    def __init__(self, hidden_layers, numpy_range, input_size, output_size, activation_method=Tensor.nnet.sigmoid, top=50):
-        super(CorrelatedStackedDoubleEncoder, self).__init__(hidden_layers, numpy_range, input_size,output_size,activation_method,0)
+    def __init__(self, hidden_layers, numpy_range, input_size_x, input_size_y, activation_method=Tensor.nnet.sigmoid, top=50):
+        super(CorrelatedStackedDoubleEncoder, self).__init__(hidden_layers, numpy_range, input_size_x,input_size_y,activation_method,0)
 
         self.top = top
         #self.hidden_layer_x = HiddenLayer(top, lambda x: x * (x > 0), self.numpy_range, name='output_layer_x')
