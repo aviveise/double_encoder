@@ -191,28 +191,28 @@ class StackedDoubleEncoder2(object):
 
             layer_size = Wx.get_value(borrow=True).shape[1]
 
-            layer = SymmetricHiddenLayer(numpy_range=self.numpy_range,
-                                         hidden_layer_size=layer_size,
-                                         name=layer_name,
-                                         activation_hidden=hyperparameters.method_in,
-                                         activation_output=hyperparameters.method_out)
-
-            last_layer = self._symmetric_layers[-1]
+            symmetric_layer = SymmetricHiddenLayer(numpy_range=self.numpy_range,
+                                                   hidden_layer_size=layer_size,
+                                                   name=layer_name,
+                                                   activation_hidden=hyperparameters.method_in,
+                                                   activation_output=hyperparameters.method_out)
 
             #connecting the X of new layer with the Y of the last layer
-            symmetric_layer.update_x(x=last_layer.output_forward_x,
-                                     input_size=last_layer.hidden_layer_size,
+            symmetric_layer.update_x(x=x,
                                      weights=Wx,
                                      bias_x=bias_x,
                                      bias_x_prime=bias_x_prime)
 
-            symmetric_layer.update_y(x=last_layer.output_forward_y,
-                                     input_size=last_layer.hidden_layer_size,
+            symmetric_layer.update_y(x=y,
                                      weights=Wy,
                                      bias_y=bias_y,
                                      bias_y_prime=bias_y_prime)
 
-            self._symmetric_layers.append(layer)
+            self._symmetric_layers.append(symmetric_layer)
+
+            x = symmetric_layer.output_forward_x
+            y = symmetric_layer.output_forward_y
+
 
 
 
