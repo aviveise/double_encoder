@@ -1,5 +1,6 @@
 import gc
 from sklearn.linear_model import SGDClassifier
+from stacked_auto_encoder_2 import StackedDoubleEncoder2
 
 __author__ = 'aviv'
 import os
@@ -170,8 +171,9 @@ class Classifier(object):
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
         double_encoder = sys.argv[3]
-        type = sys.argv[4]
-        layer = int(sys.argv[5])
+        network_type = sys.argv[4]
+        type = sys.argv[5]
+        layer = int(sys.argv[6])
 
         data_config = ConfigParser.ConfigParser()
         data_config.read(data_set_config)
@@ -187,12 +189,20 @@ class Classifier(object):
         training_set_x = data_set.trainset[0].T
         training_set_y = data_set.trainset[1].T
 
-        symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
-                                                        numpy_range=RandomState(),
-                                                        input_size_x=training_set_x.shape[1],
-                                                        input_size_y=training_set_y.shape[1],
-                                                        batch_size=configuration.hyper_parameters.batch_size,
-                                                        activation_method=None)
+        if network_type == 'TypeA':
+            symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+                                                            numpy_range=RandomState(),
+                                                            input_size_x=training_set_x.shape[1],
+                                                            input_size_y=training_set_y.shape[1],
+                                                            batch_size=configuration.hyper_parameters.batch_size,
+                                                            activation_method=None)
+        else:
+            symmetric_double_encoder = StackedDoubleEncoder2(hidden_layers=[],
+                                                             numpy_range=RandomState(),
+                                                             input_size_x=training_set_x.shape[1],
+                                                             input_size_y=training_set_y.shape[1],
+                                                             batch_size=configuration.hyper_parameters.batch_size,
+                                                             activation_method=None)
 
         symmetric_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
 
