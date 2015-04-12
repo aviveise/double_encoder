@@ -203,7 +203,7 @@ class StackedDoubleEncoder2(object):
                                      bias_x=bias_x,
                                      bias_x_prime=bias_x_prime)
 
-            symmetric_layer.update_y(x=y,
+            symmetric_layer.update_y(y=y,
                                      weights=Wy,
                                      bias_y=bias_y,
                                      bias_y_prime=bias_y_prime)
