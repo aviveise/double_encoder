@@ -184,7 +184,6 @@ class Classifier(object):
 
         #parse runtime configuration
         configuration = Configuration(run_time_config)
-        configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
 
         gradient_train_path = os.path.join(configuration.output_parameters['path'], 'train')
         gradient_test_path = os.path.join(configuration.output_parameters['path'], 'test')
@@ -372,7 +371,7 @@ class Classifier(object):
     #         train_predictions = svm_classifier.predict(train_gradients)
     #
     #         OutputLog().write('test predictions:' + str(test_predictions))
-    # 
+    #
     #         error_test = float(numpy.count_nonzero(test_predictions - test_labels)) / test_labels.shape[0] * 100
     #         error_train = float(numpy.count_nonzero(train_predictions - train_labels)) / train_predictions.shape[0] * 100
     #
