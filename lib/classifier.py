@@ -211,6 +211,8 @@ class Classifier(object):
 
             gradient_row_train = calc_gradient(gradient_row_train_file, layer)
 
+            print gradient_row_train.shape
+
             #inserting into diagonal
             x[row_ndx, row_ndx] = numpy.dot(gradient_row_train,
                                             gradient_row_train.reshape((gradient_row_train.shape[0], 1)))
