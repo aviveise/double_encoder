@@ -197,8 +197,8 @@ class Classifier(object):
                                if os.path.isfile(os.path.join(gradient_test_path, probe_file))]
 
 
-        x = numpy.zeros(len(gradient_train_files) + len(gradient_test_files),
-                        len(gradient_train_files) + len(gradient_test_files))
+        x = numpy.zeros((len(gradient_train_files) + len(gradient_test_files),
+                         len(gradient_train_files) + len(gradient_test_files)))
 
         for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
 
