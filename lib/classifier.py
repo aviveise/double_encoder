@@ -189,11 +189,13 @@ class Classifier(object):
         gradient_test_path = os.path.join(configuration.output_parameters['path'], 'test')
 
         # Selecting only probe files from the train gradient dir.
-        gradient_train_files = [probe_file for probe_file in os.listdir(gradient_train_path)
+        gradient_train_files = [os.path.join(gradient_train_path, probe_file) for
+                                probe_file in os.listdir(gradient_train_path)
                                 if os.path.isfile(os.path.join(gradient_train_path, probe_file))]
 
         # Selecting only probe files from the test gradient dir.
-        gradient_test_files = [probe_file for probe_file in os.listdir(gradient_test_path)
+        gradient_test_files = [os.path.join(gradient_test_path, probe_file) for
+                               probe_file in os.listdir(gradient_test_path)
                                if os.path.isfile(os.path.join(gradient_test_path, probe_file))]
 
 
