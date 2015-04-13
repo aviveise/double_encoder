@@ -279,103 +279,103 @@ class Classifier(object):
         OutputLog().write('\nerror train: %f%%\n' % error_train)
         OutputLog().write('\nerror test: %f%%\n' % error_test)
 
-    @staticmethod
-    def run_old():
-
-        data_set_config = sys.argv[1]
-        run_time_config = sys.argv[2]
-        double_encoder = sys.argv[3]
-        network_type = sys.argv[4]
-        type = sys.argv[5]
-        layer = int(sys.argv[6])
-
-        data_config = ConfigParser.ConfigParser()
-        data_config.read(data_set_config)
-        data_parameters = ConfigSectionMap("dataset_parameters", data_config)
-
-        #construct data set
-        data_set = Container().create(data_parameters['name'], data_parameters)
-
-        #parse runtime configuration
-        configuration = Configuration(run_time_config)
-        configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
-
-        training_set_x = data_set.trainset[0].T
-        training_set_y = data_set.trainset[1].T
-
-        if network_type == 'TypeA':
-            symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
-                                                            numpy_range=RandomState(),
-                                                            input_size_x=training_set_x.shape[1],
-                                                            input_size_y=training_set_y.shape[1],
-                                                            batch_size=configuration.hyper_parameters.batch_size,
-                                                            activation_method=None)
-        else:
-            symmetric_double_encoder = StackedDoubleEncoder2(hidden_layers=[],
-                                                             numpy_range=RandomState(),
-                                                             input_size_x=training_set_x.shape[1],
-                                                             input_size_y=training_set_y.shape[1],
-                                                             batch_size=configuration.hyper_parameters.batch_size,
-                                                             activation_method=None)
-
-        symmetric_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
-
-        OutputLog().write('calculating gradients')
-
-        params_x = [symmetric_double_encoder[layer].Wx]
-        params_y = [symmetric_double_encoder[layer].Wy]
-        params = [symmetric_double_encoder[layer].Wy, symmetric_double_encoder[layer].Wx]
-        params_var = [symmetric_double_encoder.var_x, symmetric_double_encoder.var_y]
-
-        print symmetric_double_encoder[layer].Wx.get_value(borrow=True).shape
-
-        transformer_x = GradientTransformer(symmetric_double_encoder, params_x, configuration.hyper_parameters)
-        transformer_y = GradientTransformer(symmetric_double_encoder, params_y, configuration.hyper_parameters)
-        transformer = GradientTransformer(symmetric_double_encoder, params, configuration.hyper_parameters)
-        transformer_var = GradientTransformer(symmetric_double_encoder, params_var, configuration.hyper_parameters)
-
-        if type == 'SGD':
-            print 'Wx:'
-            test_transformer(transformer_x, data_set, configuration)
-
-            print 'Wy:'
-            test_transformer(transformer_y, data_set, configuration)
-
-            print 'Wx+Wy:'
-            test_transformer(transformer, data_set, configuration)
-
-            print 'var:'
-            test_transformer(transformer_var, data_set, configuration)
-
-        else:
-
-            x = compute_square(data_set, transformer)
-
-            compressed_data = lincompress(x)
-
-            train_gradients = compressed_data[:data_set.trainset.shape[1], :]
-            test_gradients = compressed_data[data_set.trainset.shape[1]:, :]
-
-            svm_classifier = LinearSVC()
-
-            train_labels = numpy.arange(10)
-            for i in range(train_gradients.shape[0] / 10 - 1):
-               train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
-
-            test_labels = numpy.arange(10)
-            for i in range(test_gradients.shape[0] / 10 - 1):
-               test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
-
-            svm_classifier.fit(train_gradients, train_labels)
-
-            test_predictions = svm_classifier.predict(test_gradients)
-            train_predictions = svm_classifier.predict(train_gradients)
-
-            OutputLog().write('test predictions:' + str(test_predictions))
-
-            error_test = float(numpy.count_nonzero(test_predictions - test_labels)) / test_labels.shape[0] * 100
-            error_train = float(numpy.count_nonzero(train_predictions - train_labels)) / train_predictions.shape[0] * 100
-
-
-            OutputLog().write('\nerror train: %f%%\n' % error_train)
-            OutputLog().write('\nerror test: %f%%\n' % error_test)
+    # @staticmethod
+    # def run_old():
+    #
+    #     data_set_config = sys.argv[1]
+    #     run_time_config = sys.argv[2]
+    #     double_encoder = sys.argv[3]
+    #     network_type = sys.argv[4]
+    #     type = sys.argv[5]
+    #     layer = int(sys.argv[6])
+    #
+    #     data_config = ConfigParser.ConfigParser()
+    #     data_config.read(data_set_config)
+    #     data_parameters = ConfigSectionMap("dataset_parameters", data_config)
+    #
+    #     #construct data set
+    #     data_set = Container().create(data_parameters['name'], data_parameters)
+    #
+    #     #parse runtime configuration
+    #     configuration = Configuration(run_time_config)
+    #     configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
+    #
+    #     training_set_x = data_set.trainset[0].T
+    #     training_set_y = data_set.trainset[1].T
+    #
+    #     if network_type == 'TypeA':
+    #         symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+    #                                                         numpy_range=RandomState(),
+    #                                                         input_size_x=training_set_x.shape[1],
+    #                                                         input_size_y=training_set_y.shape[1],
+    #                                                         batch_size=configuration.hyper_parameters.batch_size,
+    #                                                         activation_method=None)
+    #     else:
+    #         symmetric_double_encoder = StackedDoubleEncoder2(hidden_layers=[],
+    #                                                          numpy_range=RandomState(),
+    #                                                          input_size_x=training_set_x.shape[1],
+    #                                                          input_size_y=training_set_y.shape[1],
+    #                                                          batch_size=configuration.hyper_parameters.batch_size,
+    #                                                          activation_method=None)
+    #
+    #     symmetric_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
+    #
+    #     OutputLog().write('calculating gradients')
+    #
+    #     params_x = [symmetric_double_encoder[layer].Wx]
+    #     params_y = [symmetric_double_encoder[layer].Wy]
+    #     params = [symmetric_double_encoder[layer].Wy, symmetric_double_encoder[layer].Wx]
+    #     params_var = [symmetric_double_encoder.var_x, symmetric_double_encoder.var_y]
+    #
+    #     print symmetric_double_encoder[layer].Wx.get_value(borrow=True).shape
+    #
+    #     transformer_x = GradientTransformer(symmetric_double_encoder, params_x, configuration.hyper_parameters)
+    #     transformer_y = GradientTransformer(symmetric_double_encoder, params_y, configuration.hyper_parameters)
+    #     transformer = GradientTransformer(symmetric_double_encoder, params, configuration.hyper_parameters)
+    #     transformer_var = GradientTransformer(symmetric_double_encoder, params_var, configuration.hyper_parameters)
+    #
+    #     if type == 'SGD':
+    #         print 'Wx:'
+    #         test_transformer(transformer_x, data_set, configuration)
+    #
+    #         print 'Wy:'
+    #         test_transformer(transformer_y, data_set, configuration)
+    #
+    #         print 'Wx+Wy:'
+    #         test_transformer(transformer, data_set, configuration)
+    #
+    #         print 'var:'
+    #         test_transformer(transformer_var, data_set, configuration)
+    #
+    #     else:
+    #
+    #         x = compute_square(data_set, transformer)
+    #
+    #         compressed_data = lincompress(x)
+    #
+    #         train_gradients = compressed_data[:data_set.trainset.shape[1], :]
+    #         test_gradients = compressed_data[data_set.trainset.shape[1]:, :]
+    #
+    #         svm_classifier = LinearSVC()
+    #
+    #         train_labels = numpy.arange(10)
+    #         for i in range(train_gradients.shape[0] / 10 - 1):
+    #            train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
+    #
+    #         test_labels = numpy.arange(10)
+    #         for i in range(test_gradients.shape[0] / 10 - 1):
+    #            test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
+    #
+    #         svm_classifier.fit(train_gradients, train_labels)
+    #
+    #         test_predictions = svm_classifier.predict(test_gradients)
+    #         train_predictions = svm_classifier.predict(train_gradients)
+    #
+    #         OutputLog().write('test predictions:' + str(test_predictions))
+    # 
+    #         error_test = float(numpy.count_nonzero(test_predictions - test_labels)) / test_labels.shape[0] * 100
+    #         error_train = float(numpy.count_nonzero(train_predictions - train_labels)) / train_predictions.shape[0] * 100
+    #
+    #
+    #         OutputLog().write('\nerror train: %f%%\n' % error_train)
+    #         OutputLog().write('\nerror test: %f%%\n' % error_test)
