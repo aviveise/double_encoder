@@ -399,9 +399,6 @@ def calculate_mardia(x, y, top):
     s22 = numpy.diag(numpy.diag(numpy.dot(y_centered, y_centered.T))) / (set_size - 1) + 10**(-8) * numpy.eye(dim, dim)
     s12 = numpy.diag(numpy.diag(numpy.dot(x_centered, y_centered.T))) / (set_size - 1)
 
-    #s11_chol = scipy.linalg.cholesky(s11, lower=False)
-    #s22_chol = scipy.linalg.cholesky(s22, lower=False)
-
     s11_chol = scipy.linalg.sqrtm(s11)
     s22_chol = scipy.linalg.sqrtm(s22)
 
@@ -414,7 +411,7 @@ def calculate_mardia(x, y, top):
 
     return numpy.sum(s[0:top])
 
-def calculate_trace(x, y, top):
+def calculate_trace(x, y):
 
     centered_x = center(x)
     centered_y = center(y)
@@ -426,7 +423,7 @@ def calculate_trace(x, y, top):
     diagonal.sort()
     diagonal = diagonal[::-1]
 
-    return sum(diagonal[0:top])
+    return sum(diagonal)
 
 def calculate_corrcoef(x, y, top):
 

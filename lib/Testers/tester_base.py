@@ -10,7 +10,7 @@ class TesterBase(object):
         self._x = test_set_x
         self._y = test_set_y
 
-    def test(self, transformer, hyperparamsers):
+    def test(self, transformer, hyperparamsers, svd=False):
 
         hidden_values, output_values = transformer.compute_outputs(self._x, self._y, hyperparamsers)
 
@@ -35,7 +35,7 @@ class TesterBase(object):
             row_hidden = ["layer {0} - hidden".format(index)]
 
             #calculation correlation between hidden values
-            correlation_temp_hidden = self._calculate_metric(x_hid.T, y_hid.T, transformer, row_hidden)
+            correlation_temp_hidden = self._calculate_metric(x_hid.T, y_hid.T, transformer, row_hidden, svd)
 
             table_rows.append(row_hidden)
 

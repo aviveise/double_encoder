@@ -16,7 +16,7 @@ class TraceCorrelationTester(TesterBase):
 
         self.top = top
 
-    def _calculate_metric(self, x, y, transformer, print_row):
+    def _calculate_metric(self, x, y, transformer, print_row, svd=False):
 
         x_var = numpy.var(x, axis=0)
         y_var = numpy.var(y, axis=0)
@@ -33,25 +33,28 @@ class TraceCorrelationTester(TesterBase):
         print_row.append(numpy.mean(y_mean))
         print_row.append(numpy.max(y_mean))
 
-        svd_correlation = 0
-        correlation_coefficients = 0
+        #svd_correlation = 0
+        #correlation_coefficients = 0
         trace_correlation = 0
 
         try:
-            svd_correlation = calculate_mardia(x, y, self.top)
-            trace_correlation = calculate_trace(x, y, self.top)
-            correlation_coefficients = calculate_corrcoef(x, y, self.top)
+
+            trace_correlation = calculate_trace(x, y)
+            #correlation_coefficients = calculate_corrcoef(x, y, self.top)
         except:
             print 'exception on loss calculation'
 
         loss = calculate_reconstruction_error(x, y)
 
         print_row.append(trace_correlation)
-        print_row.append(correlation_coefficients)
-        print_row.append(svd_correlation)
         print_row.append(loss)
 
-        return svd_correlation
+        if svd:
+            svd_correlation = calculate_mardia(x, y, self.top)
+            print_row.append(svd_correlation)
+            return svd_correlation
+
+        return trace_correlation
 
     def print_array(self, a):
 
