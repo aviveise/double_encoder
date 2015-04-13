@@ -143,7 +143,7 @@ def calc_gradient(gradient_file, layer=0):
     else:
         wy_gradient = encoder['Wx_' + next_layer_name]
 
-    return numpy.concatenate((wx_gradient, wy_gradient))
+    return numpy.concatenate((wx_gradient.flatten(), wy_gradient.flatten()))
 
 
 class Classifier(object):
