@@ -1,3 +1,6 @@
+import cv2
+from MISC.logger import OutputLog
+
 __author__ = 'aviv'
 
 import sys
@@ -68,6 +71,8 @@ class Trainer(object):
             print 'Training {0} batches'.format(n_training_batches)
             for index in xrange(n_training_batches):
 
+                start_tick = cv2.getTickCount()
+
                 #need to convert the input into tensor variable
                 symmetric_double_encoder.var_x.set_value(train_set_x[indices[index * hyper_parameters.batch_size:
                                                             (index + 1) * hyper_parameters.batch_size], :], borrow=True)
@@ -77,6 +82,13 @@ class Trainer(object):
                 output = model()
                 loss_forward += output[0]
                 loss_backward += output[1]
+
+                tickFrequency = cv2.getTickFrequency()
+                current_time = cv2.getTickCount()
+
+                OutputLog().write('batch {0}/{1} ended, time: {3}'.format(index,
+                                                                          n_training_batches,
+                                                                          (current_time - start_tick) / tickFrequency))
 
             if print_verbose and not validation_set_y is None and not validation_set_x is None:
 
