@@ -32,14 +32,13 @@ class GradientTransformer(TransformerBase):
             self._correlation_optimizer.var_y.set_value(set_y[i, :].reshape((1, set_y.shape[1])))
             model_gradients = model()
 
-            for idx, gradient in enumerate(model_gradients):
+            gradients = {}
 
-                if idx == 0:
-                    sample_gradients = model_gradients[idx].flatten()
-                else:
-                    sample_gradients = numpy.concatenate((sample_gradients, model_gradients[idx].flatten()))
+            for idx, gradient, param in enumerate(zip(model_gradients, self._params)):
 
-            yield sample_gradients
+                gradients['param.name'] = gradient.flatten()
+
+            yield gradients
 
             #if i == 0:
             #    gradients = sample_gradients.reshape((1, sample_gradients.shape[0]))

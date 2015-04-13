@@ -31,6 +31,7 @@ class Configuration(object):
             elif section.startswith('strategy_'):
                 self.strategy_parameters[map['name']] = map
 
+        self.output_parameters = self._parse_output_parameters(ConfigSectionMap("output", config))
         self.hyper_parameters = self._parse_training_parameters(ConfigSectionMap("hyper_parameters", config))
         self.dcca_hyper_parameters = self._parse_dcca_training_parameters(ConfigSectionMap("dcca_hyper_parameters", config))
 
@@ -112,3 +113,16 @@ class Configuration(object):
 
         else:
             raise Exception('method unknown')
+
+    def _parse_output_parameters(self, output_section):
+
+        output_params = {
+            'path': output_section['path'],
+            'type': output_section['type'],
+            'sample': bool(int(output_section['sample'])),
+            'sample_number': int(output_section['sample_number'])
+        }
+
+        return output_params
+
+        pass

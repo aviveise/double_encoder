@@ -32,18 +32,7 @@ class DoubleEncoder(object):
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
         top = int(sys.argv[3])
-        outputs = sys.argv[4]
-        encoder_type = sys.argv[5]
-
-        output_gradients = False
-        output_activations = False
-
-        if outputs == 'gradients':
-            OutputLog().write('\nGradients is True\n')
-            output_gradients = True
-        elif outputs == 'activations':
-            OutputLog().write('\nActivations is True\n')
-            output_activations = True
+        encoder_type = sys.argv[4]
 
         dir_name, filename = os.path.split(os.path.abspath(__file__))
 
@@ -58,6 +47,8 @@ class DoubleEncoder(object):
 
         #parse runtime configuration
         configuration = Configuration(run_time_config)
+
+        OutputLog().set_path(configuration.output_parameters['path'])
 
         configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
 
@@ -123,7 +114,9 @@ class DoubleEncoder(object):
                                         execution_time))
 
 
-        filename = outputs + '_' + data_parameters['name'] +'_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+        filename = configuration.output_parameters['type'] + '_' + data_parameters['name'] +'_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+
+        dir_name = configuration.output_parameters['path']
 
         OutputLog().write('output dir:' + dir_name)
         OutputLog().write('exporting double encoder:\n')
@@ -138,7 +131,7 @@ class DoubleEncoder(object):
             'best_layer': train_best_layer
         }
 
-        if output_activations:
+        if configuration.output_parameters['type'] == 'activations':
 
             OutputLog().write('\nOutput activations\n')
 
@@ -160,17 +153,27 @@ class DoubleEncoder(object):
             scipy.io.savemat(os.path.join(dir_name, "test_" + filename + '.mat'), export_test)
 
 
-        if output_gradients:
+        if configuration.output_parameters['type'] == 'gradients':
 
             OutputLog().write('\nOutput gradients\n')
 
             transformer = GradientTransformer(stacked_double_encoder, stacked_double_encoder.getParams(), configuration.hyper_parameters)
 
-            train_gradients = transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)
-            test_gradients = transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)
+            train_dir_name = os.path.join(dir_name, 'train')
 
-            scipy.io.savemat(os.path.join(dir_name, "train_" + filename + '.mat'), train_gradients)
-            scipy.io.savemat(os.path.join(dir_name, "test_" + filename + '.mat'), test_gradients)
+            if not os.path.isdir(train_dir_name):
+                os.makedirs(train_dir_name)
+
+            for ndx, gradient in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
+                scipy.io.savemat(os.path.join(train_dir_name, "train_gradients_sample_{0}.mat".format(ndx)), gradient)
+
+            test_dir_name = os.path.join(dir_name, 'test')
+
+            if not os.path.isdir(test_dir_name):
+                os.makedirs(test_dir_name)
+
+            for ndx, gradient in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+                scipy.io.savemat(os.path.join(train_dir_name, "test_gradients_sample_{0}.mat".format(ndx)), gradient)
 
         return stacked_double_encoder
 
