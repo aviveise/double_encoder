@@ -10,7 +10,7 @@ class TesterBase(object):
         self._x = test_set_x
         self._y = test_set_y
 
-    def test(self, transformer, hyperparamsers, svd=False):
+    def test(self, transformer, hyperparamsers):
 
         hidden_values, output_values = transformer.compute_outputs(self._x, self._y, hyperparamsers)
 
