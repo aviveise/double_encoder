@@ -91,7 +91,7 @@ class StackedDoubleEncoder(object):
 
                 Wy = layer.Wx.T
 
-                input_y = layer.output_backward
+                input_y = layer.output_forward_y
 
         #adding the new layer to the list
         self._symmetric_layers.append(symmetric_layer)

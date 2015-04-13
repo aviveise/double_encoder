@@ -31,8 +31,8 @@ class PairWiseCorrelationRegularizationDEPRECATED(RegularizationBase):
 
         for layer in symmetric_double_encoder:
 
-            forward = layer.output_forward
-            backward = layer.output_backward
+            forward = layer.output_forward_x
+            backward = layer.output_forward_y
 
             forward_centered = (forward - Tensor.mean(forward, axis=0)).T
             backward_centered = (backward - Tensor.mean(backward, axis=0)).T

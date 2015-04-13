@@ -26,8 +26,8 @@ class CorrelatedStackedDoubleEncoder(StackedDoubleEncoder):
 
         layer = self._symmetric_layers[output_layer]
 
-        self.hidden_layer_x.set_input(layer.output_backward, layer.hidden_layer_size)
-        self.hidden_layer_y.set_input(layer.output_forward, layer.hidden_layer_size)
+        self.hidden_layer_x.set_input(layer.output_forward_y, layer.hidden_layer_size)
+        self.hidden_layer_y.set_input(layer.output_forward_x, layer.hidden_layer_size)
 
         self.output_x = self.hidden_layer_x.output
         self.output_y = self.hidden_layer_y.output
