@@ -65,7 +65,7 @@ class TesterBase(object):
         print tabulate(table_rows, headers=table_header)
         print '\n'
 
-        return correlation, outputs_x, outputs_y, layer_id
+        return correlation, outputs_x, outputs_y, output_values[0],  layer_id
 
     @abc.abstractmethod
     def _calculate_metric(self, x, y, transformer, print_row):

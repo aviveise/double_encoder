@@ -55,14 +55,16 @@ class DoubleEncoderTransformer(TransformerBase):
                 for idx in range(len(outputs_reconstruct)):
                     outputs_reconstruct[idx] = numpy.concatenate((outputs_reconstruct[idx], outputs_reconstruct_batch[idx]), axis=0)
 
-        print len(outputs_hidden)
-        print outputs_hidden[0].shape
-        print outputs_hidden[0].shape
-
         for i in xrange(len(outputs_hidden) / 2):
             hidden_values_x.append(outputs_hidden[2 * i])
             hidden_values_y.append(outputs_hidden[2 * i + 1])
 
+        if len(outputs_hidden) > 2:
+            for i in xrange(len(outputs_hidden)):
+                hidden_values_x.append(outputs_hidden[2 * i])
+
+        print len(hidden_values_x)
+        print len(hidden_values_y)
 
         for i in xrange(len(outputs_reconstruct) / 2):
             output_values_x.append(outputs_reconstruct[2 * i])

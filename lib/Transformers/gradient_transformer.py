@@ -36,7 +36,7 @@ class GradientTransformer(TransformerBase):
 
             for idx, gradient in enumerate(model_gradients):
 
-                gradients[self._params[idx].name] = gradient.flatten()
+                gradients[self._params[idx].name] = numpy.asarray(gradient).flatten()
 
             yield gradients
 

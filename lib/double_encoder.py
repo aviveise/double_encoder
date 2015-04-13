@@ -84,12 +84,12 @@ class DoubleEncoder(object):
                                                              encoder_type=encoder_type)
 
             OutputLog().write('test results:')
-            trace_correlation, x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
+            trace_correlation, x_test, y_test, reconstructions_train, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
                                                                        data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                                                                                         configuration.hyper_parameters)
 
             OutputLog().write('train results:')
-            train_trace_correlation, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
+            train_trace_correlation, x_train, y_train, reconstructions_test, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
                                                                              data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                                                                                                configuration.hyper_parameters)
 
@@ -144,15 +144,24 @@ class DoubleEncoder(object):
 
                 set_name_x = 'hidden_train_x_%i' % index
                 set_name_y = 'hidden_train_y_%i' % index
+                set_recon_x = 'recon_train_x_%i' % index
+                set_recon_y = 'recon_train_y_%i' % index
                 export_train[set_name_x] = x_train[index]
                 export_train[set_name_y] = y_train[index]
+                export_train[set_recon_x] = reconstructions_train[index * 2]
+                export_train[set_recon_y] = reconstructions_train[index * 2 + 1]
 
             for index in range(len(x_test)):
 
                 set_name_x = 'hidden_test_x_%i' % index
                 set_name_y = 'hidden_test_y_%i' % index
+                set_recon_x = 'recon_test_x_%i' % index
+                set_recon_y = 'recon_test_y_%i' % index
                 export_test[set_name_x] = x_test[index]
                 export_test[set_name_y] = y_test[index]
+                export_train[set_recon_x] = reconstructions_test[index * 2]
+                export_train[set_recon_y] = reconstructions_test[index * 2 + 1]
+
 
             scipy.io.savemat(os.path.join(dir_name, "train_" + filename + '.mat'), export_train)
             scipy.io.savemat(os.path.join(dir_name, "test_" + filename + '.mat'), export_test)
