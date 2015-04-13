@@ -86,9 +86,9 @@ class Trainer(object):
                 tickFrequency = cv2.getTickFrequency()
                 current_time = cv2.getTickCount()
 
-                OutputLog().write('batch {0}/{1} ended, time: {3}'.format(index,
+                OutputLog().write('batch {0}/{1} ended, time: {2}'.format(index,
                                                                           n_training_batches,
-                                                                          (current_time - start_tick) / tickFrequency))
+                                                                          ((current_time - start_tick) / tickFrequency)))
 
             if print_verbose and not validation_set_y is None and not validation_set_x is None:
 
