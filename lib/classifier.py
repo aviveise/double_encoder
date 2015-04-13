@@ -107,7 +107,7 @@ def test_transformer(transformer, data_set, configuration):
     for epoch in range(configuration.hyper_parameters.epochs):
         for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
 
-            samples.extend(sample.reshape((1, sample.shape[0])))
+            samples.append(sample.reshape((1, sample.shape[0])))
             if index % 10 == 9:
                 clf.partial_fit(samples, labels, labels)
                 samples = []
@@ -122,11 +122,24 @@ def test_transformer(transformer, data_set, configuration):
             error += 1
 
         count += 1
-        test_predictions.extend(prediction)
+        test_predictions.append(prediction)
 
     OutputLog().write('test predictions weight: {0}'.format(test_predictions))
 
     OutputLog().write('\nerror: %f%%\n' % error)
+
+
+def calc_gradient(gradient_file, layer=0):
+
+    encoder = scipy.io.loadmat(gradient_file)
+
+    layer_name = 'layer' + str(layer)
+
+    wx_gradient = encoder['Wx_' + layer_name]
+    wy_gradient = encoder['Wy_' + layer_name]
+
+    return numpy.concatenate((wx_gradient, wy_gradient))
+
 
 class Classifier(object):
 
@@ -164,9 +177,110 @@ class Classifier(object):
 
         return output_gradients
 
-
     @staticmethod
     def run():
+        run_time_config = sys.argv[1]
+        layer = int(sys.argv[2])
+
+        #parse runtime configuration
+        configuration = Configuration(run_time_config)
+        configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
+
+        gradient_train_path = os.path.join(configuration.output_parameters['path'], 'train')
+        gradient_test_path = os.path.join(configuration.output_parameters['path'], 'test')
+
+        # Selecting only probe files from the train gradient dir.
+        gradient_train_files = [probe_file for probe_file in os.listdir(gradient_train_path)
+                                if os.path.isfile(os.path.join(gradient_train_path, probe_file))]
+
+        # Selecting only probe files from the test gradient dir.
+        gradient_test_files = [probe_file for probe_file in os.listdir(gradient_test_path)
+                               if os.path.isfile(os.path.join(gradient_test_path, probe_file))]
+
+
+        x = numpy.zeros(len(gradient_train_files) + len(gradient_test_files),
+                        len(gradient_train_files) + len(gradient_test_files))
+
+        for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
+
+            gradient_row_train = calc_gradient(gradient_row_train_file, layer)
+
+            #inserting into diagonal
+            x[row_ndx, row_ndx] = numpy.dot(gradient_row_train,
+                                            gradient_row_train.reshape(gradient_row_train.shape[0], 1))
+
+            #inserting into row & col for train
+            for col_ndx, gradient_col_train_file in enumerate(gradient_train_files[(row_ndx + 1):]):
+
+                gradient_col_train = calc_gradient(gradient_col_train_file, layer)
+
+                x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_train,
+                                                              gradient_col_train.reshape(gradient_row_train.shape[0], 1))
+
+                x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
+
+            #inserting into row & col for test
+            for col_ndx, gradient_col_test_file in enumerate(gradient_test_files):
+
+                gradient_col_test = calc_gradient(gradient_col_test_file, layer)
+
+                x[row_ndx, col_ndx + len(gradient_train_files)] = numpy.dot(gradient_row_train,
+                                                                            gradient_col_test.reshape(gradient_col_test.shape[0], 1))
+
+
+        for i_ndx, gradient_row_test_file in enumerate(gradient_test_files):
+
+            gradient_row_test = calc_gradient(gradient_row_test_file, layer)
+
+            row_ndx = i_ndx + len(gradient_train_files)
+
+            #inserting into diagonal
+            x[row_ndx, row_ndx] = numpy.dot(gradient_row_test,
+                                            gradient_row_test.reshape(gradient_row_train.shape[0], 1))
+
+            #inserting into row & col for test
+            for j_ndx, gradient_col_test_file in enumerate(gradient_test_files[i_ndx + 1:]):
+
+                gradient_col_test = calc_gradient(gradient_col_test_file, layer)
+
+                col_ndx = j_ndx + len(gradient_train_files)
+
+                x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_test,
+                                                              gradient_col_test.reshape(gradient_row_train.shape[0], 1))
+
+                x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
+
+        compressed_data = lincompress(x)
+
+        train_gradients = compressed_data[:len(gradient_train_files), :]
+        test_gradients = compressed_data[len(gradient_train_files):, :]
+
+        svm_classifier = LinearSVC()
+
+        train_labels = numpy.arange(10)
+        for i in range(train_gradients.shape[0] / 10 - 1):
+           train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
+
+        test_labels = numpy.arange(10)
+        for i in range(test_gradients.shape[0] / 10 - 1):
+           test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
+
+        svm_classifier.fit(train_gradients, train_labels)
+
+        test_predictions = svm_classifier.predict(test_gradients)
+        train_predictions = svm_classifier.predict(train_gradients)
+
+        OutputLog().write('test predictions:' + str(test_predictions))
+
+        error_test = float(numpy.count_nonzero(test_predictions - test_labels)) / test_labels.shape[0] * 100
+        error_train = float(numpy.count_nonzero(train_predictions - train_labels)) / train_predictions.shape[0] * 100
+
+
+        OutputLog().write('\nerror train: %f%%\n' % error_train)
+        OutputLog().write('\nerror test: %f%%\n' % error_test)
+
+    @staticmethod
+    def run_old():
 
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
