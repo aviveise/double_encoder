@@ -1,3 +1,6 @@
+import cv2
+from lib.MISC.logger import OutputLog
+
 __author__ = 'aviv'
 
 import sys
@@ -33,19 +36,25 @@ class TraceCorrelationTester(TesterBase):
         print_row.append(numpy.mean(y_mean))
         print_row.append(numpy.max(y_mean))
 
-        #svd_correlation = 0
-        #correlation_coefficients = 0
-        trace_correlation = 0
+        start_tick = cv2.getTickCount()
+        tickFrequency = cv2.getTickFrequency()
 
-        try:
+        trace_correlation = calculate_trace(x, y)
 
-            trace_correlation = calculate_trace(x, y)
-            #correlation_coefficients = calculate_corrcoef(x, y, self.top)
-        except:
-            print 'exception on loss calculation'
+        current_time = cv2.getTickCount()
+        OutputLog().write('calculated trace, time: {2}'.format(((current_time - start_tick) / tickFrequency)))
 
+        start_tick = cv2.getTickCount()
         loss = calculate_reconstruction_error(x, y)
+
+        current_time = cv2.getTickCount()
+        OutputLog().write('calculated loss, time: {2}'.format(((current_time - start_tick) / tickFrequency)))
+
+        start_tick = cv2.getTickCount()
         svd_correlation = calculate_mardia(x, y, self.top)
+
+        current_time = cv2.getTickCount()
+        OutputLog().write('calculated svd, time: {2}'.format(((current_time - start_tick) / tickFrequency)))
 
         print_row.append(trace_correlation)
         print_row.append(svd_correlation)
