@@ -59,12 +59,6 @@ class DoubleEncoderTransformer(TransformerBase):
             hidden_values_x.append(outputs_hidden[2 * i])
             hidden_values_y.append(outputs_hidden[2 * i + 1])
 
-        if len(outputs_hidden) > 2:
-            for i in xrange(len(outputs_hidden)):
-                hidden_values_x.append(outputs_hidden[2 * i])
-
-        print len(hidden_values_x)
-        print len(hidden_values_y)
 
         for i in xrange(len(outputs_reconstruct) / 2):
             output_values_x.append(outputs_reconstruct[2 * i])
