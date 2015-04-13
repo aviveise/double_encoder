@@ -35,7 +35,7 @@ class TesterBase(object):
             row_hidden = ["layer {0} - hidden".format(index)]
 
             #calculation correlation between hidden values
-            correlation_temp_hidden = self._calculate_metric(x_hid.T, y_hid.T, transformer, row_hidden, svd)
+            correlation_temp_hidden = self._calculate_metric(x_hid.T, y_hid.T, transformer, row_hidden)
 
             table_rows.append(row_hidden)
 
