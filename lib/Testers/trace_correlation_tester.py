@@ -1,5 +1,5 @@
 import cv2
-from lib.MISC.logger import OutputLog
+from MISC.logger import OutputLog
 
 __author__ = 'aviv'
 
