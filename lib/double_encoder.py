@@ -121,6 +121,9 @@ class DoubleEncoder(object):
         OutputLog().write('output dir:' + dir_name)
         OutputLog().write('exporting double encoder:\n')
 
+        if not os.path.isdir(dir_name):
+            os.makedirs(dir_name)
+
         stacked_double_encoder.export_encoder(dir_name)
 
         export_test = {
