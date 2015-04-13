@@ -42,19 +42,19 @@ class TraceCorrelationTester(TesterBase):
         trace_correlation = calculate_trace(x, y)
 
         current_time = cv2.getTickCount()
-        OutputLog().write('calculated trace, time: {2}'.format(((current_time - start_tick) / tickFrequency)))
+        OutputLog().write('calculated trace, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
 
         start_tick = cv2.getTickCount()
         loss = calculate_reconstruction_error(x, y)
 
         current_time = cv2.getTickCount()
-        OutputLog().write('calculated loss, time: {2}'.format(((current_time - start_tick) / tickFrequency)))
+        OutputLog().write('calculated loss, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
 
         start_tick = cv2.getTickCount()
         svd_correlation = calculate_mardia(x, y, self.top)
 
         current_time = cv2.getTickCount()
-        OutputLog().write('calculated svd, time: {2}'.format(((current_time - start_tick) / tickFrequency)))
+        OutputLog().write('calculated svd, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
 
         print_row.append(trace_correlation)
         print_row.append(svd_correlation)
