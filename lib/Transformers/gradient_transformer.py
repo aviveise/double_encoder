@@ -34,7 +34,11 @@ class GradientTransformer(TransformerBase):
 
             gradients = {}
 
-            for idx, gradient, param in enumerate(zip(model_gradients, self._params)):
+            zipped = zip(model_gradients, self._params)
+
+            print len(model_gradients)
+
+            for idx, gradient, param in enumerate(zipped):
 
                 gradients['param.name'] = gradient.flatten()
 
