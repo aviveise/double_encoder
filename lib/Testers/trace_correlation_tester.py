@@ -16,7 +16,7 @@ class TraceCorrelationTester(TesterBase):
 
         self.top = top
 
-    def _calculate_metric(self, x, y, transformer, print_row, svd=False):
+    def _calculate_metric(self, x, y, transformer, print_row):
 
         x_var = numpy.var(x, axis=0)
         y_var = numpy.var(y, axis=0)
@@ -49,10 +49,8 @@ class TraceCorrelationTester(TesterBase):
         print_row.append(trace_correlation)
         print_row.append(loss)
 
-        if svd:
-            svd_correlation = calculate_mardia(x, y, self.top)
-            print_row.append(svd_correlation)
-            return svd_correlation
+        svd_correlation = calculate_mardia(x, y, self.top)
+        print_row.append(svd_correlation)
 
         return trace_correlation
 
