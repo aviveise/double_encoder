@@ -45,12 +45,11 @@ class TraceCorrelationTester(TesterBase):
             print 'exception on loss calculation'
 
         loss = calculate_reconstruction_error(x, y)
+        svd_correlation = calculate_mardia(x, y, self.top)
 
         print_row.append(trace_correlation)
-        print_row.append(loss)
-
-        svd_correlation = calculate_mardia(x, y, self.top)
         print_row.append(svd_correlation)
+        print_row.append(loss)
 
         return trace_correlation
 
@@ -77,6 +76,5 @@ class TraceCorrelationTester(TesterBase):
                 'mean_y (avg)',
                 'mean_y (max)',
                 'trace correlation',
-                'correlation coef',
                 'svd correlation',
                 'loss']
