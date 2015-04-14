@@ -50,14 +50,14 @@ class TraceCorrelationTester(TesterBase):
         current_time = cv2.getTickCount()
         OutputLog().write('calculated loss, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
 
-        start_tick = cv2.getTickCount()
-        svd_correlation = calculate_mardia(x, y, self.top)
+        #start_tick = cv2.getTickCount()
+        #svd_correlation = calculate_mardia(x, y, self.top)
 
-        current_time = cv2.getTickCount()
-        OutputLog().write('calculated svd, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
+        #current_time = cv2.getTickCount()
+        #OutputLog().write('calculated svd, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
 
         print_row.append(trace_correlation)
-        print_row.append(svd_correlation)
+        #print_row.append(svd_correlation)
         print_row.append(loss)
 
         return trace_correlation
@@ -85,5 +85,5 @@ class TraceCorrelationTester(TesterBase):
                 'mean_y (avg)',
                 'mean_y (max)',
                 'trace correlation',
-                'svd correlation',
+                #'svd correlation',
                 'loss']
