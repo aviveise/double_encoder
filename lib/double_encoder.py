@@ -1,3 +1,5 @@
+import numpy
+
 __author__ = 'aviv'
 import os
 import sys
@@ -166,6 +168,8 @@ class DoubleEncoder(object):
             scipy.io.savemat(os.path.join(dir_name, "train_" + filename + '.mat'), export_train)
             scipy.io.savemat(os.path.join(dir_name, "test_" + filename + '.mat'), export_test)
 
+        sample = configuration.output_parameters['sample']
+        sample_number = configuration.output_parameters['sample_number']
 
         if configuration.output_parameters['type'] == 'gradients':
 
@@ -179,6 +183,9 @@ class DoubleEncoder(object):
                 os.makedirs(train_dir_name)
 
             for ndx, gradient in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
+                if sample and gradient.shape[0] > sample_number:
+                    indices = numpy.random.uniform(0, gradient.shape[0], sample_number)
+                    gradient = gradient[indices]
                 scipy.io.savemat(os.path.join(train_dir_name, "train_gradients_sample_{0}.mat".format(ndx)), gradient)
 
             test_dir_name = os.path.join(dir_name, 'test')
@@ -187,6 +194,9 @@ class DoubleEncoder(object):
                 os.makedirs(test_dir_name)
 
             for ndx, gradient in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+                if sample and gradient.shape[0] > sample_number:
+                    indices = numpy.random.uniform(0, gradient.shape[0], sample_number)
+                    gradient = gradient[indices]
                 scipy.io.savemat(os.path.join(train_dir_name, "test_gradients_sample_{0}.mat".format(ndx)), gradient)
 
         return stacked_double_encoder
