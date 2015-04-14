@@ -203,61 +203,86 @@ class Classifier(object):
                                probe_file in os.listdir(gradient_test_path)
                                if os.path.isfile(os.path.join(gradient_test_path, probe_file))]
 
-
         x = numpy.zeros((len(gradient_train_files) + len(gradient_test_files),
                          len(gradient_train_files) + len(gradient_test_files)))
 
-        for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
+        sample_number = configuration.output_parameters['sample_number']
 
-            print gradient_row_train_file
-            gradient_row_train = calc_gradient(gradient_row_train_file, layer)
+        if configuration.output_parameters['sample']:
 
-            #inserting into diagonal
-            x[row_ndx, row_ndx] = numpy.dot(gradient_row_train,
-                                            gradient_row_train.reshape((gradient_row_train.shape[0], 1)))
+            samples = None
+            for gradient_train in gradient_train_files:
+                indices = numpy.random.uniform(0, gradient_train.shape[0], sample_number)
+                sampled_train = gradient_train[indices]
 
-            #inserting into row & col for train
-            for col_ndx, gradient_col_train_file in enumerate(gradient_train_files[(row_ndx + 1):]):
+                if samples is None:
+                    samples = sampled_train.reshape((1, sampled_train.shape[0]))
+                else:
+                    samples = numpy.concatenate((samples, sampled_train))
 
-                print gradient_col_train_file
-                gradient_col_train = calc_gradient(gradient_col_train_file, layer)
+            for gradient_test in gradient_test_files:
+                indices = numpy.random.uniform(0, gradient_test.shape[0], sample_number)
+                sampled_test = gradient_test[indices]
 
-                x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_train,
-                                                              gradient_col_train.reshape((gradient_row_train.shape[0], 1)))
+                if samples is None:
+                    samples = sampled_test.reshape((1, sampled_test.shape[0]))
+                else:
+                    samples = numpy.concatenate((samples, sampled_test))
 
-                x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
+            x = numpy.dot(samples, samples.T)
 
-            #inserting into row & col for test
-            for col_ndx, gradient_col_test_file in enumerate(gradient_test_files):
+        else:
+            for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
 
-                print gradient_col_test_file
-                gradient_col_test = calc_gradient(gradient_col_test_file, layer)
+                print gradient_row_train_file
+                gradient_row_train = calc_gradient(gradient_row_train_file, layer)
 
-                x[row_ndx, col_ndx + len(gradient_train_files)] = numpy.dot(gradient_row_train,
-                                                                            gradient_col_test.reshape((gradient_col_test.shape[0], 1)))
+                #inserting into diagonal
+                x[row_ndx, row_ndx] = numpy.dot(gradient_row_train,
+                                                gradient_row_train.reshape((gradient_row_train.shape[0], 1)))
+
+                #inserting into row & col for train
+                for col_ndx, gradient_col_train_file in enumerate(gradient_train_files[(row_ndx + 1):]):
+
+                    print gradient_col_train_file
+                    gradient_col_train = calc_gradient(gradient_col_train_file, layer)
+
+                    x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_train,
+                                                                  gradient_col_train.reshape((gradient_row_train.shape[0], 1)))
+
+                    x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
+
+                #inserting into row & col for test
+                for col_ndx, gradient_col_test_file in enumerate(gradient_test_files):
+
+                    print gradient_col_test_file
+                    gradient_col_test = calc_gradient(gradient_col_test_file, layer)
+
+                    x[row_ndx, col_ndx + len(gradient_train_files)] = numpy.dot(gradient_row_train,
+                                                                                gradient_col_test.reshape((gradient_col_test.shape[0], 1)))
 
 
-        for i_ndx, gradient_row_test_file in enumerate(gradient_test_files):
+            for i_ndx, gradient_row_test_file in enumerate(gradient_test_files):
 
-            gradient_row_test = calc_gradient(gradient_row_test_file, layer)
+                gradient_row_test = calc_gradient(gradient_row_test_file, layer)
 
-            row_ndx = i_ndx + len(gradient_train_files)
+                row_ndx = i_ndx + len(gradient_train_files)
 
-            #inserting into diagonal
-            x[row_ndx, row_ndx] = numpy.dot(gradient_row_test,
-                                            gradient_row_test.reshape((gradient_row_train.shape[0], 1)))
+                #inserting into diagonal
+                x[row_ndx, row_ndx] = numpy.dot(gradient_row_test,
+                                                gradient_row_test.reshape((gradient_row_train.shape[0], 1)))
 
-            #inserting into row & col for test
-            for j_ndx, gradient_col_test_file in enumerate(gradient_test_files[i_ndx + 1:]):
+                #inserting into row & col for test
+                for j_ndx, gradient_col_test_file in enumerate(gradient_test_files[i_ndx + 1:]):
 
-                gradient_col_test = calc_gradient(gradient_col_test_file, layer)
+                    gradient_col_test = calc_gradient(gradient_col_test_file, layer)
 
-                col_ndx = j_ndx + len(gradient_train_files)
+                    col_ndx = j_ndx + len(gradient_train_files)
 
-                x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_test,
-                                                              gradient_col_test.reshape((gradient_row_train.shape[0], 1)))
+                    x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_test,
+                                                                  gradient_col_test.reshape((gradient_row_train.shape[0], 1)))
 
-                x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
+                    x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
 
         compressed_data = lincompress(x)
 
