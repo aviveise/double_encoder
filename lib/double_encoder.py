@@ -1,4 +1,6 @@
 import numpy
+from stacked_double_encoder import StackedDoubleEncoder
+from numpy.random.mtrand import RandomState
 
 __author__ = 'aviv'
 import os
@@ -29,7 +31,7 @@ import Optimizations
 class DoubleEncoder(object):
 
     @staticmethod
-    def run(training_strategy):
+    def run(training_strategy, train=True):
 
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
@@ -70,34 +72,50 @@ class DoubleEncoder(object):
 
         start = clock()
 
-        try:
+        if train:
 
-            #training the system with the optimized parameters
-            stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0].T,
-                                                             training_set_y=data_set.trainset[1].T,
-                                                             hyper_parameters=configuration.hyper_parameters,
-                                                             regularization_methods=regularization_methods.values(),
-                                                             activation_method=None,
-                                                             top=top,
-                                                             print_verbose=False,
-                                                             validation_set_x=data_set.tuning[0],
-                                                             validation_set_y=data_set.tuning[1],
-                                                             dir_name=dir_name,
-                                                             encoder_type=encoder_type)
+            try:
+
+                #training the system with the optimized parameters
+                stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0].T,
+                                                                 training_set_y=data_set.trainset[1].T,
+                                                                 hyper_parameters=configuration.hyper_parameters,
+                                                                 regularization_methods=regularization_methods.values(),
+                                                                 activation_method=None,
+                                                                 top=top,
+                                                                 print_verbose=False,
+                                                                 validation_set_x=data_set.tuning[0],
+                                                                 validation_set_y=data_set.tuning[1],
+                                                                 dir_name=dir_name,
+                                                                 encoder_type=encoder_type)
+
+            except:
+                OutputLog().write('\nExceptions:\n')
+                raise
+        else:
+
+            stacked_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+                                                            numpy_range=RandomState(),
+                                                            input_size_x=data_set.trainset[0].shape[1],
+                                                            input_size_y=data_set.trainset[0].shape[1],
+                                                            batch_size=configuration.hyper_parameters.batch_size,
+                                                            activation_method=None)
+
+            double_encoder = configuration.output_parameters['import_net']
+            stacked_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
+
 
             OutputLog().write('test results:')
-            trace_correlation, x_test, y_test, reconstructions_train, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
+            trace_correlation, x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
                                                                        data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                                                                                         configuration.hyper_parameters)
 
             OutputLog().write('train results:')
-            train_trace_correlation, x_train, y_train, reconstructions_test, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
+            train_trace_correlation, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
                                                                              data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                                                                                                configuration.hyper_parameters)
 
-        except:
-            OutputLog().write('\nExceptions:\n')
-            raise
+
 
         execution_time = clock() - start
 
@@ -150,8 +168,6 @@ class DoubleEncoder(object):
                 set_recon_y = 'recon_train_y_%i' % index
                 export_train[set_name_x] = x_train[index]
                 export_train[set_name_y] = y_train[index]
-                export_train[set_recon_x] = reconstructions_train[index * 2]
-                export_train[set_recon_y] = reconstructions_train[index * 2 + 1]
 
             for index in range(len(x_test)):
 
@@ -161,9 +177,6 @@ class DoubleEncoder(object):
                 set_recon_y = 'recon_test_y_%i' % index
                 export_test[set_name_x] = x_test[index]
                 export_test[set_name_y] = y_test[index]
-                export_train[set_recon_x] = reconstructions_test[index * 2]
-                export_train[set_recon_y] = reconstructions_test[index * 2 + 1]
-
 
             scipy.io.savemat(os.path.join(dir_name, "train_" + filename + '.mat'), export_train)
             scipy.io.savemat(os.path.join(dir_name, "test_" + filename + '.mat'), export_test)
