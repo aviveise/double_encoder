@@ -26,9 +26,9 @@ class IterativeTrainingStrategy(TrainingStrategy):
               validation_set_x=None,
               validation_set_y=None,
               dir_name=None,
-              encoder_type='typaA'):
+              encoder_type='typeA'):
 
-        if encoder_type == 'typeA':
+        if not encoder_type == 'typeB':
 
             print 'typeA'
             symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
