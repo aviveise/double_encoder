@@ -186,7 +186,7 @@ class DoubleEncoder(object):
                 if sample:
                     for param in gradient.keys():
                         if gradient[param].shape[0] > sample_number:
-                            indices = numpy.random.uniform(0, gradient[param].shape[0], sample_number)
+                            indices = numpy.random.uniform(0, gradient[param].shape[0], sample_number).astype(int)
                             gradient[param] = gradient[param][indices]
                 scipy.io.savemat(os.path.join(train_dir_name, "train_gradients_sample_{0}.mat".format(ndx)), gradient)
 
@@ -199,9 +199,9 @@ class DoubleEncoder(object):
                 if sample:
                     for param in gradient.keys():
                         if gradient[param].shape[0] > sample_number:
-                            indices = numpy.random.uniform(0, gradient[param].shape[0], sample_number)
+                            indices = numpy.random.uniform(0, gradient[param].shape[0], sample_number).astype(int)
                             gradient[param] = gradient[param][indices]
-                scipy.io.savemat(os.path.join(train_dir_name, "test_gradients_sample_{0}.mat".format(ndx)), gradient)
+                scipy.io.savemat(os.path.join(test_dir_name, "test_gradients_sample_{0}.mat".format(ndx)), gradient)
 
         return stacked_double_encoder
 

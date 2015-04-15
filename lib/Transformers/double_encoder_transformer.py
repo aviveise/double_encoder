@@ -1,3 +1,6 @@
+import cv2
+from MISC.logger import OutputLog
+
 __author__ = 'aviv'
 import numpy
 import math
@@ -40,8 +43,17 @@ class DoubleEncoderTransformer(TransformerBase):
             self._correlation_optimizer.var_x.set_value(batch_x)
             self._correlation_optimizer.var_y.set_value(batch_y)
 
+            start_tick = cv2.getTickCount()
             outputs_hidden_batch = hidden_output_model()
             outputs_reconstruct_batch = reconstruction_output_model()
+
+            tickFrequency = cv2.getTickFrequency()
+            current_time = cv2.getTickCount()
+
+            OutputLog().write('batch {0}/{1} ended, time: {2}'.format(i,
+                                                                       number_of_batches,
+                                                                       ((current_time - start_tick) / tickFrequency)))
+
 
             if i == 0:
                 outputs_hidden = outputs_hidden_batch
