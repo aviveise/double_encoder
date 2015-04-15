@@ -113,10 +113,10 @@ class StackedDoubleEncoder2(object):
 
         params_set = []
         for layer in self._symmetric_layers:
-            params_set.append(layer.x_params)
-            params_set.append(layer.y_params)
+            params_set.extend(layer.x_params)
+            params_set.extend(layer.y_params)
 
-        return list(params_set)
+        return params_set
 
     def export_encoder(self, dir_name, suffix=''):
 
