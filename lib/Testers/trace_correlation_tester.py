@@ -39,13 +39,13 @@ class TraceCorrelationTester(TesterBase):
         start_tick = cv2.getTickCount()
         tickFrequency = cv2.getTickFrequency()
 
-        trace_correlation = calculate_trace(x, y)
+        trace_correlation = 0 #calculate_trace(x, y)
 
         current_time = cv2.getTickCount()
         OutputLog().write('calculated trace, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
 
         start_tick = cv2.getTickCount()
-        loss = calculate_reconstruction_error(x, y)
+        loss = 0 #calculate_reconstruction_error(x, y)
 
         current_time = cv2.getTickCount()
         OutputLog().write('calculated loss, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
