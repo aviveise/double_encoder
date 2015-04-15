@@ -29,6 +29,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
               encoder_type='typaA'):
 
         if encoder_type == 'typeA':
+
+            print 'typeA'
             symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                             numpy_range=self._random_range,
                                                             input_size_x=training_set_x.shape[1],
@@ -36,6 +38,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
                                                             batch_size=hyper_parameters.batch_size,
                                                             activation_method=activation_method)
         else:
+
+            print 'typeB'
             symmetric_double_encoder = StackedDoubleEncoder2(hidden_layers=[],
                                                              numpy_range=self._random_range,
                                                              input_size_x=training_set_x.shape[1],
