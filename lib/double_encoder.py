@@ -71,6 +71,7 @@ class DoubleEncoder(object):
             optimization.perform_optimization(training_strategy)
 
         start = clock()
+        dir_name = configuration.output_parameters['path']
 
         if train:
 
@@ -89,6 +90,8 @@ class DoubleEncoder(object):
                                                                  dir_name=dir_name,
                                                                  encoder_type=encoder_type)
 
+                stacked_double_encoder.export_encoder(dir_name)
+
             except:
                 OutputLog().write('\nExceptions:\n')
                 raise
@@ -105,17 +108,15 @@ class DoubleEncoder(object):
             stacked_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
 
 
-            OutputLog().write('test results:')
-            trace_correlation, x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
-                                                                       data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
-                                                                                                        configuration.hyper_parameters)
+        OutputLog().write('test results:')
+        trace_correlation, x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
+                                                                   data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+                                                                                                    configuration.hyper_parameters)
 
-            OutputLog().write('train results:')
-            train_trace_correlation, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
-                                                                             data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
-                                                                                                               configuration.hyper_parameters)
-
-
+        OutputLog().write('train results:')
+        train_trace_correlation, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
+                                                                         data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+                                                                                                           configuration.hyper_parameters)
 
         execution_time = clock() - start
 
@@ -138,15 +139,13 @@ class DoubleEncoder(object):
 
         filename = configuration.output_parameters['type'] + '_' + data_parameters['name'] +'_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 
-        dir_name = configuration.output_parameters['path']
-
         OutputLog().write('output dir:' + dir_name)
         OutputLog().write('exporting double encoder:\n')
 
         if not os.path.isdir(dir_name):
             os.makedirs(dir_name)
 
-        stacked_double_encoder.export_encoder(dir_name)
+
 
         export_test = {
             'best_layer': test_best_layer
