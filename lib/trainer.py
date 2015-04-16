@@ -152,7 +152,7 @@ class Trainer(object):
         loss_forward = ((var_y - y_tilde) ** 2).sum(dtype=Tensor.config.floatX,
                                                     acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
 
-        loss = Tensor.sqrt(loss_backward ** 2 + loss_forward ** 2)
+        loss = loss_backward + loss_forward
 
         print 'Adding regularization'
 
