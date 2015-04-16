@@ -72,7 +72,7 @@ class DoubleEncoder(object):
 
         start = clock()
         dir_name = configuration.output_parameters['path']
-        
+
         if not os.path.isdir(dir_name):
             os.makedirs(dir_name)
 
