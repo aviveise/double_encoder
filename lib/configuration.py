@@ -124,5 +124,3 @@ class Configuration(object):
         }
 
         return output_params
-
-        pass

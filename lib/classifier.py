@@ -206,9 +206,9 @@ class Classifier(object):
         x = numpy.zeros((len(gradient_train_files) + len(gradient_test_files),
                          len(gradient_train_files) + len(gradient_test_files)))
 
-        sample_number = configuration.output_parameters['sample_number']
+        sample_number = int(configuration.output_parameters['sample_number'])
 
-        if configuration.output_parameters['sample']:
+        if bool(int(configuration.output_parameters['sample'])):
 
             samples = None
             for gradient_train in gradient_train_files:
