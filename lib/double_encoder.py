@@ -72,6 +72,9 @@ class DoubleEncoder(object):
 
         start = clock()
         dir_name = configuration.output_parameters['path']
+        
+        if not os.path.isdir(dir_name):
+            os.makedirs(dir_name)
 
         if train:
 
@@ -142,11 +145,6 @@ class DoubleEncoder(object):
         OutputLog().write('output dir:' + dir_name)
         OutputLog().write('exporting double encoder:\n')
 
-        if not os.path.isdir(dir_name):
-            os.makedirs(dir_name)
-
-
-
         export_test = {
             'best_layer': test_best_layer
         }
@@ -163,8 +161,6 @@ class DoubleEncoder(object):
 
                 set_name_x = 'hidden_train_x_%i' % index
                 set_name_y = 'hidden_train_y_%i' % index
-                set_recon_x = 'recon_train_x_%i' % index
-                set_recon_y = 'recon_train_y_%i' % index
                 export_train[set_name_x] = x_train[index]
                 export_train[set_name_y] = y_train[index]
 
@@ -172,8 +168,6 @@ class DoubleEncoder(object):
 
                 set_name_x = 'hidden_test_x_%i' % index
                 set_name_y = 'hidden_test_y_%i' % index
-                set_recon_x = 'recon_test_x_%i' % index
-                set_recon_y = 'recon_test_y_%i' % index
                 export_test[set_name_x] = x_test[index]
                 export_test[set_name_y] = y_test[index]
 
