@@ -234,7 +234,6 @@ class Classifier(object):
         else:
             for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
 
-                print gradient_row_train_file
                 gradient_row_train = calc_gradient(gradient_row_train_file, layer)
 
                 #inserting into diagonal
@@ -244,7 +243,6 @@ class Classifier(object):
                 #inserting into row & col for train
                 for col_ndx, gradient_col_train_file in enumerate(gradient_train_files[(row_ndx + 1):]):
 
-                    print gradient_col_train_file
                     gradient_col_train = calc_gradient(gradient_col_train_file, layer)
 
                     x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_train,
@@ -255,7 +253,6 @@ class Classifier(object):
                 #inserting into row & col for test
                 for col_ndx, gradient_col_test_file in enumerate(gradient_test_files):
 
-                    print gradient_col_test_file
                     gradient_col_test = calc_gradient(gradient_col_test_file, layer)
 
                     x[row_ndx, col_ndx + len(gradient_train_files)] = numpy.dot(gradient_row_train,
@@ -266,21 +263,21 @@ class Classifier(object):
 
                 gradient_row_test = calc_gradient(gradient_row_test_file, layer)
 
-                row_ndx = i_ndx + len(gradient_train_files)
+                row_ndx = i_ndx + len(gradient_test_files)
 
                 #inserting into diagonal
                 x[row_ndx, row_ndx] = numpy.dot(gradient_row_test,
-                                                gradient_row_test.reshape((gradient_row_train.shape[0], 1)))
+                                                gradient_row_test.reshape((gradient_row_test.shape[0], 1)))
 
                 #inserting into row & col for test
                 for j_ndx, gradient_col_test_file in enumerate(gradient_test_files[i_ndx + 1:]):
 
                     gradient_col_test = calc_gradient(gradient_col_test_file, layer)
 
-                    col_ndx = j_ndx + len(gradient_train_files)
+                    col_ndx = j_ndx + len(gradient_test_files)
 
                     x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_test,
-                                                                  gradient_col_test.reshape((gradient_row_train.shape[0], 1)))
+                                                                  gradient_col_test.reshape((gradient_row_test.shape[0], 1)))
 
                     x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
 
