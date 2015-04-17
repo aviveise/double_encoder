@@ -52,14 +52,14 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
         else:
 
-            stacked_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+            symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                           numpy_range=self._random_range,
                                                           input_size_x=training_set_x.shape[1],
                                                           input_size_y=training_set_y.shape[1],
                                                           batch_size=hyper_parameters.batch_size,
                                                           activation_method=None)
 
-            stacked_double_encoder.import_encoder(import_path, hyper_parameters)
+            symmetric_double_encoder.import_encoder(import_path, hyper_parameters)
 
 
 
@@ -67,7 +67,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
         #once a layer was added, weights not belonging to the new layer are
         #not changed
 
-        layer_sizes = hyper_parameters.layer_sizes[len(stacked_double_encoder):]
+        layer_sizes = hyper_parameters.layer_sizes[len(symmetric_double_encoder):]
 
         for layer_size in layer_sizes:
 
