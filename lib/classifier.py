@@ -306,6 +306,12 @@ class Classifier(object):
         train_gradients = x[0:900]#compressed_data[0:900, :]
         test_gradients = x[900:1800]#compressed_data[900:1800, :]
 
+        print 'train_gradient'
+        train_gradients
+
+        print 'test_gradient'
+        test_gradients
+
         svm_classifier = LinearSVC()
 
         train_labels = numpy.arange(10)
@@ -315,12 +321,6 @@ class Classifier(object):
         test_labels = numpy.arange(10)
         for i in range(test_gradients.shape[0] / 10 - 1):
            test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
-
-        print 'train_labels'
-        print train_labels
-
-        print 'test_labels'
-        print test_labels
 
         svm_classifier.fit(train_gradients, train_labels)
 
