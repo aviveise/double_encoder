@@ -61,7 +61,7 @@ def compute_square(data_set, transformer):
 
 def lincompress(x):
     U, S, V = scipy.linalg.svd(numpy.dot(x, x.T))
-    xc = numpy.dot(U, numpy.diag(numpy.sqrt(S)))
+    xc = numpy.dot(U, numpy.diag(numpy.sqrt(S))).T
 
     return xc
 
@@ -300,8 +300,8 @@ class Classifier(object):
 
         compressed_data = lincompress(x)
 
-        train_gradients = compressed_data[0:900, :]
-        test_gradients = compressed_data[900:1800, :]
+        train_gradients = x[0:900]#compressed_data[0:900, :]
+        test_gradients = x[900:1800]#compressed_data[900:1800, :]
 
         svm_classifier = LinearSVC()
 
