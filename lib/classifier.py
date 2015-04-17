@@ -300,10 +300,15 @@ class Classifier(object):
 
         compressed_data = lincompress(x)
 
-        print x
-
         train_gradients = x[0:900]#compressed_data[0:900, :]
         test_gradients = x[900:1800]#compressed_data[900:1800, :]
+
+        print 'train_gradients'
+        print train_gradients
+
+        print 'test_gradients'
+        print test_gradients
+
 
         svm_classifier = LinearSVC()
 
