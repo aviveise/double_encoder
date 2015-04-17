@@ -303,16 +303,16 @@ class Classifier(object):
 
         compressed_data = lincompress(x)
 
-        train_gradients = x[0:900]#compressed_data[0:900, :]
-        test_gradients = x[900:1800]#compressed_data[900:1800, :]
+        train_gradients = x[0:900, :]#compressed_data[0:900, :]
+        test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
 
         print 'train_gradient'
-        train_gradients
+        print train_gradients
 
         print 'test_gradient'
-        test_gradients
+        print test_gradients
 
-        svm_classifier = SVC()#LinearSVC()
+        svm_classifier = LinearSVC()
 
         train_labels = numpy.arange(10)
         for i in range(train_gradients.shape[0] / 10 - 1):
