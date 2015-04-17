@@ -250,7 +250,7 @@ class Classifier(object):
                 x[sample_number + 900, :] = fisher_vector
 
             #x = center(x)
-            #x = unitnorm_rows(x)
+            x = unitnorm_rows(x)
 
             # for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
             #
