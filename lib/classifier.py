@@ -243,6 +243,7 @@ class Classifier(object):
                 x[ndx_train, :] = fisher_vector
                 file_name = os.path.split(os.path.splitext(train_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
+                print sample_number
                 train_labels[ndx_train] = sample_number % 10
 
             for ndx_test, test_file in enumerate(gradient_test_files):
@@ -251,8 +252,6 @@ class Classifier(object):
                 file_name = os.path.split(os.path.splitext(test_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
                 test_labels[ndx_test] = sample_number % 10
-
-
 
             # for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
             #
