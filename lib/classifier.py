@@ -234,7 +234,8 @@ class Classifier(object):
         else:
 
             x = None
-            label = numpy.zeros(1800)
+            train_labels = numpy.zeros(900)
+            test_labels = numpy.zeros(900)
             for ndx_train, train_file in enumerate(gradient_train_files):
                 fisher_vector = calc_gradient(train_file, layer)
                 if x is None:
@@ -242,14 +243,14 @@ class Classifier(object):
                 x[ndx_train, :] = fisher_vector
                 file_name = os.path.split(os.path.splitext(train_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
-                label[ndx_train] = sample_number % 10
+                train_labels[ndx_train] = sample_number % 10
 
             for ndx_test, test_file in enumerate(gradient_test_files):
                 fisher_vector = calc_gradient(test_file, layer)
                 x[ndx_test, :] = fisher_vector
                 file_name = os.path.split(os.path.splitext(test_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
-                label[ndx_test] = sample_number % 10
+                test_labels[ndx_test] = sample_number % 10
 
 
 
@@ -310,13 +311,13 @@ class Classifier(object):
 
         svm_classifier = LinearSVC()
 
-        train_labels = numpy.arange(10)
-        for i in range(train_gradients.shape[0] / 10 - 1):
-           train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
-
-        test_labels = numpy.arange(10)
-        for i in range(test_gradients.shape[0] / 10 - 1):
-           test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
+        # train_labels = numpy.arange(10)
+        # for i in range(train_gradients.shape[0] / 10 - 1):
+        #    train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
+        #
+        # test_labels = numpy.arange(10)
+        # for i in range(test_gradients.shape[0] / 10 - 1):
+        #    test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
 
         svm_classifier.fit(train_gradients, train_labels)
 
