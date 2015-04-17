@@ -26,31 +26,50 @@ class IterativeTrainingStrategy(TrainingStrategy):
               validation_set_x=None,
               validation_set_y=None,
               dir_name=None,
-              encoder_type='typeA'):
+              encoder_type='typeA',
+              import_net=False,
+              import_path=''):
 
-        if not encoder_type == 'typeB':
+        if not import_net:
+            if not encoder_type == 'typeB':
 
-            print 'typeA'
-            symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
-                                                            numpy_range=self._random_range,
-                                                            input_size_x=training_set_x.shape[1],
-                                                            input_size_y=training_set_y.shape[1],
-                                                            batch_size=hyper_parameters.batch_size,
-                                                            activation_method=activation_method)
+                print 'typeA'
+                symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+                                                                numpy_range=self._random_range,
+                                                                input_size_x=training_set_x.shape[1],
+                                                                input_size_y=training_set_y.shape[1],
+                                                                batch_size=hyper_parameters.batch_size,
+                                                                activation_method=activation_method)
+            else:
+
+                print 'typeB'
+                symmetric_double_encoder = StackedDoubleEncoder2(hidden_layers=[],
+                                                                 numpy_range=self._random_range,
+                                                                 input_size_x=training_set_x.shape[1],
+                                                                 input_size_y=training_set_y.shape[1],
+                                                                 batch_size=hyper_parameters.batch_size,
+                                                                 activation_method=activation_method)
+
         else:
 
-            print 'typeB'
-            symmetric_double_encoder = StackedDoubleEncoder2(hidden_layers=[],
-                                                             numpy_range=self._random_range,
-                                                             input_size_x=training_set_x.shape[1],
-                                                             input_size_y=training_set_y.shape[1],
-                                                             batch_size=hyper_parameters.batch_size,
-                                                             activation_method=activation_method)
+            stacked_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+                                                          numpy_range=self._random_range(),
+                                                          input_size_x=training_set_x.shape[1],
+                                                          input_size_y=training_set_y.shape[1],
+                                                          batch_size=hyper_parameters.batch_size,
+                                                          activation_method=None)
+
+            stacked_double_encoder.import_encoder(import_path, hyper_parameters)
+
+
 
         #In this phase we train the stacked encoder one layer at a time
         #once a layer was added, weights not belonging to the new layer are
         #not changed
-        for idx, layer_size in enumerate(hyper_parameters.layer_sizes):
+
+        layer_sizes = hyper_parameters.layer_sizes[len(stacked_double_encoder):]
+
+        for layer_size in layer_sizes:
 
             print '--------Adding Layer of Size - %d--------\n' % layer_size
             self._add_cross_encoder_layer(layer_size,
@@ -84,7 +103,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           validation_set_y=validation_set_y)
 
             if dir_name is not None:
-                symmetric_double_encoder.export_encoder(dir_name, 'layer_{0}'.format(idx + 1))
+                symmetric_double_encoder.export_encoder(dir_name, 'layer_{0}'.format(len(stacked_double_encoder) + 1))
 
         return symmetric_double_encoder
 

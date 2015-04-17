@@ -22,7 +22,9 @@ class TrainingStrategy(object):
               top=50,
               print_verbose=False,
               validation_set_x=None,
-              validation_set_y=None):
+              validation_set_y=None,
+              import_net=False,
+              import_path=''):
         return
 
     @abc.abstractmethod

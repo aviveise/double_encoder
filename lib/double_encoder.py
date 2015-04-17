@@ -91,7 +91,9 @@ class DoubleEncoder(object):
                                                                  validation_set_x=data_set.tuning[0],
                                                                  validation_set_y=data_set.tuning[1],
                                                                  dir_name=dir_name,
-                                                                 encoder_type=encoder_type)
+                                                                 encoder_type=encoder_type,
+                                                                 import_net=configuration.output_parameters['fine_tune'],
+                                                                 import_path=configuration.output_parameters['import_net'])
 
                 stacked_double_encoder.export_encoder(dir_name)
 
