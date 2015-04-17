@@ -246,7 +246,7 @@ class Classifier(object):
                     gradient_col_train = calc_gradient(gradient_col_train_file, layer)
 
                     x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_train,
-                                                                  gradient_col_train.reshape((gradient_row_train.shape[0], 1)))
+                                                                  gradient_col_train.reshape((gradient_col_train.shape[0], 1)))
 
                     x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
 
@@ -277,7 +277,7 @@ class Classifier(object):
                     col_ndx = j_ndx + len(gradient_test_files)
 
                     x[row_ndx, col_ndx + row_ndx + 1] = numpy.dot(gradient_row_test,
-                                                                  gradient_col_test.reshape((gradient_row_test.shape[0], 1)))
+                                                                  gradient_col_test.reshape((gradient_col_test.shape[0], 1)))
 
                     x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
 
