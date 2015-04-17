@@ -62,18 +62,14 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
             params = []
 
-            if type(symmetric_double_encoder) is StackedDoubleEncoder:
-                 if idx == 0:
-                     params.extend(symmetric_double_encoder[0].x_params)
-
-                 else:
-                     params.extend(symmetric_double_encoder[-1].x_hidden_params)
-
-                 params.extend(symmetric_double_encoder[-1].y_params)
+            if idx == 0:
+                params.extend(symmetric_double_encoder[0].x_params)
 
             else:
-                params.extend(symmetric_double_encoder[-1].x_params)
-                params.extend(symmetric_double_encoder[-1].y_params)
+                params.extend(symmetric_double_encoder[-1].x_hidden_params)
+
+            params.extend(symmetric_double_encoder[-1].y_params)
+
 
             print '--------Starting Training Network-------\n'
             Trainer.train(train_set_x=training_set_x,
