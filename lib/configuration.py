@@ -120,7 +120,9 @@ class Configuration(object):
             'path': output_section['path'],
             'type': output_section['type'],
             'sample': bool(int(output_section['sample'])),
-            'sample_number': int(output_section['sample_number'])
+            'sample_number': int(output_section['sample_number']),
+            'fine_tune': bool(int(output_section['fine_tune'])),
+            'import_net': output_section['import_net']
         }
 
         return output_params
