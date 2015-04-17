@@ -246,7 +246,7 @@ class Classifier(object):
                 fisher_vector = calc_gradient(test_file, layer)
                 file_name = os.path.split(os.path.splitext(test_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
-                x[sample_number, :] = fisher_vector
+                x[sample_number + 900, :] = fisher_vector
 
             # for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
             #
