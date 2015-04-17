@@ -53,7 +53,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
         else:
 
             stacked_double_encoder = StackedDoubleEncoder(hidden_layers=[],
-                                                          numpy_range=self._random_range(),
+                                                          numpy_range=self._random_range,
                                                           input_size_x=training_set_x.shape[1],
                                                           input_size_y=training_set_y.shape[1],
                                                           batch_size=hyper_parameters.batch_size,
