@@ -166,7 +166,7 @@ def center(M):
     if M is None:
         return
 
-    M -= M.mean(axis=1).reshape([M.shape[0], 1]) * numpy.ones([1, M.shape[1]])
+    M -= M.mean(axis=1).reshape([M.shape[0], 1]) * numpy.ones([1, M.shape[0]])
     return M
 
 def print_list(list, percentage=False):

@@ -22,7 +22,7 @@ from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 from Transformers.gradient_transformer import GradientTransformer
 
 from MISC.container import Container
-from MISC.utils import ConfigSectionMap, unitnorm_rows
+from MISC.utils import ConfigSectionMap, unitnorm_rows, center
 from MISC.logger import OutputLog
 
 import DataSetReaders
@@ -248,6 +248,7 @@ class Classifier(object):
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
 
+            x = center(x)
             x = unitnorm_rows(x)
 
             # for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
@@ -304,13 +305,6 @@ class Classifier(object):
 
         train_gradients = x[0:900]#compressed_data[0:900, :]
         test_gradients = x[900:1800]#compressed_data[900:1800, :]
-
-        print 'train_gradients'
-        print train_gradients
-
-        print 'test_gradients'
-        print test_gradients
-
 
         svm_classifier = LinearSVC()
 
