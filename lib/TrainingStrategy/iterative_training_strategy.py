@@ -58,17 +58,17 @@ class IterativeTrainingStrategy(TrainingStrategy):
                                           hyper_parameters.method_in,
                                           hyper_parameters.method_out)
 
-            #params = symmetric_double_encoder.getParams()
+            params = symmetric_double_encoder.getParams()
 
-            params = []
-
-            if idx == 0:
-                params.extend(symmetric_double_encoder[0].x_params)
-
-            else:
-                params.extend(symmetric_double_encoder[-1].x_hidden_params)
-
-            params.extend(symmetric_double_encoder[-1].y_params)
+            # params = []
+            #
+            # if idx == 0:
+            #     params.extend(symmetric_double_encoder[0].x_params)
+            #
+            # else:
+            #     params.extend(symmetric_double_encoder[-1].x_hidden_params)
+            #
+            # params.extend(symmetric_double_encoder[-1].y_params)
 
 
             print '--------Starting Training Network-------\n'
