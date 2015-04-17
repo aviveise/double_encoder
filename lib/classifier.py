@@ -61,7 +61,7 @@ def compute_square(data_set, transformer):
 
 def lincompress(x):
     U, S, V = scipy.linalg.svd(numpy.dot(x, x.T))
-    xc = numpy.dot(U, numpy.diag(numpy.sqrt(S))).T
+    xc = numpy.dot(U, numpy.diag(numpy.sqrt(S)))
 
     return xc
 
