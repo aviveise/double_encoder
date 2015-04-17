@@ -322,6 +322,12 @@ class Classifier(object):
         for i in range(test_gradients.shape[0] / 10 - 1):
            test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
 
+        print 'train_labels'
+        print train_labels
+
+        print 'test_labels'
+        print test_labels
+
         svm_classifier.fit(train_gradients, train_labels)
 
         test_predictions = svm_classifier.predict(test_gradients)
