@@ -22,7 +22,7 @@ from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 from Transformers.gradient_transformer import GradientTransformer
 
 from MISC.container import Container
-from MISC.utils import ConfigSectionMap
+from MISC.utils import ConfigSectionMap, unitnorm_rows
 from MISC.logger import OutputLog
 
 import DataSetReaders
@@ -247,6 +247,8 @@ class Classifier(object):
                 file_name = os.path.split(os.path.splitext(test_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
+
+            x = unitnorm_rows(x)
 
             # for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
             #
