@@ -328,6 +328,7 @@ class Classifier(object):
         train_predictions = svm_classifier.predict(train_gradients)
 
         OutputLog().write('test predictions:' + str(test_predictions))
+        OutputLog().write('train predictions:' + str(train_predictions))
 
         error_test = float(numpy.count_nonzero(test_predictions - test_labels)) / test_labels.shape[0] * 100
         error_train = float(numpy.count_nonzero(train_predictions - train_labels)) / train_predictions.shape[0] * 100
