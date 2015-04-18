@@ -137,12 +137,11 @@ def calc_gradient(gradient_file, layer=0):
     next_layer_name = 'layer' + str(layer)
 
     wx_gradient = encoder['Wx_' + layer_name]
-    wy_gradient = encoder['Wy_' + next_layer_name]
 
-    #if 'Wy_' + layer_name in encoder:
-    #    wy_gradient = encoder['Wy_' + layer_name]
-    #else:
-    #    wy_gradient = encoder['Wx_' + next_layer_name]
+    if 'Wy_' + layer_name in encoder:
+        wy_gradient = encoder['Wy_' + layer_name]
+    else:
+        wy_gradient = encoder['Wx_' + next_layer_name]
 
     #return wx_gradient.flatten()
     return numpy.concatenate((wx_gradient.flatten(), wy_gradient.flatten()))
