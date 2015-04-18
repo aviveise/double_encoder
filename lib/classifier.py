@@ -143,8 +143,8 @@ def calc_gradient(gradient_file, layer=0):
     else:
         wy_gradient = encoder['Wx_' + next_layer_name]
 
-    #return wx_gradient.flatten()
-    return numpy.concatenate((wx_gradient.flatten(), wy_gradient.flatten()))
+    return wx_gradient.flatten()
+    #return numpy.concatenate((wx_gradient.flatten(), wy_gradient.flatten()))
 
 
 class Classifier(object):
@@ -255,7 +255,7 @@ class Classifier(object):
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
 
-        compressed_data = lincompress(x)
+        x = lincompress(x)
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
