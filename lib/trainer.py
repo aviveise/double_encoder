@@ -101,7 +101,7 @@ class Trainer(object):
                     test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
                          hyper_parameters)
 
-                if var < 1e-3:
+                if var < 1e-2:
                     return
 
             else:
