@@ -1,7 +1,9 @@
 import abc
+import os
 import struct
 
 import random
+import scipy
 import theano
 import numpy
 
@@ -45,6 +47,30 @@ class DatasetBase(object):
             self.trainset = (pca_dim1.transform(self.trainset[0].T).T, pca_dim2.transform(self.trainset[1].T).T)
             self.testset = (pca_dim1.transform(self.testset[0].T).T, pca_dim2.transform(self.testset[1].T).T)
             self.tuning = (pca_dim1.transform(self.tuning[0].T).T, pca_dim2.transform(self.tuning[1].T).T)
+
+        if whiten:
+
+            whiten_image_path = os.path.join(self.dataset_path, 'whiten_image.mat')
+            whiten_sen_path = os.path.join(self.dataset_path, 'whiten_sen.mat')
+
+            if os.path.exists(whiten_image_path) and os.path.exists(whiten_sen_path):
+                wx = scipy.io.loadmat(whiten_image_path)['w']
+                wy = scipy.io.loadmat(whiten_sen_path)['w']
+            else:
+                wx = WhitenTransform.fit(self.trainset[0])
+                wy = WhitenTransform.fit(self.trainset[1])
+
+                scipy.io.savemat(whiten_image_path, {'w': wx})
+                scipy.io.savemat(whiten_sen_path, {'w': wy})
+
+            self.trainset = (WhitenTransform.transform(self.trainset[0], wx),
+                             WhitenTransform.transform(self.trainset[1], wy))
+
+            self.testset = (WhitenTransform.transform(self.testset[0], wx),
+                            WhitenTransform.transform(self.testset[1], wy))
+
+            self.tuning = (WhitenTransform.transform(self.tuning[0], wx),
+                           WhitenTransform.transform(self.tuning[1], wy))
 
         if center:
             center_function(self.trainset[0])
