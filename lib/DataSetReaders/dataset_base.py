@@ -49,20 +49,24 @@ class DatasetBase(object):
             self.tuning = (pca_dim1.transform(self.tuning[0].T).T, pca_dim2.transform(self.tuning[1].T).T)
 
         if whiten:
-
+            print 'using whiten'
             whiten_image_path = os.path.join(self.dataset_path, 'whiten_image.mat')
             whiten_sen_path = os.path.join(self.dataset_path, 'whiten_sen.mat')
 
             if os.path.exists(whiten_image_path) and os.path.exists(whiten_sen_path):
+                print 'loading whiten matrices from files'
                 wx = scipy.io.loadmat(whiten_image_path)['w']
                 wy = scipy.io.loadmat(whiten_sen_path)['w']
             else:
+                print 'cache not found calculating whiten transforms'
                 wx = WhitenTransform.fit(self.trainset[0])
                 wy = WhitenTransform.fit(self.trainset[1])
 
+                print 'saving matrices of sizes {0}, {1}'.format(wx.shape, wy.shape)
                 scipy.io.savemat(whiten_image_path, {'w': wx})
                 scipy.io.savemat(whiten_sen_path, {'w': wy})
 
+            print 'transforming data'
             self.trainset = (WhitenTransform.transform(self.trainset[0], wx),
                              WhitenTransform.transform(self.trainset[1], wy))
 
