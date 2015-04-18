@@ -256,7 +256,7 @@ class Classifier(object):
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
 
-        #x = lincompress(x)
+        x = lincompress(x)
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
