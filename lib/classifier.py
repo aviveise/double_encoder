@@ -218,11 +218,11 @@ class Classifier(object):
                 fisher_vector -= numpy.mean(fisher_vector)
                 fisher_vector /= numpy.linalg.norm(fisher_vector)
                 file_name = os.path.split(os.path.splitext(train_file)[0])[1]
-                sample_number = int(file_name.split('_')[-1])
-                print sample_number
+                sample = int(file_name.split('_')[-1])
+                print sample
                 if x is None:
-                    x = numpy.zeros((1800, fisher_vector.shape[0]))
-                x[sample_number, :] = fisher_vector
+                    x = numpy.ones((1800, fisher_vector.shape[0]))
+                x[sample, :] = fisher_vector
 
             print 'reading test'
             for test_file in gradient_test_files:
@@ -230,9 +230,9 @@ class Classifier(object):
                 fisher_vector -= numpy.mean(fisher_vector)
                 fisher_vector /= numpy.linalg.norm(fisher_vector)
                 file_name = os.path.split(os.path.splitext(test_file)[0])[1]
-                sample_number = int(file_name.split('_')[-1])
-                print sample_number
-                x[sample_number + 900, :] = fisher_vector
+                sample = int(file_name.split('_')[-1])
+                print sample
+                x[sample + 900, :] = fisher_vector
 
         else:
 
