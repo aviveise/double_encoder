@@ -5,7 +5,8 @@ import numpy
 import numpy.linalg as linalg
 import scipy
 
-from theano import config
+from theano import config, theano
+
 __author__ = 'aviv'
 
 
@@ -15,7 +16,7 @@ class WhitenTransform(object):
     def fit(data, eps=0.01):
 
         centered = data - numpy.dot(numpy.mean(data, axis=0).reshape(data.shape[1], 1),
-                                    numpy.ones((1, data.shape[0]))).T
+                                    numpy.ones((1, data.shape[0]), dtype=theano.config.floatX)).T
         sigma = numpy.dot(centered, centered.T) / data.shape[1]
         [U, S, V] = scipy.linalg.svd(sigma)
         return numpy.dot(numpy.dot(U, numpy.diag(1/numpy.sqrt(S + eps))), U.T)
@@ -54,5 +55,5 @@ class WhitenTransform(object):
     @staticmethod
     def transform(data, w):
         centered = data - numpy.dot(numpy.mean(data, axis=0).reshape(data.shape[1], 1),
-                                    numpy.ones((1, data.shape[0]))).T
+                                    numpy.ones((1, data.shape[0]), dtype=theano.config.floatX)).T
         return numpy.dot(w, centered)
