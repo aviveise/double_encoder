@@ -17,7 +17,7 @@ from time import clock
 from configuration import Configuration
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
-
+from theano.sandbox import cuda
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 from Transformers.gradient_transformer import GradientTransformer
 
@@ -88,7 +88,7 @@ class DoubleEncoder(object):
                                                                  regularization_methods=regularization_methods.values(),
                                                                  activation_method=None,
                                                                  top=top,
-                                                                 print_verbose=False,
+                                                                 print_verbose=True,
                                                                  validation_set_x=data_set.tuning[0],
                                                                  validation_set_y=data_set.tuning[1],
                                                                  dir_name=dir_name,
