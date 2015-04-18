@@ -143,7 +143,7 @@ def calc_gradient(gradient_file, layer=0):
     else:
         wy_gradient = encoder['Wx_' + next_layer_name]
 
-    return wx_gradient.flatten()
+    #return wx_gradient.flatten()
     return numpy.concatenate((wx_gradient.flatten(), wy_gradient.flatten()))
 
 
@@ -253,10 +253,43 @@ class Classifier(object):
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
 
-            #x = center(x)
-            x = unitnorm_rows(x)
+        compressed_data = lincompress(x)
 
-            # for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
+        train_gradients = x[0:900, :]#compressed_data[0:900, :]
+        test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
+
+        print 'train_gradient'
+        print train_gradients
+
+        print 'test_gradient'
+        print test_gradients
+
+        svm_classifier = LinearSVC()
+
+        train_labels = numpy.arange(10)
+        for i in range(train_gradients.shape[0] / 10 - 1):
+           train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
+
+        test_labels = numpy.arange(10)
+        for i in range(test_gradients.shape[0] / 10 - 1):
+           test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
+
+        svm_classifier.fit(train_gradients, train_labels)
+
+        test_predictions = svm_classifier.predict(test_gradients)
+        train_predictions = svm_classifier.predict(train_gradients)
+
+        OutputLog().write('test predictions:' + str(test_predictions))
+        OutputLog().write('train predictions:' + str(train_predictions))
+
+        error_test = float(numpy.count_nonzero(test_predictions - test_labels)) / test_labels.shape[0] * 100
+        error_train = float(numpy.count_nonzero(train_predictions - train_labels)) / train_predictions.shape[0] * 100
+
+
+        OutputLog().write('\nerror train: %f%%\n' % error_train)
+        OutputLog().write('\nerror test: %f%%\n' % error_test)
+
+                # for row_ndx, gradient_row_train_file in enumerate(gradient_train_files):
             #
             #     gradient_row_train = calc_gradient(gradient_row_train_file, layer)
             #
@@ -306,41 +339,6 @@ class Classifier(object):
             #
             #         x[col_ndx + row_ndx + 1, row_ndx] = x[row_ndx, col_ndx + row_ndx + 1]
 
-        compressed_data = lincompress(x)
-
-        train_gradients = x[0:900, :]#compressed_data[0:900, :]
-        test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
-
-        print 'train_gradient'
-        print train_gradients
-
-        print 'test_gradient'
-        print test_gradients
-
-        svm_classifier = LinearSVC()
-
-        train_labels = numpy.arange(10)
-        for i in range(train_gradients.shape[0] / 10 - 1):
-           train_labels = numpy.concatenate((train_labels, numpy.arange(10)))
-
-        test_labels = numpy.arange(10)
-        for i in range(test_gradients.shape[0] / 10 - 1):
-           test_labels = numpy.concatenate((test_labels, numpy.arange(10)))
-
-        svm_classifier.fit(train_gradients, train_labels)
-
-        test_predictions = svm_classifier.predict(test_gradients)
-        train_predictions = svm_classifier.predict(train_gradients)
-
-        OutputLog().write('test predictions:' + str(test_predictions))
-        OutputLog().write('train predictions:' + str(train_predictions))
-
-        error_test = float(numpy.count_nonzero(test_predictions - test_labels)) / test_labels.shape[0] * 100
-        error_train = float(numpy.count_nonzero(train_predictions - train_labels)) / train_predictions.shape[0] * 100
-
-
-        OutputLog().write('\nerror train: %f%%\n' % error_train)
-        OutputLog().write('\nerror test: %f%%\n' % error_test)
 
     # @staticmethod
     # def run_old():
