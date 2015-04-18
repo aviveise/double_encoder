@@ -1,5 +1,6 @@
 import gc
 from sklearn.linear_model import SGDClassifier
+from lib.MISC.whiten_transform import WhitenTransform
 from stacked_auto_encoder_2 import StackedDoubleEncoder2
 
 __author__ = 'aviv'
@@ -255,10 +256,15 @@ class Classifier(object):
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
 
-        x = lincompress(x)
+        #x = lincompress(x)
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
+
+        w = WhitenTransform.fit(train_gradients.T)
+
+        train_gradients = WhitenTransform.transform(train_gradients.T, w).T
+        test_gradients = WhitenTransform.transform(test_gradients.T, w).T
 
         print 'train_gradient'
         print train_gradients
