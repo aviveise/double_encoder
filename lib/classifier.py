@@ -212,6 +212,7 @@ class Classifier(object):
         if bool(int(configuration.output_parameters['sample'])):
 
             print 'reading train:'
+            x = None
             for train_file in gradient_train_files:
                 fisher_vector = calc_gradient(train_file, layer)[range(sample_number)]
                 if x is None:
