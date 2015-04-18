@@ -257,7 +257,7 @@ class Classifier(object):
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
 
-        pca = PCA(whiten=True)
+        pca = PCA()
 
 
         #print 'lincompres'
@@ -273,8 +273,10 @@ class Classifier(object):
         train_gradients = pca.transform(train_gradients)
         test_gradients = pca.transform(test_gradients)
 
-        train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1).reshape((train_gradients.shape[0], 1)), numpy.ones((1, train_gradients.shape[1])))
-        test_gradients /= numpy.dot(numpy.linalg.norm(test_gradients, axis=1).reshape((test_gradients.shape[0], 1)), numpy.ones((1, train_gradients.shape[1])))
+        train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1).reshape((train_gradients.shape[0], 1)),
+                                     numpy.ones((1, train_gradients.shape[1])))
+        test_gradients /= numpy.dot(numpy.linalg.norm(test_gradients, axis=1).reshape((test_gradients.shape[0], 1)),
+                                    numpy.ones((1, train_gradients.shape[1])))
 
         print 'mean: {0}'.format(numpy.mean(x, axis=1))
         print 'norm: {0}'.format(numpy.linalg.norm(x, axis=1))
