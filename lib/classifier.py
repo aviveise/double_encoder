@@ -242,7 +242,7 @@ class Classifier(object):
             for train_file in gradient_train_files:
                 fisher_vector = calc_gradient(train_file, layer)
                 fisher_vector -= numpy.mean(fisher_vector)
-                fisher_vector /= numpy.linalg.norm(fisher_vector)
+                #fisher_vector /= numpy.linalg.norm(fisher_vector)
                 file_name = os.path.split(os.path.splitext(train_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
                 if x is None:
@@ -252,7 +252,7 @@ class Classifier(object):
             for test_file in gradient_test_files:
                 fisher_vector = calc_gradient(test_file, layer)
                 fisher_vector -= numpy.mean(fisher_vector)
-                fisher_vector /= numpy.linalg.norm(fisher_vector)
+                #fisher_vector /= numpy.linalg.norm(fisher_vector)
                 file_name = os.path.split(os.path.splitext(test_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
@@ -263,8 +263,6 @@ class Classifier(object):
         #print 'lincompres'
         #x = lincompress(x)
 
-        print 'mean: {0}'.format(numpy.mean(x, axis=1))
-        print 'norm: {0}'.format(numpy.linalg.norm(x, axis=1))
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
@@ -274,6 +272,11 @@ class Classifier(object):
 
         train_gradients = pca.transform(train_gradients)
         test_gradients = pca.transform(test_gradients)
+
+        train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1), numpy.ones(1, train_gradients.shape[1]))
+
+        print 'mean: {0}'.format(numpy.mean(x, axis=1))
+        print 'norm: {0}'.format(numpy.linalg.norm(x, axis=1))
 
         #print 'whitening'
         #w = WhitenTransform.fit(train_gradients.T)
