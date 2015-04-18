@@ -256,11 +256,13 @@ class Classifier(object):
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
 
+        print 'lincompres'
         x = lincompress(x)
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
 
+        print 'whitening'
         w = WhitenTransform.fit(train_gradients.T)
 
         train_gradients = WhitenTransform.transform(train_gradients.T, w).T
