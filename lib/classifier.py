@@ -260,8 +260,8 @@ class Classifier(object):
         pca = PCA(whiten=True)
 
 
-        print 'lincompres'
-        x = lincompress(x)
+        #print 'lincompres'
+        #x = lincompress(x)
 
         print 'mean: {0}'.format(numpy.mean(x, axis=1))
         print 'norm: {0}'.format(numpy.linalg.norm(x, axis=1))
@@ -269,6 +269,7 @@ class Classifier(object):
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
 
+        print 'pca'
         pca.fit(train_gradients)
 
         train_gradients = pca.transform(train_gradients)
