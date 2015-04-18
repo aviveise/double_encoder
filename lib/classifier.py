@@ -273,7 +273,7 @@ class Classifier(object):
         train_gradients = pca.transform(train_gradients)
         test_gradients = pca.transform(test_gradients)
 
-        train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1), numpy.ones(1, train_gradients.shape[1]))
+        train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1), numpy.ones((1, train_gradients.shape[1])))
 
         print 'mean: {0}'.format(numpy.mean(x, axis=1))
         print 'norm: {0}'.format(numpy.linalg.norm(x, axis=1))
