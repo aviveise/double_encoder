@@ -47,8 +47,10 @@ class Trainer(object):
 
         #Calculating number of batches
         n_training_batches = int(train_set_x.shape[0] / hyper_parameters.batch_size)
-
+        model_update = None
         random_stream = RandomState()
+
+        model_updates = [shared(p.get_value() * 0, borrow=True) for p in params]
 
         #The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
@@ -63,7 +65,8 @@ class Trainer(object):
             model = Trainer._build_model(hyper_parameters,
                                          symmetric_double_encoder,
                                          params,
-                                         regularization_methods)
+                                         regularization_methods,
+                                         model_updates)
 
             loss_forward = 0
             loss_backward = 0
@@ -133,7 +136,7 @@ class Trainer(object):
         del model
 
     @staticmethod
-    def _build_model(hyper_parameters, symmetric_double_encoder, params, regularization_methods):
+    def _build_model(hyper_parameters, symmetric_double_encoder, params, regularization_methods, model_updates):
 
         #Retrieve the reconstructions of x and y
         x_tilde = symmetric_double_encoder.reconstruct_x()
@@ -176,8 +179,6 @@ class Trainer(object):
         if hyper_parameters.momentum > 0:
 
             print 'Adding momentum'
-
-            model_updates = [shared(p.get_value() * 0, borrow=True) for p in params]
 
             updates = OrderedDict()
             zipped = zip(params, gradients, model_updates)
