@@ -211,26 +211,27 @@ class Classifier(object):
 
         if bool(int(configuration.output_parameters['sample'])):
 
-            samples = None
-            for gradient_train in gradient_train_files:
-                indices = numpy.random.uniform(0, gradient_train.shape[0], sample_number)
-                sampled_train = gradient_train[indices]
+            for train_file in gradient_train_files:
+                fisher_vector = calc_gradient(train_file, layer)[range(sample_number)]
+                if x is None:
+                    x = numpy.zeros((1800, fisher_vector.shape[0]))
+                fisher_vector -= numpy.mean(fisher_vector)
+                fisher_vector /= numpy.linalg.norm(fisher_vector)
+                file_name = os.path.split(os.path.splitext(train_file)[0])[1]
+                sample_number = int(file_name.split('_')[-1])
+                if x is None:
+                    x = numpy.zeros((1800, fisher_vector.shape[0]))
+                x[sample_number, :] = fisher_vector
 
-                if samples is None:
-                    samples = sampled_train.reshape((1, sampled_train.shape[0]))
-                else:
-                    samples = numpy.concatenate((samples, sampled_train))
-
-            for gradient_test in gradient_test_files:
-                indices = numpy.random.uniform(0, gradient_test.shape[0], sample_number)
-                sampled_test = gradient_test[indices]
-
-                if samples is None:
-                    samples = sampled_test.reshape((1, sampled_test.shape[0]))
-                else:
-                    samples = numpy.concatenate((samples, sampled_test))
-
-            x = numpy.dot(samples, samples.T)
+            for test_file in gradient_test_files:
+                fisher_vector = calc_gradient(test_file, layer)[range(sample_number)]
+                fisher_vector -= numpy.mean(fisher_vector)
+                fisher_vector /= numpy.linalg.norm(fisher_vector)
+                file_name = os.path.split(os.path.splitext(test_file)[0])[1]
+                sample_number = int(file_name.split('_')[-1])
+                if x is None:
+                    x = numpy.zeros((1800, fisher_vector.shape[0]))
+                    x[sample_number + 900, :] = fisher_vector
 
         else:
 
