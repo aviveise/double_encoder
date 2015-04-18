@@ -1,4 +1,5 @@
 import gc
+from sklearn.decomposition import PCA
 from sklearn.linear_model import SGDClassifier
 from MISC.whiten_transform import WhitenTransform
 from stacked_auto_encoder_2 import StackedDoubleEncoder2
@@ -256,6 +257,9 @@ class Classifier(object):
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
 
+        pca = PCA(whiten=True)
+
+
         print 'lincompres'
         x = lincompress(x)
 
@@ -265,11 +269,16 @@ class Classifier(object):
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
 
-        print 'whitening'
-        w = WhitenTransform.fit(train_gradients.T)
+        pca.fit(train_gradients)
 
-        train_gradients = WhitenTransform.transform(train_gradients.T, w).T
-        test_gradients = WhitenTransform.transform(test_gradients.T, w).T
+        train_gradients = pca.transform(train_gradients)
+        test_gradients = pca.transform(test_gradients)
+
+        #print 'whitening'
+        #w = WhitenTransform.fit(train_gradients.T)
+
+        #train_gradients = WhitenTransform.transform(train_gradients.T, w).T
+        #test_gradients = WhitenTransform.transform(test_gradients.T, w).T
 
         print 'train_gradient'
         print train_gradients
