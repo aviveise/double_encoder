@@ -211,6 +211,7 @@ class Classifier(object):
 
         if bool(int(configuration.output_parameters['sample'])):
 
+            print 'reading train:'
             for train_file in gradient_train_files:
                 fisher_vector = calc_gradient(train_file, layer)[range(sample_number)]
                 if x is None:
@@ -219,16 +220,19 @@ class Classifier(object):
                 fisher_vector /= numpy.linalg.norm(fisher_vector)
                 file_name = os.path.split(os.path.splitext(train_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
+                print sample_number
                 if x is None:
                     x = numpy.zeros((1800, fisher_vector.shape[0]))
                 x[sample_number, :] = fisher_vector
 
+            print 'reading test'
             for test_file in gradient_test_files:
                 fisher_vector = calc_gradient(test_file, layer)[range(sample_number)]
                 fisher_vector -= numpy.mean(fisher_vector)
                 fisher_vector /= numpy.linalg.norm(fisher_vector)
                 file_name = os.path.split(os.path.splitext(test_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
+                print sample_number
                 if x is None:
                     x = numpy.zeros((1800, fisher_vector.shape[0]))
                     x[sample_number + 900, :] = fisher_vector
