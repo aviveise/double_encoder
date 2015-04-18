@@ -30,7 +30,6 @@ class DoubleEncoderTransformer(TransformerBase):
         number_of_batches = int(math.ceil(float(test_set_x.shape[0]) / hyperparameters.batch_size))
 
         outputs_hidden = None
-        outputs_reconstruct = None
 
         for i in range(number_of_batches):
 
