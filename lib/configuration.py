@@ -3,6 +3,7 @@ import ConfigParser
 from MISC.utils import ConfigSectionMap
 from hyper_parameters import HyperParameters
 import theano.tensor as Tensor
+from softSigmoid import SoftSigmoid, soft_sigmoid
 
 __author__ = 'Aviv Eisenschtat'
 
@@ -101,6 +102,9 @@ class Configuration(object):
 
         if method_string == 'sigmoid':
             return Tensor.nnet.sigmoid
+
+        elif method_string == 'soft_sigmoid':
+            return soft_sigmoid
 
         elif method_string == 'relu':
             return lambda x: x * (x > 0)

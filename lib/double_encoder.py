@@ -1,4 +1,5 @@
 import numpy
+import theano
 from stacked_double_encoder import StackedDoubleEncoder
 from numpy.random.mtrand import RandomState
 
@@ -112,14 +113,13 @@ class DoubleEncoder(object):
             double_encoder = configuration.output_parameters['import_net']
             stacked_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
 
-
         OutputLog().write('test results:')
-        trace_correlation, x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
+        trace_correlation, var,  x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
                                                                    data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                                                                                     configuration.hyper_parameters)
 
         OutputLog().write('train results:')
-        train_trace_correlation, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
+        train_trace_correlation, var, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
                                                                          data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                                                                                            configuration.hyper_parameters)
 

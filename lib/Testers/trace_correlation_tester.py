@@ -21,18 +21,18 @@ class TraceCorrelationTester(TesterBase):
 
     def _calculate_metric(self, x, y, transformer, print_row):
 
-        x_var = numpy.var(x, axis=0)
-        y_var = numpy.var(y, axis=0)
+        x_var = numpy.var(x)
+        y_var = numpy.var(y)
 
         x_mean = numpy.mean(x, axis=0)
         y_mean = numpy.mean(y, axis=0)
 
-        print_row.append(numpy.mean(x_var))
-        print_row.append(numpy.max(x_var))
+        print_row.append(x_var)
+        print_row.append(x_var)
         print_row.append(numpy.mean(x_mean))
         print_row.append(numpy.max(x_mean))
-        print_row.append(numpy.mean(y_var))
-        print_row.append(numpy.max(y_var))
+        print_row.append(y_var)
+        print_row.append(y_var)
         print_row.append(numpy.mean(y_mean))
         print_row.append(numpy.max(y_mean))
 
@@ -60,7 +60,7 @@ class TraceCorrelationTester(TesterBase):
         #print_row.append(svd_correlation)
         print_row.append(loss)
 
-        return trace_correlation
+        return trace_correlation, min(x_var, y_var)
 
     def print_array(self, a):
 
