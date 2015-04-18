@@ -267,6 +267,13 @@ class Classifier(object):
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
 
+        print 'whitening'
+        w = WhitenTransform.fit(train_gradients.T)
+
+        train_gradients = WhitenTransform.transform(train_gradients.T, w).T
+        test_gradients = WhitenTransform.transform(test_gradients.T, w).T
+
+
         print 'pca'
         ica.fit(train_gradients)
 
@@ -281,11 +288,6 @@ class Classifier(object):
         print 'mean: {0}'.format(numpy.mean(x, axis=1))
         print 'norm: {0}'.format(numpy.linalg.norm(x, axis=1))
 
-        #print 'whitening'
-        #w = WhitenTransform.fit(train_gradients.T)
-
-        #train_gradients = WhitenTransform.transform(train_gradients.T, w).T
-        #test_gradients = WhitenTransform.transform(test_gradients.T, w).T
 
         print 'train_gradient'
         print train_gradients
