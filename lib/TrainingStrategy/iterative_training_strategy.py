@@ -103,7 +103,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           validation_set_y=validation_set_y)
 
             if dir_name is not None:
-                symmetric_double_encoder.export_encoder(dir_name, 'layer_{0}'.format(len(stacked_double_encoder) + 1))
+                symmetric_double_encoder.export_encoder(dir_name, 'layer_{0}'.format(len(symmetric_double_encoder) + 1))
 
         return symmetric_double_encoder
 
