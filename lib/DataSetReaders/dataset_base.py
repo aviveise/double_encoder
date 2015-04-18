@@ -53,6 +53,11 @@ class DatasetBase(object):
             whiten_image_path = os.path.join(self.dataset_path, 'whiten_image.mat')
             whiten_sen_path = os.path.join(self.dataset_path, 'whiten_sen.mat')
 
+            if not os.path.isdir(self.dataset_path):
+                dir = os.path.split(self.dataset_path)[0]
+                whiten_image_path = os.path.join(dir, 'whiten_image.mat')
+                whiten_sen_path = os.path.join(dir, 'whiten_sen.mat')
+
             if os.path.exists(whiten_image_path) and os.path.exists(whiten_sen_path):
                 print 'loading whiten matrices from files'
                 wx = scipy.io.loadmat(whiten_image_path)['w']
