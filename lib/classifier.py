@@ -1,5 +1,5 @@
 import gc
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, FastICA
 from sklearn.linear_model import SGDClassifier
 from MISC.whiten_transform import WhitenTransform
 from stacked_auto_encoder_2 import StackedDoubleEncoder2
@@ -257,8 +257,8 @@ class Classifier(object):
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
 
-        pca = PCA()
-
+        #pca = PCA()
+        ica = FastICA(n_components=10)
 
         #print 'lincompres'
         #x = lincompress(x)
@@ -268,10 +268,10 @@ class Classifier(object):
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
 
         print 'pca'
-        pca.fit(train_gradients)
+        ica.fit(train_gradients)
 
-        train_gradients = pca.transform(train_gradients)
-        test_gradients = pca.transform(test_gradients)
+        train_gradients = ica.transform(train_gradients)
+        test_gradients = ica.transform(test_gradients)
 
         train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1).reshape((train_gradients.shape[0], 1)),
                                      numpy.ones((1, train_gradients.shape[1])))
