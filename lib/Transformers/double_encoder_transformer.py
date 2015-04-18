@@ -23,12 +23,9 @@ class DoubleEncoderTransformer(TransformerBase):
     def compute_outputs(self, test_set_x, test_set_y, hyperparameters):
 
         hidden_output_model = self._build_hidden_model()
-        reconstruction_output_model = self._build_reconstruction_model()
 
         hidden_values_x = []
         hidden_values_y = []
-        output_values_x = []
-        output_values_y = []
 
         number_of_batches = int(math.ceil(float(test_set_x.shape[0]) / hyperparameters.batch_size))
 
@@ -45,7 +42,6 @@ class DoubleEncoderTransformer(TransformerBase):
 
             start_tick = cv2.getTickCount()
             outputs_hidden_batch = hidden_output_model()
-            outputs_reconstruct_batch = reconstruction_output_model()
 
             tickFrequency = cv2.getTickFrequency()
             current_time = cv2.getTickCount()
@@ -57,27 +53,18 @@ class DoubleEncoderTransformer(TransformerBase):
 
             if i == 0:
                 outputs_hidden = outputs_hidden_batch
-                outputs_reconstruct = outputs_reconstruct_batch
 
             else:
 
                 for idx in range(len(outputs_hidden)):
                     outputs_hidden[idx] = numpy.concatenate((outputs_hidden[idx], outputs_hidden_batch[idx]), axis=0)
 
-                for idx in range(len(outputs_reconstruct)):
-                    outputs_reconstruct[idx] = numpy.concatenate((outputs_reconstruct[idx], outputs_reconstruct_batch[idx]), axis=0)
-
         for i in xrange(len(outputs_hidden) / 2):
             hidden_values_x.append(outputs_hidden[2 * i])
             hidden_values_y.append(outputs_hidden[2 * i + 1])
 
 
-        for i in xrange(len(outputs_reconstruct) / 2):
-            output_values_x.append(outputs_reconstruct[2 * i])
-            output_values_y.append(outputs_reconstruct[2 * i + 1])
-
-        return [hidden_values_x, hidden_values_y], [output_values_x, output_values_y]
-
+        return [hidden_values_x, hidden_values_y]
 
     def _build_hidden_model(self):
 

@@ -12,7 +12,7 @@ class TesterBase(object):
 
     def test(self, transformer, hyperparamsers):
 
-        hidden_values, output_values = transformer.compute_outputs(self._x, self._y, hyperparamsers)
+        hidden_values = transformer.compute_outputs(self._x, self._y, hyperparamsers)
 
         #Printing correlation scores for each hidden layer
         correlation = 0
@@ -51,20 +51,6 @@ class TesterBase(object):
                 layer_id = index
 
             index += 1
-
-        zipped = zip(output_values[0], output_values[1])
-
-        index = 0
-
-        for x_rec, y_rec in zipped:
-
-            row_recons = ["layer {0} - recons".format(index / 2)]
-
-            index += 1
-
-            correlation_temp_reconstruct = self._calculate_metric(x_rec.T, y_rec.T, transformer, row_recons)
-
-            table_rows.append(row_recons)
 
         print tabulate(table_rows, headers=table_header)
         print '\n'
