@@ -1,6 +1,6 @@
 import gc
 from sklearn.linear_model import SGDClassifier
-from lib.MISC.whiten_transform import WhitenTransform
+from MISC.whiten_transform import WhitenTransform
 from stacked_auto_encoder_2 import StackedDoubleEncoder2
 
 __author__ = 'aviv'
