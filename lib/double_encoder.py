@@ -88,7 +88,7 @@ class DoubleEncoder(object):
                                                                  regularization_methods=regularization_methods.values(),
                                                                  activation_method=None,
                                                                  top=top,
-                                                                 print_verbose=True,
+                                                                 print_verbose=False,
                                                                  validation_set_x=data_set.tuning[0],
                                                                  validation_set_y=data_set.tuning[1],
                                                                  dir_name=dir_name,
