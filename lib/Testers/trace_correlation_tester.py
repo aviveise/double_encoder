@@ -24,17 +24,17 @@ class TraceCorrelationTester(TesterBase):
         x_var = numpy.var(x)
         y_var = numpy.var(y)
 
-        x_mean = numpy.mean(x, axis=0)
-        y_mean = numpy.mean(y, axis=0)
+        x_mean = numpy.mean(x)
+        y_mean = numpy.mean(y)
 
         print_row.append(x_var)
         print_row.append(x_var)
-        print_row.append(numpy.mean(x_mean))
-        print_row.append(numpy.max(x_mean))
+        print_row.append(x_mean)
+        print_row.append(x_mean)
         print_row.append(y_var)
         print_row.append(y_var)
-        print_row.append(numpy.mean(y_mean))
-        print_row.append(numpy.max(y_mean))
+        print_row.append(y_mean)
+        print_row.append(y_mean)
 
         start_tick = cv2.getTickCount()
         tickFrequency = cv2.getTickFrequency()
