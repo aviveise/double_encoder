@@ -86,6 +86,9 @@ class Trainer(object):
                 loss_forward += output[0]
                 loss_backward += output[1]
 
+                if math.isnan(loss_backward) or math.isnan(loss_forward):
+                    sys.exit(-1)
+
                 tickFrequency = cv2.getTickFrequency()
                 current_time = cv2.getTickCount()
 
