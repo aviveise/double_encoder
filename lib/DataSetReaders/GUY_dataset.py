@@ -36,7 +36,7 @@ class GUYDataSet(DatasetBase):
         test_sen_idx = idx_mat['tst_sent_I']
         test_image_idx = idx_mat['tst_images_I']
 
-        train_size = min(training_sen_idx.shape[0], 10000)
+        train_size = min(training_sen_idx.shape[0], 50000)
         dev_size = 500
         test_size = test_sen_idx.shape[0]
         #train_size = training_image_idx.shape[0]
