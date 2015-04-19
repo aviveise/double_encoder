@@ -60,12 +60,12 @@ class GUYDataSet(DatasetBase):
            self.trainset[0][:, i] = CNN_output[int(images_sent_mapping[int(training_sen_idx[i]) - 1]) - 1]
            self.trainset[1][:, i] = feature_vectors[int(training_sen_idx[i]) - 1]
 
-        for i in range(validation_sen_idx.shape[0]):
+        for i in range(dev_size):
 
            self.tuning[0][:, i] = CNN_output[int(images_sent_mapping[int(validation_sen_idx[i]) - 1]) - 1]
            self.tuning[1][:, i] = feature_vectors[int(validation_sen_idx[i]) - 1]
 
-        for i in range(test_sen_idx.shape[0]):
+        for i in range(test_size):
 
            self.testset[0][:, i] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
            self.testset[1][:, i] = feature_vectors[int(test_sen_idx[i]) - 1]
