@@ -101,6 +101,9 @@ class Trainer(object):
                     test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
                          hyper_parameters)
 
+                if math.isnan(var):
+                    sys.exit(0)
+
                 if var < 1e-2:
                     return
 
