@@ -107,9 +107,6 @@ class Trainer(object):
                 if math.isnan(var):
                     sys.exit(0)
 
-                if var < 1e-2:
-                    return
-
             else:
                 print 'epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
                                                                   loss_backward / n_training_batches,
