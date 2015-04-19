@@ -27,8 +27,8 @@ class TraceCorrelationTester(TesterBase):
         #x_mean = numpy.mean(x)
         #y_mean = numpy.mean(y)
 
-        h_x = numpy.dot(x, x.T)
-        h_y = numpy.dot(y, y.T)
+        h_x = 0#numpy.dot(x, x.T)
+        h_y = 0#numpy.dot(y, y.T)
 
         x_var = numpy.var(h_x)
         y_var = numpy.var(h_y)
