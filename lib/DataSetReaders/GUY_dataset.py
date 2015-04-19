@@ -36,9 +36,9 @@ class GUYDataSet(DatasetBase):
         test_sen_idx = idx_mat['tst_sent_I']
         test_image_idx = idx_mat['tst_images_I']
 
-        train_size = min(training_sen_idx.shape[0], 1000)
-        dev_size = min(validation_sen_idx.shape[0], 500)
-        test_size = min(test_sen_idx.shape[0], 500)
+        train_size = min(training_sen_idx.shape[0], 10000)
+        dev_size = 500
+        test_size = test_sen_idx.shape[0]
         #train_size = training_image_idx.shape[0]
 
         self.trainset = [numpy.ndarray((CNN_output.shape[1], train_size), dtype=config.floatX),
