@@ -31,24 +31,12 @@ class IterativeTrainingStrategy(TrainingStrategy):
               import_path=''):
 
         if not import_net:
-            if not encoder_type == 'typeB':
-
-                print 'typeA'
-                symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
-                                                                numpy_range=self._random_range,
-                                                                input_size_x=training_set_x.shape[1],
-                                                                input_size_y=training_set_y.shape[1],
-                                                                batch_size=hyper_parameters.batch_size,
-                                                                activation_method=activation_method)
-            else:
-
-                print 'typeB'
-                symmetric_double_encoder = StackedDoubleEncoder2(hidden_layers=[],
-                                                                 numpy_range=self._random_range,
-                                                                 input_size_x=training_set_x.shape[1],
-                                                                 input_size_y=training_set_y.shape[1],
-                                                                 batch_size=hyper_parameters.batch_size,
-                                                                 activation_method=activation_method)
+            symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
+                                                            numpy_range=self._random_range,
+                                                            input_size_x=training_set_x.shape[1],
+                                                            input_size_y=training_set_y.shape[1],
+                                                            batch_size=hyper_parameters.batch_size,
+                                                            activation_method=activation_method)
 
         else:
 
@@ -69,7 +57,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
         layer_sizes = hyper_parameters.layer_sizes[len(symmetric_double_encoder):]
 
-        for layer_size in layer_sizes:
+        for idx, layer_size in enumerate(layer_sizes):
 
             print '--------Adding Layer of Size - %d--------\n' % layer_size
             self._add_cross_encoder_layer(layer_size,
@@ -77,17 +65,17 @@ class IterativeTrainingStrategy(TrainingStrategy):
                                           hyper_parameters.method_in,
                                           hyper_parameters.method_out)
 
-            params = symmetric_double_encoder.getParams()
+            #params = symmetric_double_encoder.getParams()
 
-            # params = []
-            #
-            # if idx == 0:
-            #     params.extend(symmetric_double_encoder[0].x_params)
-            #
-            # else:
-            #     params.extend(symmetric_double_encoder[-1].x_hidden_params)
-            #
-            # params.extend(symmetric_double_encoder[-1].y_params)
+            params = []
+
+            if idx == 0:
+                params.extend(symmetric_double_encoder[0].x_params)
+
+            else:
+                params.extend(symmetric_double_encoder[-1].x_hidden_params)
+
+            params.extend(symmetric_double_encoder[-1].y_params)
 
 
             print '--------Starting Training Network-------\n'
