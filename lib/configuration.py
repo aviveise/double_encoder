@@ -103,6 +103,9 @@ class Configuration(object):
         if method_string == 'sigmoid':
             return Tensor.nnet.sigmoid
 
+        elif method_string == 'tanh':
+            return Tensor.tanh
+
         elif method_string == 'soft_sigmoid':
             return soft_sigmoid
 
