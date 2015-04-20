@@ -241,9 +241,9 @@ class Classifier(object):
             x = None
             for train_file in gradient_train_files:
                 fisher_vector = calc_gradient(train_file, layer)
+                fisher_vector = numpy.multiply(numpy.sqrt(numpy.abs(fisher_vector)), numpy.sign(fisher_vector))
                 fisher_vector -= numpy.mean(fisher_vector)
                 fisher_vector /= numpy.linalg.norm(fisher_vector)
-                fisher_vector = numpy.multiply(numpy.sqrt(numpy.abs(fisher_vector)), numpy.sign(fisher_vector))
                 file_name = os.path.split(os.path.splitext(train_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
                 if x is None:
@@ -252,9 +252,9 @@ class Classifier(object):
 
             for test_file in gradient_test_files:
                 fisher_vector = calc_gradient(test_file, layer)
+                fisher_vector = numpy.multiply(numpy.sqrt(numpy.abs(fisher_vector)), numpy.sign(fisher_vector))
                 fisher_vector -= numpy.mean(fisher_vector)
                 fisher_vector /= numpy.linalg.norm(fisher_vector)
-                fisher_vector = numpy.multiply(numpy.sqrt(numpy.abs(fisher_vector)), numpy.sign(fisher_vector))
                 file_name = os.path.split(os.path.splitext(test_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
