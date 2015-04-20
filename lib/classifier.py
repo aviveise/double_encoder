@@ -242,7 +242,7 @@ class Classifier(object):
             for train_file in gradient_train_files:
                 fisher_vector = calc_gradient(train_file, layer)
                 fisher_vector -= numpy.mean(fisher_vector)
-                #fisher_vector /= numpy.linalg.norm(fisher_vector)
+                fisher_vector /= numpy.linalg.norm(fisher_vector)
                 file_name = os.path.split(os.path.splitext(train_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
                 if x is None:
@@ -252,10 +252,20 @@ class Classifier(object):
             for test_file in gradient_test_files:
                 fisher_vector = calc_gradient(test_file, layer)
                 fisher_vector -= numpy.mean(fisher_vector)
-                #fisher_vector /= numpy.linalg.norm(fisher_vector)
+                fisher_vector /= numpy.linalg.norm(fisher_vector)
                 file_name = os.path.split(os.path.splitext(test_file)[0])[1]
                 sample_number = int(file_name.split('_')[-1])
                 x[sample_number + 900, :] = fisher_vector
+
+        dir_name = configuration.output_parameters['path']
+
+        if not os.path.isdir(dir_name):
+            os.makedirs(dir_name)
+
+        file_name = os.path.join(dir_name, 'x.mat')
+
+        #exporting matrix
+        scipy.io.savemat(file_name, {'x': x})
 
         #pca = PCA()
         ica = FastICA(n_components=10)
