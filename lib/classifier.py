@@ -278,10 +278,10 @@ class Classifier(object):
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
 
         #print 'whitening'
-        #w = WhitenTransform.fit(train_gradients.T)
+        w = WhitenTransform.fit(train_gradients.T)
 
-        #train_gradients = WhitenTransform.transform(train_gradients.T, w).T
-        #test_gradients = WhitenTransform.transform(test_gradients.T, w).T
+        train_gradients = WhitenTransform.transform(train_gradients.T, w).T
+        test_gradients = WhitenTransform.transform(test_gradients.T, w).T
 
 
         #print 'pca'
