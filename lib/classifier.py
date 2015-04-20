@@ -62,7 +62,7 @@ def compute_square(data_set, transformer):
 
 
 def lincompress(x):
-    U, S, V = scipy.linalg.svd(numpy.dot(x.T, x))
+    U, S, V = scipy.linalg.svd(numpy.dot(x, x.T))
     xc = numpy.dot(U, numpy.diag(numpy.sqrt(S)))
 
     return xc
@@ -271,7 +271,7 @@ class Classifier(object):
         #ica = FastICA(n_components=10)
 
         #print 'lincompres'
-        #x = lincompress(x.T)
+        x = lincompress(x)
 
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
