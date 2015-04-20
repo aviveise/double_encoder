@@ -189,6 +189,7 @@ class Classifier(object):
     def run():
         run_time_config = sys.argv[1]
         layer = int(sys.argv[2])
+        C = float(sys.argv[3])
 
         #parse runtime configuration
         configuration = Configuration(run_time_config)
@@ -312,7 +313,7 @@ class Classifier(object):
         print 'test_gradient'
         print test_gradients
 
-        svm_classifier = LinearSVC(C=1e-4)
+        svm_classifier = LinearSVC(C=C)
 
         train_labels = numpy.arange(10)
         for i in range(train_gradients.shape[0] / 10 - 1):
