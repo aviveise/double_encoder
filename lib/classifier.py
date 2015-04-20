@@ -145,8 +145,8 @@ def calc_gradient(gradient_file, layer=0):
     else:
         wy_gradient = encoder['Wx_' + next_layer_name]
 
-    #return wx_gradient.flatten()
-    return numpy.concatenate((wx_gradient.flatten(), wy_gradient.flatten()))
+    return wy_gradient.flatten()
+    #return numpy.concatenate((wx_gradient.flatten(), wy_gradient.flatten()))
 
 
 class Classifier(object):
@@ -268,27 +268,27 @@ class Classifier(object):
         scipy.io.savemat(file_name, {'x': x})
 
         #pca = PCA()
-        ica = FastICA(n_components=10)
+        #ica = FastICA(n_components=10)
 
         #print 'lincompres'
-        #x = lincompress(x)
+        x = lincompress(x)
 
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
 
-        print 'whitening'
-        w = WhitenTransform.fit(train_gradients.T)
+        #print 'whitening'
+        #w = WhitenTransform.fit(train_gradients.T)
 
-        train_gradients = WhitenTransform.transform(train_gradients.T, w).T
-        test_gradients = WhitenTransform.transform(test_gradients.T, w).T
+        #train_gradients = WhitenTransform.transform(train_gradients.T, w).T
+        #test_gradients = WhitenTransform.transform(test_gradients.T, w).T
 
 
-        print 'pca'
-        ica.fit(train_gradients)
+        #print 'pca'
+        #ica.fit(train_gradients)
 
-        train_gradients = ica.transform(train_gradients)
-        test_gradients = ica.transform(test_gradients)
+        #train_gradients = ica.transform(train_gradients)
+        #test_gradients = ica.transform(test_gradients)
 
         train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1).reshape((train_gradients.shape[0], 1)),
                                      numpy.ones((1, train_gradients.shape[1])))
