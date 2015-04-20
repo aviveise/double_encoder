@@ -77,23 +77,25 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
             params.extend(symmetric_double_encoder[-1].y_params)
 
+            hyper_parameters.
 
-            #print '--------Starting Training Network-------\n'
-            #Trainer.train(train_set_x=training_set_x,
-            #              train_set_y=training_set_y,
-            #              hyper_parameters=hyper_parameters,
-            #              symmetric_double_encoder=symmetric_double_encoder,
-            #              params=params,
-            #              regularization_methods=regularization_methods,
-            #              print_verbose=print_verbose,
-            #              top=top,
-            #              validation_set_x=validation_set_x,
-            #              validation_set_y=validation_set_y)
+            print '--------Starting Training Network-------\n'
+            Trainer.train(train_set_x=training_set_x,
+                          train_set_y=training_set_y,
+                          hyper_parameters=hyper_parameters,
+                          symmetric_double_encoder=symmetric_double_encoder,
+                          params=params,
+                          regularization_methods=regularization_methods,
+                          print_verbose=print_verbose,
+                          top=top,
+                          validation_set_x=validation_set_x,
+                          validation_set_y=validation_set_y)
 
             if dir_name is not None:
                 symmetric_double_encoder.export_encoder(dir_name, 'layer_{0}'.format(len(symmetric_double_encoder) + 1))
 
         params = symmetric_double_encoder.getParams()
+        hyper_parameters.learning_rate *= 0.01
 
         print '--------Starting Training Network-------\n'
         Trainer.train(train_set_x=training_set_x,
