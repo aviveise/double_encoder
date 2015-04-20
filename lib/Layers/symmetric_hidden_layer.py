@@ -150,11 +150,11 @@ class SymmetricHiddenLayer(object):
             self.Wy = theano.shared(value=initial_Wy, name='Wy' + '_' + self.name)
 
         def compute_forward_hidden_x(self):
-            result = self.activation_hidden(Tensor.dot(self.x, self.Wx) + self.bias_x)
+            result = self.activation_hidden(Tensor.dot(self.x, self.Wx))# + self.bias_x)
             return result
 
         def compute_forward_hidden_y(self):
-            result = self.activation_hidden(Tensor.dot(self.y, self.Wy) + self.bias_y)
+            result = self.activation_hidden(Tensor.dot(self.y, self.Wy))# + self.bias_y)
             return result
 
         #Given one input computes the network forward output
