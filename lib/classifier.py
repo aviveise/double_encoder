@@ -307,7 +307,7 @@ class Classifier(object):
         print 'test_gradient'
         print test_gradients
 
-        svm_classifier = SVC()
+        svm_classifier = LinearSVC()
 
         train_labels = numpy.arange(10)
         for i in range(train_gradients.shape[0] / 10 - 1):
