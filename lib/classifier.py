@@ -273,7 +273,7 @@ class Classifier(object):
         #pca = FastICA(n_components=300)
 
         #print 'lincompres'
-        #x = lincompress(x)
+        x = lincompress(x)
 
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
