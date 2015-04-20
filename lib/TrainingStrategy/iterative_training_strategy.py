@@ -77,8 +77,6 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
             params.extend(symmetric_double_encoder[-1].y_params)
 
-            hyper_parameters.
-
             print '--------Starting Training Network-------\n'
             Trainer.train(train_set_x=training_set_x,
                           train_set_y=training_set_y,
