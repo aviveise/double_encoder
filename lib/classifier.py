@@ -269,7 +269,7 @@ class Classifier(object):
         #exporting matrix
         scipy.io.savemat(file_name, {'x': x})
 
-        #pca = PCA(whiten=True, n_components=3000)
+        pca = PCA(whiten=True, n_components=3000)
         #pca = FastICA(n_components=300)
 
         #print 'lincompres'
@@ -287,10 +287,10 @@ class Classifier(object):
 
 
         #print 'pca'
-        #pca.fit(train_gradients)
+        pca.fit(train_gradients)
 
-        #train_gradients = pca.transform(train_gradients)
-        #test_gradients = pca.transform(test_gradients)
+        train_gradients = pca.transform(train_gradients)
+        test_gradients = pca.transform(test_gradients)
 
         # train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1).reshape((train_gradients.shape[0], 1)),
         #                              numpy.ones((1, train_gradients.shape[1])))
