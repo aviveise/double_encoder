@@ -266,15 +266,16 @@ class Classifier(object):
 
         file_name = os.path.join(dir_name, 'x.mat')
 
-        #exporting matrix
-        scipy.io.savemat(file_name, {'x': x})
-
         #pca = PCA(whiten=True, n_components=3000)
         #pca = FastICA(n_components=300)
 
         #print 'lincompres'
         x = lincompress(x)
 
+        print x.shape
+
+        #exporting matrix
+        scipy.io.savemat(file_name, {'x': x})
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
