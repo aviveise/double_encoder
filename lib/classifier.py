@@ -211,6 +211,13 @@ class Classifier(object):
 
         sample_number = int(configuration.output_parameters['sample_number'])
 
+        dir_name = configuration.output_parameters['path']
+
+        if not os.path.isdir(dir_name):
+            os.makedirs(dir_name)
+
+        file_name = os.path.join(dir_name, 'x.mat')
+
         if bool(int(configuration.output_parameters['sample'])):
 
             print 'reading train:'
@@ -239,43 +246,40 @@ class Classifier(object):
         else:
 
             x = None
-            for train_file in gradient_train_files:
-                fisher_vector = calc_gradient(train_file, layer)
-                fisher_vector -= numpy.mean(fisher_vector)
-                fisher_vector /= numpy.linalg.norm(fisher_vector)
-                fisher_vector = numpy.multiply(numpy.sqrt(numpy.abs(fisher_vector)), numpy.sign(fisher_vector))
-                file_name = os.path.split(os.path.splitext(train_file)[0])[1]
-                sample_number = int(file_name.split('_')[-1])
-                if x is None:
-                    x = numpy.zeros((1800, fisher_vector.shape[0]))
-                x[sample_number, :] = fisher_vector
+            if os.path.exists(file_name):
+                x = scipy.io.loadmat(file_name)
 
-            for test_file in gradient_test_files:
-                fisher_vector = calc_gradient(test_file, layer)
-                fisher_vector -= numpy.mean(fisher_vector)
-                fisher_vector /= numpy.linalg.norm(fisher_vector)
-                fisher_vector = numpy.multiply(numpy.sqrt(numpy.abs(fisher_vector)), numpy.sign(fisher_vector))
-                file_name = os.path.split(os.path.splitext(test_file)[0])[1]
-                sample_number = int(file_name.split('_')[-1])
-                x[sample_number + 900, :] = fisher_vector
+            if x is None:
+                for train_file in gradient_train_files:
+                    fisher_vector = calc_gradient(train_file, layer)
+                    fisher_vector -= numpy.mean(fisher_vector)
+                    fisher_vector /= numpy.linalg.norm(fisher_vector)
+                    fisher_vector = numpy.multiply(numpy.sqrt(numpy.abs(fisher_vector)), numpy.sign(fisher_vector))
+                    file_name = os.path.split(os.path.splitext(train_file)[0])[1]
+                    sample_number = int(file_name.split('_')[-1])
+                    if x is None:
+                        x = numpy.zeros((1800, fisher_vector.shape[0]))
+                    x[sample_number, :] = fisher_vector
 
-        dir_name = configuration.output_parameters['path']
+                for test_file in gradient_test_files:
+                    fisher_vector = calc_gradient(test_file, layer)
+                    fisher_vector -= numpy.mean(fisher_vector)
+                    fisher_vector /= numpy.linalg.norm(fisher_vector)
+                    fisher_vector = numpy.multiply(numpy.sqrt(numpy.abs(fisher_vector)), numpy.sign(fisher_vector))
+                    file_name = os.path.split(os.path.splitext(test_file)[0])[1]
+                    sample_number = int(file_name.split('_')[-1])
+                    x[sample_number + 900, :] = fisher_vector
 
-        if not os.path.isdir(dir_name):
-            os.makedirs(dir_name)
-
-        file_name = os.path.join(dir_name, 'x.mat')
+                x = lincompress(x)
+                scipy.io.savemat(file_name, {'x': x})
 
         #pca = PCA(whiten=True, n_components=3000)
         #pca = FastICA(n_components=300)
 
         #print 'lincompres'
-        x = lincompress(x)
-
-        print x.shape
 
         #exporting matrix
-        scipy.io.savemat(file_name, {'x': x})
+
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
         test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
