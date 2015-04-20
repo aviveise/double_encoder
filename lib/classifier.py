@@ -271,7 +271,7 @@ class Classifier(object):
         #ica = FastICA(n_components=10)
 
         #print 'lincompres'
-        x = lincompress(x)
+        #x = lincompress(x)
 
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
