@@ -378,6 +378,6 @@ if __name__ == '__main__':
         'test_video': video_frames_testing,
     }
 
-    output = os.path.join(output_path, 'output_no_withen.hkl')
+    output = os.path.join(output_path, 'output.hkl')
     hickle.dump(dump, output, 'w')
     hickle.load(output)
