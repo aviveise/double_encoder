@@ -267,8 +267,8 @@ class Classifier(object):
         #exporting matrix
         scipy.io.savemat(file_name, {'x': x})
 
-        pca = PCA(whiten=True, n_components=3000)
-        #ica = FastICA(n_components=10)
+        #pca = PCA(whiten=True, n_components=3000)
+        pca = FastICA(n_components=10)
 
         #print 'lincompres'
         #x = lincompress(x)
@@ -305,7 +305,7 @@ class Classifier(object):
         print 'test_gradient'
         print test_gradients
 
-        svm_classifier = SVC()
+        svm_classifier = LinearSVC()
 
         train_labels = numpy.arange(10)
         for i in range(train_gradients.shape[0] / 10 - 1):
