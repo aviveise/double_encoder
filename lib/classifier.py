@@ -268,7 +268,7 @@ class Classifier(object):
         scipy.io.savemat(file_name, {'x': x})
 
         #pca = PCA(whiten=True, n_components=3000)
-        pca = FastICA(n_components=10)
+        pca = FastICA(n_components=300)
 
         #print 'lincompres'
         #x = lincompress(x)
