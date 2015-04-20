@@ -62,8 +62,8 @@ def compute_square(data_set, transformer):
 
 
 def lincompress(x):
-    U, S, V = scipy.linalg.svd(numpy.dot(x, x.T))
-    xc = numpy.dot(U, numpy.diag(numpy.sqrt(S))).T
+    U, S, V = scipy.linalg.svd(numpy.dot(x.T, x))
+    xc = numpy.dot(U, numpy.diag(numpy.sqrt(S)))
 
     return xc
 
@@ -271,7 +271,7 @@ class Classifier(object):
         #ica = FastICA(n_components=10)
 
         #print 'lincompres'
-        x = lincompress(x)
+        x = lincompress(x.T).T
 
 
         train_gradients = x[0:900, :]#compressed_data[0:900, :]
@@ -290,10 +290,10 @@ class Classifier(object):
         #train_gradients = ica.transform(train_gradients)
         #test_gradients = ica.transform(test_gradients)
 
-        train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1).reshape((train_gradients.shape[0], 1)),
-                                     numpy.ones((1, train_gradients.shape[1])))
-        test_gradients /= numpy.dot(numpy.linalg.norm(test_gradients, axis=1).reshape((test_gradients.shape[0], 1)),
-                                    numpy.ones((1, train_gradients.shape[1])))
+        # train_gradients /= numpy.dot(numpy.linalg.norm(train_gradients, axis=1).reshape((train_gradients.shape[0], 1)),
+        #                              numpy.ones((1, train_gradients.shape[1])))
+        # test_gradients /= numpy.dot(numpy.linalg.norm(test_gradients, axis=1).reshape((test_gradients.shape[0], 1)),
+        #                             numpy.ones((1, train_gradients.shape[1])))
 
         print 'mean: {0}'.format(numpy.mean(x, axis=1))
         print 'norm: {0}'.format(numpy.linalg.norm(x, axis=1))
