@@ -311,8 +311,8 @@ if __name__ == '__main__':
                                                                   video_frames_training.shape[0],
                                                                   video_frames_training.shape[1])
 
-    #audio_frames_training = add_first_second_deriviatives(audio_frames_training)
-    #audio_frames_testing = add_first_second_deriviatives(audio_frames_testing)
+    audio_frames_training = add_first_second_deriviatives(audio_frames_training)
+    audio_frames_testing = add_first_second_deriviatives(audio_frames_testing)
 
     print 'audio with deriviatives:'
     print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
@@ -320,14 +320,14 @@ if __name__ == '__main__':
                                                                   audio_frames_training.shape[0],
                                                                   audio_frames_training.shape[1])
 
-    pca_video = PCA(n_components=96, whiten=False)
-    pca_audio = PCA(n_components=100, whiten=False)
+    #pca_video = PCA(n_components=96, whiten=False)
+    #pca_audio = PCA(n_components=100, whiten=False)
 
-    audio_frames_training = pca_audio.fit_transform(audio_frames_training)
-    video_frames_training = pca_video.fit_transform(video_frames_training)
+    #audio_frames_training = pca_audio.fit_transform(audio_frames_training)
+    #video_frames_training = pca_video.fit_transform(video_frames_training)
 
-    audio_frames_testing = pca_audio.transform(audio_frames_testing)
-    video_frames_testing = pca_video.transform(video_frames_testing)
+    #audio_frames_testing = pca_audio.transform(audio_frames_testing)
+    #video_frames_testing = pca_video.transform(video_frames_testing)
 
     print 'audio & video after pca:'
     print 'audio frames shape - test [%i, %i], train [%i, %i]' % (audio_frames_testing.shape[0],
