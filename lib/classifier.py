@@ -247,7 +247,7 @@ class Classifier(object):
 
             x = None
             if os.path.exists(file_name):
-                x = scipy.io.loadmat(file_name)
+                x = scipy.io.loadmat(file_name)['x']
 
             if x is None:
                 for train_file in gradient_train_files:
