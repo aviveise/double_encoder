@@ -282,8 +282,8 @@ class Classifier(object):
         #exporting matrix
 
 
-        train_gradients = x[0:900, :]#compressed_data[0:900, :]
-        test_gradients = x[900:1800, :]#compressed_data[900:1800, :]
+        train_gradients = x[:, 0:900].T#compressed_data[0:900, :]
+        test_gradients = x[:, 900:1800].T#compressed_data[900:1800, :]
 
         #print 'whitening'
         #w = WhitenTransform.fit(train_gradients.T)
