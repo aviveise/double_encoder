@@ -271,6 +271,8 @@ class Classifier(object):
                     sample_number = int(file_name.split('_')[-1])
                     x[sample_number + 900, :] = fisher_vector
 
+                print 'exporting x to path: {0}'.format(file_name)
+
                 x = lincompress(x)
                 scipy.io.savemat(file_name, {'x': x})
 
