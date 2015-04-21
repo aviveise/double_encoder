@@ -217,7 +217,7 @@ class Classifier(object):
         if not os.path.isdir(dir_name):
             os.makedirs(dir_name)
 
-        file_name = os.path.join(dir_name, 'x.mat')
+        export_file_name = os.path.join(dir_name, 'x.mat')
 
         if bool(int(configuration.output_parameters['sample'])):
 
@@ -247,8 +247,8 @@ class Classifier(object):
         else:
 
             x = None
-            if os.path.exists(file_name):
-                x = scipy.io.loadmat(file_name)['x']
+            if os.path.exists(export_file_name):
+                x = scipy.io.loadmat(export_file_name)['x']
 
             if x is None:
                 for train_file in gradient_train_files:
@@ -271,10 +271,10 @@ class Classifier(object):
                     sample_number = int(file_name.split('_')[-1])
                     x[sample_number + 900, :] = fisher_vector
 
-                print 'exporting x to path: {0}'.format(file_name)
+                print 'exporting x to path: {0}'.format(export_file_name)
 
                 x = lincompress(x)
-                scipy.io.savemat(file_name, {'x': x})
+                scipy.io.savemat(export_file_name, {'x': x})
 
         #pca = PCA(whiten=True, n_components=3000)
         #pca = FastICA(n_components=300)
