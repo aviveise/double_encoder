@@ -73,3 +73,5 @@ backup/softSigmoid.py
 backup/stacked_auto_encoder_2.py
 backup/stacked_double_encoder.py
 backup/trainer.py
+*.pkl
+*.p

@@ -40,15 +40,22 @@ class DoubleEncoder(object):
 
         regularization_methods = {}
 
+        #parse runtime configuration
+        configuration = Configuration(run_time_config)
+
+        dir_name = configuration.output_parameters['path']
+
+        if not os.path.isdir(dir_name):
+            os.makedirs(dir_name)
+
+        OutputLog().set_path(dir_name)
+
         data_config = ConfigParser.ConfigParser()
         data_config.read(data_set_config)
         data_parameters = ConfigSectionMap("dataset_parameters", data_config)
 
         #construct data set
         data_set = Container().create(data_parameters['name'], data_parameters)
-
-        #parse runtime configuration
-        configuration = Configuration(run_time_config)
 
         configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
 
@@ -59,12 +66,6 @@ class DoubleEncoder(object):
             regularization_methods[regularization_parameters['type']] = Container().create(regularization_parameters['type'], regularization_parameters)
 
         start = clock()
-        dir_name = configuration.output_parameters['path']
-
-        if not os.path.isdir(dir_name):
-            os.makedirs(dir_name)
-
-        OutputLog().set_path(dir_name)
 
         if train:
 
