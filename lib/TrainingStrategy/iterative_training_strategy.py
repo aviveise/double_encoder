@@ -12,7 +12,6 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
     def __init__(self):
         super(IterativeTrainingStrategy, self).__init__()
-        OutputLog().write('\nStrategy: Iterative')
         self.name = 'iterative'
 
     def train(self,
