@@ -15,14 +15,11 @@ from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
 class StackedDoubleEncoder(object):
 
-    def __init__(self,
-                 hidden_layers,
-                 numpy_range,
-                 input_size_x,
-                 input_size_y,
-                 batch_size,
-                 activation_method=Tensor.nnet.sigmoid,
-                 weight_sharing=True):
+    def __init__(self, hidden_layers, numpy_range, input_size_x, input_size_y, batch_size, activation_method=Tensor.nnet.sigmoid):
+
+        #Define x and y variables for input
+        #self.var_x = Tensor.matrix('x')
+        #self.var_y = Tensor.matrix('y')
 
         self.var_x = theano.shared(numpy.zeros((batch_size, input_size_x), dtype=Tensor.config.floatX),
                                    name='var_x')
@@ -32,7 +29,6 @@ class StackedDoubleEncoder(object):
 
         self.input_size_x = input_size_x
         self.input_size_y = input_size_y
-        self._weight_sharing = weight_sharing
 
         self._symmetric_layers = []
 
@@ -106,11 +102,9 @@ class StackedDoubleEncoder(object):
             #refreshing the connection between Y and X of the other layers
             for layer in reversed(self._symmetric_layers):
 
-                if self._weight_sharing:
-                    layer.update_y(input_y, Wy, layer.bias_y)
-                    Wy = layer.Wx.T
-                else:
-                    layer.update_y(input_y, layer.Wy, layer.bias_y)
+                layer.update_y(input_y, Wy, layer.bias_y)
+
+                Wy = layer.Wx.T
 
                 input_y = layer.output_forward_y
 
@@ -252,12 +246,6 @@ class StackedDoubleEncoder(object):
                 layer.bias_y_prime = bias_y_prime
 
             self._symmetric_layers.append(layer)
-
-
-    def print_details(self, output_stream):
-
-        output_stream.write('Using stacked double encoder:\n'
-                            'Weight Sharing: %r' % (self._weight_sharing))
 
 
 

@@ -12,7 +12,10 @@ class HyperParameters(object):
                        epochs = 0,
                        momentum = 0,
                        method_in=Tensor.nnet.sigmoid,
-                       method_out=Tensor.nnet.sigmoid,):
+                       method_out=Tensor.nnet.sigmoid,
+                       output_layer_size=50,
+                       reg1=0.1,
+                       reg2=0.1):
 
         self.learning_rate = learning_rate
         self.batch_size = batch_size
@@ -21,6 +24,9 @@ class HyperParameters(object):
         self.layer_sizes = layer_sizes
         self.method_in = method_in
         self.method_out = method_out
+        self.output_layer_size = output_layer_size
+        self.reg1 = reg1
+        self.reg2 = reg2
 
     def copy(self):
 
