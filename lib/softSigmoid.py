@@ -1,10 +1,11 @@
 import numpy
 from theano import config, gof, printing, scalar, pprint
+from theano.scalar import UnaryScalarOp
 from theano.tensor import elemwise
 
 __author__ = 'avive'
 
-class SoftSigmoid(scalar.UnaryScalarOp):
+class SoftSigmoid(UnaryScalarOp):
     """
     This is just speed opt. Not for stability.
     """
@@ -12,7 +13,7 @@ class SoftSigmoid(scalar.UnaryScalarOp):
     def st_impl(x):
         # If x is an int8 or uint8, numpy.exp will compute the result in
         # half-precision (float16), where we want float32.
-        return (3.0 + x) / numpy.power(x, 3)
+        return (3.0 + x) / x ** 3
 
     def impl(self, x):
         return SoftSigmoid.st_impl(x)
@@ -57,5 +58,11 @@ class SoftSigmoid(scalar.UnaryScalarOp):
 
 scalar_soft_sigmoid = SoftSigmoid(scalar.upgrade_to_float, name='scalar_soft_sigmoid')
 soft_sigmoid = elemwise.Elemwise(scalar_soft_sigmoid, name='soft_sigmoid')
+
+sigmoid_inplace = elemwise.Elemwise(
+        SoftSigmoid(scalar.transfer_type(0)),
+        inplace_pattern={0: 0},
+        name='soft_sigmoid_inplace',
+        )
 
 pprint.assign(soft_sigmoid, printing.FunctionPrinter('soft_sigmoid'))

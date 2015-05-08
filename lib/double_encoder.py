@@ -37,9 +37,6 @@ class DoubleEncoder(object):
         data_set_config = sys.argv[1]
         run_time_config = sys.argv[2]
         top = int(sys.argv[3])
-        encoder_type = sys.argv[4]
-
-        dir_name, filename = os.path.split(os.path.abspath(__file__))
 
         regularization_methods = {}
 
@@ -53,29 +50,21 @@ class DoubleEncoder(object):
         #parse runtime configuration
         configuration = Configuration(run_time_config)
 
-        OutputLog().set_path(configuration.output_parameters['path'])
-
         configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
 
         training_strategy.set_parameters(configuration.strategy_parameters)
 
         #building regularization methods
         for regularization_parameters in configuration.regularizations_parameters:
-
             regularization_methods[regularization_parameters['type']] = Container().create(regularization_parameters['type'], regularization_parameters)
-
-        #performing optimizations for various parameters
-        for optimization_parameters in configuration.optimizations_parameters:
-
-            args = (data_set, optimization_parameters, configuration.hyper_parameters, regularization_methods, top)
-            optimization = Container().create(optimization_parameters['type'], *args)
-            optimization.perform_optimization(training_strategy)
 
         start = clock()
         dir_name = configuration.output_parameters['path']
 
         if not os.path.isdir(dir_name):
             os.makedirs(dir_name)
+
+        OutputLog().set_path(dir_name)
 
         if train:
 
@@ -87,12 +76,10 @@ class DoubleEncoder(object):
                                                                  hyper_parameters=configuration.hyper_parameters,
                                                                  regularization_methods=regularization_methods.values(),
                                                                  activation_method=None,
-                                                                 top=top,
-                                                                 print_verbose=False,
+                                                                 print_verbose=True,
                                                                  validation_set_x=data_set.tuning[0],
                                                                  validation_set_y=data_set.tuning[1],
                                                                  dir_name=dir_name,
-                                                                 encoder_type=encoder_type,
                                                                  import_net=configuration.output_parameters['fine_tune'],
                                                                  import_path=configuration.output_parameters['import_net'])
 
@@ -104,14 +91,16 @@ class DoubleEncoder(object):
         else:
 
             stacked_double_encoder = StackedDoubleEncoder(hidden_layers=[],
-                                                            numpy_range=RandomState(),
-                                                            input_size_x=data_set.trainset[0].shape[1],
-                                                            input_size_y=data_set.trainset[0].shape[1],
-                                                            batch_size=configuration.hyper_parameters.batch_size,
-                                                            activation_method=None)
+                                                          numpy_range=RandomState(),
+                                                          input_size_x=data_set.trainset[0].shape[1],
+                                                          input_size_y=data_set.trainset[0].shape[1],
+                                                          batch_size=configuration.hyper_parameters.batch_size,
+                                                          activation_method=None)
 
             double_encoder = configuration.output_parameters['import_net']
             stacked_double_encoder.import_encoder(double_encoder, configuration.hyper_parameters)
+
+        stacked_double_encoder.set_eval(True)
 
         OutputLog().write('test results:')
         trace_correlation, var,  x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
@@ -124,6 +113,8 @@ class DoubleEncoder(object):
                                                                                                            configuration.hyper_parameters)
 
         execution_time = clock() - start
+
+        stacked_double_encoder.print_details(OutputLog())
 
         OutputLog().write('\nTest results : \n')
 

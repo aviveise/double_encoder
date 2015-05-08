@@ -1,14 +1,11 @@
 import cv2
-from MISC.logger import OutputLog
+import itertools
 
 __author__ = 'aviv'
 
 import sys
 import numpy
 import theano.tensor as Tensor
-import theano.tensor.nlinalg
-import theano.tensor.slinalg
-import theano.printing
 import math
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
@@ -16,10 +13,15 @@ from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 
 from theano.compat.python2x import OrderedDict
 from theano import function
-from theano import config
 from theano import shared
-from theano import Out
+from theano import printing
+
+from MISC.utils import calculate_reconstruction_error
+
 from numpy.random import RandomState
+
+from MISC.logger import OutputLog
+
 
 def shuffleDataSet(samplesX, samplesY, random_stream):
 
@@ -39,34 +41,39 @@ class Trainer(object):
               params,
               regularization_methods,
               print_verbose=False,
-              top=50,
+              top=0,
               validation_set_x=None,
-              validation_set_y=None):
-
-
+              validation_set_y=None,
+              moving_averages=None):
 
         #Calculating number of batches
         n_training_batches = int(train_set_x.shape[0] / hyper_parameters.batch_size)
-        model_update = None
         random_stream = RandomState()
 
         model_updates = [shared(p.get_value() * 0, borrow=True) for p in params]
+        eps = 1e-8
+
+        symmetric_double_encoder.set_eval(False)
+
+        print 'Building model'
+        model = Trainer._build_model(hyper_parameters,
+                                     symmetric_double_encoder,
+                                     params,
+                                     regularization_methods,
+                                     model_updates,
+                                     moving_averages,
+                                     n_training_batches,
+                                     'adaGrad',
+                                     eps)
 
         #The training phase, for each epoch we train on every batch
+        best_loss = 0
         for epoch in numpy.arange(hyper_parameters.epochs):
 
             print '----------Starting Epoch ({0})-----------'.format(epoch)
 
             print 'Shuffling dataset'
-            #train_set_x, train_set_y = shuffleDataSet(train_set_x, train_set_y, random_stream)
             indices = random_stream.permutation(train_set_x.shape[0])
-
-            print 'Building model'
-            model = Trainer._build_model(hyper_parameters,
-                                         symmetric_double_encoder,
-                                         params,
-                                         regularization_methods,
-                                         model_updates)
 
             loss_forward = 0
             loss_backward = 0
@@ -87,30 +94,59 @@ class Trainer(object):
                 loss_backward += output[1]
 
                 if math.isnan(loss_backward) or math.isnan(loss_forward):
+                    OutputLog().write('loss equals NAN, exiting')
                     sys.exit(-1)
 
                 tickFrequency = cv2.getTickFrequency()
                 current_time = cv2.getTickCount()
 
-                OutputLog().write('batch {0}/{1} ended, time: {2}'.format(index,
-                                                                          n_training_batches,
-                                                                          ((current_time - start_tick) / tickFrequency)))
+                regularizations = [regularization_method for regularization_method in regularization_methods if
+                                   regularization_method.weight > 0]
+
+                zipped = zip(output[6:], regularizations)
+
+                string_output = ' '
+                for regularization_output, regularization_method in zipped:
+                    string_output += '{0}: {1} '.format(regularization_method.regularization_type,
+                                                        regularization_output)
+
+                OutputLog().write('batch {0}/{1} ended, time: {2}, loss_x: {3}, loss_y: {4}, loss_h: {7}\nvar_x: {5} var_y: {6}\n{8}'.
+                                  format(index,
+                                         n_training_batches,
+                                         ((current_time - start_tick) / tickFrequency),
+                                         output[0],
+                                         output[1],
+                                         output[2],
+                                         output[3],
+                                         calculate_reconstruction_error(output[4], output[5]),
+                                         string_output))
+
+            loss = (loss_forward + loss_backward) / n_training_batches
+
+            if best_loss == 0 or loss < best_loss:
+                best_loss = loss
+
+            else:
+                hyper_parameters.learning_rate *= 0.1
 
             if print_verbose and not validation_set_y is None and not validation_set_x is None:
 
                 print '----------epoch (%d)----------\n' % epoch
 
+                symmetric_double_encoder.set_eval(True)
+
                 trace_correlation, var, x, y, layer_id = TraceCorrelationTester(validation_set_x.T, validation_set_y.T, top).\
                     test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
                          hyper_parameters)
 
+                symmetric_double_encoder.set_eval(False)
+
                 if math.isnan(var):
                     sys.exit(0)
 
-            else:
-                print 'epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
-                                                                  loss_backward / n_training_batches,
-                                                                  loss_forward / n_training_batches)
+            print 'epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
+                                                              loss_backward / n_training_batches,
+                                                              loss_forward / n_training_batches)
 
         del model
 
@@ -139,26 +175,34 @@ class Trainer(object):
         del model
 
     @staticmethod
-    def _build_model(hyper_parameters, symmetric_double_encoder, params, regularization_methods, model_updates):
+    def _build_model(hyper_parameters,
+                     symmetric_double_encoder,
+                     params,
+                     regularization_methods,
+                     model_updates,
+                     moving_averages,
+                     number_of_batches,
+                     strategy='SGD',
+                     eps=1e-6):
 
         #Retrieve the reconstructions of x and y
         x_tilde = symmetric_double_encoder.reconstruct_x()
         y_tilde = symmetric_double_encoder.reconstruct_y()
 
+        x_hidden = symmetric_double_encoder[0].output_forward_x
+        y_hidden = symmetric_double_encoder[0].output_forward_y
+
         var_x = symmetric_double_encoder.var_x
         var_y = symmetric_double_encoder.var_y
-
-        #Index for iterating batches
-        index = Tensor.lscalar()
 
         print 'Calculating Loss'
 
         #Compute the loss of the forward encoding as L2 loss
-        loss_backward = ((var_x - x_tilde) ** 2).sum(dtype=Tensor.config.floatX,
+        loss_backward = ((var_x - x_tilde).T ** 2).sum(dtype=Tensor.config.floatX,
                                                      acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
 
         #Compute the loss of the backward encoding as L2 loss
-        loss_forward = ((var_y - y_tilde) ** 2).sum(dtype=Tensor.config.floatX,
+        loss_forward = ((var_y - y_tilde).T ** 2).sum(dtype=Tensor.config.floatX,
                                                     acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
 
         loss = loss_backward + loss_forward
@@ -179,26 +223,50 @@ class Trainer(object):
         #the result is gradients for each parameter of the cross encoder
         gradients = Tensor.grad(loss, params)
 
-        if hyper_parameters.momentum > 0:
+        if strategy == 'SGD':
 
-            print 'Adding momentum'
+            if hyper_parameters.momentum > 0:
 
+                print 'Adding momentum'
+
+                updates = OrderedDict()
+                zipped = zip(params, gradients, model_updates)
+                for param, gradient, model_update in zipped:
+
+                    delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
+
+                    updates[param] = param + delta
+                    updates[model_update] = delta
+
+            else:
+                #generate the list of updates, each update is a round in the decent
+                updates = []
+                for param, gradient in zip(params, gradients):
+                    updates.append((param, param - hyper_parameters.learning_rate * gradient))
+
+        elif strategy == 'adaGrad':
             updates = OrderedDict()
             zipped = zip(params, gradients, model_updates)
-            for param, gradient, model_update in zipped:
+            for param, gradient, accumulated_gradient in zipped:
 
-                delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
-
-                updates[param] = param + delta
-                updates[model_update] = delta
+                agrad = accumulated_gradient + gradient ** 2
+                effective_learning_rate = (hyper_parameters.learning_rate / Tensor.sqrt(agrad + eps))
+                delta = effective_learning_rate * gradient
+                updates[param] = param - delta
+                updates[accumulated_gradient] = agrad
 
         else:
-            #generate the list of updates, each update is a round in the decent
-            updates = []
-            for param, gradient in zip(params, gradients):
-                updates.append((param, param - hyper_parameters.learning_rate * gradient))
+            msg = 'Unknown optimization strategy'
+            OutputLog().write(msg)
+            raise Exception(msg)
 
         print 'Building function'
+
+        variance_hidden_x = Tensor.var(x_hidden, axis=0)
+        variance_hidden_y = Tensor.var(y_hidden, axis=0)
+
+        if moving_averages is not None:
+            Trainer._add_moving_averages(moving_averages, updates, number_of_batches)
 
         #Building the theano function
         #input : batch index
@@ -206,81 +274,23 @@ class Trainer(object):
         #updates : gradient decent updates for all params
         #givens : replacing inputs for each iteration
         model = function(inputs=[],
-                         outputs=[loss_backward, loss_forward],
+                         outputs=[loss_backward,
+                                  loss_forward,
+                                  Tensor.sum(variance_hidden_x),
+                                  Tensor.sum(variance_hidden_y),
+                                  x_hidden,
+                                  y_hidden] + regularizations,
                          updates=updates)
 
         return model
 
     @staticmethod
-    def _build_model_output(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods, top):
+    def _add_moving_averages(moving_averages, updates, length):
 
-        index = Tensor.scalar()
+        params = list(itertools.chain(*[i[1] for i in moving_averages]))
+        values = list(itertools.chain(*[i[0] for i in moving_averages]))
 
-        var_x = symmetric_double_encoder.var_x
-        var_y = symmetric_double_encoder.var_y
-
-        output_x = symmetric_double_encoder.output_x.T
-        output_y = symmetric_double_encoder.output_y.T
-
-        batch_size = output_x.shape[1]
-        output_size = output_x.shape[0]
-
-        reg1 = hyper_parameters.reg1
-        reg2 = hyper_parameters.reg2
-
-        ones = Tensor.ones([batch_size, batch_size], dtype=Tensor.config.floatX)
-
-        centered_x = output_x - Tensor.dot(output_x, ones) / batch_size
-        centered_y = output_y - Tensor.dot(output_y, ones) / batch_size
-
-        s12 = Tensor.nlinalg.diag(Tensor.nlinalg.diag(Tensor.dot(centered_x, centered_y.T))) / (batch_size - 1)
-        s11 = Tensor.nlinalg.diag(Tensor.nlinalg.diag(Tensor.dot(centered_x, centered_x.T))) / (batch_size - 1) + reg1 * Tensor.eye(output_size, output_size, dtype=Tensor.config.floatX)
-        s22 = Tensor.nlinalg.diag(Tensor.nlinalg.diag(Tensor.dot(centered_y, centered_y.T))) / (batch_size - 1) + reg2 * Tensor.eye(output_size, output_size, dtype=Tensor.config.floatX)
-
-        s11_chol = Tensor.slinalg.cholesky(s11)
-        s22_chol = Tensor.slinalg.cholesky(s22)
-
-        s11_inv = Tensor.nlinalg.matrix_inverse(s11_chol)
-        s22_inv = Tensor.nlinalg.matrix_inverse(s22_chol)
-
-        T_mat= Tensor.dot(Tensor.dot(s11_inv, s12), s22_inv.T)
-
-        loss = -(Tensor.nlinalg.trace(Tensor.slinalg.cholesky(Tensor.dot(T_mat.T, T_mat)))) #+ 10 ** (-2) * Tensor.eye(output_size, output_size))))
-
-        #loss += sum([regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods])
-
-         #the result is gradients for each parameter of the cross encoder
-        gradients = Tensor.grad(loss, params)
-
-        if hyper_parameters.momentum > 0:
-
-            model_updates = [shared(value=numpy.zeros(p.get_value().shape, dtype=config.floatX),
-                                                    name='inc_' + p.name) for p in params]
-
-            updates = OrderedDict()
-            zipped = zip(params, gradients, model_updates)
-            for param, gradient, model_update in zipped:
-
-                delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
-
-                updates[param] = param + delta
-                updates[model_update] = delta
-
-        else:
-            #generate the list of updates, each update is a round in the decent
-            updates = []
-            for param, gradient in zip(params, gradients):
-                updates.append((param, param - hyper_parameters.learning_rate * gradient))
-
-        #Building the theano function
-        #input : batch index
-        #output : both losses
-        #updates : gradient decent updates for all params
-        #givens : replacing inputs for each iteration
-        model = function(inputs=[index],
-                         outputs=Out((Tensor.cast(loss, config.floatX)), borrow=True),
-                         updates=updates,
-                         givens={var_x: train_set_x[index * hyper_parameters.batch_size:
-                                                            (index + 1) * hyper_parameters.batch_size, :],
-                                 var_y: train_set_y[index * hyper_parameters.batch_size:
-                                                            (index + 1) * hyper_parameters.batch_size, :]})
+        factor = 1.0 / length
+        for tensor, param in zip(values, params):
+            updates[param] = (1.0 - factor) * param + factor * tensor
+        return updates

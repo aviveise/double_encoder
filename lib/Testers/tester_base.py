@@ -16,8 +16,6 @@ class TesterBase(object):
 
         #Printing correlation scores for each hidden layer
         correlation = 0
-        x_best = 0
-        y_best = 0
         zipped = zip(hidden_values[0], hidden_values[1])
         index = 0
 
@@ -36,15 +34,12 @@ class TesterBase(object):
             row_hidden = ["layer {0} - hidden".format(index)]
 
             #calculation correlation between hidden values
-            correlation_temp_hidden, var = self._calculate_metric(x_hid, y_hid, transformer, row_hidden)
+            correlation_temp_hidden = self._calculate_metric(x_hid, y_hid, transformer, row_hidden)
 
             table_rows.append(row_hidden)
 
             outputs_x.append(x_hid)
             outputs_y.append(y_hid)
-
-            if var < lowest_var:
-                lowest_var = var
 
             if correlation_temp_hidden > correlation:
                 correlation = correlation_temp_hidden

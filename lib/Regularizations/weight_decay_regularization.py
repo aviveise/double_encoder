@@ -18,7 +18,7 @@ class WeightDecayRegularization(RegularizationBase):
         regularization = self._compute_L2(symmetric_double_encoder)
         regularization = regularization - self._zeroing_param
 
-        return (self.weight / 2) * regularization * (regularization > 0)
+        return self.weight * regularization * (regularization > 0)
 
     def _compute_L2(self, symmetric_double_encoder):
 

@@ -3,15 +3,16 @@ import os
 import struct
 
 import random
+import hickle
 import scipy
 import theano
 import numpy
 
 from sklearn.decomposition import PCA
 from MISC.utils import center as center_function
+from MISC.utils import normalize as normalize_function
 from MISC.whiten_transform import WhitenTransform
 from MISC.logger import OutputLog
-from MISC.utils import unitnorm_rows, unitnorm_cols
 
 __author__ = 'aviv'
 
@@ -28,14 +29,47 @@ class DatasetBase(object):
         self.testset = None
         self.tuning = None
         
-        normalize_rows = bool(int(data_set_parameters['normalize_rows']))
-        normalize_cols = bool(int(data_set_parameters['normalize_cols']))
+        normalize = bool(int(data_set_parameters['normalize']))
         center = bool(int(data_set_parameters['center']))
         whiten = bool(int(data_set_parameters['whiten']))
         pca = map(int, data_set_parameters['pca'].split())
 
+        path = self.dataset_path
+        if not os.path.isdir(self.dataset_path):
+            path = os.path.dirname(os.path.abspath(self.dataset_path))
+
+        train_file = os.path.join(path, 'train.p')
+        test_file = os.path.join(path, 'test.p')
+        validate_file = os.path.join(path, 'validate.p')
+
+        if os.path.exists(train_file) and os.path.exists(test_file) and os.path.exists(validate_file):
+            self.trainset = hickle.load(file(train_file, 'r'))
+            self.testset = hickle.load(file(test_file, 'r'))
+            self.tuning = hickle.load(file(validate_file, 'r'))
+            return
+
         self.build_dataset()
 
+        if center:
+            train_set_x, mean_x = center_function(self.trainset[0])
+            train_set_y, mean_y = center_function(self.trainset[1])
+
+            self.trainset = train_set_x, train_set_y
+            self.tuning = self.tuning[0] - mean_x * numpy.ones([1, self.tuning[0].shape[1]], dtype=theano.config.floatX), \
+                          self.tuning[1] - mean_y * numpy.ones([1, self.tuning[1].shape[1]], dtype=theano.config.floatX)
+
+            self.testset = self.testset[0] - mean_x * numpy.ones([1, self.testset[0].shape[1]], dtype=theano.config.floatX),\
+                           self.testset[1] - mean_y * numpy.ones([1, self.testset[1].shape[1]], dtype=theano.config.floatX)
+        if normalize:
+            train_set_x, norm_x = normalize_function(self.trainset[0])
+            train_set_y, norm_y = normalize_function(self.trainset[1])
+
+            self.trainset = train_set_x, train_set_y
+            self.tuning = self.tuning[0] / norm_x * numpy.ones([1, self.tuning[0].shape[1]], dtype=theano.config.floatX), \
+                          self.tuning[1] / norm_y * numpy.ones([1, self.tuning[1].shape[1]], dtype=theano.config.floatX)
+
+            self.testset = self.testset[0] / norm_x * numpy.ones([1, self.testset[0].shape[1]], dtype=theano.config.floatX),\
+                           self.testset[1] / norm_y * numpy.ones([1, self.testset[1].shape[1]], dtype=theano.config.floatX)
         if not pca[0] == 0 and not pca[1] == 0:
 
             pca_dim1 = PCA(pca[0], whiten)
@@ -81,35 +115,9 @@ class DatasetBase(object):
             self.tuning = (WhitenTransform.transform(self.tuning[0], wx),
                            WhitenTransform.transform(self.tuning[1], wy))
 
-        if center:
-            center_function(self.trainset[0])
-            center_function(self.tuning[0])
-            center_function(self.testset[0])
-            center_function(self.trainset[1])
-            center_function(self.tuning[1])
-            center_function(self.testset[1])
-
-        if normalize_rows:
-            unitnorm_rows(self.trainset[0])
-            unitnorm_rows(self.testset[0])
-            unitnorm_rows(self.trainset[1])
-            unitnorm_rows(self.testset[1])
-
-            if self.tuning is not None:
-                unitnorm_rows(self.tuning[1])
-                unitnorm_rows(self.tuning[0])
-
-        if normalize_cols:
-            unitnorm_cols(self.trainset[0])
-            unitnorm_cols(self.testset[0])
-            unitnorm_cols(self.trainset[1])
-            unitnorm_cols(self.testset[1])
-
-            if self.tuning is not None:
-                unitnorm_cols(self.tuning[1])
-                unitnorm_cols(self.tuning[0])
-
-
+        hickle.dump(self.trainset, file(train_file, 'w'))
+        hickle.dump(self.testset, file(test_file, 'w'))
+        hickle.dump(self.tuning, file(validate_file, 'w'))
 
         OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[0], self.trainset[1].shape[0]))
         OutputLog().write('Training set size = %d' % self.trainset[0].shape[1])

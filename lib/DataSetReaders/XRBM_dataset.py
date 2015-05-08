@@ -6,7 +6,7 @@ import gzip
 import theano
 
 import numpy
-import rpy2.robjects as robjects
+#import rpy2.robjects as robjects
 
 from theano import config
 
@@ -130,7 +130,7 @@ class XRBMDataSetOld(object):
                 train_index += 1
 
         return [train_result, test_result, test_samples]
-
+'''
 class XRBMDataSetRCCA(DatasetBase):
 
     __metaclass__ = ContainerRegisterMetaClass
@@ -151,5 +151,5 @@ class XRBMDataSetRCCA(DatasetBase):
 
         self.testset = numpy.array(robjects.r['x_te']).T.astype(theano.config.floatX, copy=False), \
                        numpy.array(robjects.r['y_te']).T.astype(theano.config.floatX, copy=False)
-
+'''
 

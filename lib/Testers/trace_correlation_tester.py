@@ -9,7 +9,7 @@ import numpy
 
 from tester_base import TesterBase
 
-from MISC.utils import calculate_mardia, calculate_trace, calculate_corrcoef, calculate_reconstruction_error
+from MISC.utils import calculate_mardia, calculate_reconstruction_error, normalize, center
 
 
 class TraceCorrelationTester(TesterBase):
@@ -21,55 +21,32 @@ class TraceCorrelationTester(TesterBase):
 
     def _calculate_metric(self, x, y, transformer, print_row):
 
-        #x_var = numpy.var(x)
-        #y_var = numpy.var(y)
-
-        #x_mean = numpy.mean(x)
-        #y_mean = numpy.mean(y)
-
-        h_x = 0#numpy.dot(x, x.T)
-        h_y = 0#numpy.dot(y, y.T)
-
-        x_var = numpy.var(h_x)
-        y_var = numpy.var(h_y)
-
-        x_mean = x_var
-        y_mean = y_var
-
-        print_row.append(x_var)
-        print_row.append(x_var)
-        print_row.append(x_mean)
-        print_row.append(x_mean)
-        print_row.append(y_var)
-        print_row.append(y_var)
-        print_row.append(y_mean)
-        print_row.append(y_mean)
-
-        start_tick = cv2.getTickCount()
         tickFrequency = cv2.getTickFrequency()
 
-        trace_correlation = 0 #calculate_trace(x, y)
+        var_x = 1 / numpy.var(x, axis=0)
+        var_y = 1 / numpy.var(y, axis=0)
 
-        current_time = cv2.getTickCount()
-        OutputLog().write('calculated trace, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
+        loss_var_x = numpy.sum(var_x)
+        loss_var_y = numpy.sum(var_y)
 
+        loss = calculate_reconstruction_error(x, y)
+
+        cross_correlation = 0
         start_tick = cv2.getTickCount()
-        loss = 0 #calculate_reconstruction_error(x, y)
+        if self.top == 0:
+            correlation = calculate_mardia(x, y, 0)
+        else:
+            correlation = calculate_mardia(x, y, self.top)
 
         current_time = cv2.getTickCount()
-        OutputLog().write('calculated loss, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
+        OutputLog().write('calculated correlation, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
 
-        #start_tick = cv2.getTickCount()
-        #svd_correlation = calculate_mardia(x, y, self.top)
-
-        #current_time = cv2.getTickCount()
-        #OutputLog().write('calculated svd, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
-
-        print_row.append(trace_correlation)
-        #print_row.append(svd_correlation)
+        print_row.append(correlation)
         print_row.append(loss)
+        print_row.append(loss_var_x)
+        print_row.append(loss_var_y)
 
-        return trace_correlation, min(x_var, y_var)
+        return correlation
 
     def print_array(self, a):
 
@@ -85,14 +62,4 @@ class TraceCorrelationTester(TesterBase):
 
     def _headers(self):
 
-        return ['var_x (avg)',
-                'var_x (max)',
-                'mean_x (avg)',
-                'mean_x (max)',
-                'var_y (avg)',
-                'var_y (max)',
-                'mean_y (avg)',
-                'mean_y (max)',
-                'trace correlation',
-                #'svd correlation',
-                'loss']
+        return ['correlation', 'loss', '1/var_x', '1/var_y']

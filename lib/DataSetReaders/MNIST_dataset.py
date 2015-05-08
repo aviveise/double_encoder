@@ -6,7 +6,7 @@ from MISC.container import ContainerRegisterMetaClass
 from dataset_base import DatasetBase
 
 import numpy
-import rpy2.robjects as robjects
+#import rpy2.robjects as robjects
 
 class MNISTDataSet(DatasetBase):
 
@@ -33,25 +33,25 @@ class MNISTDataSet(DatasetBase):
         self.trainset = x1_train_set, x2_train_set
         self.tuning = x1_tuning_set, x2_tuning_set
 
-class MNISTDataSetRCCA(DatasetBase):
+#class MNISTDataSetRCCA(DatasetBase):
 
-    __metaclass__ = ContainerRegisterMetaClass
+#    __metaclass__ = ContainerRegisterMetaClass
 
-    def __init__(self, data_set_parameters):
-        super(MNISTDataSetRCCA, self).__init__(data_set_parameters)
+#    def __init__(self, data_set_parameters):
+#        super(MNISTDataSetRCCA, self).__init__(data_set_parameters)
 
-    def build_dataset(self):
+#    def build_dataset(self):
 
-        mnist = robjects.r('load')(self.dataset_path)
+#        mnist = robjects.r('load')(self.dataset_path)
 
-        self.trainset = numpy.array(robjects.r['x_tr']).T.astype(theano.config.floatX, copy=False), \
-                        numpy.array(robjects.r['y_tr']).T.astype(theano.config.floatX, copy=False)
+#        self.trainset = numpy.array(robjects.r['x_tr']).T.astype(theano.config.floatX, copy=False), \
+#                       numpy.array(robjects.r['y_tr']).T.astype(theano.config.floatX, copy=False)
 
-        self.testset = numpy.array(robjects.r['x_te']).T.astype(theano.config.floatX, copy=False), \
-                       numpy.array(robjects.r['y_te']).T.astype(theano.config.floatX, copy=False)
+#        self.testset = numpy.array(robjects.r['x_te']).T.astype(theano.config.floatX, copy=False), \
+#                       numpy.array(robjects.r['y_te']).T.astype(theano.config.floatX, copy=False)
 
-        x1_train_set, x1_tuning_set, test_samples = self.produce_optimization_sets(self.trainset[0])
-        x2_train_set, x2_tuning_set, test_samples = self.produce_optimization_sets(self.trainset[1], test_samples)
+#        x1_train_set, x1_tuning_set, test_samples = self.produce_optimization_sets(self.trainset[0])
+#        x2_train_set, x2_tuning_set, test_samples = self.produce_optimization_sets(self.trainset[1], test_samples)
 
-        self.trainset = x1_train_set, x2_train_set
-        self.tuning = x1_tuning_set, x2_tuning_set
+ #       self.trainset = x1_train_set, x2_train_set
+ #       self.tuning = x1_tuning_set, x2_tuning_set

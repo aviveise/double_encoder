@@ -21,12 +21,10 @@ class IterativeTrainingStrategy(TrainingStrategy):
               hyper_parameters,
               regularization_methods,
               activation_method,
-              top=50,
               print_verbose=False,
               validation_set_x=None,
               validation_set_y=None,
               dir_name=None,
-              encoder_type='typeA',
               import_net=False,
               import_path=''):
 
@@ -49,7 +47,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
             symmetric_double_encoder.import_encoder(import_path, hyper_parameters)
 
-
+        self._moving_average = []
 
         #In this phase we train the stacked encoder one layer at a time
         #once a layer was added, weights not belonging to the new layer are
@@ -64,8 +62,6 @@ class IterativeTrainingStrategy(TrainingStrategy):
                                           symmetric_double_encoder,
                                           hyper_parameters.method_in,
                                           hyper_parameters.method_out)
-
-
 
             params = []
 
@@ -85,9 +81,9 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           params=params,
                           regularization_methods=regularization_methods,
                           print_verbose=print_verbose,
-                          top=top,
                           validation_set_x=validation_set_x,
-                          validation_set_y=validation_set_y)
+                          validation_set_y=validation_set_y,
+                          moving_averages=self._moving_average)
 
             if dir_name is not None:
                 symmetric_double_encoder.export_encoder(dir_name, 'layer_{0}'.format(len(symmetric_double_encoder) + 1))
@@ -103,7 +99,6 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           params=params,
                           regularization_methods=regularization_methods,
                           print_verbose=print_verbose,
-                          top=top,
                           validation_set_x=validation_set_x,
                           validation_set_y=validation_set_y)
 
@@ -115,11 +110,11 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
         layer_count = len(symmetric_double_encoder)
 
-        symmetric_layer = SymmetricHiddenLayer(numpy_range=self._random_range,
-                                               hidden_layer_size=layer_size,
+        symmetric_layer = SymmetricHiddenLayer(hidden_layer_size=layer_size,
                                                name="layer" + str(layer_count),
                                                activation_hidden=activation_hidden,
-                                               activation_output=activation_output)
+                                               activation_output=activation_output,
+                                               moving_average=self._moving_average)
 
         symmetric_double_encoder.add_hidden_layer(symmetric_layer)
 

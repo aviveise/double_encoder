@@ -37,9 +37,8 @@ class GUYDataSet(DatasetBase):
         test_image_idx = idx_mat['tst_images_I']
 
         train_size = min(training_sen_idx.shape[0], 100000)
-        dev_size = 500
+        dev_size = 2500
         test_size = test_sen_idx.shape[0]
-        #train_size = training_image_idx.shape[0]
 
         self.trainset = [numpy.ndarray((CNN_output.shape[1], train_size), dtype=config.floatX),
                          numpy.ndarray((feature_vectors[0].shape[0], train_size), dtype=config.floatX)]
@@ -58,10 +57,6 @@ class GUYDataSet(DatasetBase):
         for i in range(train_size):
 
            self.trainset[0][:, i] = CNN_output[int(images_sent_mapping[int(training_sen_idx[i]) - 1]) - 1]
-
-           self.trainset[0][:, i] -= numpy.mean(self.trainset[0][:, i])
-           self.trainset[0][:, i] /= numpy.linalg.norm(self.trainset[0][:, i], ord=2)
-
            self.trainset[1][:, i] = feature_vectors[int(training_sen_idx[i]) - 1]
 
         for i in range(dev_size):
@@ -72,8 +67,4 @@ class GUYDataSet(DatasetBase):
         for i in range(test_size):
 
            self.testset[0][:, i] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
-
-           self.testset[0][:, i] -= numpy.mean(self.trainset[0][:, i])
-           self.testset[0][:, i] /= numpy.linalg.norm(self.trainset[0][:, i], ord=2)
-
            self.testset[1][:, i] = feature_vectors[int(test_sen_idx[i]) - 1]

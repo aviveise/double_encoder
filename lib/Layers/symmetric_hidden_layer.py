@@ -1,3 +1,7 @@
+import scipy
+from theano.ifelse import ifelse
+from theano import printing
+
 __author__ = 'aviv'
 
 import numpy
@@ -9,9 +13,9 @@ import theano.printing
 class SymmetricHiddenLayer(object):
 
         def __init__(self,
-                     numpy_range,
                      x=None,
                      y=None,
+                     is_training=None,
                      hidden_layer_size=0,
                      name='',
                      activation_hidden=None,
@@ -21,19 +25,47 @@ class SymmetricHiddenLayer(object):
                      biasX = None,
                      biasY = None,
                      bias_primeX = None,
-                     bias_primeY = None):
+                     bias_primeY = None,
+                     normalize=True,
+                     epsilon=0,
+                     moving_average=None):
 
             self.hidden_layer_size = hidden_layer_size
-            self.numpy_range = numpy_range
             self.name = name
             self.activation_hidden = activation_hidden
             self.activation_output = activation_output
+            self.normalize = normalize
+            self.epsilon = epsilon
+            self.is_training = is_training
+            self._eval = False
+            self._moving_average = moving_average
 
-            if self.activation_hidden is None:
-                self.activation_hidden = Tensor.nnet.sigmoid #lambda x: x * (x > 0)
+            self.mean_inference_x = theano.shared(
+                numpy.zeros((1, self.hidden_layer_size), dtype=theano.config.floatX),
+                borrow=True,
+                broadcastable=(True, False))
+            self.mean_inference_x.name = self.name + "_mean_x"
 
-            if self.activation_output is None:
-                self.activation_output = Tensor.nnet.sigmoid #lambda x: x * (x > 0)
+            self.variance_inference_x = theano.shared(
+                numpy.zeros((1, self.hidden_layer_size), dtype=theano.config.floatX),
+                borrow=True,
+                broadcastable=(True, False))
+            self.variance_inference_x.name = self.name + "_var_x"
+
+            self.mean_inference_y = theano.shared(
+                numpy.zeros((1, self.hidden_layer_size), dtype=theano.config.floatX),
+                borrow=True,
+                broadcastable=(True, False))
+            self.mean_inference_y.name = self.name + "_mean_y"
+
+            self.variance_inference_y = theano.shared(
+                numpy.zeros((1, self.hidden_layer_size), dtype=theano.config.floatX),
+                borrow=True,
+                broadcastable=(True, False))
+            self.variance_inference_y.name = self.name + "_var_y"
+
+            if self.activation_hidden is None or self.activation_output is None:
+                raise Exception('Activation must be provided')
 
             self.x = 0
             self.y = 0
@@ -46,14 +78,11 @@ class SymmetricHiddenLayer(object):
             if not y is None:
                 self.update_y(y, Wy, biasY, bias_primeY)
 
-        def update_x(self, x, weights=None, bias_x=None, bias_x_prime=None, input_size=None, generate_weights=True):
+        def update_x(self, x, weights=None, bias_x=None, bias_x_prime=None, input_size=None):
 
             if x:
 
                 self.x = x
-
-                if not generate_weights:
-                    return
 
                 if weights is None:
                     self._initialize_input_weights(input_size)
@@ -74,8 +103,8 @@ class SymmetricHiddenLayer(object):
                     self.bias_x_prime = bias_x_prime
 
 
-                self.x_params = [self.Wx, self.bias_x, self.bias_x_prime]
-                self.x_hidden_params = [self.Wx, self.bias_x]
+                self.x_params = [self.Wx]#, self.bias_x]#, self.gamma_x, self.beta_x]#, self.bias_x_prime]
+                self.x_hidden_params = [self.Wx]#, self.bias_x]#, self.gamma_x, self.beta_x]
 
                 self.output_forward_x = self.compute_forward_hidden_x()
 
@@ -95,7 +124,6 @@ class SymmetricHiddenLayer(object):
                 else:
                     self.Wy = weights
 
-
                 if bias_y is None:
                     self.bias_y = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                                 name='bias_y' + '_' + self.name)
@@ -108,8 +136,8 @@ class SymmetricHiddenLayer(object):
                 else:
                     self.bias_y_prime = bias_y_prime
 
-                self.y_params = [self.Wy, self.bias_y, self.bias_y_prime]
-                self.y_hidden_params = [self.Wy, self.bias_y]
+                self.y_params = [self.Wy]#, self.bias_y]#, self.beta_y, self.gamma_y]#, self.bias_y_prime]
+                self.y_hidden_params = [self.Wy]#, self.bias_y]#, self.beta_y, self.gamma_y]
 
                 self.output_forward_y = self.compute_forward_hidden_y()
 
@@ -124,12 +152,24 @@ class SymmetricHiddenLayer(object):
             if input_size is None:
                 raise Exception("input size not provided")
 
-            initial_Wx = numpy.asarray(self.numpy_range.uniform(low=-numpy.sqrt(1. / (input_size)),
-                                                                high=numpy.sqrt(1. / (input_size)),
-                                                                size=(input_size, self.hidden_layer_size)),
-                                                                dtype=theano.config.floatX)
+            # initial_Wx = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
+            #                                                 high=numpy.sqrt(1. / (input_size)),
+            #                                                 size=(input_size, self.hidden_layer_size)),
+            #                                                 dtype=theano.config.floatX)
 
-            #initial_Wx = numpy.asarray(self.numpy_range.normal(0, 1, size=(input_size, self.hidden_layer_size)), dtype=theano.config.floatX)
+            wx = numpy.random.normal(0, 1, size=(input_size, self.hidden_layer_size))
+
+            orth_wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
+
+            initial_Wx = numpy.asarray(orth_wx, dtype=theano.config.floatX)
+
+            self.gamma_x = theano.shared(value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
+                                                 name='gamma_x_' + self.name)
+
+
+            self.beta_x = theano.shared(value=numpy.zeros(input_size, dtype=theano.config.floatX),
+                                         name='beta_x_' + self.name)
+
 
             # WXtoH corresponds to the weights between the input and the hidden layer
             self.Wx = theano.shared(value=initial_Wx, name='Wx' + '_' + self.name)
@@ -139,30 +179,67 @@ class SymmetricHiddenLayer(object):
             if input_size is None:
                 raise Exception("output size not provided")
 
-            initial_Wy = numpy.asarray(self.numpy_range.uniform(low=-numpy.sqrt(1. / (input_size)),
-                                                                high=numpy.sqrt(1. / (input_size)),
-                                                                size=(input_size, self.hidden_layer_size)),
-                                                                dtype=theano.config.floatX)
+            #initial_Wy = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
+            #                                                high=numpy.sqrt(1. / (input_size)),
+            #                                                 size=(input_size, self.hidden_layer_size)),
+            #                                                 dtype=theano.config.floatX)
 
-            #initial_Wy = numpy.asarray(self.numpy_range.normal(0, 1, size=(input_size, self.hidden_layer_size)), dtype=theano.config.floatX)
+            wy = numpy.random.normal(0, 1, size=(input_size, self.hidden_layer_size))
+
+            orth_wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
+
+            initial_Wy = numpy.asarray(orth_wy, dtype=theano.config.floatX)
+
+            self.gamma_y = theano.shared(value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
+                             name='gamma_y_' + self.name)
+
+
+            self.beta_y = theano.shared(value=numpy.zeros(input_size, dtype=theano.config.floatX),
+                                         name='beta_y_' + self.name)
+
 
             # WHtoY corresponds to the weights between the hidden layer and the output
             self.Wy = theano.shared(value=initial_Wy, name='Wy' + '_' + self.name)
 
         def compute_forward_hidden_x(self):
-            result = self.activation_hidden(Tensor.dot(self.x, self.Wx) + self.bias_x)
+
+            layer_input = self.x
+
+            layer_input = Tensor.dot(layer_input, self.Wx) + self.bias_x
+            result = self.activation_hidden(layer_input)
+
+            if self.normalize:
+                result = self.normalize_activations(result, self.mean_inference_x, self.variance_inference_x)
+
+#            result = self.gamma_x * result + self.beta_x
+
             return result
 
         def compute_forward_hidden_y(self):
-            result = self.activation_hidden(Tensor.dot(self.y, self.Wy) + self.bias_y)
+
+            layer_input = self.y
+
+            layer_input = Tensor.dot(layer_input, self.Wy) + self.bias_y
+            result = self.activation_hidden(layer_input)
+
+            if self.normalize:
+                result = self.normalize_activations(result, self.mean_inference_y, self.variance_inference_y)
+
+#            result = self.gamma_y * result + self.beta_y
+
+
             return result
+
+        def set_eval(self, eval):
+            self._eval = eval
+
 
         #Given one input computes the network forward output
         def reconstruct_y(self, input_x=None):
 
             if input_x is None:
-                return self.activation_output(Tensor.dot(self.output_forward_x, self.Wy.T) + self.bias_y_prime)
-
+                hidden_x = self.output_forward_x
+                return self.activation_output(Tensor.dot(hidden_x, self.Wy.T) + self.bias_y_prime)
             else:
                 return self.activation_output(Tensor.dot(input_x, self.Wy.T) + self.bias_y_prime)
 
@@ -170,7 +247,8 @@ class SymmetricHiddenLayer(object):
         def reconstruct_x(self, input_y=None):
 
             if input_y is None:
-                return self.activation_output(Tensor.dot(self.output_forward_y, self.Wx.T) + self.bias_x_prime)
+                hidden_y = self.output_forward_y
+                return self.activation_output(Tensor.dot(hidden_y, self.Wx.T) + self.bias_x_prime)
             else:
                 return self.activation_output(Tensor.dot(input_y, self.Wx.T) + self.bias_x_prime)
 
@@ -180,56 +258,16 @@ class SymmetricHiddenLayer(object):
         def input_y(self):
             return self.y
 
-        def print_weights(self):
+        def normalize_activations(self, x, mean_inference, variance_inference):
 
-            print('Wx: ')
-            print(self.Wx.eval())
-            print('Wy: ')
-            print(self.Wy.eval())
-            print('Bx: ')
-            print(self.bias_x.eval())
-            print('By: ')
-            print(self.bias_y.eval())
-            print('Bx_prime: ')
-            print(self.bias_x_prime.eval())
-            print('By_prime: ')
-            print(self.bias_y_prime.eval())
+            if not self._eval:
+                mean = Tensor.mean(x, axis=0, keepdims=True)
+                var = Tensor.sqrt(Tensor.var(x, axis=0, keepdims=True) + self.epsilon)
 
-        # #Regularization methods for different kinds of regularization types
-        # def sparsity_forward(self, ru=0.05):
-        #
-        #     forward_activation = self.compute_forward_hidden()
-        #
-        #     avg_activation_forward = forward_activation.sum(axis=0) / forward_activation.shape[0]
-        #
-        #     KL_forward = ru * Tensor.log(ru / avg_activation_forward) + \
-        #                    (1 - ru) * Tensor.log((1 - ru) / (1 - avg_activation_forward))
-        #
-        #     return KL_forward.sum()
-        #
-        # def sparsity_backward(self, ru=0.05):
-        #
-        #     backward_activation = self.compute_backward_hidden()
-        #
-        #     avg_activation_backward = backward_activation.sum(axis=0) / backward_activation.shape[0]
-        #
-        #     KL_backward = ru * Tensor.log(ru / avg_activation_backward) + \
-        #                     (1 - ru) * Tensor.log((1 - ru) / (1 - avg_activation_backward))
-        #
-        #     return KL_backward.sum()
-        #
-        # def contractive_term_forward(self):
-        #
-        #     forward_activation = self.compute_forward_hidden()
-        #
-        #     h = forward_activation.sum(axis=0) / forward_activation.shape[0]
-        #
-        #     return ((h ** 2) * ((1 - h) ** 2) * (self.w_xtoh ** 2).sum(axis=0)).sum()
-        #
-        # def contractive_term_backward(self):
-        #
-        #     backward_activation = self.compute_backward_hidden()
-        #
-        #     h = backward_activation.sum(axis=0) / backward_activation.shape[0]
-        #
-        #     return ((h ** 2) * ((1 - h) ** 2) * (self.b_ytoh ** 2).sum(axis=0)).sum()
+                self._moving_average.append([[mean, var], [mean_inference, variance_inference]])
+
+            else:
+                mean = mean_inference
+                var = variance_inference
+
+            return (x - mean) / var

@@ -161,13 +161,25 @@ def unitnorm_cols(M):
 
     return M
 
-def center(M):
-
+def normalize(M):
     if M is None:
         return
 
-    M -= M.mean(axis=1).reshape([M.shape[0], 1]) * numpy.ones([1, M.shape[1]])
-    return M
+    norm = numpy.linalg.norm(M, ord=2, axis=1).reshape([M.shape[0], 1])
+
+    norm[norm == 0] = 1
+
+    M /= norm * numpy.ones([1, M.shape[1]])
+
+    return M, norm
+
+def center(M):
+    if M is None:
+        return
+
+    mean = M.mean(axis=1).reshape([M.shape[0], 1])
+    M -= mean * numpy.ones([1, M.shape[1]])
+    return M, mean
 
 def print_list(list, percentage=False):
 
@@ -387,17 +399,15 @@ def calculate_square(x):
 
 def calculate_mardia(x, y, top):
 
-    set_size = x.shape[1]
-    dim = x.shape[0]
+    set_size = x.shape[0]
+    dim = x.shape[1]
 
-    ones = numpy.ones([set_size, set_size])
+    x, mean_x = center(x.T)
+    y, mean_y = center(y.T)
 
-    x_centered = x - numpy.dot(x, ones) / set_size
-    y_centered = y - numpy.dot(y, ones) / set_size
-
-    s11 = numpy.diag(numpy.diag(numpy.dot(x_centered, x_centered.T))) / (set_size - 1) + 10**(-8) * numpy.eye(dim, dim)
-    s22 = numpy.diag(numpy.diag(numpy.dot(y_centered, y_centered.T))) / (set_size - 1) + 10**(-8) * numpy.eye(dim, dim)
-    s12 = numpy.diag(numpy.diag(numpy.dot(x_centered, y_centered.T))) / (set_size - 1)
+    s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10**(-8) * numpy.eye(dim, dim)))
+    s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10**(-8) * numpy.eye(dim, dim)))
+    s12 = numpy.diag(numpy.diag(numpy.dot(x, y.T) / (set_size - 1)))
 
     s11_chol = scipy.linalg.sqrtm(s11)
     s22_chol = scipy.linalg.sqrtm(s22)
@@ -408,6 +418,9 @@ def calculate_mardia(x, y, top):
     mat_T = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
 
     s = numpy.linalg.svd(mat_T, compute_uv=0)
+
+    if top == 0:
+        return numpy.sum(s)
 
     return numpy.sum(s[0:top])
 
@@ -441,4 +454,4 @@ def calculate_corrcoef(x, y, top):
 
 def calculate_reconstruction_error(x, y):
 
-    return numpy.sqrt(((x - y) ** 2).sum()) / x.shape[1]
+    return ((x - y).T ** 2).sum() / x.shape[0]

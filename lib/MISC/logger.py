@@ -11,7 +11,6 @@ class OutputLog(object):
     __metaclass__ = Singleton
 
     def __init__(self):
-        pass
         output_file_name = 'double_encoder_' + datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.txt'
         self.path = os.getcwd()
         self.output_file = open(os.path.join(self.path, output_file_name), 'w+')

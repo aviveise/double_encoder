@@ -1,7 +1,7 @@
 __author__ = 'aviv'
 
 from MNIST_dataset import MNISTDataSet
-from MNIST_dataset import MNISTDataSetRCCA
+#from MNIST_dataset import MNISTDataSetRCCA
 from XRBM_dataset import XRBMDataSet
 from CARS_dataset import CARSDataSetTar
 from DRUGS_dataset import DRUGSDataSet
