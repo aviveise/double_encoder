@@ -1,3 +1,5 @@
+from MISC.logger import OutputLog
+
 __author__ = 'aviv'
 
 import abc
@@ -47,8 +49,7 @@ class TesterBase(object):
 
             index += 1
 
-        print tabulate(table_rows, headers=table_header)
-        print '\n'
+        OutputLog().write(tabulate(table_rows, headers=table_header))
 
         return correlation, lowest_var, outputs_x, outputs_y, layer_id
 

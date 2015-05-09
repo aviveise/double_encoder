@@ -56,7 +56,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
         for idx, layer_size in enumerate(layer_sizes):
 
-            print '--------Adding Layer of Size - %d--------\n' % layer_size
+            OutputLog().write('--------Adding Layer of Size - %d--------' % layer_size)
             self._add_cross_encoder_layer(layer_size,
                                           symmetric_double_encoder,
                                           hyper_parameters.method_in,
@@ -72,7 +72,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
             params.extend(symmetric_double_encoder[-1].y_params)
 
-            print '--------Starting Training Network-------\n'
+            OutputLog().write('--------Starting Training Network-------')
             Trainer.train(train_set_x=training_set_x,
                           train_set_y=training_set_y,
                           hyper_parameters=hyper_parameters,
@@ -90,7 +90,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
         params = symmetric_double_encoder.getParams()
         hyper_parameters.learning_rate *= 0.01
 
-        print '--------Starting Training Network-------\n'
+        OutputLog().write('--------Starting Training Network-------')
         Trainer.train(train_set_x=training_set_x,
                           train_set_y=training_set_y,
                           hyper_parameters=hyper_parameters,

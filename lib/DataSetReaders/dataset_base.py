@@ -93,19 +93,19 @@ class DatasetBase(object):
                 whiten_sen_path = os.path.join(dir, 'whiten_sen.mat')
 
             if os.path.exists(whiten_image_path) and os.path.exists(whiten_sen_path):
-                print 'loading whiten matrices from files'
+                OutputLog().write('loading whiten matrices from files')
                 wx = scipy.io.loadmat(whiten_image_path)['w'].astype(dtype=theano.config.floatX)
                 wy = scipy.io.loadmat(whiten_sen_path)['w'].astype(dtype=theano.config.floatX)
             else:
-                print 'cache not found calculating whiten transforms'
+                OutputLog().write('cache not found calculating whiten transforms')
                 wx = WhitenTransform.fit(self.trainset[0]).astype(dtype=theano.config.floatX)
                 wy = WhitenTransform.fit(self.trainset[1]).astype(dtype=theano.config.floatX)
 
-                print 'saving matrices of sizes {0}, {1}'.format(wx.shape, wy.shape)
+                OutputLog().write('saving matrices of sizes {0}, {1}'.format(wx.shape, wy.shape))
                 scipy.io.savemat(whiten_image_path, {'w': wx})
                 scipy.io.savemat(whiten_sen_path, {'w': wy})
 
-            print 'transforming data'
+            OutputLog().write('transforming data')
             self.trainset = (WhitenTransform.transform(self.trainset[0], wx),
                              WhitenTransform.transform(self.trainset[1], wy))
 
