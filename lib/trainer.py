@@ -1,5 +1,6 @@
 import cv2
 import itertools
+from theano.ifelse import IfElse, ifelse
 
 __author__ = 'aviv'
 
@@ -63,7 +64,7 @@ class Trainer(object):
                                      model_updates,
                                      moving_averages,
                                      n_training_batches,
-                                     'adaGrad',
+                                     'SGD',
                                      eps)
 
         #The training phase, for each epoch we train on every batch
@@ -247,8 +248,7 @@ class Trainer(object):
         elif strategy == 'adaGrad':
             updates = OrderedDict()
             zipped = zip(params, gradients, model_updates)
-            for param, gradient, accumulated_gradient in zipped:
-
+            for ndx, (param, gradient, accumulated_gradient) in enumerate(zipped):
                 agrad = accumulated_gradient + gradient ** 2
                 effective_learning_rate = (hyper_parameters.learning_rate / Tensor.sqrt(agrad + eps))
                 delta = effective_learning_rate * gradient
