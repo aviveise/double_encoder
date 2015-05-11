@@ -23,8 +23,8 @@ class TraceCorrelationTester(TesterBase):
 
         tickFrequency = cv2.getTickFrequency()
 
-        var_x = 1 / numpy.var(x, axis=0)
-        var_y = 1 / numpy.var(y, axis=0)
+        var_x = 1 / numpy.sqrt(numpy.var(x, axis=0))
+        var_y = 1 / numpy.sqrt(numpy.var(y, axis=0))
 
         loss_var_x = numpy.sum(var_x)
         loss_var_y = numpy.sum(var_y)
