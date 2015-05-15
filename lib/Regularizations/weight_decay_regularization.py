@@ -11,7 +11,6 @@ class WeightDecayRegularization(RegularizationBase):
 
     def __init__(self, regularization_parameters):
         super(WeightDecayRegularization, self).__init__(regularization_parameters)
-        self._zeroing_param = float(regularization_parameters['zeroing_param'])
 
     def compute(self, symmetric_double_encoder, params):
 
@@ -32,4 +31,3 @@ class WeightDecayRegularization(RegularizationBase):
 
     def print_regularization(self, output_stream):
         super(WeightDecayRegularization, self).print_regularization(output_stream)
-        output_stream.write('regularization_weight_zeroing_param: %f' % self._zeroing_param)

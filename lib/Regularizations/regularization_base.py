@@ -14,6 +14,7 @@ class RegularizationBase(object):
         OutputLog().write('Adding regularization: ' + regularization_parameters['type'])
 
         self.weight = float(regularization_parameters['weight'])
+        self._zeroing_param = float(regularization_parameters['zeroing_param'])
         self.regularization_type = regularization_parameters['type']
 
     @abc.abstractmethod
@@ -25,3 +26,4 @@ class RegularizationBase(object):
 
         output_stream.write('regularization_type: %s' % self.regularization_type)
         output_stream.write('regularization_weight: %f' % self.weight)
+        output_stream.write('zeroing_param: %f' % self._zeroing_param)

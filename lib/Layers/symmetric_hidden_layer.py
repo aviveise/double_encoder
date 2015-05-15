@@ -26,7 +26,7 @@ class SymmetricHiddenLayer(object):
                      biasY = None,
                      bias_primeX = None,
                      bias_primeY = None,
-                     normalize=True,
+                     normalize=False,
                      epsilon=0,
                      moving_average=None):
 
@@ -152,12 +152,12 @@ class SymmetricHiddenLayer(object):
             if input_size is None:
                 raise Exception("input size not provided")
 
-            # initial_Wx = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
-            #                                                 high=numpy.sqrt(1. / (input_size)),
-            #                                                 size=(input_size, self.hidden_layer_size)),
-            #                                                 dtype=theano.config.floatX)
+            wx = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
+                                                            high=numpy.sqrt(1. / (input_size)),
+                                                            size=(input_size, self.hidden_layer_size)),
+                                                            dtype=theano.config.floatX)
 
-            wx = numpy.random.normal(0, 1, size=(input_size, self.hidden_layer_size))
+            #wx = numpy.random.normal(0, 0.1, size=(input_size, self.hidden_layer_size))
 
             orth_wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
 
@@ -179,12 +179,12 @@ class SymmetricHiddenLayer(object):
             if input_size is None:
                 raise Exception("output size not provided")
 
-            #initial_Wy = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
-            #                                                high=numpy.sqrt(1. / (input_size)),
-            #                                                 size=(input_size, self.hidden_layer_size)),
-            #                                                 dtype=theano.config.floatX)
+            wy = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
+                                                           high=numpy.sqrt(1. / (input_size)),
+                                                            size=(input_size, self.hidden_layer_size)),
+                                                            dtype=theano.config.floatX)
 
-            wy = numpy.random.normal(0, 1, size=(input_size, self.hidden_layer_size))
+            #wy = numpy.random.normal(0, 0.1, size=(input_size, self.hidden_layer_size))
 
             orth_wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
 
@@ -211,8 +211,6 @@ class SymmetricHiddenLayer(object):
             if self.normalize:
                 result = self.normalize_activations(result, self.mean_inference_x, self.variance_inference_x)
 
-#            result = self.gamma_x * result + self.beta_x
-
             return result
 
         def compute_forward_hidden_y(self):
@@ -224,9 +222,6 @@ class SymmetricHiddenLayer(object):
 
             if self.normalize:
                 result = self.normalize_activations(result, self.mean_inference_y, self.variance_inference_y)
-
-#            result = self.gamma_y * result + self.beta_y
-
 
             return result
 
