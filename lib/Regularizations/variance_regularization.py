@@ -19,11 +19,10 @@ class VarianceRegularization(RegularizationBase):
             hidden_x = layer.output_forward_x
             hidden_y = layer.output_forward_y
 
-            regularization += Tensor.sum(hidden_x ** 2) + Tensor.sum(hidden_y ** 2)
+            regularization -= (Tensor.sum(hidden_x ** 2) + Tensor.sum(hidden_y ** 2))
 
-        regularization = self._zeroing_param - regularization
-
-        return self.weight * regularization * (regularization > 0)
+        return self.weight * regularization * (self._zeroing_param + regularization / hidden_x.shape[0].
+                                               astype(dtype=Tensor.config.floatX) > 0)
 
     def print_regularization(self, output_stream):
         super(VarianceRegularization, self).print_regularization(output_stream)

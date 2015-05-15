@@ -2,18 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7bf5cad0-15b4-49c5-a97e-a3f7c7148e9b" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/Regularizations/variance_regularization.py" />
-      <change type="DELETED" beforePath="C:\Theses\double_encoder\lib\Regularizations\pairwise_correlation_regularization.py" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Regularizations/__init__.py" afterPath="$PROJECT_DIR$/lib/Regularizations/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/cross_encoder_GUY.ini" afterPath="$PROJECT_DIR$/bin/cross_encoder_GUY.ini" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/cross_encoder_MNIST.ini" afterPath="$PROJECT_DIR$/bin/cross_encoder_MNIST.ini" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" afterPath="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Regularizations/regularization_base.py" afterPath="$PROJECT_DIR$/lib/Regularizations/regularization_base.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" afterPath="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/trainer.py" afterPath="$PROJECT_DIR$/lib/trainer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/MISC/utils.py" afterPath="$PROJECT_DIR$/lib/MISC/utils.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Regularizations/weight_decay_regularization.py" afterPath="$PROJECT_DIR$/lib/Regularizations/weight_decay_regularization.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Regularizations/weight_orthonormal_regularization.py" afterPath="$PROJECT_DIR$/lib/Regularizations/weight_orthonormal_regularization.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Regularizations/variance_regularization.py" afterPath="$PROJECT_DIR$/lib/Regularizations/variance_regularization.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Theses.iws" />
@@ -38,25 +28,15 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="trainer.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="trainer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/trainer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1990" max-vertical-offset="6825">
+            <state vertical-scroll-proportion="-7.1175375" vertical-offset="5965" max-vertical-offset="6825">
               <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
               <folding>
                 <element signature="e#624#757#0" expanded="false" />
                 <element signature="e#5979#6869#0" expanded="false" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/Regularizations/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="325">
-              <caret line="1" column="33" selection-start-line="1" selection-start-column="33" selection-end-line="1" selection-end-column="33" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -86,17 +66,17 @@
       <file leaf-file-name="cross_encoder_MNIST.ini" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/cross_encoder_MNIST.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1025">
-              <caret line="12" column="16" selection-start-line="0" selection-start-column="0" selection-end-line="35" selection-end-column="16" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="225" max-vertical-offset="1025">
+              <caret line="27" column="20" selection-start-line="27" selection-start-column="20" selection-end-line="27" selection-end-column="20" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cross_encoder_GUY.ini" pinned="false" current-in-tab="true">
+      <file leaf-file-name="cross_encoder_GUY.ini" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.72677594" vertical-offset="476" max-vertical-offset="1025">
+            <state vertical-scroll-proportion="0.0" vertical-offset="476" max-vertical-offset="1025">
               <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
               <folding />
             </state>
@@ -146,8 +126,8 @@
       <file leaf-file-name="variance_regularization.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/Regularizations/variance_regularization.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="225" max-vertical-offset="875">
-              <caret line="7" column="16" selection-start-line="7" selection-start-column="16" selection-end-line="7" selection-end-column="16" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="200" max-vertical-offset="850">
+              <caret line="23" column="68" selection-start-line="23" selection-start-column="68" selection-end-line="23" selection-end-column="68" />
               <folding>
                 <element signature="e#21#71#0" expanded="true" />
               </folding>
@@ -216,13 +196,13 @@
         <option value="$PROJECT_DIR$/lib/trainer.py" />
         <option value="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" />
         <option value="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" />
-        <option value="$PROJECT_DIR$/lib/Regularizations/variance_regularization.py" />
         <option value="$PROJECT_DIR$/lib/Regularizations/regularization_base.py" />
         <option value="$PROJECT_DIR$/lib/Regularizations/weight_decay_regularization.py" />
         <option value="$PROJECT_DIR$/lib/Regularizations/weight_orthonormal_regularization.py" />
         <option value="$PROJECT_DIR$/lib/Regularizations/__init__.py" />
-        <option value="$PROJECT_DIR$/bin/cross_encoder_MNIST.ini" />
         <option value="$PROJECT_DIR$/bin/cross_encoder_GUY.ini" />
+        <option value="$PROJECT_DIR$/lib/Regularizations/variance_regularization.py" />
+        <option value="$PROJECT_DIR$/bin/cross_encoder_MNIST.ini" />
       </list>
     </option>
   </component>
@@ -388,7 +368,7 @@
       <console-settings />
     </option>
   </component>
-  <component name="RunManager" selected="Python.double_encoder_iterative_guy">
+  <component name="RunManager" selected="Python.double_encoder_iterative_mnist">
     <configuration default="false" name="double_encoder_iterative_guy" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -578,16 +558,16 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1050" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25277045" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25277045" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34124294" sideWeight="0.50026697" order="12" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3278496" sideWeight="0.49973306" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33485714" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33485714" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -657,13 +637,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/lib/Regularizations/weight_decay_regularization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="189" max-vertical-offset="950">
-          <caret line="20" column="72" selection-start-line="20" selection-start-column="50" selection-end-line="20" selection-end-column="72" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/trainer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="5791" max-vertical-offset="6350">
@@ -965,16 +938,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/Regularizations/variance_regularization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="875">
-          <caret line="7" column="16" selection-start-line="7" selection-start-column="16" selection-end-line="7" selection-end-column="16" />
-          <folding>
-            <element signature="e#21#71#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="2996" max-vertical-offset="6450">
@@ -990,30 +953,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/double_encoder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1240" max-vertical-offset="5300">
-          <caret line="59" column="0" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="440" max-vertical-offset="1750">
           <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/trainer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1990" max-vertical-offset="6825">
-          <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
-          <folding>
-            <element signature="e#624#757#0" expanded="false" />
-            <element signature="e#5979#6869#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1045,6 +989,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="476" max-vertical-offset="1025">
+          <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/projects/dev/theGarage/Lib/Theano/theano/tensor/elemwise.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33208954" vertical-offset="44997" max-vertical-offset="52900">
+          <caret line="1823" column="0" selection-start-line="1823" selection-start-column="0" selection-end-line="1823" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/cross_encoder_MNIST.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="225" max-vertical-offset="1025">
+          <caret line="27" column="20" selection-start-line="27" selection-start-column="20" selection-end-line="27" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib/Regularizations/weight_orthonormal_regularization.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1175">
@@ -1055,19 +1023,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bin/cross_encoder_MNIST.ini">
+    <entry file="file://$PROJECT_DIR$/lib/double_encoder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1025">
-          <caret line="12" column="16" selection-start-line="0" selection-start-column="0" selection-end-line="35" selection-end-column="16" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1240" max-vertical-offset="5300">
+          <caret line="59" column="0" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
+    <entry file="file://$PROJECT_DIR$/lib/Regularizations/variance_regularization.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.72677594" vertical-offset="476" max-vertical-offset="1025">
-          <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="200" max-vertical-offset="850">
+          <caret line="23" column="68" selection-start-line="23" selection-start-column="68" selection-end-line="23" selection-end-column="68" />
+          <folding>
+            <element signature="e#21#71#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/trainer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-7.1175375" vertical-offset="5965" max-vertical-offset="6825">
+          <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
+          <folding>
+            <element signature="e#624#757#0" expanded="false" />
+            <element signature="e#5979#6869#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
