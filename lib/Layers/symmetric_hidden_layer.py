@@ -1,3 +1,4 @@
+from theano.tensor.shared_randomstreams import RandomStreams
 import scipy
 from theano.ifelse import ifelse
 from theano import printing
@@ -27,9 +28,13 @@ class SymmetricHiddenLayer(object):
                      bias_primeX = None,
                      bias_primeY = None,
                      normalize=False,
+                     dropout=True,
                      epsilon=0,
-                     moving_average=None):
+                     moving_average=None,
+                     dropout_prob=0.5):
 
+            self._dropout = dropout
+            self._drop_probability = dropout_prob
             self.hidden_layer_size = hidden_layer_size
             self.name = name
             self.activation_hidden = activation_hidden
@@ -39,6 +44,7 @@ class SymmetricHiddenLayer(object):
             self.is_training = is_training
             self._eval = False
             self._moving_average = moving_average
+            self._random_streams = RandomStreams()
 
             self.mean_inference_x = theano.shared(
                 numpy.zeros((1, self.hidden_layer_size), dtype=theano.config.floatX),
@@ -211,6 +217,9 @@ class SymmetricHiddenLayer(object):
             if self.normalize:
                 result = self.normalize_activations(result, self.mean_inference_x, self.variance_inference_x)
 
+            if self._dropout:
+                result = self.dropout(result)
+
             return result
 
         def compute_forward_hidden_y(self):
@@ -223,7 +232,24 @@ class SymmetricHiddenLayer(object):
             if self.normalize:
                 result = self.normalize_activations(result, self.mean_inference_y, self.variance_inference_y)
 
+            if self._dropout:
+                result = self.dropout(result)
+
             return result
+
+        def dropout(self, input):
+
+            retain_probability = 1 - self._drop_probability
+
+            output_predict = input * retain_probability
+            output_train = input * self._random_streams.binomial(input.shape,
+                                                                 p=retain_probability,
+                                                                 dtype=Tensor.config.floatX)
+
+            if self._eval:
+                return output_predict
+            else:
+                return output_train
 
         def set_eval(self, eval):
             self._eval = eval
