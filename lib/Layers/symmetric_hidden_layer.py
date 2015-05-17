@@ -2,6 +2,7 @@ from theano.tensor.shared_randomstreams import RandomStreams
 import scipy
 from theano.ifelse import ifelse
 from theano import printing
+from MISC.logger import OutputLog
 
 __author__ = 'aviv'
 
@@ -45,6 +46,12 @@ class SymmetricHiddenLayer(object):
             self._eval = False
             self._moving_average = moving_average
             self._random_streams = RandomStreams()
+
+            if normalize:
+                OutputLog().write('Using batch normalization')
+
+            if normalize:
+                OutputLog().write('Using dropout')
 
             self.mean_inference_x = theano.shared(
                 numpy.zeros((1, self.hidden_layer_size), dtype=theano.config.floatX),
