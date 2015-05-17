@@ -2,6 +2,6 @@ from Regularizations import weight_decay_regularization
 from Regularizations import variance_regularization
 from Regularizations import reconstruction_regularization
 from Regularizations import weight_orthonormal_regularization
-
+from Regularizations import hinge_regularization
 __author__ = 'aviv'
 
