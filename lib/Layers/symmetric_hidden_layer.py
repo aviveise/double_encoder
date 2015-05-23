@@ -29,7 +29,7 @@ class SymmetricHiddenLayer(object):
                      bias_primeX = None,
                      bias_primeY = None,
                      normalize=False,
-                     dropout=True,
+                     dropout=False,
                      epsilon=0,
                      moving_average=None,
                      dropout_prob=0.5):
@@ -165,16 +165,16 @@ class SymmetricHiddenLayer(object):
             if input_size is None:
                 raise Exception("input size not provided")
 
-            wx = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
-                                                            high=numpy.sqrt(1. / (input_size)),
-                                                            size=(input_size, self.hidden_layer_size)),
-                                                            dtype=theano.config.floatX)
+            #wx = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
+                                                            # high=numpy.sqrt(1. / (input_size)),
+                                                            # size=(input_size, self.hidden_layer_size)),
+                                                            # dtype=theano.config.floatX)
 
-            #wx = numpy.random.normal(0, 0.1, size=(input_size, self.hidden_layer_size))
+            wx = numpy.random.normal(0, 0.1, size=(input_size, self.hidden_layer_size))
 
-            orth_wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
+            #orth_wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
 
-            initial_Wx = numpy.asarray(orth_wx, dtype=theano.config.floatX)
+            initial_Wx = numpy.asarray(wx, dtype=theano.config.floatX)
 
             self.gamma_x = theano.shared(value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
                                                  name='gamma_x_' + self.name)
@@ -192,16 +192,16 @@ class SymmetricHiddenLayer(object):
             if input_size is None:
                 raise Exception("output size not provided")
 
-            wy = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
-                                                           high=numpy.sqrt(1. / (input_size)),
-                                                            size=(input_size, self.hidden_layer_size)),
-                                                            dtype=theano.config.floatX)
+            #wy = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
+                                                           # high=numpy.sqrt(1. / (input_size)),
+                                                           #  size=(input_size, self.hidden_layer_size)),
+                                                           #  dtype=theano.config.floatX)
 
-            #wy = numpy.random.normal(0, 0.1, size=(input_size, self.hidden_layer_size))
+            wy = numpy.random.normal(0, 0.1, size=(input_size, self.hidden_layer_size))
 
-            orth_wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
+            #orth_wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
 
-            initial_Wy = numpy.asarray(orth_wy, dtype=theano.config.floatX)
+            initial_Wy = numpy.asarray(wy, dtype=theano.config.floatX)
 
             self.gamma_y = theano.shared(value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
                              name='gamma_y_' + self.name)

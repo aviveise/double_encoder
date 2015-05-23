@@ -25,15 +25,35 @@ from MISC.logger import OutputLog
 
 
 def shuffleDataSet(samplesX, samplesY, random_stream):
-
     set_size = samplesX.shape[0]
     indices = random_stream.permutation(set_size)
 
     return samplesX[indices, :], samplesY[indices, :]
 
 
-class Trainer(object):
+def _print_array(x):
+    output = ''
 
+    if x.ndim == 0:
+        output += '{0:.2f}'.format(float(x))
+
+    elif x.ndim == 1:
+        output += '['
+        for item in x:
+            output += '{0.2f}'.format(item)
+        output += ']'
+    else:
+        output += '['
+        for line in x:
+            output += '['
+            for item in line:
+                output += '{0.2f}'.format(item)
+            output += ']'
+        output += ']'
+
+    return output
+
+class Trainer(object):
     @staticmethod
     def train(train_set_x,
               train_set_y,
@@ -47,7 +67,7 @@ class Trainer(object):
               validation_set_y=None,
               moving_averages=None):
 
-        #Calculating number of batches
+        # Calculating number of batches
         n_training_batches = int(train_set_x.shape[0] / hyper_parameters.batch_size)
         random_stream = RandomState()
 
@@ -67,7 +87,10 @@ class Trainer(object):
                                      'SGD',
                                      eps)
 
-        #The training phase, for each epoch we train on every batch
+        numpy.set_string_function(_print_array, repr=False)
+
+
+        # The training phase, for each epoch we train on every batch
         best_loss = 0
         for epoch in numpy.arange(hyper_parameters.epochs):
 
@@ -84,11 +107,11 @@ class Trainer(object):
 
                 start_tick = cv2.getTickCount()
 
-                #need to convert the input into tensor variable
+                # need to convert the input into tensor variable
                 symmetric_double_encoder.var_x.set_value(train_set_x[indices[index * hyper_parameters.batch_size:
-                                                            (index + 1) * hyper_parameters.batch_size], :], borrow=True)
+                (index + 1) * hyper_parameters.batch_size], :], borrow=True)
                 symmetric_double_encoder.var_y.set_value(train_set_y[indices[index * hyper_parameters.batch_size:
-                                                            (index + 1) * hyper_parameters.batch_size], :], borrow=True)
+                (index + 1) * hyper_parameters.batch_size], :], borrow=True)
 
                 output = model()
                 loss_forward += output[0]
@@ -109,18 +132,20 @@ class Trainer(object):
                 string_output = ' '
                 for regularization_output, regularization_method in zipped:
                     string_output += '{0}: {1} '.format(regularization_method.regularization_type,
-                                                        regularization_output)
+                                                            regularization_output)
 
-                OutputLog().write('batch {0}/{1} ended, time: {2}, loss_x: {3}, loss_y: {4}, loss_h: {7}\nvar_x: {5} var_y: {6}\n{8}'.
-                                  format(index,
-                                         n_training_batches,
-                                         ((current_time - start_tick) / tickFrequency),
-                                         output[0],
-                                         output[1],
-                                         output[2],
-                                         output[3],
-                                         calculate_reconstruction_error(output[4], output[5]),
-                                         string_output))
+                OutputLog().write(
+                    'batch {0}/{1} ended, time: {2:.3f}, loss_x: {3}, loss_y: {4}, loss_h: '
+                    '{7:.2f} var_x: {5} var_y: {6} {8}'.
+                        format(index,
+                               n_training_batches,
+                               ((current_time - start_tick) / tickFrequency),
+                               output[0],
+                               output[1],
+                               output[2],
+                               output[3],
+                               calculate_reconstruction_error(output[4], output[5]),
+                               string_output))
 
             loss = (loss_forward + loss_backward) / n_training_batches
 
@@ -136,7 +161,8 @@ class Trainer(object):
 
                 symmetric_double_encoder.set_eval(True)
 
-                trace_correlation, var, x, y, layer_id = TraceCorrelationTester(validation_set_x.T, validation_set_y.T, top).\
+                trace_correlation, var, x, y, layer_id = TraceCorrelationTester(validation_set_x.T, validation_set_y.T,
+                                                                                top). \
                     test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
                          hyper_parameters)
 
@@ -152,7 +178,8 @@ class Trainer(object):
         del model
 
     @staticmethod
-    def train_output_layer(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params, regularization_methods, top=50):
+    def train_output_layer(train_set_x, train_set_y, hyper_parameters, symmetric_double_encoder, params,
+                           regularization_methods, top=50):
 
         model = Trainer._build_model_output(train_set_x,
                                             train_set_y,
@@ -162,10 +189,10 @@ class Trainer(object):
                                             regularization_methods,
                                             top)
 
-        #Calculating number of batches
+        # Calculating number of batches
         n_training_batches = train_set_x.get_value(borrow=True).shape[0] / hyper_parameters.batch_size
 
-        #The training phase, for each epoch we train on every batch
+        # The training phase, for each epoch we train on every batch
         for epoch in numpy.arange(hyper_parameters.epochs):
             loss = 0
             for index in xrange(n_training_batches):
@@ -186,7 +213,7 @@ class Trainer(object):
                      strategy='SGD',
                      eps=1e-6):
 
-        #Retrieve the reconstructions of x and y
+        # Retrieve the reconstructions of x and y
         x_tilde = symmetric_double_encoder.reconstruct_x()
         y_tilde = symmetric_double_encoder.reconstruct_y()
 
@@ -198,20 +225,21 @@ class Trainer(object):
 
         print 'Calculating Loss'
 
-        #Compute the loss of the forward encoding as L2 loss
+        # Compute the loss of the forward encoding as L2 loss
         loss_backward = ((var_x - x_tilde).T ** 2).sum(dtype=Tensor.config.floatX,
-                                                     acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
+                                                       acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
 
-        #Compute the loss of the backward encoding as L2 loss
+        # Compute the loss of the backward encoding as L2 loss
         loss_forward = ((var_y - y_tilde).T ** 2).sum(dtype=Tensor.config.floatX,
-                                                    acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
+                                                      acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
 
         loss = loss_backward + loss_forward
 
         print 'Adding regularization'
 
-        #Add the regularization method computations to the loss
-        regularizations = [regularization_method.compute(symmetric_double_encoder, params) for regularization_method in regularization_methods if not regularization_method.weight == 0]
+        # Add the regularization method computations to the loss
+        regularizations = [regularization_method.compute(symmetric_double_encoder, params) for regularization_method in
+                           regularization_methods if not regularization_method.weight == 0]
 
         print 'Regularization number = {0}'.format(len(regularizations))
 
@@ -220,9 +248,11 @@ class Trainer(object):
 
         print 'Calculating gradients'
 
-        #Computing the gradient for the stochastic gradient decent
-        #the result is gradients for each parameter of the cross encoder
+        # Computing the gradient for the stochastic gradient decent
+        # the result is gradients for each parameter of the cross encoder
         gradients = Tensor.grad(loss, params)
+        reg_gradients = Tensor.grad(Tensor.sum(regularizations), params)
+        loss_gradients = Tensor.grad(loss_backward + loss_forward, params)
 
         if strategy == 'SGD':
 
@@ -233,14 +263,13 @@ class Trainer(object):
                 updates = OrderedDict()
                 zipped = zip(params, gradients, model_updates)
                 for param, gradient, model_update in zipped:
-
                     delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
 
                     updates[param] = param + delta
                     updates[model_update] = delta
 
             else:
-                #generate the list of updates, each update is a round in the decent
+                # generate the list of updates, each update is a round in the decent
                 updates = []
                 for param, gradient in zip(params, gradients):
                     updates.append((param, param - hyper_parameters.learning_rate * gradient))
@@ -268,18 +297,18 @@ class Trainer(object):
         if moving_averages is not None:
             Trainer._add_moving_averages(moving_averages, updates, number_of_batches)
 
-        #Building the theano function
-        #input : batch index
-        #output : both losses
-        #updates : gradient decent updates for all params
-        #givens : replacing inputs for each iteration
+        # Building the theano function
+        # input : batch index
+        # output : both losses
+        # updates : gradient decent updates for all params
+        # givens : replacing inputs for each iteration
         model = function(inputs=[],
                          outputs=[loss_backward,
                                   loss_forward,
                                   Tensor.sum(variance_hidden_x),
                                   Tensor.sum(variance_hidden_y),
                                   x_hidden,
-                                  y_hidden] + regularizations,
+                                  y_hidden] + regularizations + reg_gradients + loss_gradients,
                          updates=updates)
 
         return model
@@ -294,3 +323,4 @@ class Trainer(object):
         for tensor, param in zip(values, params):
             updates[param] = (1.0 - factor) * param + factor * tensor
         return updates
+
