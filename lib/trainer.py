@@ -53,6 +53,7 @@ def _print_array(x):
 
     return output
 
+
 class Trainer(object):
     @staticmethod
     def train(train_set_x,
@@ -88,7 +89,6 @@ class Trainer(object):
                                      eps)
 
         numpy.set_string_function(_print_array, repr=False)
-
 
         # The training phase, for each epoch we train on every batch
         best_loss = 0
@@ -132,7 +132,7 @@ class Trainer(object):
                 string_output = ' '
                 for regularization_output, regularization_method in zipped:
                     string_output += '{0}: {1} '.format(regularization_method.regularization_type,
-                                                            regularization_output)
+                                                        regularization_output)
 
                 OutputLog().write(
                     'batch {0}/{1} ended, time: {2:.3f}, loss_x: {3}, loss_y: {4}, loss_h: '
@@ -323,4 +323,3 @@ class Trainer(object):
         for tensor, param in zip(values, params):
             updates[param] = (1.0 - factor) * param + factor * tensor
         return updates
-
