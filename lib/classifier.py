@@ -37,15 +37,15 @@ def compute_square(data_set, transformer):
     output = numpy.ndarray((data_set.trainset[0].shape[1] + data_set.testset[1].shape[1],
                             data_set.trainset[0].shape[1] + data_set.testset[1].shape[1]))
 
-    for index_i, sample_i in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
+    for index_i, sample_i in enumerate(transformer.compute_outputs(data_set.trainset[0], data_set.trainset[1], 1)):
 
-        for index_j, sample_j in enumerate(transformer.compute_outputs(data_set.trainset[0][:, index_i:].T,
-                                                                       data_set.trainset[1][:, index_i:].T, 1)):
+        for index_j, sample_j in enumerate(transformer.compute_outputs(data_set.trainset[0][index_i:, :],
+                                                                       data_set.trainset[1][index_i:, :], 1)):
 
             output[index_i, index_j + index_i] = numpy.dot(sample_i, sample_j.reshape((sample_j.shape[0], 1)))
             output[index_j + index_i, index_i] = output[index_i, index_j + index_i]
 
-        for index_j, sample_j in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+        for index_j, sample_j in enumerate(transformer.compute_outputs(data_set.testset[0], data_set.testset[1], 1)):
 
             output[index_i, index_j + data_set.trainset[0].shape[1]] = numpy.dot(sample_i,
                                                                                    sample_j.reshape((sample_j.shape[0], 1)))
@@ -53,8 +53,8 @@ def compute_square(data_set, transformer):
             output[index_j + data_set.trainset[0].shape[1], index_i] = output[index_i,
                                                                               index_j + data_set.trainset[0].shape[1]]
 
-    for index_i, sample_i in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
-        for index_j, sample_j in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+    for index_i, sample_i in enumerate(transformer.compute_outputs(data_set.testset[0], data_set.testset[1], 1)):
+        for index_j, sample_j in enumerate(transformer.compute_outputs(data_set.testset[0], data_set.testset[1], 1)):
             output[index_i + data_set.trainset[0].shape[1], index_j + data_set.trainset[0].shape[1]] = \
                 numpy.dot(sample_i, sample_j.reshape((sample_j.shape[0], 1)))
 
@@ -107,7 +107,7 @@ def test_transformer(transformer, data_set, configuration):
     samples = []
     labels = range(10)
     for epoch in range(configuration.hyper_parameters.epochs):
-        for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
+        for index, sample in enumerate(transformer.compute_outputs(data_set.trainset[0], data_set.trainset[1], 1)):
 
             samples.append(sample.reshape((1, sample.shape[0])))
             if index % 10 == 9:
@@ -118,7 +118,7 @@ def test_transformer(transformer, data_set, configuration):
     error = 0
     count = 0
     test_predictions = []
-    for index, sample in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+    for index, sample in enumerate(transformer.compute_outputs(data_set.testset[0], data_set.testset[1], 1)):
         prediction = clf.predict(sample)
         if not prediction == index % 10:
             error += 1

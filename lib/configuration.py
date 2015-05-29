@@ -1,4 +1,5 @@
 import ConfigParser
+import theano
 
 from MISC.utils import ConfigSectionMap
 from hyper_parameters import HyperParameters
@@ -60,6 +61,9 @@ class Configuration(object):
 
         elif method_string == 'tanh':
             return Tensor.tanh
+
+        elif method_string == 'scaled_tanh':
+            return lambda x: 1.7159 * Tensor.tanh(0.66 * x)
 
         elif method_string == 'soft_sigmoid':
             return soft_sigmoid

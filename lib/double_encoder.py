@@ -72,8 +72,8 @@ class DoubleEncoder(object):
             try:
 
                 #training the system with the optimized parameters
-                stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0].T,
-                                                                 training_set_y=data_set.trainset[1].T,
+                stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0],
+                                                                 training_set_y=data_set.trainset[1],
                                                                  hyper_parameters=configuration.hyper_parameters,
                                                                  regularization_methods=regularization_methods.values(),
                                                                  activation_method=None,
@@ -104,13 +104,13 @@ class DoubleEncoder(object):
         stacked_double_encoder.set_eval(True)
 
         OutputLog().write('test results:')
-        trace_correlation, var,  x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0].T,
-                                                                   data_set.testset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+        trace_correlation, var,  x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0],
+                                                                   data_set.testset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                                                                                     configuration.hyper_parameters)
 
         OutputLog().write('train results:')
-        train_trace_correlation, var, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0].T,
-                                                                         data_set.trainset[1].T, top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+        train_trace_correlation, var, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0],
+                                                                         data_set.trainset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                                                                                            configuration.hyper_parameters)
 
         execution_time = clock() - start
@@ -184,7 +184,7 @@ class DoubleEncoder(object):
 
             indices = {}
 
-            for ndx, gradient in enumerate(transformer.compute_outputs(data_set.trainset[0].T, data_set.trainset[1].T, 1)):
+            for ndx, gradient in enumerate(transformer.compute_outputs(data_set.trainset[0], data_set.trainset[1], 1)):
                 if sample:
                     for param in gradient.keys():
                         if gradient[param].shape[0] > sample_number:
@@ -197,7 +197,7 @@ class DoubleEncoder(object):
             if not os.path.isdir(test_dir_name):
                 os.makedirs(test_dir_name)
 
-            for ndx, gradient in enumerate(transformer.compute_outputs(data_set.testset[0].T, data_set.testset[1].T, 1)):
+            for ndx, gradient in enumerate(transformer.compute_outputs(data_set.testset[0], data_set.testset[1], 1)):
                 if sample:
                     for param in gradient.keys():
                         if gradient[param].shape[0] > sample_number:

@@ -115,8 +115,8 @@ class SymmetricHiddenLayer(object):
             else:
                 self.bias_x_prime = bias_x_prime
 
-            self.x_params = [self.Wx]#, self.bias_x_prime]  # , self.gamma_x, self.beta_x]#, self.bias_x_prime]
-            self.x_hidden_params = [self.Wx]  # , self.gamma_x, self.beta_x]
+            self.x_params = [self.Wx, self.bias_x, self.bias_x_prime]  # , self.bias_x_prime]  # , self.gamma_x, self.beta_x]#, self.bias_x_prime]
+            self.x_hidden_params = [self.Wx, self.bias_x]  # , self.gamma_x, self.beta_x]
 
             self.output_forward_x = self.compute_forward_hidden_x()
 
@@ -148,8 +148,8 @@ class SymmetricHiddenLayer(object):
             else:
                 self.bias_y_prime = bias_y_prime
 
-            self.y_params = [self.Wy]#, self.bias_y_prime]  # , self.beta_y, self.gamma_y]#, self.bias_y_prime]
-            self.y_hidden_params = [self.Wy]  # , self.beta_y, self.gamma_y]
+            self.y_params = [self.Wy, self.bias_y, self.bias_y_prime]  # , self.bias_y_prime]  # , self.beta_y, self.gamma_y]#, self.bias_y_prime]
+            self.y_hidden_params = [self.Wy, self.bias_y]  # , self.beta_y, self.gamma_y]
 
             self.output_forward_y = self.compute_forward_hidden_y()
 
@@ -164,16 +164,16 @@ class SymmetricHiddenLayer(object):
         if input_size is None:
             raise Exception("input size not provided")
 
-            # wx = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
-            # high=numpy.sqrt(1. / (input_size)),
-            # size=(input_size, self.hidden_layer_size)),
-            # dtype=theano.config.floatX)
+        wx = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / input_size),
+                                                high=numpy.sqrt(1. / input_size),
+                                                size=(input_size, self.hidden_layer_size)),
+                           dtype=theano.config.floatX)
 
-        wx = numpy.random.normal(0, 0.1, size=(input_size, self.hidden_layer_size))
+        # wx = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
 
-        # orth_wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
+        orth_wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
 
-        initial_Wx = numpy.asarray(wx, dtype=theano.config.floatX)
+        initial_Wx = numpy.asarray(orth_wx, dtype=theano.config.floatX)
 
         self.gamma_x = theano.shared(
             value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
@@ -191,16 +191,16 @@ class SymmetricHiddenLayer(object):
         if input_size is None:
             raise Exception("output size not provided")
 
-            # wy = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / (input_size)),
-            # high=numpy.sqrt(1. / (input_size)),
-            #  size=(input_size, self.hidden_layer_size)),
-            #  dtype=theano.config.floatX)
+        wy = numpy.asarray(numpy.random.uniform(low=-numpy.sqrt(1. / input_size),
+                                                high=numpy.sqrt(1. / input_size),
+                                                size=(input_size, self.hidden_layer_size)),
+                           dtype=theano.config.floatX)
 
-        wy = numpy.random.normal(0, 0.1, size=(input_size, self.hidden_layer_size))
+        # wy = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
 
-        # orth_wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
+        orth_wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
 
-        initial_Wy = numpy.asarray(wy, dtype=theano.config.floatX)
+        initial_Wy = numpy.asarray(orth_wy, dtype=theano.config.floatX)
 
         self.gamma_y = theano.shared(
             value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
@@ -208,8 +208,6 @@ class SymmetricHiddenLayer(object):
 
         self.beta_y = theano.shared(value=numpy.zeros(input_size, dtype=theano.config.floatX),
                                     name='beta_y_' + self.name)
-
-
         # WHtoY corresponds to the weights between the hidden layer and the output
         self.Wy = theano.shared(value=initial_Wy, name='Wy' + '_' + self.name)
 

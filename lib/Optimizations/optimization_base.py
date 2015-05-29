@@ -46,14 +46,14 @@ class OptimizationBase(object):
             regularization_methods = self.regularization_methods
 
         try:
-            double_encoder = training_strategy.train(self.training_set[0].T,
-                                                     self.training_set[1].T,
+            double_encoder = training_strategy.train(self.training_set[0],
+                                                     self.training_set[1],
                                                      hyper_parameters,
                                                      regularization_methods.values(),
                                                      sigmoid,
                                                      top=self.top)
 
-            correlation = TraceCorrelationTester(self.validation_set[0].T, self.validation_set[1].T, self.top).\
+            correlation = TraceCorrelationTester(self.validation_set[0], self.validation_set[1], self.top).\
                 test(DoubleEncoderTransformer(double_encoder, 0))
 
         except:

@@ -2,12 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7bf5cad0-15b4-49c5-a97e-a3f7c7148e9b" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/DataSetReaders/CUAVE_dataset.py" afterPath="$PROJECT_DIR$/lib/DataSetReaders/CUAVE_dataset.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/DataSetReaders/DRUGS_dataset.py" afterPath="$PROJECT_DIR$/lib/DataSetReaders/DRUGS_dataset.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/DataSetReaders/FISH_dataset.py" afterPath="$PROJECT_DIR$/lib/DataSetReaders/FISH_dataset.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/DataSetReaders/GUY_dataset.py" afterPath="$PROJECT_DIR$/lib/DataSetReaders/GUY_dataset.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/DataSetReaders/MNIST_dataset.py" afterPath="$PROJECT_DIR$/lib/DataSetReaders/MNIST_dataset.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/DataSetReaders/XRBM_dataset.py" afterPath="$PROJECT_DIR$/lib/DataSetReaders/XRBM_dataset.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/classifier.py" afterPath="$PROJECT_DIR$/lib/classifier.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/configuration.py" afterPath="$PROJECT_DIR$/lib/configuration.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/cross_encoder_GUY.ini" afterPath="$PROJECT_DIR$/bin/cross_encoder_GUY.ini" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/cross_encoder_MNIST.ini" afterPath="$PROJECT_DIR$/bin/cross_encoder_MNIST.ini" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/TrainingStrategy/iterative_training_strategy.py" afterPath="$PROJECT_DIR$/lib/TrainingStrategy/iterative_training_strategy.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py" afterPath="$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/double_encoder.py" afterPath="$PROJECT_DIR$/lib/double_encoder.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Optimizations/optimization_base.py" afterPath="$PROJECT_DIR$/lib/Optimizations/optimization_base.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" afterPath="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" afterPath="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/trainer.py" afterPath="$PROJECT_DIR$/lib/trainer.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/MISC/utils.py" afterPath="$PROJECT_DIR$/lib/MISC/utils.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Theses.iws" />
@@ -33,67 +44,72 @@
         <entry file="file://$PROJECT_DIR$/lib/trainer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="121" column="13" selection-start-line="121" selection-start-column="13" selection-end-line="121" selection-end-column="13" />
+              <caret line="116" column="0" selection-start-line="116" selection-start-column="0" selection-end-line="116" selection-end-column="0" />
               <folding>
-                <element signature="e#623#756#0" expanded="false" />
-                <element signature="e#6486#7378#0" expanded="false" />
+                <element signature="e#631#764#0" expanded="false" />
+                <element signature="e#6498#7390#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="trace_correlation_tester.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py">
+      <file leaf-file-name="iterative_training_strategy.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/TrainingStrategy/iterative_training_strategy.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3317647">
-              <caret line="28" column="0" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="84" column="0" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="selections.py" pinned="false" current-in-tab="false">
-        <entry file="file://C:/WinPython-64bit-2.7.6.4/python-2.7.6.amd64/Lib/site-packages/h5py/_hl/selections.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="532" column="0" selection-start-line="532" selection-start-column="0" selection-end-line="532" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/MISC/utils.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="409" column="0" selection-start-line="409" selection-start-column="0" selection-end-line="409" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#317#1" expanded="false" />
-                <element signature="e#460#626#0" expanded="false" />
-                <element signature="e#808#5154#0" expanded="false" />
-                <element signature="e#808#1873#1" expanded="false" />
-                <element signature="e#5573#5764#0" expanded="false" />
-                <element signature="e#5975#6139#0" expanded="false" />
-                <element signature="e#6188#6586#0" expanded="false" />
-                <element signature="e#6649#7371#0" expanded="false" />
-                <element signature="e#7437#10931#0" expanded="false" />
-                <element signature="e#10977#11237#0" expanded="false" />
-                <element signature="e#11274#11616#0" expanded="false" />
-                <element signature="e#11656#11873#0" expanded="false" />
-                <element signature="e#11905#12132#0" expanded="false" />
-                <element signature="e#12943#13224#0" expanded="false" />
-                <element signature="e#13266#13467#0" expanded="false" />
-                <element signature="e#13516#13556#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="double_encoder.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="double_encoder.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/double_encoder.py">
           <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.68470585">
+              <caret line="115" column="0" selection-start-line="115" selection-start-column="0" selection-end-line="115" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="double_encoder_iterative.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/double_encoder_iterative.py">
+          <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="106" column="0" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
+              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="configuration.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/configuration.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="65" column="58" selection-start-line="65" selection-start-column="58" selection-end-line="65" selection-end-column="58" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cross_encoder_GUY.ini" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="16" column="13" selection-start-line="16" selection-start-column="13" selection-end-line="16" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="reconstruction_regularization.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="30" column="72" selection-start-line="30" selection-start-column="72" selection-end-line="30" selection-end-column="72" />
               <folding />
             </state>
           </provider>
@@ -103,40 +119,10 @@
         <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="57" column="31" selection-start-line="57" selection-start-column="31" selection-end-line="57" selection-end-column="31" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="weight_orthonormal_regularization.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/Regularizations/weight_orthonormal_regularization.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="30" column="85" selection-start-line="30" selection-start-column="54" selection-end-line="30" selection-end-column="85" />
+              <caret line="58" column="72" selection-start-line="58" selection-start-column="64" selection-end-line="58" selection-end-column="72" />
               <folding>
-                <element signature="e#0#12#0" expanded="true" />
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="hinge_regularization.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib/Regularizations/hinge_regularization.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cross_encoder_GUY.ini" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="3" column="10" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="10" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -145,9 +131,9 @@
         <entry file="file://$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="267" column="0" selection-start-line="267" selection-start-column="0" selection-end-line="267" selection-end-column="0" />
+              <caret line="153" column="33" selection-start-line="153" selection-start-column="12" selection-end-line="153" selection-end-column="33" />
               <folding>
-                <element signature="e#9293#9310#0" expanded="false" />
+                <element signature="e#9539#9556#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -168,9 +154,7 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/lib/DataSetReaders/MNIST_dataset.py" />
         <option value="$PROJECT_DIR$/lib/DataSetReaders/__init__.py" />
-        <option value="$PROJECT_DIR$/lib/DataSetReaders/XRBM_dataset.py" />
         <option value="$PROJECT_DIR$/test_GUY.ini" />
         <option value="$PROJECT_DIR$/lib/TrainingStrategy/iterative_training_nonsequential_stratagy.py" />
         <option value="$PROJECT_DIR$/lib/correlated_stacked_double_encoder.py" />
@@ -183,21 +167,13 @@
         <option value="$PROJECT_DIR$/lib/softSigmoid.py" />
         <option value="$PROJECT_DIR$/lib/MISC/whiten_transform.py" />
         <option value="$PROJECT_DIR$/lib/DataSetReaders/Helpers/CUAVE_Samplers.py" />
-        <option value="$PROJECT_DIR$/lib/classifier.py" />
         <option value="$PROJECT_DIR$/DataSet/MNIST.ini" />
         <option value="$PROJECT_DIR$/DataSet/GUY.ini" />
-        <option value="$PROJECT_DIR$/lib/configuration.py" />
-        <option value="$PROJECT_DIR$/lib/double_encoder.py" />
         <option value="$PROJECT_DIR$/lib/MISC/logger.py" />
         <option value="$PROJECT_DIR$/lib/stacked_double_encoder.py" />
-        <option value="$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py" />
-        <option value="$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py" />
         <option value="$PROJECT_DIR$/lib/Testers/tester_base.py" />
         <option value="$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py" />
         <option value="$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py" />
-        <option value="$PROJECT_DIR$/lib/MISC/utils.py" />
-        <option value="$PROJECT_DIR$/lib/MISC/utils.py" />
-        <option value="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" />
         <option value="$PROJECT_DIR$/lib/Regularizations/regularization_base.py" />
         <option value="$PROJECT_DIR$/lib/Regularizations/weight_decay_regularization.py" />
         <option value="$PROJECT_DIR$/lib/Regularizations/weight_orthonormal_regularization.py" />
@@ -207,10 +183,25 @@
         <option value="$PROJECT_DIR$/lib/Transformers/double_encoder_transformer.py" />
         <option value="$PROJECT_DIR$/lib/Transformers/double_encoder_transformer.py" />
         <option value="$PROJECT_DIR$/bin/cross_encoder_MNIST.ini" />
-        <option value="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" />
-        <option value="$PROJECT_DIR$/lib/DataSetReaders/GUY_dataset.py" />
-        <option value="$PROJECT_DIR$/lib/trainer.py" />
         <option value="$PROJECT_DIR$/lib/TrainingStrategy/iterative_training_strategy.py" />
+        <option value="$PROJECT_DIR$/lib/MISC/utils.py" />
+        <option value="$PROJECT_DIR$/lib/MISC/utils.py" />
+        <option value="$PROJECT_DIR$/Datasets/GUY.ini" />
+        <option value="$PROJECT_DIR$/lib/double_encoder.py" />
+        <option value="$PROJECT_DIR$/lib/classifier.py" />
+        <option value="$PROJECT_DIR$/lib/DataSetReaders/CUAVE_dataset.py" />
+        <option value="$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py" />
+        <option value="$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py" />
+        <option value="$PROJECT_DIR$/lib/DataSetReaders/DRUGS_dataset.py" />
+        <option value="$PROJECT_DIR$/lib/DataSetReaders/FISH_dataset.py" />
+        <option value="$PROJECT_DIR$/lib/DataSetReaders/MNIST_dataset.py" />
+        <option value="$PROJECT_DIR$/lib/Optimizations/optimization_base.py" />
+        <option value="$PROJECT_DIR$/lib/DataSetReaders/XRBM_dataset.py" />
+        <option value="$PROJECT_DIR$/lib/DataSetReaders/GUY_dataset.py" />
+        <option value="$PROJECT_DIR$/lib/configuration.py" />
+        <option value="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" />
+        <option value="$PROJECT_DIR$/lib/trainer.py" />
+        <option value="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" />
         <option value="$PROJECT_DIR$/bin/cross_encoder_GUY.ini" />
       </list>
     </option>
@@ -219,8 +210,25 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
+    <option name="x" value="1" />
     <option name="width" value="1920" />
     <option name="height" value="1032" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>Buildout</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -245,7 +253,7 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -275,42 +283,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="lib" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="double_encoder" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="double_encoder" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="lib" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Transformers" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="double_encoder" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="double_encoder" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="lib" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrainingStrategy" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -434,7 +406,7 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -446,6 +418,19 @@
     <property name="restartRequiresConfirmation" value="true" />
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file://C:/Workspace/Theses/lib/stacked_double_encoder.py" />
     <property name="FullScreen" value="false" />
+    <property name="settings.editor.selected.configurable" value="reference.idesettings.debugger.python" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
+  </component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings module-name="double_encoder" is-module-sdk="true">
+        <option name="myUseModuleSdk" value="true" />
+        <option name="myModuleName" value="double_encoder" />
+      </console-settings>
+    </option>
+  </component>
+  <component name="PyDebuggerOptionsProvider">
+    <option name="mySupportGeventDebugging" value="true" />
   </component>
   <component name="RunManager" selected="Python.double_encoder_iterative_guy">
     <configuration default="false" name="double_encoder_iterative_guy" type="PythonConfigurationType" factoryName="Python" temporary="true">
@@ -636,20 +621,20 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1920" height="1032" extended-state="0" />
-    <editor active="false" />
+    <frame x="1" y="0" width="1920" height="1032" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25412893" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25785828" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3337223" sideWeight="0.5023974" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4655776" sideWeight="0.503463" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32672113" sideWeight="0.49973306" order="13" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32905483" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3337223" sideWeight="0.49760255" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32905483" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.4655776" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.4655776" sideWeight="0.49653703" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -657,7 +642,7 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Tail" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32902467" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32788798" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -701,85 +686,33 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="python-line">
-          <url>file://$PROJECT_DIR$/lib/DataSetReaders/GUY_dataset.py</url>
-          <line>58</line>
-          <option name="timeStamp" value="67" />
+          <url>file://$PROJECT_DIR$/lib/MISC/utils.py</url>
+          <line>156</line>
+          <option name="timeStamp" value="82" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/lib/trainer.py</url>
+          <line>39</line>
+          <option name="timeStamp" value="105" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/lib/trainer.py</url>
+          <line>90</line>
+          <option name="timeStamp" value="106" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="78" />
+      <option name="time" value="115" />
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="output[4]" />
-        <watch expression="output[4][0:15] " />
-        <watch expression="__py_debug_temp_var_1716750482" />
-      </configuration>
-    </watches-manager>
+    <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/lib/match_classifier.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="8" column="11" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/Helpers/CUAVE_Samplers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/CARS_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/MISC/logger.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="21" column="0" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/Helpers/mnist_split.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="11" column="18" selection-start-line="11" selection-start-column="18" selection-end-line="11" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/XRBM_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="153" column="3" selection-start-line="153" selection-start-column="3" selection-end-line="153" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="1" selection-start-line="3" selection-start-column="1" selection-end-line="3" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/Regularizations/weight_orthonormal_regularization.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="60" column="45" selection-start-line="60" selection-start-column="45" selection-end-line="60" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/CUAVE_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="6" column="25" selection-start-line="6" selection-start-column="25" selection-end-line="6" selection-end-column="25" />
         </state>
       </provider>
     </entry>
@@ -818,13 +751,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/MNIST_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="56" column="51" selection-start-line="56" selection-start-column="51" selection-end-line="56" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/MISC/logger.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -839,18 +765,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm40/system/python_stubs/1567223620/__builtin__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33254156">
           <caret line="4291" column="8" selection-start-line="4291" selection-start-column="8" selection-end-line="4291" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -901,7 +819,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -909,7 +826,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="23" column="68" selection-start-line="0" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -917,9 +833,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="4" column="48" selection-start-line="4" selection-start-column="48" selection-end-line="4" selection-end-column="48" />
-          <folding>
-            <element signature="e#0#55#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -927,14 +840,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="15" column="64" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="64" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/classifier.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.9708738">
-          <caret line="240" column="31" selection-start-line="240" selection-start-column="31" selection-end-line="240" selection-end-column="31" />
         </state>
       </provider>
     </entry>
@@ -942,7 +847,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="73" column="2" selection-start-line="73" selection-start-column="2" selection-end-line="73" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -950,15 +854,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="19" column="15" selection-start-line="19" selection-start-column="15" selection-end-line="19" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/configuration.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="43" column="31" selection-start-line="43" selection-start-column="31" selection-end-line="43" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -966,7 +861,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="37" column="8" selection-start-line="37" selection-start-column="8" selection-end-line="37" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -978,34 +872,213 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/projects/dev/theGarage/Lib/Theano/theano/gradient.py">
+    <entry file="file://$PROJECT_DIR$/Datasets/MNIST.ini">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="515" column="0" selection-start-line="515" selection-start-column="0" selection-end-line="515" selection-end-column="0" />
+          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="54" column="0" selection-start-line="54" selection-start-column="0" selection-end-line="54" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/WinPython-64bit-2.7.6.4/python-2.7.6.amd64/Lib/site-packages/h5py/_hl/selections.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="532" column="0" selection-start-line="532" selection-start-column="0" selection-end-line="532" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/Regularizations/hinge_regularization.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Datasets/GUY.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/classifier.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="120" column="103" selection-start-line="120" selection-start-column="103" selection-end-line="120" selection-end-column="103" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/CUAVE_dataset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="25" column="92" selection-start-line="25" selection-start-column="92" selection-end-line="25" selection-end-column="92" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/DRUGS_dataset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="36" column="109" selection-start-line="36" selection-start-column="109" selection-end-line="36" selection-end-column="109" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/FISH_dataset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="97" column="39" selection-start-line="97" selection-start-column="39" selection-end-line="97" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/MNIST_dataset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="27" column="34" selection-start-line="27" selection-start-column="34" selection-end-line="27" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/Optimizations/optimization_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="55" column="95" selection-start-line="55" selection-start-column="95" selection-end-line="55" selection-end-column="95" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/Regularizations/weight_orthonormal_regularization.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="27" column="43" selection-start-line="27" selection-start-column="43" selection-end-line="27" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/Testers/cca_correlation_tester.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="42" selection-start-line="23" selection-start-column="42" selection-end-line="23" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/XRBM_dataset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="152" column="54" selection-start-line="152" selection-start-column="54" selection-end-line="152" selection-end-column="54" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/projects/dev/theGarage/Lib/Theano/theano/compile/pfunc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="241" column="18" selection-start-line="241" selection-start-column="18" selection-end-line="241" selection-end-column="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/GUY_dataset.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="69" column="82" selection-start-line="69" selection-start-column="82" selection-end-line="69" selection-end-column="82" />
+          <caret line="45" column="53" selection-start-line="45" selection-start-column="53" selection-end-line="45" selection-end-column="53" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Datasets/MNIST.ini">
+    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
+          <caret line="58" column="72" selection-start-line="58" selection-start-column="64" selection-end-line="58" selection-end-column="72" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/projects/dev/theGarage/Lib/Theano/theano/gradient.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="515" column="0" selection-start-line="515" selection-start-column="0" selection-end-line="515" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/MISC/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="3.050186">
+          <caret line="409" column="0" selection-start-line="409" selection-start-column="0" selection-end-line="409" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#317#1" expanded="false" />
+            <element signature="e#319#330#0" expanded="false" />
+            <element signature="e#494#660#0" expanded="false" />
+            <element signature="e#842#5188#0" expanded="false" />
+            <element signature="e#842#1907#1" expanded="false" />
+            <element signature="e#5607#5798#0" expanded="false" />
+            <element signature="e#6119#6283#0" expanded="false" />
+            <element signature="e#6332#6730#0" expanded="false" />
+            <element signature="e#6793#7515#0" expanded="false" />
+            <element signature="e#7581#11075#0" expanded="false" />
+            <element signature="e#11121#11381#0" expanded="false" />
+            <element signature="e#11418#11760#0" expanded="false" />
+            <element signature="e#11800#12017#0" expanded="false" />
+            <element signature="e#12049#12276#0" expanded="false" />
+            <element signature="e#13087#13368#0" expanded="false" />
+            <element signature="e#13410#13611#0" expanded="false" />
+            <element signature="e#13660#13700#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/configuration.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="65" column="58" selection-start-line="65" selection-start-column="58" selection-end-line="65" selection-end-column="58" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/TrainingStrategy/iterative_training_strategy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="84" column="0" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Datasets/GUY.ini">
+    <entry file="file://$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.18587361">
-          <caret line="4" column="12" selection-start-line="4" selection-start-column="12" selection-end-line="4" selection-end-column="12" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="153" column="33" selection-start-line="153" selection-start-column="12" selection-end-line="153" selection-end-column="33" />
+          <folding>
+            <element signature="e#9539#9556#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="30" column="72" selection-start-line="30" selection-start-column="72" selection-end-line="30" selection-end-column="72" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="16" column="13" selection-start-line="16" selection-start-column="13" selection-end-line="16" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.26208177">
+          <caret line="1776" column="0" selection-start-line="1776" selection-start-column="0" selection-end-line="1776" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1018,117 +1091,39 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/TrainingStrategy/iterative_training_strategy.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="101" column="62" selection-start-line="101" selection-start-column="62" selection-end-line="101" selection-end-column="62" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="10" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="267" column="0" selection-start-line="267" selection-start-column="0" selection-end-line="267" selection-end-column="0" />
-          <folding>
-            <element signature="e#9293#9310#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/Regularizations/hinge_regularization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/Regularizations/weight_orthonormal_regularization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="30" column="85" selection-start-line="30" selection-start-column="54" selection-end-line="30" selection-end-column="85" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="57" column="31" selection-start-line="57" selection-start-column="31" selection-end-line="57" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/trainer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="121" column="13" selection-start-line="121" selection-start-column="13" selection-end-line="121" selection-end-column="13" />
+          <caret line="116" column="0" selection-start-line="116" selection-start-column="0" selection-end-line="116" selection-end-column="0" />
           <folding>
-            <element signature="e#623#756#0" expanded="false" />
-            <element signature="e#6486#7378#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/WinPython-64bit-2.7.6.4/python-2.7.6.amd64/Lib/site-packages/h5py/_hl/selections.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="532" column="0" selection-start-line="532" selection-start-column="0" selection-end-line="532" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/MISC/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="409" column="0" selection-start-line="409" selection-start-column="0" selection-end-line="409" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#317#1" expanded="false" />
-            <element signature="e#460#626#0" expanded="false" />
-            <element signature="e#808#5154#0" expanded="false" />
-            <element signature="e#808#1873#1" expanded="false" />
-            <element signature="e#5573#5764#0" expanded="false" />
-            <element signature="e#5975#6139#0" expanded="false" />
-            <element signature="e#6188#6586#0" expanded="false" />
-            <element signature="e#6649#7371#0" expanded="false" />
-            <element signature="e#7437#10931#0" expanded="false" />
-            <element signature="e#10977#11237#0" expanded="false" />
-            <element signature="e#11274#11616#0" expanded="false" />
-            <element signature="e#11656#11873#0" expanded="false" />
-            <element signature="e#11905#12132#0" expanded="false" />
-            <element signature="e#12943#13224#0" expanded="false" />
-            <element signature="e#13266#13467#0" expanded="false" />
-            <element signature="e#13516#13556#0" expanded="false" />
+            <element signature="e#631#764#0" expanded="false" />
+            <element signature="e#6498#7390#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/double_encoder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="106" column="0" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.68470585">
+          <caret line="115" column="0" selection-start-line="115" selection-start-column="0" selection-end-line="115" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3317647">
-          <caret line="28" column="0" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ScopeChooserConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
   </component>
 </project>

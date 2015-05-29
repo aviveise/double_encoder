@@ -26,14 +26,14 @@ class FISHDataSet(DatasetBase):
         tuning_size = int(drug_number * TRAINING_PERCENT * 0.1)
         test_size = int(drug_number * (1 - TRAINING_PERCENT))
 
-        self.trainset = [fingerprints[0: training_size, :].T.astype(config.floatX, copy=False),
-                         side_effects[0: training_size, :].T.astype(config.floatX, copy=False)]
+        self.trainset = [fingerprints[0: training_size, :].astype(config.floatX, copy=False),
+                         side_effects[0: training_size, :].astype(config.floatX, copy=False)]
 
-        self.tuning = [fingerprints[training_size: training_size + tuning_size, :].T.astype(config.floatX, copy=False),
-                       side_effects[training_size: training_size + tuning_size, :].T.astype(config.floatX, copy=False)]
+        self.tuning = [fingerprints[training_size: training_size + tuning_size, :].astype(config.floatX, copy=False),
+                       side_effects[training_size: training_size + tuning_size, :].astype(config.floatX, copy=False)]
 
-        self.testset = [fingerprints[training_size + tuning_size: training_size + tuning_size + test_size, :].T.astype(config.floatX, copy=False),
-                        side_effects[training_size + tuning_size: training_size + tuning_size + test_size, :].T.astype(config.floatX, copy=False)]
+        self.testset = [fingerprints[training_size + tuning_size: training_size + tuning_size + test_size, :].astype(config.floatX, copy=False),
+                        side_effects[training_size + tuning_size: training_size + tuning_size + test_size, :].astype(config.floatX, copy=False)]
 
     def load_fish_database(self, database_path, fish_path):
 

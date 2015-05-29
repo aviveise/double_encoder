@@ -40,14 +40,14 @@ class GUYDataSet(DatasetBase):
         dev_size = min(validation_image_idx.shape[0], 2500)
         test_size = test_image_idx.shape[0]
 
-        self.trainset = [numpy.ndarray((CNN_output.shape[1], train_size), dtype=config.floatX),
-                         numpy.ndarray((feature_vectors[0].shape[0], train_size), dtype=config.floatX)]
+        self.trainset = [numpy.ndarray((train_size, CNN_output.shape[1]), dtype=config.floatX),
+                         numpy.ndarray((train_size, feature_vectors[0].shape[0]), dtype=config.floatX)]
 
-        self.tuning = [numpy.ndarray((CNN_output.shape[1], dev_size), dtype=config.floatX),
-                       numpy.ndarray((feature_vectors[0].shape[0], dev_size), dtype=config.floatX)]
+        self.tuning = [numpy.ndarray((dev_size, CNN_output.shape[1]), dtype=config.floatX),
+                       numpy.ndarray((dev_size, feature_vectors[0].shape[0]), dtype=config.floatX)]
 
-        self.testset = [numpy.ndarray((CNN_output.shape[1], test_size), dtype=config.floatX),
-                        numpy.ndarray((feature_vectors[0].shape[0], test_size), dtype=config.floatX)]
+        self.testset = [numpy.ndarray((test_size, CNN_output.shape[1]), dtype=config.floatX),
+                        numpy.ndarray((test_size, feature_vectors[0].shape[0]), dtype=config.floatX)]
 
         # for i in range(train_size):
         #
@@ -56,24 +56,24 @@ class GUYDataSet(DatasetBase):
 
         for i in range(train_size):
 
-            self.trainset[0][:, i] = CNN_output[int(training_image_idx[i]) - 1]
-            self.trainset[1][:, i] = feature_vectors[numpy.where(images_sent_mapping == training_image_idx[i])[0][0]]
+            self.trainset[0][i, :] = CNN_output[int(training_image_idx[i]) - 1]
+            self.trainset[1][i, :] = feature_vectors[numpy.where(images_sent_mapping == training_image_idx[i])[0][0]]
 
            #self.trainset[0][:, i] = CNN_output[int(images_sent_mapping[int(training_sen_idx[i]) - 1]) - 1]
            #self.trainset[1][:, i] = feature_vectors[int(training_sen_idx[i]) - 1]
 
         for i in range(dev_size):
 
-            self.tuning[0][:, i] = CNN_output[int(validation_image_idx[i]) - 1]
-            self.tuning[1][:, i] = feature_vectors[numpy.where(images_sent_mapping == validation_image_idx[i])[0][0]]
+            self.tuning[0][i, :] = CNN_output[int(validation_image_idx[i]) - 1]
+            self.tuning[1][i, :] = feature_vectors[numpy.where(images_sent_mapping == validation_image_idx[i])[0][0]]
 
            #self.tuning[0][:, i] = CNN_output[int(images_sent_mapping[int(validation_sen_idx[i]) - 1]) - 1]
            #self.tuning[1][:, i] = feature_vectors[int(validation_sen_idx[i]) - 1]
 
         for i in range(test_size):
 
-            self.testset[0][:, i] = CNN_output[int(test_image_idx[i]) - 1]
-            self.testset[1][:, i] = feature_vectors[numpy.where(images_sent_mapping == test_image_idx[i])[0][0]]
+            self.testset[0][i, :] = CNN_output[int(test_image_idx[i]) - 1]
+            self.testset[1][i, :] = feature_vectors[numpy.where(images_sent_mapping == test_image_idx[i])[0][0]]
 
            #self.testset[0][:, i] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
            #self.testset[1][:, i] = feature_vectors[int(test_sen_idx[i]) - 1]

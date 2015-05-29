@@ -9,6 +9,7 @@ import theano
 import numpy
 
 from sklearn.decomposition import PCA
+from MISC.utils import scale_cols
 from MISC.utils import center as center_function
 from MISC.utils import normalize as normalize_function
 from MISC.whiten_transform import WhitenTransform
@@ -29,8 +30,7 @@ class DatasetBase(object):
         self.testset = None
         self.tuning = None
         
-        normalize = bool(int(data_set_parameters['normalize']))
-        center = bool(int(data_set_parameters['center']))
+        scale = bool(int(data_set_parameters['scale']))
         whiten = bool(int(data_set_parameters['whiten']))
         pca = map(int, data_set_parameters['pca'].split())
 
@@ -50,37 +50,45 @@ class DatasetBase(object):
 
         self.build_dataset()
 
-        if center:
-            train_set_x, mean_x = center_function(self.trainset[0])
-            train_set_y, mean_y = center_function(self.trainset[1])
+        if scale:
+            train_set_x, scaler_x = scale_cols(self.trainset[0])
+            train_set_y, scaler_y = scale_cols(self.trainset[1])
 
             self.trainset = train_set_x, train_set_y
-            self.tuning = self.tuning[0] - mean_x * numpy.ones([1, self.tuning[0].shape[1]], dtype=theano.config.floatX), \
-                          self.tuning[1] - mean_y * numpy.ones([1, self.tuning[1].shape[1]], dtype=theano.config.floatX)
+            self.tuning = scaler_x.transform(self.tuning[0]), scaler_y.transform(self.tuning[1])
+            self.testset = scaler_x.transform(self.testset[0]), scaler_y.transform(self.testset[1])
 
-            self.testset = self.testset[0] - mean_x * numpy.ones([1, self.testset[0].shape[1]], dtype=theano.config.floatX),\
-                           self.testset[1] - mean_y * numpy.ones([1, self.testset[1].shape[1]], dtype=theano.config.floatX)
-        if normalize:
-            train_set_x, norm_x = normalize_function(self.trainset[0])
-            train_set_y, norm_y = normalize_function(self.trainset[1])
-
-            self.trainset = train_set_x, train_set_y
-            self.tuning = self.tuning[0] / norm_x * numpy.ones([1, self.tuning[0].shape[1]], dtype=theano.config.floatX), \
-                          self.tuning[1] / norm_y * numpy.ones([1, self.tuning[1].shape[1]], dtype=theano.config.floatX)
-
-            self.testset = self.testset[0] / norm_x * numpy.ones([1, self.testset[0].shape[1]], dtype=theano.config.floatX),\
-                           self.testset[1] / norm_y * numpy.ones([1, self.testset[1].shape[1]], dtype=theano.config.floatX)
+        # if center:
+        #     train_set_x, mean_x = center_function(self.trainset[0])
+        #     train_set_y, mean_y = center_function(self.trainset[1])
+        #
+        #     self.trainset = train_set_x, train_set_y
+        #     self.tuning = self.tuning[0] - mean_x * numpy.ones([1, self.tuning[0].shape[1]], dtype=theano.config.floatX), \
+        #                   self.tuning[1] - mean_y * numpy.ones([1, self.tuning[1].shape[1]], dtype=theano.config.floatX)
+        #
+        #     self.testset = self.testset[0] - mean_x * numpy.ones([1, self.testset[0].shape[1]], dtype=theano.config.floatX),\
+        #                    self.testset[1] - mean_y * numpy.ones([1, self.testset[1].shape[1]], dtype=theano.config.floatX)
+        # if normalize:
+        #     train_set_x, norm_x = normalize_function(self.trainset[0])
+        #     train_set_y, norm_y = normalize_function(self.trainset[1])
+        #
+        #     self.trainset = train_set_x, train_set_y
+        #     self.tuning = self.tuning[0] / norm_x * numpy.ones([1, self.tuning[0].shape[1]], dtype=theano.config.floatX), \
+        #                   self.tuning[1] / norm_y * numpy.ones([1, self.tuning[1].shape[1]], dtype=theano.config.floatX)
+        #
+        #     self.testset = self.testset[0] / norm_x * numpy.ones([1, self.testset[0].shape[1]], dtype=theano.config.floatX),\
+        #                    self.testset[1] / norm_y * numpy.ones([1, self.testset[1].shape[1]], dtype=theano.config.floatX)
         if not pca[0] == 0 and not pca[1] == 0:
 
             pca_dim1 = PCA(pca[0], whiten)
             pca_dim2 = PCA(pca[1], whiten)
 
-            pca_dim1.fit(self.trainset[0].T)
-            pca_dim2.fit(self.trainset[1].T)
+            pca_dim1.fit(self.trainset[0])
+            pca_dim2.fit(self.trainset[1])
 
-            self.trainset = (pca_dim1.transform(self.trainset[0].T).T, pca_dim2.transform(self.trainset[1].T).T)
-            self.testset = (pca_dim1.transform(self.testset[0].T).T, pca_dim2.transform(self.testset[1].T).T)
-            self.tuning = (pca_dim1.transform(self.tuning[0].T).T, pca_dim2.transform(self.tuning[1].T).T)
+            self.trainset = (pca_dim1.transform(self.trainset[0]), pca_dim2.transform(self.trainset[1]))
+            self.testset = (pca_dim1.transform(self.testset[0]), pca_dim2.transform(self.testset[1]))
+            self.tuning = (pca_dim1.transform(self.tuning[0]), pca_dim2.transform(self.tuning[1]))
 
         if whiten:
             print 'using whiten'

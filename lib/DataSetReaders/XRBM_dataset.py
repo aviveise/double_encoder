@@ -143,13 +143,13 @@ class XRBMDataSetRCCA(DatasetBase):
         os.system('cat %s/xrmb* > xrmb.data' % self.dataset_path)
         xrmb = robjects.r('load')(self.dataset_path + '/xrmb.data')
 
-        self.trainset = numpy.array(robjects.r['x_tr']).T[:, 0:30000].astype(theano.config.floatX, copy=False), \
-                        numpy.array(robjects.r['y_tr']).T[:, 0:30000].astype(theano.config.floatX, copy=False)
+        self.trainset = numpy.array(robjects.r['x_tr'])[:, 0:30000].astype(theano.config.floatX, copy=False), \
+                        numpy.array(robjects.r['y_tr'])[:, 0:30000].astype(theano.config.floatX, copy=False)
 
-        self.tuning = numpy.array(robjects.r['x_tr']).T[:, 30000:40000].astype(theano.config.floatX, copy=False), \
-                      numpy.array(robjects.r['y_tr']).T[:, 30000:40000].astype(theano.config.floatX, copy=False)
+        self.tuning = numpy.array(robjects.r['x_tr'])[:, 30000:40000].astype(theano.config.floatX, copy=False), \
+                      numpy.array(robjects.r['y_tr'])[:, 30000:40000].astype(theano.config.floatX, copy=False)
 
-        self.testset = numpy.array(robjects.r['x_te']).T.astype(theano.config.floatX, copy=False), \
-                       numpy.array(robjects.r['y_te']).T.astype(theano.config.floatX, copy=False)
+        self.testset = numpy.array(robjects.r['x_te']).astype(theano.config.floatX, copy=False), \
+                       numpy.array(robjects.r['y_te']).astype(theano.config.floatX, copy=False)
 '''
 

@@ -13,7 +13,7 @@ from Testers.trace_correlation_tester import TraceCorrelationTester
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 
 from theano.compat.python2x import OrderedDict
-from theano import function
+from theano import function, theano
 from theano import shared
 from theano import printing
 
@@ -40,14 +40,14 @@ def _print_array(x):
     elif x.ndim == 1:
         output += '['
         for item in x:
-            output += '{0.2f}'.format(item)
+            output += '{0:.2f}'.format(item)
         output += ']'
     else:
         output += '['
         for line in x:
             output += '['
             for item in line:
-                output += '{0.2f}'.format(item)
+                output += '{0:.2f}'.format(item)
             output += ']'
         output += ']'
 
@@ -85,10 +85,10 @@ class Trainer(object):
                                      model_updates,
                                      moving_averages,
                                      n_training_batches,
-                                     'SGD',
+                                     'adaGrad',
                                      eps)
 
-        numpy.set_string_function(_print_array, repr=False)
+        # numpy.set_string_function(_print_array, repr=False)
 
         # The training phase, for each epoch we train on every batch
         best_loss = 0
@@ -161,7 +161,7 @@ class Trainer(object):
 
                 symmetric_double_encoder.set_eval(True)
 
-                trace_correlation, var, x, y, layer_id = TraceCorrelationTester(validation_set_x.T, validation_set_y.T,
+                trace_correlation, var, x, y, layer_id = TraceCorrelationTester(validation_set_x, validation_set_y,
                                                                                 top). \
                     test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
                          hyper_parameters)
@@ -226,12 +226,12 @@ class Trainer(object):
         print 'Calculating Loss'
 
         # Compute the loss of the forward encoding as L2 loss
-        loss_backward = ((var_x - x_tilde).T ** 2).sum(dtype=Tensor.config.floatX,
-                                                       acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
+        loss_backward = ((var_x - x_tilde) ** 2).sum(dtype=Tensor.config.floatX,
+                                                     acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
 
         # Compute the loss of the backward encoding as L2 loss
-        loss_forward = ((var_y - y_tilde).T ** 2).sum(dtype=Tensor.config.floatX,
-                                                      acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
+        loss_forward = ((var_y - y_tilde) ** 2).sum(dtype=Tensor.config.floatX,
+                                                    acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
 
         loss = loss_backward + loss_forward
 
@@ -251,7 +251,6 @@ class Trainer(object):
         # Computing the gradient for the stochastic gradient decent
         # the result is gradients for each parameter of the cross encoder
         gradients = Tensor.grad(loss, params)
-        reg_gradients = Tensor.grad(Tensor.sum(regularizations), params)
         loss_gradients = Tensor.grad(loss_backward + loss_forward, params)
 
         if strategy == 'SGD':
@@ -308,7 +307,7 @@ class Trainer(object):
                                   Tensor.sum(variance_hidden_x),
                                   Tensor.sum(variance_hidden_y),
                                   x_hidden,
-                                  y_hidden] + regularizations + reg_gradients + loss_gradients,
+                                  y_hidden] + regularizations + loss_gradients + [x_tilde, y_tilde],
                          updates=updates)
 
         return model

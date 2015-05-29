@@ -11,6 +11,7 @@ import numpy
 import numpy.linalg
 import scipy.linalg
 import scipy.sparse.linalg
+from sklearn import preprocessing
 
 def scale_to_unit_interval(ndar, eps=1e-8):
     """ Scales all values in the ndarray ndar to be between 0 and 1 """
@@ -172,6 +173,10 @@ def normalize(M):
     M /= norm * numpy.ones([1, M.shape[1]])
 
     return M, norm
+
+def scale_cols(M):
+    scaler = preprocessing.StandardScaler().fit(M)
+    return scaler.transform(M), scaler
 
 def center(M):
     if M is None:
