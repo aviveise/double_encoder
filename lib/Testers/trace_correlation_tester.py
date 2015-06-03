@@ -9,7 +9,7 @@ import numpy
 
 from tester_base import TesterBase
 
-from MISC.utils import calculate_mardia, calculate_reconstruction_error, normalize, center
+from MISC.utils import calculate_mardia, calculate_reconstruction_error, match_error
 
 
 class TraceCorrelationTester(TesterBase):
@@ -30,13 +30,13 @@ class TraceCorrelationTester(TesterBase):
         loss_var_y = numpy.sum(var_y)
 
         loss = calculate_reconstruction_error(x, y)
-
+        matches = match_error(x, y)
         cross_correlation = 0
         start_tick = cv2.getTickCount()
         if self.top == 0:
-            correlation = calculate_mardia(x, y, 0)
+            correlation = (calculate_mardia(x, y, 0) / x.shape[1]) * 100
         else:
-            correlation = calculate_mardia(x, y, self.top)
+            correlation = (calculate_mardia(x, y, self.top) / self.top) * 100
 
         current_time = cv2.getTickCount()
         OutputLog().write('calculated correlation, time: {0}'.format(((current_time - start_tick) / tickFrequency)))
@@ -45,6 +45,7 @@ class TraceCorrelationTester(TesterBase):
         print_row.append(loss)
         print_row.append(loss_var_x)
         print_row.append(loss_var_y)
+        print_row.append(matches)
 
         return correlation
 
@@ -62,4 +63,4 @@ class TraceCorrelationTester(TesterBase):
 
     def _headers(self):
 
-        return ['correlation', 'loss', '1/var_x', '1/var_y']
+        return ['correlation', 'loss', '1/var_x', '1/var_y', 'match_error']

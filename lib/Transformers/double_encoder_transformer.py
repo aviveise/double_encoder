@@ -60,9 +60,9 @@ class DoubleEncoderTransformer(TransformerBase):
             hidden_values_x.append(outputs_hidden[2 * i])
             hidden_values_y.append(outputs_hidden[2 * i + 1])
 
-        if hidden_values_x[0].shape[1] == hidden_values_y[-1].shape[1] & len(hidden_values_x) > 1:
-            hidden_values_x.append(hidden_values_x[0])
-            hidden_values_y.append(hidden_values_y[-1])
+        if hidden_values_x[0].shape[1] == hidden_values_y[-1].shape[1] and len(hidden_values_x) > 1:
+            hidden_values_x.append(hidden_values_x[-1])
+            hidden_values_y.append(hidden_values_y[0])
 
         return [hidden_values_x, hidden_values_y]
 

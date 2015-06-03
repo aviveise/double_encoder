@@ -18,9 +18,7 @@ from MISC.logger import OutputLog
 __author__ = 'aviv'
 
 
-
 class DatasetBase(object):
-
     def __init__(self, data_set_parameters):
 
         OutputLog().write('Loading dataset: ' + data_set_parameters['name'])
@@ -29,7 +27,8 @@ class DatasetBase(object):
         self.trainset = None
         self.testset = None
         self.tuning = None
-        
+        self.negatives = None
+
         scale = bool(int(data_set_parameters['scale']))
         whiten = bool(int(data_set_parameters['whiten']))
         pca = map(int, data_set_parameters['pca'].split())
@@ -42,10 +41,17 @@ class DatasetBase(object):
         test_file = os.path.join(path, 'test.p')
         validate_file = os.path.join(path, 'validate.p')
 
-        if os.path.exists(train_file) and os.path.exists(test_file) and os.path.exists(validate_file):
+        if os.path.exists(train_file) and \
+                os.path.exists(test_file) and \
+                os.path.exists(validate_file):
             self.trainset = hickle.load(file(train_file, 'r'))
             self.testset = hickle.load(file(test_file, 'r'))
             self.tuning = hickle.load(file(validate_file, 'r'))
+
+            OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[1], self.trainset[1].shape[1]))
+            OutputLog().write('Training set size = %d' % self.trainset[0].shape[0])
+            OutputLog().write('Test set size = %d' % self.testset[0].shape[0])
+
             return
 
         self.build_dataset()
@@ -58,6 +64,7 @@ class DatasetBase(object):
             self.tuning = scaler_x.transform(self.tuning[0]), scaler_y.transform(self.tuning[1])
             self.testset = scaler_x.transform(self.testset[0]), scaler_y.transform(self.testset[1])
 
+        # region deprecated
         # if center:
         #     train_set_x, mean_x = center_function(self.trainset[0])
         #     train_set_y, mean_y = center_function(self.trainset[1])
@@ -78,8 +85,9 @@ class DatasetBase(object):
         #
         #     self.testset = self.testset[0] / norm_x * numpy.ones([1, self.testset[0].shape[1]], dtype=theano.config.floatX),\
         #                    self.testset[1] / norm_y * numpy.ones([1, self.testset[1].shape[1]], dtype=theano.config.floatX)
-        if not pca[0] == 0 and not pca[1] == 0:
+        # endregion
 
+        if not pca[0] == 0 and not pca[1] == 0:
             pca_dim1 = PCA(pca[0], whiten)
             pca_dim2 = PCA(pca[1], whiten)
 
@@ -127,9 +135,9 @@ class DatasetBase(object):
         hickle.dump(self.testset, file(test_file, 'w'))
         hickle.dump(self.tuning, file(validate_file, 'w'))
 
-        OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[0], self.trainset[1].shape[0]))
-        OutputLog().write('Training set size = %d' % self.trainset[0].shape[1])
-        OutputLog().write('Test set size = %d' % self.testset[0].shape[1])
+        OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[1], self.trainset[1].shape[1]))
+        OutputLog().write('Training set size = %d' % self.trainset[0].shape[0])
+        OutputLog().write('Test set size = %d' % self.testset[0].shape[0])
 
         if self.tuning is not None:
             OutputLog().write('Tuning set size = %d' % self.tuning[0].shape[1])
@@ -206,3 +214,15 @@ class DatasetBase(object):
         for i in xrange(dataset.shape[1]):
             for j in xrange(dataset.shape[0]):
                 dat_file.write(struct.pack('d', dataset[j, i]))
+
+    def _generate_negatives(self, x, y):
+
+        complete_shuffle = False
+        sample_num = x.shape[0]
+
+        while not complete_shuffle:
+            shuffle_index = numpy.random.permutation(sample_num)
+            if numpy.sum(shuffle_index == range(sample_num)) == 0:
+                complete_shuffle = True
+
+        return x[shuffle_index], y

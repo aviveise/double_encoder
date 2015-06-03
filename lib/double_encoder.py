@@ -1,5 +1,7 @@
 import numpy
 import theano
+
+from MISC.utils import match_error
 from stacked_double_encoder import StackedDoubleEncoder
 from numpy.random.mtrand import RandomState
 
@@ -115,6 +117,11 @@ class DoubleEncoder(object):
 
         execution_time = clock() - start
 
+        ann_error_train = match_error(x_train[0], y_train[0])
+        ann_error_test = match_error(x_test[0], y_test[0])
+
+        OutputLog().write('matching error: train: {0}, test: {1}'.format(ann_error_train, ann_error_test))
+
         stacked_double_encoder.print_details(OutputLog())
 
         OutputLog().write('\nTest results : \n')
@@ -132,7 +139,6 @@ class DoubleEncoder(object):
 
         OutputLog().write('%f, %f\n' % (float(trace_correlation),
                                         execution_time))
-
 
         filename = configuration.output_parameters['type'] + '_' + data_parameters['name'] +'_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 

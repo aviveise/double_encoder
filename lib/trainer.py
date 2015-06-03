@@ -73,6 +73,10 @@ class Trainer(object):
         random_stream = RandomState()
 
         model_updates = [shared(p.get_value() * 0, borrow=True) for p in params]
+        model_deltas = [shared(p.get_value() * 0, borrow=True) for p in params]
+
+        negative_indices = shared(numpy.ones(hyper_parameters.batch_size * 2, dtype=Tensor.config.floatX), borrow=True)
+
         eps = 1e-8
 
         symmetric_double_encoder.set_eval(False)
@@ -83,9 +87,11 @@ class Trainer(object):
                                      params,
                                      regularization_methods,
                                      model_updates,
+                                     model_deltas,
                                      moving_averages,
                                      n_training_batches,
-                                     'adaGrad',
+                                     hyper_parameters.training_strategy,
+                                     hyper_parameters.rho,
                                      eps)
 
         # numpy.set_string_function(_print_array, repr=False)
@@ -97,7 +103,7 @@ class Trainer(object):
             print '----------Starting Epoch ({0})-----------'.format(epoch)
 
             print 'Shuffling dataset'
-            indices = random_stream.permutation(train_set_x.shape[0])
+            indices_positive = random_stream.permutation(train_set_x.shape[0])
 
             loss_forward = 0
             loss_backward = 0
@@ -108,10 +114,13 @@ class Trainer(object):
                 start_tick = cv2.getTickCount()
 
                 # need to convert the input into tensor variable
-                symmetric_double_encoder.var_x.set_value(train_set_x[indices[index * hyper_parameters.batch_size:
-                (index + 1) * hyper_parameters.batch_size], :], borrow=True)
-                symmetric_double_encoder.var_y.set_value(train_set_y[indices[index * hyper_parameters.batch_size:
-                (index + 1) * hyper_parameters.batch_size], :], borrow=True)
+                symmetric_double_encoder.var_x.set_value(
+                    train_set_x[indices_positive[index * hyper_parameters.batch_size:
+                    (index + 1) * hyper_parameters.batch_size], :], borrow=True)
+
+                symmetric_double_encoder.var_y.set_value(
+                    train_set_y[indices_positive[index * hyper_parameters.batch_size:
+                    (index + 1) * hyper_parameters.batch_size], :], borrow=True)
 
                 output = model()
                 loss_forward += output[0]
@@ -208,10 +217,13 @@ class Trainer(object):
                      params,
                      regularization_methods,
                      model_updates,
+                     model_deltas,
                      moving_averages,
                      number_of_batches,
                      strategy='SGD',
-                     eps=1e-6):
+                     rho=0.5,
+                     eps=1e-6,
+                     loss='cosine'):
 
         # Retrieve the reconstructions of x and y
         x_tilde = symmetric_double_encoder.reconstruct_x()
@@ -225,13 +237,25 @@ class Trainer(object):
 
         print 'Calculating Loss'
 
-        # Compute the loss of the forward encoding as L2 loss
-        loss_backward = ((var_x - x_tilde) ** 2).sum(dtype=Tensor.config.floatX,
-                                                     acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
+        if loss == 'L2':
+            # Compute the loss of the forward encoding as L2 loss
+            loss_backward = Tensor.mean((var_x - x_tilde).norm(2, axis=1))
 
-        # Compute the loss of the backward encoding as L2 loss
-        loss_forward = ((var_y - y_tilde) ** 2).sum(dtype=Tensor.config.floatX,
-                                                    acc_dtype=Tensor.config.floatX) / hyper_parameters.batch_size
+            # Compute the loss of the backward encoding as L2 loss
+            loss_forward = Tensor.mean((var_y - y_tilde).norm(2, axis=1))
+
+        elif loss == 'cosine':
+
+            mod_x = Tensor.sqrt(Tensor.sum(var_x ** 2, 1) + eps)
+            mod_x_tilde = Tensor.sqrt(Tensor.sum(x_tilde ** 2, 1) + eps)
+            loss_backward = 1 - Tensor.mean(Tensor.diag(Tensor.dot(var_x, x_tilde.T)) / (mod_x * mod_x_tilde))
+
+            mod_y = Tensor.sqrt(Tensor.sum(var_y ** 2, 1) + eps)
+            mod_y_tilde = Tensor.sqrt(Tensor.sum(y_tilde ** 2, 1) + eps)
+            loss_forward = 1 - Tensor.mean(Tensor.diag(Tensor.dot(var_y, y_tilde.T)) / (mod_y * mod_y_tilde))
+
+        else:
+            raise Exception('Loss not recognized')
 
         loss = loss_backward + loss_forward
 
@@ -282,6 +306,18 @@ class Trainer(object):
                 delta = effective_learning_rate * gradient
                 updates[param] = param - delta
                 updates[accumulated_gradient] = agrad
+
+        elif strategy == 'adaDelta':
+            updates = OrderedDict()
+            zipped = zip(params, gradients, model_updates, model_deltas)
+            for ndx, (param, gradient, accumulated_gradient, accumulated_delta) in enumerate(zipped):
+                agrad = rho * accumulated_gradient + (1 - rho) * gradient ** 2
+                delta = Tensor.sqrt((accumulated_delta + eps) / (agrad + eps)) * gradient
+
+                updates[param] = param - delta
+                updates[accumulated_gradient] = agrad
+                updates[accumulated_delta] = rho * accumulated_delta + (1 - rho) * (delta ** 2)
+
 
         else:
             msg = 'Unknown optimization strategy'

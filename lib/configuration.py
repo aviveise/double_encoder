@@ -45,6 +45,9 @@ class Configuration(object):
         layer_sizes = map(int, training_section['layer_sizes'].split())
         method_in = self.convert_method(training_section['method_in'])
         method_out = self.convert_method(training_section['method_out'])
+        strategy = training_section['strategy']
+        rho = float(training_section['rho'])
+        cascade_train = bool(int(training_section['cascade_train']))
 
         return HyperParameters(layer_sizes=layer_sizes,
                                learning_rate=learning_rate,
@@ -52,7 +55,10 @@ class Configuration(object):
                                epochs=epochs,
                                momentum=momentum,
                                method_in=method_in,
-                               method_out=method_out)
+                               method_out=method_out,
+                               training_strategy=strategy,
+                               rho=rho,
+                               cascade_train=cascade_train)
 
     def convert_method(self, method_string):
 

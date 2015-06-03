@@ -13,6 +13,7 @@ import scipy.linalg
 import scipy.sparse.linalg
 from sklearn import preprocessing
 
+
 def scale_to_unit_interval(ndar, eps=1e-8):
     """ Scales all values in the ndarray ndar to be between 0 and 1 """
     ndar = ndar.copy()
@@ -68,7 +69,7 @@ def tile_raster_images(X, img_shape, tile_shape, tile_spacing=(0, 0),
     # out_shape[1] = (img_shape[1]+tile_spacing[1])*tile_shape[1] -
     #                tile_spacing[1]
     out_shape = [(ishp + tsp) * tshp - tsp for ishp, tshp, tsp
-                        in zip(img_shape, tile_shape, tile_spacing)]
+                 in zip(img_shape, tile_shape, tile_spacing)]
 
     if isinstance(X, tuple):
         assert len(X) == 4
@@ -80,7 +81,7 @@ def tile_raster_images(X, img_shape, tile_shape, tile_spacing=(0, 0),
             out_array = numpy.zeros((out_shape[0], out_shape[1], 4),
                                     dtype=X.dtype)
 
-        #colors default to 0, alpha defaults to 1 (opaque)
+        # colors default to 0, alpha defaults to 1 (opaque)
         if output_pixel_vals:
             channel_defaults = [0, 0, 0, 255]
         else:
@@ -94,7 +95,7 @@ def tile_raster_images(X, img_shape, tile_shape, tile_spacing=(0, 0),
                 if output_pixel_vals:
                     dt = 'uint8'
                 out_array[:, :, i] = numpy.zeros(out_shape,
-                        dtype=dt) + channel_defaults[i]
+                                                 dtype=dt) + channel_defaults[i]
             else:
                 # use a recurrent call to compute the channel and store it
                 # in the output
@@ -132,13 +133,13 @@ def tile_raster_images(X, img_shape, tile_shape, tile_spacing=(0, 0),
                     if output_pixel_vals:
                         c = 255
                     out_array[
-                        tile_row * (H + Hs): tile_row * (H + Hs) + H,
-                        tile_col * (W + Ws): tile_col * (W + Ws) + W
-                        ] = this_img * c
+                    tile_row * (H + Hs): tile_row * (H + Hs) + H,
+                    tile_col * (W + Ws): tile_col * (W + Ws) + W
+                    ] = this_img * c
         return out_array
 
-def unitnorm_rows(M):
 
+def unitnorm_rows(M):
     if M is None:
         return
 
@@ -149,6 +150,7 @@ def unitnorm_rows(M):
             M[i, :] /= norm
 
     return M
+
 
 def unitnorm_cols(M):
     if M is None:
@@ -162,6 +164,7 @@ def unitnorm_cols(M):
 
     return M
 
+
 def normalize(M):
     if M is None:
         return
@@ -174,9 +177,11 @@ def normalize(M):
 
     return M, norm
 
+
 def scale_cols(M):
     scaler = preprocessing.StandardScaler().fit(M)
     return scaler.transform(M), scaler
+
 
 def center(M):
     if M is None:
@@ -186,16 +191,16 @@ def center(M):
     M -= mean * numpy.ones([1, M.shape[1]])
     return M, mean
 
-def print_list(list, percentage=False):
 
+def print_list(list, percentage=False):
     if percentage:
         list = [i * 100 for i in list]
         return '[%s%%]' % '%,'.join(map(str, list))
     else:
         return '[%s]' % ','.join(map(str, list))
 
-def find_correlation(x, y, svd_sum=True):
 
+def find_correlation(x, y, svd_sum=True):
     forward = unitnorm_rows(center(x))
     backward = unitnorm_rows(center(y))
 
@@ -212,143 +217,144 @@ def find_correlation(x, y, svd_sum=True):
 
         return correlation.sum()
 
-def cca_representation(x, y , eta=0, apply_r=True):
 
-        mean_x1 = x.mean(axis=1)
-        mean_x2 = y.mean(axis=1)
+def cca_representation(x, y, eta=0, apply_r=True):
+    mean_x1 = x.mean(axis=1)
+    mean_x2 = y.mean(axis=1)
 
-        #reshape to transform the array to ndarray
-        mean_x1 = mean_x1.reshape([x.shape[0], 1])
-        mean_x2 = mean_x2.reshape([y.shape[0], 1])
+    # reshape to transform the array to ndarray
+    mean_x1 = mean_x1.reshape([x.shape[0], 1])
+    mean_x2 = mean_x2.reshape([y.shape[0], 1])
 
-        x -= numpy.dot(mean_x1, numpy.ones([1, x.shape[1]], numpy.float))
-        y -= numpy.dot(mean_x2, numpy.ones([1, y.shape[1]], numpy.float))
+    x -= numpy.dot(mean_x1, numpy.ones([1, x.shape[1]], numpy.float))
+    y -= numpy.dot(mean_x2, numpy.ones([1, y.shape[1]], numpy.float))
 
-        if eta:
-            wx, wy, r = cca_web2(x, y, regfactor=(1 / eta))
-        else:
-            wx, wy, r = cca_web2(x, y, regfactor=0)
+    if eta:
+        wx, wy, r = cca_web2(x, y, regfactor=(1 / eta))
+    else:
+        wx, wy, r = cca_web2(x, y, regfactor=0)
 
-        xi = numpy.dot(wx[:, 0:50].T, x)
-        yi = numpy.dot(wy[:, 0:50].T, y)
+    xi = numpy.dot(wx[:, 0:50].T, x)
+    yi = numpy.dot(wy[:, 0:50].T, y)
 
-        if apply_r:
-            xi = numpy.dot(numpy.diag(r), xi)
-            yi = numpy.dot(numpy.diag(r), yi)
+    if apply_r:
+        xi = numpy.dot(numpy.diag(r), xi)
+        yi = numpy.dot(numpy.diag(r), yi)
 
-        return xi, yi
+    return xi, yi
+
 
 def cca_web2(x, y, xi=None, regfactor=0, regfactor2=0):
-        #
-        # CCA calculate canonical correlations
-        #
-        # [Wx Wy r] = cca(X,Y) where Wx and Wy contains the canonical correlation
-        # vectors as columns and r is a vector with corresponding canonical
-        # correlations. The correlations are sorted in descending order. X and Y
-        # are matrices where each column is a sample. Hence, X and Y must have
-        # the same number of columns.
-        #
-        # Example: If X is M*K and Y is N*K there are L=MIN(M,N) solutions. Wx is
-        # then M*L, Wy is N*L and r is L*1.
-        #
-        #
-        # modified by lw to make symmetric and add regularization
-        #
+    #
+    # CCA calculate canonical correlations
+    #
+    # [Wx Wy r] = cca(X,Y) where Wx and Wy contains the canonical correlation
+    # vectors as columns and r is a vector with corresponding canonical
+    # correlations. The correlations are sorted in descending order. X and Y
+    # are matrices where each column is a sample. Hence, X and Y must have
+    # the same number of columns.
+    #
+    # Example: If X is M*K and Y is N*K there are L=MIN(M,N) solutions. Wx is
+    # then M*L, Wy is N*L and r is L*1.
+    #
+    #
+    # modified by lw to make symmetric and add regularization
+    #
 
-        if not xi:
-            xi = numpy.ones(x.shape[0])
+    if not xi:
+        xi = numpy.ones(x.shape[0])
+    else:
+        xi = xi / numpy.linalg.norm(xi) * numpy.sqrt(x.shape[0])
+
+    if not regfactor2:
+        regfactor2 = 10 ** (-8)
+
+    z = numpy.concatenate([x, y])
+
+    covariance = numpy.cov(z)
+    size_x = x.shape[0]
+    size_y = y.shape[0]
+
+    c_xx = covariance[0:size_x, 0:size_x] + regfactor2 * numpy.eye(size_x)
+
+    if regfactor != 0:
+        c_xx += numpy.diag(xi) * (scipy.sparse.linalg.eigs(c_xx, k=1, which='LM')[0] / regfactor)
+
+    c_xy = covariance[0:size_x, size_x:size_x + size_y]
+    c_yx = c_xy.conj().transpose()
+
+    c_yy = covariance[size_x:size_x + size_y, size_x:size_x + size_y] + regfactor2 * numpy.eye(size_y)
+
+    if regfactor != 0:
+        c_yy += numpy.eye(size_y) * (scipy.sparse.linalg.eigs(c_yy, k=1, which='LM')[0] / regfactor)
+
+    inv_c_xx = numpy.linalg.inv(c_xx)
+    inv_c_yy = numpy.linalg.inv(c_yy)
+
+    d = min(size_x, size_y)
+    mx = numpy.dot(numpy.dot(numpy.dot(inv_c_xx, c_xy), inv_c_yy), c_yx)
+
+    if d < size_x:
+        r, wx = scipy.sparse.linalg.eigs(mx, k=d, which='LM')
+    else:
+        r, wx = numpy.linalg.eig(mx)
+
+    r = numpy.sqrt(numpy.real(r))
+
+    v = numpy.fliplr(wx)
+    r = numpy.flipud(r)
+    i = numpy.argsort(numpy.real(r), axis=0)
+    r = numpy.sort(numpy.real(r), axis=0)
+    r = numpy.flipud(r)
+
+    for j in xrange(i.shape[0]):
+        wx[:, j] = v[:, i[j]]
+
+    wx = numpy.fliplr(wx)
+
+    my = numpy.dot(numpy.dot(numpy.dot(inv_c_yy, c_yx), inv_c_xx), c_xy)
+
+    if d < size_y:
+        r, wy = scipy.sparse.linalg.eigs(my, k=d, which='LM')
+    else:
+        r, wy = numpy.linalg.eig(my)
+
+    r = numpy.sqrt(numpy.real(r))
+
+    v = numpy.fliplr(wy)
+    r = numpy.flipud(r)
+    i = numpy.argsort(numpy.real(r), axis=0)
+    r = numpy.sort(numpy.real(r), axis=0)
+    r = numpy.flipud(r)
+
+    for j in xrange(i.shape[0]):
+        wy[:, j] = v[:, i[j]]
+
+    wy = numpy.fliplr(wy)
+
+    for i in xrange(wx.shape[1]):
+        wx[:, i] = wx[:, i] / numpy.sqrt(numpy.dot(wx[:, i].T, numpy.dot(c_xx, wx[:, i])))
+
+    for i in xrange(wy.shape[1]):
+        wy[:, i] = wy[:, i] / numpy.sqrt(numpy.dot(wy[:, i].T, numpy.dot(c_yy, wy[:, i])))
+
+    xx = numpy.real(numpy.dot(wx.conj().T, x))
+    yy = numpy.real(numpy.dot(wy.conj().T, y))
+
+    signs = numpy.ndarray(xx.shape[0])
+    for i in xrange(xx.shape[0]):
+
+        if i < yy.shape[0] and numpy.linalg.norm(xx[i, :]) * numpy.linalg.norm(yy[i, :]):
+            signs[i] = numpy.sign(numpy.correlate(xx[i, :].conj().T, yy[i, :].conj().T))
         else:
-            xi = xi / numpy.linalg.norm(xi) * numpy.sqrt(x.shape[0])
+            signs[i] = 1
 
-        if not regfactor2:
-            regfactor2 = 10 ** (-8)
+    wy = numpy.dot(wy, numpy.diag(signs))
 
-        z = numpy.concatenate([x, y])
+    return wx, wy, r
 
-        covariance = numpy.cov(z)
-        size_x = x.shape[0]
-        size_y = y.shape[0]
-
-        c_xx = covariance[0:size_x, 0:size_x] + regfactor2 * numpy.eye(size_x)
-
-        if regfactor != 0:
-            c_xx += numpy.diag(xi)*(scipy.sparse.linalg.eigs(c_xx, k=1, which='LM')[0] / regfactor)
-
-        c_xy = covariance[0:size_x, size_x:size_x+size_y]
-        c_yx = c_xy.conj().transpose()
-
-        c_yy = covariance[size_x:size_x+size_y, size_x:size_x+size_y] + regfactor2 * numpy.eye(size_y)
-
-        if regfactor != 0:
-            c_yy += numpy.eye(size_y)*(scipy.sparse.linalg.eigs(c_yy, k=1, which='LM')[0] / regfactor)
-
-        inv_c_xx = numpy.linalg.inv(c_xx)
-        inv_c_yy = numpy.linalg.inv(c_yy)
-
-        d = min(size_x, size_y)
-        mx = numpy.dot(numpy.dot(numpy.dot(inv_c_xx, c_xy), inv_c_yy), c_yx)
-
-        if d < size_x:
-            r, wx = scipy.sparse.linalg.eigs(mx, k=d, which='LM')
-        else:
-            r, wx = numpy.linalg.eig(mx)
-
-        r = numpy.sqrt(numpy.real(r))
-
-        v = numpy.fliplr(wx)
-        r = numpy.flipud(r)
-        i = numpy.argsort(numpy.real(r), axis=0)
-        r = numpy.sort(numpy.real(r), axis=0)
-        r = numpy.flipud(r)
-
-        for j in xrange(i.shape[0]):
-            wx[:, j] = v[:, i[j]]
-
-        wx = numpy.fliplr(wx)
-
-        my = numpy.dot(numpy.dot(numpy.dot(inv_c_yy, c_yx), inv_c_xx), c_xy)
-
-        if d < size_y:
-            r, wy = scipy.sparse.linalg.eigs(my, k=d, which='LM')
-        else:
-            r, wy = numpy.linalg.eig(my)
-
-        r = numpy.sqrt(numpy.real(r))
-
-        v = numpy.fliplr(wy)
-        r = numpy.flipud(r)
-        i = numpy.argsort(numpy.real(r), axis=0)
-        r = numpy.sort(numpy.real(r), axis=0)
-        r = numpy.flipud(r)
-
-        for j in xrange(i.shape[0]):
-            wy[:, j] = v[:, i[j]]
-
-        wy = numpy.fliplr(wy)
-
-        for i in xrange(wx.shape[1]):
-            wx[:, i] = wx[:, i] / numpy.sqrt(numpy.dot(wx[:, i].T, numpy.dot(c_xx, wx[:, i])))
-
-        for i in xrange(wy.shape[1]):
-            wy[:, i] = wy[:, i] / numpy.sqrt(numpy.dot(wy[:, i].T, numpy.dot(c_yy, wy[:, i])))
-
-        xx = numpy.real(numpy.dot(wx.conj().T, x))
-        yy = numpy.real(numpy.dot(wy.conj().T, y))
-
-        signs = numpy.ndarray(xx.shape[0])
-        for i in xrange(xx.shape[0]):
-
-            if i < yy.shape[0] and numpy.linalg.norm(xx[i, :]) * numpy.linalg.norm(yy[i, :]):
-                signs[i] = numpy.sign(numpy.correlate(xx[i, :].conj().T, yy[i, :].conj().T))
-            else:
-                signs[i] = 1
-
-        wy = numpy.dot(wy, numpy.diag(signs))
-
-        return wx, wy, r
 
 def ConfigSectionMap(section, config):
-
     dict1 = {}
 
     try:
@@ -366,32 +372,32 @@ def ConfigSectionMap(section, config):
 
     return dict1
 
+
 def testWhitenTransform(data):
     colNum = data.shape[1]
     rowNum = data.shape[0]
-    mu = numpy.dot(data,numpy.ones([colNum, 1])) * (1 / float(colNum))
+    mu = numpy.dot(data, numpy.ones([colNum, 1])) * (1 / float(colNum))
     print 'mu error: %f' % numpy.linalg.norm(mu)
 
     sigma = numpy.dot(data, data.T) * (1 / float(colNum - 1))
 
     for i in xrange(rowNum):
-        sigma[i,i] -= 1
+        sigma[i, i] -= 1
 
     print 'sigma error: %f' % numpy.linalg.norm(sigma)
 
-def convertInt2Bitarray(number):
 
+def convertInt2Bitarray(number):
     number_length = int(math.ceil(math.log(number, 2)))
     result = numpy.ndarray([1, number_length])
     for i in xrange(number_length):
-
         result[0, i] = number % 2
         number = number >> 1
 
     return result
 
-def calculate_square(x):
 
+def calculate_square(x):
     w, v = numpy.linalg.eigh(x)
 
     n = x.shape[0]
@@ -402,16 +408,27 @@ def calculate_square(x):
 
     return result
 
-def calculate_mardia(x, y, top):
 
+def match_error(x, y):
+    x_scaled = preprocessing.scale(x)
+    y_scaled = preprocessing.scale(y)
+
+    sym = numpy.dot(x_scaled, y_scaled.T)
+    top_1 = numpy.argmax(sym, axis=0)
+    error = 1 - float(numpy.sum(top_1 == range(x_scaled.shape[0]))) / x_scaled.shape[0]
+
+    return error
+
+
+def calculate_mardia(x, y, top):
     set_size = x.shape[0]
     dim = x.shape[1]
 
     x, mean_x = center(x.T)
     y, mean_y = center(y.T)
 
-    s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10**(-8) * numpy.eye(dim, dim)))
-    s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10**(-8) * numpy.eye(dim, dim)))
+    s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
+    s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
     s12 = numpy.diag(numpy.diag(numpy.dot(x, y.T) / (set_size - 1)))
 
     s11_chol = scipy.linalg.sqrtm(s11)
@@ -422,15 +439,15 @@ def calculate_mardia(x, y, top):
 
     mat_T = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
 
-    s = numpy.linalg.svd(mat_T, compute_uv=0)
-
     if top == 0:
-        return numpy.sum(s)
+        return numpy.trace(mat_T)
+
+    s = numpy.linalg.svd(mat_T, compute_uv=0)
 
     return numpy.sum(s[0:top])
 
-def calculate_trace(x, y):
 
+def calculate_trace(x, y):
     centered_x = center(x)
     centered_y = center(y)
 
@@ -443,13 +460,12 @@ def calculate_trace(x, y):
 
     return sum(diagonal)
 
-def calculate_corrcoef(x, y, top):
 
+def calculate_corrcoef(x, y, top):
     n = x.shape[0]
     corr = numpy.corrcoef(x, y)
 
     corr = corr[0: n, n + 1: 2 * n]
-
 
     diag = numpy.abs(numpy.diagonal(corr))
     diag.sort()
@@ -457,6 +473,6 @@ def calculate_corrcoef(x, y, top):
 
     return numpy.sum(diag[0:top])
 
-def calculate_reconstruction_error(x, y):
 
+def calculate_reconstruction_error(x, y):
     return ((x - y) ** 2).sum() / x.shape[0]
