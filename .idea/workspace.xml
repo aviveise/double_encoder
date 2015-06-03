@@ -2,20 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7bf5cad0-15b4-49c5-a97e-a3f7c7148e9b" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/configuration.py" afterPath="$PROJECT_DIR$/lib/configuration.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/cross_encoder_GUY.ini" afterPath="$PROJECT_DIR$/bin/cross_encoder_GUY.ini" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py" afterPath="$PROJECT_DIR$/lib/DataSetReaders/dataset_base.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/double_encoder.py" afterPath="$PROJECT_DIR$/lib/double_encoder.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Transformers/double_encoder_transformer.py" afterPath="$PROJECT_DIR$/lib/Transformers/double_encoder_transformer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Regularizations/hinge_regularization.py" afterPath="$PROJECT_DIR$/lib/Regularizations/hinge_regularization.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/hyper_parameters.py" afterPath="$PROJECT_DIR$/lib/hyper_parameters.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/TrainingStrategy/iterative_training_strategy.py" afterPath="$PROJECT_DIR$/lib/TrainingStrategy/iterative_training_strategy.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" afterPath="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" afterPath="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py" afterPath="$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/trainer.py" afterPath="$PROJECT_DIR$/lib/trainer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/MISC/utils.py" afterPath="$PROJECT_DIR$/lib/MISC/utils.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Theses.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -40,7 +28,7 @@
         <entry file="file://$PROJECT_DIR$/lib/trainer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="254" column="54" selection-start-line="254" selection-start-column="54" selection-end-line="254" selection-end-column="54" />
+              <caret line="241" column="54" selection-start-line="241" selection-start-column="54" selection-end-line="241" selection-end-column="54" />
               <folding>
                 <element signature="e#6913#7805#0" expanded="false" />
               </folding>
@@ -80,10 +68,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="utils.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/lib/MISC/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.23561151">
+            <state vertical-scroll-proportion="0.0">
               <caret line="442" column="33" selection-start-line="442" selection-start-column="33" selection-end-line="442" selection-end-column="33" />
               <folding>
                 <element signature="e#0#317#1" expanded="false" />
@@ -129,11 +117,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="cross_encoder_GUY.ini" pinned="false" current-in-tab="false">
+      <file leaf-file-name="cross_encoder_GUY.ini" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+            <state vertical-scroll-proportion="0.91007197">
+              <caret line="21" column="19" selection-start-line="21" selection-start-column="19" selection-end-line="21" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -153,7 +141,7 @@
         <entry file="file://$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="23" column="112" selection-start-line="23" selection-start-column="112" selection-end-line="23" selection-end-column="112" />
+              <caret line="27" column="32" selection-start-line="27" selection-start-column="32" selection-end-line="27" selection-end-column="32" />
               <folding>
                 <element signature="e#21#71#0" expanded="true" />
               </folding>
@@ -217,15 +205,15 @@
         <option value="$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py" />
         <option value="$PROJECT_DIR$/lib/hyper_parameters.py" />
         <option value="$PROJECT_DIR$/lib/Layers/symmetric_hidden_layer.py" />
-        <option value="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" />
         <option value="$PROJECT_DIR$/lib/trainer.py" />
         <option value="$PROJECT_DIR$/lib/Regularizations/hinge_regularization.py" />
         <option value="$PROJECT_DIR$/lib/Transformers/double_encoder_transformer.py" />
         <option value="$PROJECT_DIR$/lib/Transformers/double_encoder_transformer.py" />
         <option value="$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py" />
+        <option value="$PROJECT_DIR$/lib/MISC/utils.py" />
+        <option value="$PROJECT_DIR$/lib/MISC/utils.py" />
+        <option value="$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py" />
         <option value="$PROJECT_DIR$/bin/cross_encoder_GUY.ini" />
-        <option value="$PROJECT_DIR$/lib/MISC/utils.py" />
-        <option value="$PROJECT_DIR$/lib/MISC/utils.py" />
       </list>
     </option>
   </component>
@@ -664,7 +652,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1050" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25329816" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -672,7 +660,7 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32672113" sideWeight="0.49973306" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32905483" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32685715" sideWeight="0.49760255" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32685715" sideWeight="0.49760255" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32905483" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -1071,26 +1059,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="112" selection-start-line="23" selection-start-column="112" selection-end-line="23" selection-end-column="112" />
-          <folding>
-            <element signature="e#21#71#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/trainer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="254" column="54" selection-start-line="254" selection-start-column="54" selection-end-line="254" selection-end-column="54" />
-          <folding>
-            <element signature="e#6913#7805#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/hyper_parameters.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1123,27 +1091,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="28" column="37" selection-start-line="28" selection-start-column="37" selection-end-line="28" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/MISC/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.23561151">
+        <state vertical-scroll-proportion="0.0">
           <caret line="442" column="33" selection-start-line="442" selection-start-column="33" selection-end-line="442" selection-end-column="33" />
           <folding>
             <element signature="e#0#317#1" expanded="false" />
@@ -1163,6 +1113,44 @@
             <element signature="e#13353#13553#0" expanded="false" />
             <element signature="e#13602#13642#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/trainer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="241" column="54" selection-start-line="241" selection-start-column="54" selection-end-line="241" selection-end-column="54" />
+          <folding>
+            <element signature="e#6913#7805#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/Testers/trace_correlation_tester.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="28" column="37" selection-start-line="28" selection-start-column="37" selection-end-line="28" selection-end-column="37" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/Regularizations/reconstruction_regularization.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="27" column="32" selection-start-line="27" selection-start-column="32" selection-end-line="27" selection-end-column="32" />
+          <folding>
+            <element signature="e#21#71#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/cross_encoder_GUY.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.91007197">
+          <caret line="21" column="19" selection-start-line="21" selection-start-column="19" selection-end-line="21" selection-end-column="19" />
+          <folding />
         </state>
       </provider>
     </entry>
