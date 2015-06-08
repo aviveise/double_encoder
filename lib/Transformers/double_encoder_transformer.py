@@ -48,7 +48,8 @@ class DoubleEncoderTransformer(TransformerBase):
 
             OutputLog().write('batch {0}/{1} ended, time: {2}'.format(i,
                                                                       number_of_batches,
-                                                                      ((current_time - start_tick) / tickFrequency)))
+                                                                      ((current_time - start_tick) / tickFrequency)),
+                              'debug')
 
             if i == 0:
                 outputs_hidden = outputs_hidden_batch

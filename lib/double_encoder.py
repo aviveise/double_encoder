@@ -51,6 +51,7 @@ class DoubleEncoder(object):
             os.makedirs(dir_name)
 
         OutputLog().set_path(dir_name)
+        OutputLog().set_verbosity(configuration.output_parameters['verbosity'])
 
         data_config = ConfigParser.ConfigParser()
         data_config.read(data_set_config)

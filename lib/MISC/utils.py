@@ -475,4 +475,4 @@ def calculate_corrcoef(x, y, top):
 
 
 def calculate_reconstruction_error(x, y):
-    return ((x - y) ** 2).sum() / x.shape[0]
+    return numpy.mean(((x - y) ** 2).sum(axis=1))

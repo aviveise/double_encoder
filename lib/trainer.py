@@ -1,6 +1,7 @@
 import cv2
 import itertools
 from theano.ifelse import IfElse, ifelse
+from theano.tensor.nlinalg import matrix_inverse
 
 __author__ = 'aviv'
 
@@ -100,15 +101,15 @@ class Trainer(object):
         best_loss = 0
         for epoch in numpy.arange(hyper_parameters.epochs):
 
-            print '----------Starting Epoch ({0})-----------'.format(epoch)
+            OutputLog().write('----------Starting Epoch ({0})-----------'.format(epoch), 'debug')
 
-            print 'Shuffling dataset'
+            OutputLog().write('Shuffling dataset', 'debug')
             indices_positive = random_stream.permutation(train_set_x.shape[0])
 
             loss_forward = 0
             loss_backward = 0
 
-            print 'Training {0} batches'.format(n_training_batches)
+            OutputLog().write('Training {0} batches'.format(n_training_batches), 'debug')
             for index in xrange(n_training_batches):
 
                 start_tick = cv2.getTickCount()
@@ -123,8 +124,8 @@ class Trainer(object):
                     (index + 1) * hyper_parameters.batch_size], :], borrow=True)
 
                 output = model()
-                loss_forward += output[0]
-                loss_backward += output[1]
+                loss_backward += output[0]
+                loss_forward += output[1]
 
                 if math.isnan(loss_backward) or math.isnan(loss_forward):
                     OutputLog().write('loss equals NAN, exiting')
@@ -154,9 +155,12 @@ class Trainer(object):
                                output[2],
                                output[3],
                                calculate_reconstruction_error(output[4], output[5]),
-                               string_output))
+                               string_output), 'debug')
 
             loss = (loss_forward + loss_backward) / n_training_batches
+
+            OutputLog().write('Average loss_x: {0} loss_y: {1}'.format(loss_backward / n_training_batches,
+                                                                       loss_forward / n_training_batches))
 
             if best_loss == 0 or loss < best_loss:
                 best_loss = loss
@@ -166,7 +170,7 @@ class Trainer(object):
 
             if print_verbose and not validation_set_y is None and not validation_set_x is None:
 
-                print '----------epoch (%d)----------\n' % epoch
+                OutputLog().write('----------epoch (%d)----------' % epoch, 'debug')
 
                 symmetric_double_encoder.set_eval(True)
 
@@ -180,9 +184,9 @@ class Trainer(object):
                 if math.isnan(var):
                     sys.exit(0)
 
-            print 'epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
-                                                              loss_backward / n_training_batches,
-                                                              loss_forward / n_training_batches)
+            OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
+                                                                          loss_backward / n_training_batches,
+                                                                          loss_forward / n_training_batches), 'debug')
 
         del model
 
@@ -220,10 +224,10 @@ class Trainer(object):
                      model_deltas,
                      moving_averages,
                      number_of_batches,
-                     strategy='SGD',
+                     strategy='SGDCayley',
                      rho=0.5,
-                     eps=1e-6,
-                     loss='cosine'):
+                     eps=1e-8,
+                     loss='L2'):
 
         # Retrieve the reconstructions of x and y
         x_tilde = symmetric_double_encoder.reconstruct_x()
@@ -239,10 +243,12 @@ class Trainer(object):
 
         if loss == 'L2':
             # Compute the loss of the forward encoding as L2 loss
-            loss_backward = Tensor.mean((var_x - x_tilde).norm(2, axis=1))
+            loss_backward = Tensor.mean(((var_x - x_tilde) ** 2).sum(axis=1))
 
             # Compute the loss of the backward encoding as L2 loss
-            loss_forward = Tensor.mean((var_y - y_tilde).norm(2, axis=1))
+            loss_forward = Tensor.mean(((var_y - y_tilde) ** 2).sum(axis=1))
+
+            loss = loss_backward + loss_forward
 
         elif loss == 'cosine':
 
@@ -254,10 +260,10 @@ class Trainer(object):
             mod_y_tilde = Tensor.sqrt(Tensor.sum(y_tilde ** 2, 1) + eps)
             loss_forward = 1 - Tensor.mean(Tensor.diag(Tensor.dot(var_y, y_tilde.T)) / (mod_y * mod_y_tilde))
 
+            loss = Tensor.mean(loss_forward * loss_backward.T)
+
         else:
             raise Exception('Loss not recognized')
-
-        loss = loss_backward + loss_forward
 
         print 'Adding regularization'
 
@@ -275,7 +281,7 @@ class Trainer(object):
         # Computing the gradient for the stochastic gradient decent
         # the result is gradients for each parameter of the cross encoder
         gradients = Tensor.grad(loss, params)
-        loss_gradients = Tensor.grad(loss_backward + loss_forward, params)
+        loss_gradients = Tensor.grad(Tensor.mean(loss_backward + loss_forward), params)
 
         if strategy == 'SGD':
 
@@ -303,8 +309,9 @@ class Trainer(object):
             for ndx, (param, gradient, accumulated_gradient) in enumerate(zipped):
                 agrad = accumulated_gradient + gradient ** 2
                 effective_learning_rate = (hyper_parameters.learning_rate / Tensor.sqrt(agrad + eps))
-                delta = effective_learning_rate * gradient
-                updates[param] = param - delta
+                update, delta = Trainer._calc_update(effective_learning_rate, gradient, param)
+                #delta = effective_learning_rate * gradient
+                updates[param] = update
                 updates[accumulated_gradient] = agrad
 
         elif strategy == 'adaDelta':
@@ -312,12 +319,23 @@ class Trainer(object):
             zipped = zip(params, gradients, model_updates, model_deltas)
             for ndx, (param, gradient, accumulated_gradient, accumulated_delta) in enumerate(zipped):
                 agrad = rho * accumulated_gradient + (1 - rho) * gradient ** 2
-                delta = Tensor.sqrt((accumulated_delta + eps) / (agrad + eps)) * gradient
-
-                updates[param] = param - delta
+                #delta = Tensor.sqrt((accumulated_delta + eps) / (agrad + eps)) * gradient
+                step_size = Tensor.sqrt((accumulated_delta + eps) / (agrad + eps))
+                update, delta = Trainer._calc_update(step_size, gradient, param)
+                updates[param] = update
                 updates[accumulated_gradient] = agrad
                 updates[accumulated_delta] = rho * accumulated_delta + (1 - rho) * (delta ** 2)
 
+        elif strategy == 'SGDCayley':
+            updates = []
+            for param, gradient in zip(params, gradients):
+
+                if param.name == 'Wx_layer0' or param.name == 'Wy_layer0':
+                    param_update = Trainer._calc_update(hyper_parameters.learning_rate, gradient, param, 'Cayley')
+                else:
+                    param_update = Trainer._calc_update(hyper_parameters.learning_rate, gradient, param, 'Regular')
+
+                updates.append((param, param_update))
 
         else:
             msg = 'Unknown optimization strategy'
@@ -338,12 +356,12 @@ class Trainer(object):
         # updates : gradient decent updates for all params
         # givens : replacing inputs for each iteration
         model = function(inputs=[],
-                         outputs=[loss_backward,
-                                  loss_forward,
+                         outputs=[Tensor.mean(loss_backward),
+                                  Tensor.mean(loss_forward),
                                   Tensor.sum(variance_hidden_x),
                                   Tensor.sum(variance_hidden_y),
                                   x_hidden,
-                                  y_hidden] + regularizations + loss_gradients + [x_tilde, y_tilde],
+                                  y_hidden] + regularizations,
                          updates=updates)
 
         return model
@@ -358,3 +376,17 @@ class Trainer(object):
         for tensor, param in zip(values, params):
             updates[param] = (1.0 - factor) * param + factor * tensor
         return updates
+
+    @staticmethod
+    def _calc_update(step_size, gradient, param, type='Cayley'):
+
+        if type == 'Cayley' and (param.name == 'Wx_layer0' or param.name == 'Wy_layer0'):
+            A = Tensor.dot((step_size / 2) * gradient, param.T) - Tensor.dot(param, ((step_size / 2) * gradient).T)
+            I = Tensor.identity_like(A)
+            Q = Tensor.dot(matrix_inverse(I + A), (I - A))
+            update = Tensor.dot(Q, param)
+            delta = (step_size / 2) * Tensor.dot(A, (param + update))
+            return update, delta
+        else:
+            delta = step_size * gradient
+            return param - delta, delta
