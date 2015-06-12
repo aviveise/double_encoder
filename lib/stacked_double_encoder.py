@@ -102,6 +102,7 @@ class StackedDoubleEncoder(object):
             Wy = symmetric_layer.Wx.T
 
             input_y = symmetric_layer.output_forward_y
+            input_size = symmetric_layer.hidden_layer_size
 
             #refreshing the connection between Y and X of the other layers
             for layer in reversed(self._symmetric_layers):
@@ -110,8 +111,9 @@ class StackedDoubleEncoder(object):
                     layer.update_y(input_y, Wy, layer.bias_y)
                     Wy = layer.Wx.T
                 else:
-                    layer.update_y(input_y, layer.Wy, layer.bias_y)
+                    layer.update_y(input_y, input_size=input_size)
 
+                input_size = layer.hidden_layer_size
                 input_y = layer.output_forward_y
 
         #adding the new layer to the list

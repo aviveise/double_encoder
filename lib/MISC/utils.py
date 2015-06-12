@@ -179,7 +179,8 @@ def normalize(M):
 
 
 def scale_cols(M):
-    scaler = preprocessing.StandardScaler().fit(M)
+    scaler = preprocessing.MinMaxScaler(feature_range=(-1,1)).fit(M)
+    #scaler = preprocessing.StandardScaler().fit(M)
     return scaler.transform(M), scaler
 
 

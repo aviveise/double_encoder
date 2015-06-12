@@ -31,8 +31,8 @@ import DataSetReaders
 import Regularizations
 import Optimizations
 
-class DoubleEncoder(object):
 
+class DoubleEncoder(object):
     @staticmethod
     def run(training_strategy, train=True):
 
@@ -42,7 +42,7 @@ class DoubleEncoder(object):
 
         regularization_methods = {}
 
-        #parse runtime configuration
+        # parse runtime configuration
         configuration = Configuration(run_time_config)
 
         dir_name = configuration.output_parameters['path']
@@ -57,16 +57,18 @@ class DoubleEncoder(object):
         data_config.read(data_set_config)
         data_parameters = ConfigSectionMap("dataset_parameters", data_config)
 
-        #construct data set
+        # construct data set
         data_set = Container().create(data_parameters['name'], data_parameters)
 
-        configuration.hyper_parameters.batch_size = int(configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
+        configuration.hyper_parameters.batch_size = int(
+            configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
 
         training_strategy.set_parameters(configuration.strategy_parameters)
 
-        #building regularization methods
+        # building regularization methods
         for regularization_parameters in configuration.regularizations_parameters:
-            regularization_methods[regularization_parameters['type']] = Container().create(regularization_parameters['type'], regularization_parameters)
+            regularization_methods[regularization_parameters['type']] = Container().create(
+                regularization_parameters['type'], regularization_parameters)
 
         start = clock()
 
@@ -74,7 +76,7 @@ class DoubleEncoder(object):
 
             try:
 
-                #training the system with the optimized parameters
+                # training the system with the optimized parameters
                 stacked_double_encoder = training_strategy.train(training_set_x=data_set.trainset[0],
                                                                  training_set_y=data_set.trainset[1],
                                                                  hyper_parameters=configuration.hyper_parameters,
@@ -84,8 +86,10 @@ class DoubleEncoder(object):
                                                                  validation_set_x=data_set.tuning[0],
                                                                  validation_set_y=data_set.tuning[1],
                                                                  dir_name=dir_name,
-                                                                 import_net=configuration.output_parameters['fine_tune'],
-                                                                 import_path=configuration.output_parameters['import_net'])
+                                                                 import_net=configuration.output_parameters[
+                                                                     'fine_tune'],
+                                                                 import_path=configuration.output_parameters[
+                                                                     'import_net'])
 
                 stacked_double_encoder.export_encoder(dir_name)
 
@@ -107,14 +111,16 @@ class DoubleEncoder(object):
         stacked_double_encoder.set_eval(True)
 
         OutputLog().write('test results:')
-        trace_correlation, var,  x_test, y_test, test_best_layer = TraceCorrelationTester(data_set.testset[0],
-                                                                   data_set.testset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
-                                                                                                    configuration.hyper_parameters)
+        correlations, trace_correlation, var, x_test, y_test, test_best_layer = TraceCorrelationTester(
+            data_set.testset[0],
+            data_set.testset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+                                           configuration.hyper_parameters)
 
         OutputLog().write('train results:')
-        train_trace_correlation, var, x_train, y_train, train_best_layer = TraceCorrelationTester(data_set.trainset[0],
-                                                                         data_set.trainset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
-                                                                                                           configuration.hyper_parameters)
+        correlations, train_trace_correlation, var, x_train, y_train, train_best_layer = TraceCorrelationTester(
+            data_set.trainset[0],
+            data_set.trainset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+                                            configuration.hyper_parameters)
 
         execution_time = clock() - start
 
@@ -141,7 +147,8 @@ class DoubleEncoder(object):
         OutputLog().write('%f, %f\n' % (float(trace_correlation),
                                         execution_time))
 
-        filename = configuration.output_parameters['type'] + '_' + data_parameters['name'] +'_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+        filename = configuration.output_parameters['type'] + '_' + data_parameters[
+            'name'] + '_' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 
         OutputLog().write('output dir:' + dir_name)
         OutputLog().write('exporting double encoder:\n')
@@ -159,14 +166,12 @@ class DoubleEncoder(object):
             OutputLog().write('\nOutput activations\n')
 
             for index in range(len(x_train)):
-
                 set_name_x = 'hidden_train_x_%i' % index
                 set_name_y = 'hidden_train_y_%i' % index
                 export_train[set_name_x] = x_train[index]
                 export_train[set_name_y] = y_train[index]
 
             for index in range(len(x_test)):
-
                 set_name_x = 'hidden_test_x_%i' % index
                 set_name_y = 'hidden_test_y_%i' % index
                 export_test[set_name_x] = x_test[index]
@@ -182,7 +187,8 @@ class DoubleEncoder(object):
 
             OutputLog().write('\nOutput gradients\n')
 
-            transformer = GradientTransformer(stacked_double_encoder, stacked_double_encoder.getParams(), configuration.hyper_parameters)
+            transformer = GradientTransformer(stacked_double_encoder, stacked_double_encoder.getParams(),
+                                              configuration.hyper_parameters)
 
             train_dir_name = os.path.join(dir_name, 'train')
 
@@ -195,7 +201,8 @@ class DoubleEncoder(object):
                 if sample:
                     for param in gradient.keys():
                         if gradient[param].shape[0] > sample_number:
-                            indices[param] = numpy.random.uniform(0, gradient[param].shape[0], sample_number).astype(int)
+                            indices[param] = numpy.random.uniform(0, gradient[param].shape[0], sample_number).astype(
+                                int)
                             gradient[param] = gradient[param][indices[param]]
                 scipy.io.savemat(os.path.join(train_dir_name, "train_gradients_sample_{0}.mat".format(ndx)), gradient)
 
@@ -212,5 +219,3 @@ class DoubleEncoder(object):
                 scipy.io.savemat(os.path.join(test_dir_name, "test_gradients_sample_{0}.mat".format(ndx)), gradient)
 
         return stacked_double_encoder
-
-

@@ -76,32 +76,30 @@ class Trainer(object):
         model_updates = [shared(p.get_value() * 0, borrow=True) for p in params]
         model_deltas = [shared(p.get_value() * 0, borrow=True) for p in params]
 
-        negative_indices = shared(numpy.ones(hyper_parameters.batch_size * 2, dtype=Tensor.config.floatX), borrow=True)
-
         eps = 1e-8
 
         symmetric_double_encoder.set_eval(False)
 
-        print 'Building model'
-        model = Trainer._build_model(hyper_parameters,
-                                     symmetric_double_encoder,
-                                     params,
-                                     regularization_methods,
-                                     model_updates,
-                                     model_deltas,
-                                     moving_averages,
-                                     n_training_batches,
-                                     hyper_parameters.training_strategy,
-                                     hyper_parameters.rho,
-                                     eps)
-
-        # numpy.set_string_function(_print_array, repr=False)
+        best_correlations = []
 
         # The training phase, for each epoch we train on every batch
         best_loss = 0
         for epoch in numpy.arange(hyper_parameters.epochs):
 
             OutputLog().write('----------Starting Epoch ({0})-----------'.format(epoch), 'debug')
+
+            print 'Building model'
+            model = Trainer._build_model(hyper_parameters,
+                                         symmetric_double_encoder,
+                                         params,
+                                         regularization_methods,
+                                         model_updates,
+                                         model_deltas,
+                                         moving_averages,
+                                         n_training_batches,
+                                         hyper_parameters.training_strategy,
+                                         hyper_parameters.rho,
+                                         eps)
 
             OutputLog().write('Shuffling dataset', 'debug')
             indices_positive = random_stream.permutation(train_set_x.shape[0])
@@ -157,16 +155,8 @@ class Trainer(object):
                                calculate_reconstruction_error(output[4], output[5]),
                                string_output), 'debug')
 
-            loss = (loss_forward + loss_backward) / n_training_batches
-
             OutputLog().write('Average loss_x: {0} loss_y: {1}'.format(loss_backward / n_training_batches,
                                                                        loss_forward / n_training_batches))
-
-            if best_loss == 0 or loss < best_loss:
-                best_loss = loss
-
-            else:
-                hyper_parameters.learning_rate *= 0.1
 
             if print_verbose and not validation_set_y is None and not validation_set_x is None:
 
@@ -174,8 +164,9 @@ class Trainer(object):
 
                 symmetric_double_encoder.set_eval(True)
 
-                trace_correlation, var, x, y, layer_id = TraceCorrelationTester(validation_set_x, validation_set_y,
-                                                                                top). \
+                correlations, best_correlation, var, x, y, layer_id = TraceCorrelationTester(validation_set_x,
+                                                                                             validation_set_y,
+                                                                                             top). \
                     test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
                          hyper_parameters)
 
@@ -183,6 +174,23 @@ class Trainer(object):
 
                 if math.isnan(var):
                     sys.exit(0)
+
+                if len(best_correlations) == 0:
+                    best_correlations = correlations
+                else:
+                    for best_correlation, current_correlation in zip(best_correlations, correlations):
+                        if current_correlation < best_correlation:
+                            OutputLog().write('Decaying learning rate')
+                            hyper_parameters.learning_rate *= 0.1
+                            break
+
+                    new_correlations = []
+                    for best_correlation, current_correlation in zip(best_correlations, correlations):
+                        if current_correlation < best_correlation:
+                            new_correlations.append(best_correlation)
+                        else:
+                            new_correlations.append(current_correlation)
+                    best_correlations = new_correlations
 
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
                                                                           loss_backward / n_training_batches,
@@ -310,7 +318,7 @@ class Trainer(object):
                 agrad = accumulated_gradient + gradient ** 2
                 effective_learning_rate = (hyper_parameters.learning_rate / Tensor.sqrt(agrad + eps))
                 update, delta = Trainer._calc_update(effective_learning_rate, gradient, param)
-                #delta = effective_learning_rate * gradient
+                # delta = effective_learning_rate * gradient
                 updates[param] = update
                 updates[accumulated_gradient] = agrad
 
@@ -319,7 +327,7 @@ class Trainer(object):
             zipped = zip(params, gradients, model_updates, model_deltas)
             for ndx, (param, gradient, accumulated_gradient, accumulated_delta) in enumerate(zipped):
                 agrad = rho * accumulated_gradient + (1 - rho) * gradient ** 2
-                #delta = Tensor.sqrt((accumulated_delta + eps) / (agrad + eps)) * gradient
+                # delta = Tensor.sqrt((accumulated_delta + eps) / (agrad + eps)) * gradient
                 step_size = Tensor.sqrt((accumulated_delta + eps) / (agrad + eps))
                 update, delta = Trainer._calc_update(step_size, gradient, param)
                 updates[param] = update
@@ -358,8 +366,8 @@ class Trainer(object):
         model = function(inputs=[],
                          outputs=[Tensor.mean(loss_backward),
                                   Tensor.mean(loss_forward),
-                                  Tensor.sum(variance_hidden_x),
-                                  Tensor.sum(variance_hidden_y),
+                                  Tensor.mean(variance_hidden_x),
+                                  Tensor.mean(variance_hidden_y),
                                   x_hidden,
                                   y_hidden] + regularizations,
                          updates=updates)
@@ -380,7 +388,7 @@ class Trainer(object):
     @staticmethod
     def _calc_update(step_size, gradient, param, type='Cayley'):
 
-        if type == 'Cayley' and (param.name == 'Wx_layer0' or param.name == 'Wy_layer0'):
+        if type == 'Cayley' and (param.name == 'Wx_layer0' or param.name == 'Wy_layer1'):
             A = Tensor.dot((step_size / 2) * gradient, param.T) - Tensor.dot(param, ((step_size / 2) * gradient).T)
             I = Tensor.identity_like(A)
             Q = Tensor.dot(matrix_inverse(I + A), (I - A))
@@ -390,3 +398,12 @@ class Trainer(object):
         else:
             delta = step_size * gradient
             return param - delta, delta
+
+    @staticmethod
+    def get_output(symmetric_double_encoder, layer):
+        x_hidden = symmetric_double_encoder[layer].output_forward_x
+        y_hidden = symmetric_double_encoder[layer].output_forward_y
+
+        model = function([], [x_hidden, y_hidden])
+        return model()
+

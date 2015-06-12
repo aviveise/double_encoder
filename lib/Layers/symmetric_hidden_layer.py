@@ -1,3 +1,4 @@
+from math import sqrt
 from spectral import orthogonalize
 from theano.tensor.nlinalg import matrix_inverse
 from theano.tensor.shared_randomstreams import RandomStreams
@@ -178,7 +179,8 @@ class SymmetricHiddenLayer(object):
         #                                         size=(input_size, self.hidden_layer_size)),
         #                    dtype=theano.config.floatX)
 
-        wx = numpy.random.normal(0, 0.1, size=(input_size, self.hidden_layer_size))
+        wx = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
+#        wx = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
 
         wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
 
@@ -190,7 +192,6 @@ class SymmetricHiddenLayer(object):
         #
         # self.beta_x = theano.shared(value=numpy.zeros(input_size, dtype=theano.config.floatX),
         #                             name='beta_x_' + self.name)
-
 
         # WXtoH corresponds to the weights between the input and the hidden layer
         self.Wx = theano.shared(value=initial_Wx, name='Wx' + '_' + self.name)
@@ -205,7 +206,9 @@ class SymmetricHiddenLayer(object):
         #                                         size=(input_size, self.hidden_layer_size)),
         #                    dtype=theano.config.floatX)
 
-        wy = numpy.random.normal(0, 1, size=(input_size, self.hidden_layer_size))
+        wy = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
+
+        #wy = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
 
         wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
 
@@ -255,10 +258,10 @@ class SymmetricHiddenLayer(object):
 
         retain_probability = 1 - self._drop_probability
 
-        output_predict = input * retain_probability
+        output_predict = input
         output_train = input * self._random_streams.binomial(input.shape,
                                                              p=retain_probability,
-                                                             dtype=Tensor.config.floatX)
+                                                             dtype=Tensor.config.floatX) / retain_probability
 
         if self._eval:
             return output_predict
