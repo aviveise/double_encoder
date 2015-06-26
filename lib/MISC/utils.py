@@ -7,11 +7,21 @@ image from a set of samples or weights.
 """
 
 import math
+import os
+import datetime
+from matplotlib import pyplot
+from matplotlib.pyplot import pcolor, colorbar, yticks, xticks, pcolormesh, matplotlib
 import numpy
 import numpy.linalg
 import scipy.linalg
 import scipy.sparse.linalg
 from sklearn import preprocessing
+from MISC.logger import OutputLog
+
+global file_ndx
+file_ndx = {}
+
+matplotlib.pyplot.ioff()
 
 
 def scale_to_unit_interval(ndar, eps=1e-8):
@@ -179,8 +189,8 @@ def normalize(M):
 
 
 def scale_cols(M):
-    scaler = preprocessing.MinMaxScaler(feature_range=(-1,1)).fit(M)
-    #scaler = preprocessing.StandardScaler().fit(M)
+    #scaler = preprocessing.MinMaxScaler(feature_range=(-1, 1)).fit(M)
+    scaler = preprocessing.StandardScaler().fit(M)
     return scaler.transform(M), scaler
 
 
@@ -415,6 +425,9 @@ def match_error(x, y):
     y_scaled = preprocessing.scale(y)
 
     sym = numpy.dot(x_scaled, y_scaled.T)
+
+    visualize_correlation_matrix(sym, 'similarity_mat')
+
     top_1 = numpy.argmax(sym, axis=0)
     error = 1 - float(numpy.sum(top_1 == range(x_scaled.shape[0]))) / x_scaled.shape[0]
 
@@ -428,22 +441,29 @@ def calculate_mardia(x, y, top):
     x, mean_x = center(x.T)
     y, mean_y = center(y.T)
 
-    s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
-    s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
-    s12 = numpy.diag(numpy.diag(numpy.dot(x, y.T) / (set_size - 1)))
+    correlation_matrix = numpy.corrcoef(x, y)
 
-    s11_chol = scipy.linalg.sqrtm(s11)
-    s22_chol = scipy.linalg.sqrtm(s22)
+    # s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
+    # s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
+    # s12 = numpy.dot(x, y.T) / (set_size - 1)
+    #
+    # s11_chol = scipy.linalg.sqrtm(s11)
+    # s22_chol = scipy.linalg.sqrtm(s22)
+    #
+    # s11_chol_inv = scipy.linalg.inv(s11_chol)
+    # s22_chol_inv = scipy.linalg.inv(s22_chol)
 
-    s11_chol_inv = scipy.linalg.inv(s11_chol)
-    s22_chol_inv = scipy.linalg.inv(s22_chol)
+    # mat_T_2 = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
 
-    mat_T = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
+    mat_T = correlation_matrix[0:x.shape[0], x.shape[0]: x.shape[0] + y.shape[0]]
+
+    visualize_correlation_matrix(mat_T, 'correlation_mat')
+    visualize_correlation_matrix(numpy.sort(mat_T, axis=1), 'correlation_mat_sorted')
+
+    s = numpy.linalg.svd(numpy.diag(numpy.diag(mat_T)), compute_uv=0)
 
     if top == 0:
-        return numpy.trace(mat_T)
-
-    s = numpy.linalg.svd(mat_T, compute_uv=0)
+        return numpy.sum(s)
 
     return numpy.sum(s[0:top])
 
@@ -477,3 +497,80 @@ def calculate_corrcoef(x, y, top):
 
 def calculate_reconstruction_error(x, y):
     return numpy.mean(((x - y) ** 2).sum(axis=1))
+
+
+def complete_rank(x, y):
+    x = preprocessing.scale(x)
+    y = preprocessing.scale(y)
+
+    x_x_sim_matrix = numpy.dot(x, x.T)
+    y_x_sim_matrix = numpy.dot(y, x.T)
+
+    num_X_samples = x.shape[0]
+    num_Y_samples = y.shape[0]
+
+    recall_n_vals = [1, 5, 10]
+    num_of_recall_n_vals = len(recall_n_vals)
+
+    y_search_recall = numpy.zeros((num_of_recall_n_vals, 1))
+    describe_y_recall = numpy.zeros((num_of_recall_n_vals, 1))
+
+    y_search_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=0)[::-1, :]
+    y_search_ranks = numpy.array([numpy.where(col == index)[0] for index, col in enumerate(y_search_sorted_neighbs.T)])
+
+    for idx, recall in enumerate(recall_n_vals):
+        y_search_recall[idx] = numpy.sum(y_search_ranks <= recall)
+
+    y_search_recall = 100 * y_search_recall / num_X_samples
+
+    describe_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)[:, ::-1]
+    describe_y_ranks = numpy.array([numpy.where(row == index)[0]
+                                    for index, row in enumerate(describe_y_sorted_neighbs)])
+
+    for idx, recall in enumerate(recall_n_vals):
+        describe_y_recall[idx] = numpy.sum(describe_y_ranks <= recall)
+
+    describe_y_recall = 100 * describe_y_recall / num_Y_samples
+
+    return y_search_recall, describe_y_recall
+
+
+def visualize_correlation_matrix(mat, name):
+    path = OutputLog().output_path
+    output_file = os.path.join(path, name + '.jpg')
+
+    if name not in file_ndx:
+        file_ndx[name] = 0
+
+    if os.path.exists(output_file):
+        output_file = os.path.join(path, name + '_' + str(file_ndx[name]) + '.jpg')
+        file_ndx[name] += 1
+
+    f = pyplot.figure()
+    pcolormesh(mat)
+    colorbar()
+    f.savefig(output_file, format='jpeg')
+    f.clf()
+    pyplot.close()
+
+
+def calc_correlation_matrix(x, y):
+    set_size = x.shape[0]
+    dim = x.shape[1]
+
+    x, mean_x = center(x.T)
+    y, mean_y = center(y.T)
+
+    s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
+    s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
+    s12 = numpy.dot(x, y.T) / (set_size - 1)
+
+    s11_chol = scipy.linalg.sqrtm(s11)
+    s22_chol = scipy.linalg.sqrtm(s22)
+
+    s11_chol_inv = scipy.linalg.inv(s11_chol)
+    s22_chol_inv = scipy.linalg.inv(s22_chol)
+
+    mat_T = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
+
+    return mat_T

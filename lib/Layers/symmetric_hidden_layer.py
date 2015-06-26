@@ -7,6 +7,7 @@ from theano.ifelse import ifelse
 from theano import printing
 from theano.tensor.slinalg import cholesky
 from MISC.logger import OutputLog
+from sklearn.random_projection import gaussian_random_matrix
 
 __author__ = 'aviv'
 
@@ -120,6 +121,7 @@ class SymmetricHiddenLayer(object):
                 self.bias_x_prime = bias_x_prime
 
             self.x_params = [self.Wx,
+                             # self.Wx_out,
                              self.bias_x,
                              self.bias_x_prime]
 
@@ -156,6 +158,7 @@ class SymmetricHiddenLayer(object):
                 self.bias_y_prime = bias_y_prime
 
             self.y_params = [self.Wy,
+                             # self.Wy_out,
                              self.bias_y,
                              self.bias_y_prime]
 
@@ -180,11 +183,14 @@ class SymmetricHiddenLayer(object):
         #                    dtype=theano.config.floatX)
 
         wx = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
+        #wx_out = numpy.random.normal(0, 0.01, size=(self.hidden_layer_size, input_size))
 #        wx = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
 
-        wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
+        #wx_out = wx_out.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx_out.T.dot(wx_out))))
+        #wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
 
         initial_Wx = numpy.asarray(wx, dtype=theano.config.floatX)
+        # initial_Wx_out = numpy.asarray(wx_out, dtype=theano.config.floatX)
 
         # self.gamma_x = theano.shared(
         #     value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
@@ -195,6 +201,7 @@ class SymmetricHiddenLayer(object):
 
         # WXtoH corresponds to the weights between the input and the hidden layer
         self.Wx = theano.shared(value=initial_Wx, name='Wx' + '_' + self.name)
+        # self.Wx_out = theano.shared(value=initial_Wx_out, name='Wx_out' + '_' + self.name)
 
     def _initialize_output_weights(self, input_size):
 
@@ -207,12 +214,15 @@ class SymmetricHiddenLayer(object):
         #                    dtype=theano.config.floatX)
 
         wy = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
+        # wy_out = numpy.random.normal(0, 0.01, size=(self.hidden_layer_size, input_size))
 
         #wy = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
 
-        wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
-
+        #wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
+        # wy_out = wy_out.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy_out.T.dot(wy_out))))
+        #
         initial_Wy = numpy.asarray(wy, dtype=theano.config.floatX)
+        # initial_Wy_out = numpy.asarray(wy_out, dtype=theano.config.floatX)
 
         # self.gamma_y = theano.shared(
         #     value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
@@ -223,6 +233,7 @@ class SymmetricHiddenLayer(object):
 
         # WHtoY corresponds to the weights between the hidden layer and the output
         self.Wy = theano.shared(value=initial_Wy, name='Wy' + '_' + self.name)
+        # self.Wy_out = theano.shared(value=initial_Wy_out, name='Wy_out' + '_' + self.name)
 
     def compute_forward_hidden_x(self):
 

@@ -86,7 +86,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
                               moving_averages=self._moving_average)
 
                 if dir_name is not None:
-                    symmetric_double_encoder.export_encoder(dir_name, 'layer_{0}'.format(len(symmetric_double_encoder) + 1))
+                    symmetric_double_encoder.export_encoder(dir_name,
+                                                            'layer_{0}'.format(len(symmetric_double_encoder) + 1))
 
         if not hyper_parameters.cascade_train:
             params = symmetric_double_encoder.getParams()
@@ -104,7 +105,6 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
             if dir_name is not None:
                 symmetric_double_encoder.export_encoder(dir_name, 'layer_{0}'.format(len(symmetric_double_encoder) + 1))
-
 
         return symmetric_double_encoder
 

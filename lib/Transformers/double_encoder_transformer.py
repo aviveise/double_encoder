@@ -22,6 +22,7 @@ class DoubleEncoderTransformer(TransformerBase):
     def compute_outputs(self, test_set_x, test_set_y, hyperparameters):
 
         hidden_output_model = self._build_hidden_model()
+        recon_model = self._build_reconstruction_model()
 
         hidden_values_x = []
         hidden_values_y = []
@@ -29,6 +30,7 @@ class DoubleEncoderTransformer(TransformerBase):
         number_of_batches = int(math.ceil(float(test_set_x.shape[0]) / hyperparameters.batch_size))
 
         outputs_hidden = None
+        outputs_recon = None
 
         for i in range(number_of_batches):
 
@@ -42,6 +44,7 @@ class DoubleEncoderTransformer(TransformerBase):
 
             start_tick = cv2.getTickCount()
             outputs_hidden_batch = hidden_output_model()
+            output_recon_batch = recon_model()
 
             tickFrequency = cv2.getTickFrequency()
             current_time = cv2.getTickCount()
@@ -50,6 +53,12 @@ class DoubleEncoderTransformer(TransformerBase):
                                                                       number_of_batches,
                                                                       ((current_time - start_tick) / tickFrequency)),
                               'debug')
+
+            if i == 0:
+                outputs_recon = output_recon_batch
+            else:
+                for idx in range(len(outputs_recon)):
+                    outputs_recon[idx] = numpy.concatenate((outputs_recon[idx], output_recon_batch[idx]), axis=0)
 
             if i == 0:
                 outputs_hidden = outputs_hidden_batch
@@ -61,9 +70,13 @@ class DoubleEncoderTransformer(TransformerBase):
             hidden_values_x.append(outputs_hidden[2 * i])
             hidden_values_y.append(outputs_hidden[2 * i + 1])
 
-        if hidden_values_x[0].shape[1] == hidden_values_y[-1].shape[1] and len(hidden_values_x) > 1:
-            hidden_values_x.append(hidden_values_x[-1])
-            hidden_values_y.append(hidden_values_y[0])
+        # for i in xrange(len(outputs_recon) / 2):
+        #     hidden_values_x.append(outputs_recon[2 * i])
+        #     hidden_values_y.append(outputs_recon[2 * i + 1])
+
+        # if hidden_values_x[0].shape[1] == hidden_values_y[-1].shape[1] and len(hidden_values_x) > 1:
+        #     hidden_values_x.append(hidden_values_x[-1])
+        #     hidden_values_y.append(hidden_values_y[0])
 
         return [hidden_values_x, hidden_values_y]
 
@@ -83,12 +96,11 @@ class DoubleEncoderTransformer(TransformerBase):
 
         outputs = []
 
-        for index, layer in enumerate(self._correlation_optimizer):
-            outputs.append(self._correlation_optimizer.reconstruct_x(index))
-            outputs.append(layer.input_x())
+        outputs.append(self._correlation_optimizer.reconstruct_x())
+        outputs.append(self._correlation_optimizer.var_x)
 
-            outputs.append(self._correlation_optimizer.reconstruct_y(index))
-            outputs.append(layer.input_y())
+        outputs.append(self._correlation_optimizer.reconstruct_y())
+        outputs.append(self._correlation_optimizer.var_y)
 
         correlation_test_model = function([], outputs)
 

@@ -1,5 +1,6 @@
 import cv2
 from MISC.logger import OutputLog
+from MISC.utils import complete_rank
 
 __author__ = 'aviv'
 
@@ -31,6 +32,8 @@ class TraceCorrelationTester(TesterBase):
         loss = calculate_reconstruction_error(x, y)
         matches = match_error(x, y)
 
+        search_recall, describe_recall = complete_rank(x,y)
+
         start_tick = cv2.getTickCount()
         if self.top == 0:
             correlation = (calculate_mardia(x, y, 0) / x.shape[1]) * 100
@@ -46,6 +49,7 @@ class TraceCorrelationTester(TesterBase):
         print_row.append(loss_var_x)
         print_row.append(loss_var_y)
         print_row.append(matches)
+        print_row.append(sum(search_recall) + sum(describe_recall))
 
         return correlation
 
@@ -63,4 +67,4 @@ class TraceCorrelationTester(TesterBase):
 
     def _headers(self):
 
-        return ['correlation', 'loss', '1/var_x', '1/var_y', 'match_error']
+        return ['correlation', 'loss', '1/var_x', '1/var_y', 'match_error', 'recall']

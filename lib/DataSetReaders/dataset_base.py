@@ -48,6 +48,10 @@ class DatasetBase(object):
             self.testset = hickle.load(file(test_file, 'r'))
             self.tuning = hickle.load(file(validate_file, 'r'))
 
+            self.trainset = self.trainset[0].astype(dtype=theano.config.floatX), self.trainset[1].astype(dtype=theano.config.floatX)
+            self.testset = self.testset[0].astype(dtype=theano.config.floatX), self.testset[1].astype(dtype=theano.config.floatX)
+            self.tuning = self.tuning[0].astype(dtype=theano.config.floatX), self.tuning[1].astype(dtype=theano.config.floatX)
+
             OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[1], self.trainset[1].shape[1]))
             OutputLog().write('Training set size = %d' % self.trainset[0].shape[0])
             OutputLog().write('Test set size = %d' % self.testset[0].shape[0])
@@ -147,24 +151,24 @@ class DatasetBase(object):
         if test_samples == 0:
             return [train, numpy.ndarray([0, 0]), 0]
 
-        test_size = int(round(train.shape[1] / 10))
+        test_size = int(round(train.shape[0] / 10))
 
         if test_samples is None:
-            test_samples = random.sample(xrange(0, train.shape[1] - 1), test_size)
+            test_samples = random.sample(xrange(0, train.shape[0] - 1), test_size)
 
         train_index = 0
         test_index = 0
 
-        train_result = numpy.ndarray([train.shape[0], train.shape[1] - test_size], dtype=theano.config.floatX)
-        test_result = numpy.ndarray([train.shape[0], test_size], dtype=theano.config.floatX)
+        train_result = numpy.ndarray([train.shape[0] - test_size, train.shape[1]], dtype=theano.config.floatX)
+        test_result = numpy.ndarray([test_size, train.shape[1]], dtype=theano.config.floatX)
 
         for i in xrange(train.shape[1]):
 
             if i in test_samples:
-                test_result[:, test_index] = train[:, i]
+                test_result[test_index, :] = train[i, :]
                 test_index += 1
             else:
-                train_result[:, train_index] = train[:, i]
+                train_result[train_index, :] = train[i, :]
                 train_index += 1
 
         return [train_result, test_result, test_samples]

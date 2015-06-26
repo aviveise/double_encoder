@@ -85,6 +85,48 @@ class StackedDoubleEncoder(object):
     def __len__(self):
         return len(self._symmetric_layers)
 
+    def add_double_encoder(self, double_encoder):
+
+        layer = double_encoder[0]
+        last_layer = self._symmetric_layers[-1]
+
+        layer.update_x(x=last_layer.output_forward_x,
+                       input_size=last_layer.hidden_layer_size)
+
+        Wy = layer.Wx.T
+        input_y = layer.output_forward_y
+
+        # Updating the first half
+        for layer in reversed(self._symmetric_layers):
+            layer.update_y(y=input_y,
+                           weights=Wy,
+                           bias_y=layer.bias_y)
+
+            input_y = layer.output_forward_y
+            Wy = layer.Wx.T
+
+        index = len(self._symmetric_layers)
+        last_layer.Wx.name = 'Wx_layer{0}'.format(index)
+        last_layer.Wy.name = 'Wy_layer{0}'.format(index)
+        self._symmetric_layers.append(layer)
+
+        input_x = layer.output_forward_x
+        Wx = layer.Wy.T
+
+        # Updating the second half
+        for layer in double_encoder[1::]:
+            index += 1
+            layer.update_x(x=input_x,
+                           weights=Wx,
+                           bias_x=layer.bias_x)
+
+            input_x = layer.output_forward_x
+            Wx = layer.Wy.T
+
+            last_layer.Wx.name = 'Wx_layer{0}'.format(index)
+            last_layer.Wy.name = 'Wy_layer{0}'.format(index)
+            self._symmetric_layers.append(layer)
+
     def add_hidden_layer(self, symmetric_layer):
 
         if len(self._symmetric_layers) == 0:
@@ -213,8 +255,7 @@ class StackedDoubleEncoder(object):
 
             layer_size = Wx.get_value(borrow=True).shape[1]
 
-            layer = SymmetricHiddenLayer(numpy_range=self.numpy_range,
-                                         hidden_layer_size=layer_size,
+            layer = SymmetricHiddenLayer(hidden_layer_size=layer_size,
                                          name=layer_name,
                                          activation_hidden=hyperparameters.method_in,
                                          activation_output=hyperparameters.method_out)

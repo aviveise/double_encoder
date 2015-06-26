@@ -10,16 +10,13 @@ import os
 import sys
 import ConfigParser
 import scipy.io
-import traceback
 import datetime
-import cPickle
 
 from time import clock
 
 from configuration import Configuration
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
-from theano.sandbox import cuda
 from Transformers.double_encoder_transformer import DoubleEncoderTransformer
 from Transformers.gradient_transformer import GradientTransformer
 
@@ -61,7 +58,7 @@ class DoubleEncoder(object):
         data_set = Container().create(data_parameters['name'], data_parameters)
 
         configuration.hyper_parameters.batch_size = int(
-            configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[1])
+            configuration.hyper_parameters.batch_size * data_set.trainset[0].shape[0])
 
         training_strategy.set_parameters(configuration.strategy_parameters)
 

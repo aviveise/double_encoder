@@ -3,3 +3,4 @@ __author__ = 'aviv'
 import training_strategy
 import iterative_training_strategy
 import iterative_dropout_training_strategy
+import mirror_training_strategy
