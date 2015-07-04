@@ -441,21 +441,21 @@ def calculate_mardia(x, y, top):
     x, mean_x = center(x.T)
     y, mean_y = center(y.T)
 
-    correlation_matrix = numpy.corrcoef(x, y)
+    # correlation_matrix = numpy.corrcoef(x, y)
 
-    # s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
-    # s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
-    # s12 = numpy.dot(x, y.T) / (set_size - 1)
-    #
-    # s11_chol = scipy.linalg.sqrtm(s11)
-    # s22_chol = scipy.linalg.sqrtm(s22)
-    #
-    # s11_chol_inv = scipy.linalg.inv(s11_chol)
-    # s22_chol_inv = scipy.linalg.inv(s22_chol)
+    s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
+    s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
+    s12 = numpy.dot(x, y.T) / (set_size - 1)
 
-    # mat_T_2 = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
+    s11_chol = scipy.linalg.sqrtm(s11)
+    s22_chol = scipy.linalg.sqrtm(s22)
 
-    mat_T = correlation_matrix[0:x.shape[0], x.shape[0]: x.shape[0] + y.shape[0]]
+    s11_chol_inv = scipy.linalg.inv(s11_chol)
+    s22_chol_inv = scipy.linalg.inv(s22_chol)
+
+    mat_T = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
+
+    # mat_T = correlation_matrix[0:x.shape[0], x.shape[0]: x.shape[0] + y.shape[0]]
 
     visualize_correlation_matrix(mat_T, 'correlation_mat')
     visualize_correlation_matrix(numpy.sort(mat_T, axis=1), 'correlation_mat_sorted')

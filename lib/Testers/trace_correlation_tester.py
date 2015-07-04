@@ -32,7 +32,7 @@ class TraceCorrelationTester(TesterBase):
         loss = calculate_reconstruction_error(x, y)
         matches = match_error(x, y)
 
-        search_recall, describe_recall = complete_rank(x,y)
+        search_recall, describe_recall = complete_rank(x, y)
 
         start_tick = cv2.getTickCount()
         if self.top == 0:
@@ -51,7 +51,16 @@ class TraceCorrelationTester(TesterBase):
         print_row.append(matches)
         print_row.append(sum(search_recall) + sum(describe_recall))
 
-        return correlation
+        metrics = {
+            'correlation': correlation,
+            'loss': loss,
+            'loss_var_x': loss_var_x,
+            'loss_var_y': loss_var_y,
+            'matches': matches,
+            'recall': sum(search_recall) + sum(describe_recall)
+        }
+
+        return correlation, metrics
 
     def print_array(self, a):
 

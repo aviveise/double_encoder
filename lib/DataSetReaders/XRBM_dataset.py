@@ -22,20 +22,20 @@ class XRBMDataSet(DatasetBase):
 
     def build_dataset(self):
 
-        train_x1_file_name = self.dataset_path + '/XRMB[JW11,numfr1=7,numfr2=7,fold0,training].dat'
-        train_x2_file_name = self.dataset_path + '/MFCC[JW11,numfr1=7,numfr2=7,fold0,training].dat'
+        train_x1_file_name = os.path.join(self.dataset_path, 'XRMB[JW11,numfr1=7,numfr2=7,fold0,training].dat')
+        train_x2_file_name = os.path.join(self.dataset_path, 'MFCC[JW11,numfr1=7,numfr2=7,fold0,training].dat')
 
-        self.trainset = (self.ReadBin(train_x1_file_name, 112), self.ReadBin(train_x2_file_name, 273))
+        self.trainset = (self.ReadBin(train_x1_file_name, 112).T, self.ReadBin(train_x2_file_name, 273).T)
 
-        test_x1_file_name = self.dataset_path + '/XRMB[JW11,numfr1=7,numfr2=7,fold0,testing].dat'
-        test_x2_file_name = self.dataset_path + '/MFCC[JW11,numfr1=7,numfr2=7,fold0,testing].dat'
+        test_x1_file_name = os.path.join(self.dataset_path, 'XRMB[JW11,numfr1=7,numfr2=7,fold0,testing].dat')
+        test_x2_file_name = os.path.join(self.dataset_path, 'MFCC[JW11,numfr1=7,numfr2=7,fold0,testing].dat')
 
-        self.testset = (self.ReadBin(test_x1_file_name, 112), self.ReadBin(test_x2_file_name, 273))
+        self.testset = (self.ReadBin(test_x1_file_name, 112).T, self.ReadBin(test_x2_file_name, 273).T)
 
-        tuning_x1_file_name = self.dataset_path + '/XRMB[JW11,numfr1=7,numfr2=7,fold0,tuning].dat'
-        tuning_x2_file_name = self.dataset_path + '/MFCC[JW11,numfr1=7,numfr2=7,fold0,tuning].dat'
+        tuning_x1_file_name = os.path.join(self.dataset_path, 'XRMB[JW11,numfr1=7,numfr2=7,fold0,tuning].dat')
+        tuning_x2_file_name = os.path.join(self.dataset_path, 'MFCC[JW11,numfr1=7,numfr2=7,fold0,tuning].dat')
 
-        self.tuning = (self.ReadBin(tuning_x1_file_name, 112), self.ReadBin(tuning_x2_file_name, 273))
+        self.tuning = (self.ReadBin(tuning_x1_file_name, 112).T, self.ReadBin(tuning_x2_file_name, 273).T)
 
     def ReadBin(self, file_name, row_num, max_col_num=-1):
 

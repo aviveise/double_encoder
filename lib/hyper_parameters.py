@@ -39,16 +39,16 @@ class HyperParameters(object):
     def print_parameters(self, output_stream):
         output_stream.write('Hyperparameters:')
 
-        output_stream.write('layer_sizes : %s\n'
-                            'learning_rate: %f\n'
-                            'batch_size: %d\n'
-                            'epochs: %d\n'
-                            'Momentum: %f\n'
-                            'method_in: %s\n'
-                            'method_out: %s \n'
-                            'training strgy: %s \n'
-                            'rho: %f \n'
-                            'cascade_train: %r \n' % (print_list(self.layer_sizes),
+        output_stream.write('layer_sizes : {0}\n'
+                            'learning_rate: {1}\n'
+                            'batch_size: {2}\n'
+                            'epochs: {3}\n'
+                            'Momentum: {4}\n'
+                            'method_in: {5}\n'
+                            'method_out: {6} \n'
+                            'training strgy: {7} \n'
+                            'rho: {8} \n'
+                            'cascade_train: {9} \n'.format(print_list(self.layer_sizes),
                                                       self.learning_rate,
                                                       self.batch_size,
                                                       self.epochs,

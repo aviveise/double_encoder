@@ -1,4 +1,6 @@
 from MISC.logger import OutputLog
+import os
+import pickle
 
 __author__ = 'aviv'
 
@@ -11,6 +13,8 @@ class TesterBase(object):
     def __init__(self, test_set_x, test_set_y):
         self._x = test_set_x
         self._y = test_set_y
+
+        self._metrics = {}
 
     def test(self, transformer, hyperparamsers):
 
@@ -38,7 +42,7 @@ class TesterBase(object):
             row_hidden = ["layer {0} - hidden".format(index)]
 
             #calculation correlation between hidden values
-            correlation_temp_hidden = self._calculate_metric(x_hid, y_hid, transformer, row_hidden)
+            correlation_temp_hidden, metrics = self._calculate_metric(x_hid, y_hid, transformer, row_hidden)
 
             correlations.append(correlation_temp_hidden)
 
@@ -53,6 +57,15 @@ class TesterBase(object):
 
             index += 1
 
+            for metric in metrics.keys():
+                if index not in self._metrics:
+                    self._metrics[index] = {}
+
+                if metric not in self._metrics[index]:
+                    self._metrics[index][metric] = []
+
+                self._metrics[index][metric].append(metrics[metric])
+
         OutputLog().write(tabulate(table_rows, headers=table_header))
 
         return correlations, correlation, lowest_var, outputs_x, outputs_y, layer_id
@@ -64,3 +77,6 @@ class TesterBase(object):
     @abc.abstractmethod
     def _headers(self):
         return
+
+    def saveResults(self, path):
+        pickle.dump(self._metrics,file(os.path.join(path, 'metrics.pkl'),'w'))

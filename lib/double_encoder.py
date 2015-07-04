@@ -113,18 +113,18 @@ class DoubleEncoder(object):
             data_set.testset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                            configuration.hyper_parameters)
 
-        OutputLog().write('train results:')
-        correlations, train_trace_correlation, var, x_train, y_train, train_best_layer = TraceCorrelationTester(
-            data_set.trainset[0],
-            data_set.trainset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
-                                            configuration.hyper_parameters)
+        # OutputLog().write('train results:')
+        # correlations, train_trace_correlation, var, x_train, y_train, train_best_layer = TraceCorrelationTester(
+        #     data_set.trainset[0],
+        #     data_set.trainset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+        #                                     configuration.hyper_parameters)
 
         execution_time = clock() - start
 
-        ann_error_train = match_error(x_train[0], y_train[0])
-        ann_error_test = match_error(x_test[0], y_test[0])
+        # ann_error_train = match_error(x_train[0], y_train[0])
+        # ann_error_test = match_error(x_test[0], y_test[0])
 
-        OutputLog().write('matching error: train: {0}, test: {1}'.format(ann_error_train, ann_error_test))
+        # OutputLog().write('matching error: train: {0}, test: {1}'.format(ann_error_train, ann_error_test))
 
         stacked_double_encoder.print_details(OutputLog())
 
@@ -154,9 +154,9 @@ class DoubleEncoder(object):
             'best_layer': test_best_layer
         }
 
-        export_train = {
-            'best_layer': train_best_layer
-        }
+        # export_train = {
+        #     'best_layer': train_best_layer
+        # }
 
         if configuration.output_parameters['type'] == 'activations':
 

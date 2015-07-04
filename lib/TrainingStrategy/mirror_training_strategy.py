@@ -1,4 +1,5 @@
 from stacked_auto_encoder_2 import StackedDoubleEncoder2
+from math import floor
 
 __author__ = 'aviv'
 
@@ -54,7 +55,7 @@ class MirrorTrainingStrategy(TrainingStrategy):
             # once a layer was added, weights not belonging to the new layer are
             # not changed
 
-            for idx, layer_size in enumerate(range(len(layer_sizes) / 2)):
+            for idx, layer_size in enumerate(range(int(floor(len(layer_sizes) / 2)))):
 
                 OutputLog().write('--------Adding Layer of Size - %d to A--------' % layer_sizes[0])
                 self._add_cross_encoder_layer(layer_sizes[idx],
@@ -105,11 +106,6 @@ class MirrorTrainingStrategy(TrainingStrategy):
                               validation_set_y=validation_set_y,
                               moving_averages=self._moving_average)
 
-            symmetric_double_encoder_side_A.add_double_encoder(symmetric_double_encoder_side_B)
-
-            if dir_name is not None:
-                symmetric_double_encoder_side_A.export_encoder(dir_name,
-                                                               'layer_{0}'.format(len(symmetric_double_encoder_side_A) + 1))
         else:
             symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                             numpy_range=self._random_range,
@@ -120,8 +116,23 @@ class MirrorTrainingStrategy(TrainingStrategy):
 
             symmetric_double_encoder.import_encoder(import_path, hyper_parameters)
 
-        params = symmetric_double_encoder_side_A[len(symmetric_double_encoder_side_A) / 2].x_hidden_params
-        params.append(symmetric_double_encoder_side_A[len(symmetric_double_encoder_side_A) / 2 - 1].bias_y)
+        params = []
+
+        if len(layer_sizes) % 2 != 0:
+            self._add_cross_encoder_layer(layer_sizes[int(floor(len(layer_sizes) / 2))],
+                                          symmetric_double_encoder_side_A,
+                                          hyper_parameters.method_in,
+                                          hyper_parameters.method_out)
+
+        symmetric_double_encoder_side_A.add_double_encoder(symmetric_double_encoder_side_B)
+
+        for layer in symmetric_double_encoder_side_A:
+            params += layer.x_hidden_params
+            params.append(layer.bias_y)
+
+        params.append(symmetric_double_encoder_side_A[0].bias_x_prime)
+        params.append(symmetric_double_encoder_side_A[-1].bias_y_prime)
+        params.append(symmetric_double_encoder_side_A[-1].Wy)
 
         OutputLog().write('--------Starting Training Network-------')
         Trainer.train(train_set_x=training_set_x,

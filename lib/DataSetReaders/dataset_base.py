@@ -103,37 +103,17 @@ class DatasetBase(object):
             self.tuning = (pca_dim1.transform(self.tuning[0]), pca_dim2.transform(self.tuning[1]))
 
         if whiten:
-            print 'using whiten'
-            whiten_image_path = os.path.join(self.dataset_path, 'whiten_image.mat')
-            whiten_sen_path = os.path.join(self.dataset_path, 'whiten_sen.mat')
+            OutputLog().write('using whiten')
+            pca_dim1 = PCA(whiten=True)
+            pca_dim2 = PCA(whiten=True)
 
-            if not os.path.isdir(self.dataset_path):
-                dir = os.path.split(self.dataset_path)[0]
-                whiten_image_path = os.path.join(dir, 'whiten_image.mat')
-                whiten_sen_path = os.path.join(dir, 'whiten_sen.mat')
+            pca_dim1.fit(self.trainset[0])
+            pca_dim2.fit(self.trainset[1])
 
-            if os.path.exists(whiten_image_path) and os.path.exists(whiten_sen_path):
-                OutputLog().write('loading whiten matrices from files')
-                wx = scipy.io.loadmat(whiten_image_path)['w'].astype(dtype=theano.config.floatX)
-                wy = scipy.io.loadmat(whiten_sen_path)['w'].astype(dtype=theano.config.floatX)
-            else:
-                OutputLog().write('cache not found calculating whiten transforms')
-                wx = WhitenTransform.fit(self.trainset[0]).astype(dtype=theano.config.floatX)
-                wy = WhitenTransform.fit(self.trainset[1]).astype(dtype=theano.config.floatX)
+            self.trainset = (pca_dim1.transform(self.trainset[0]), pca_dim2.transform(self.trainset[1]))
+            self.testset = (pca_dim1.transform(self.testset[0]), pca_dim2.transform(self.testset[1]))
+            self.tuning = (pca_dim1.transform(self.tuning[0]), pca_dim2.transform(self.tuning[1]))
 
-                OutputLog().write('saving matrices of sizes {0}, {1}'.format(wx.shape, wy.shape))
-                scipy.io.savemat(whiten_image_path, {'w': wx})
-                scipy.io.savemat(whiten_sen_path, {'w': wy})
-
-            OutputLog().write('transforming data')
-            self.trainset = (WhitenTransform.transform(self.trainset[0], wx),
-                             WhitenTransform.transform(self.trainset[1], wy))
-
-            self.testset = (WhitenTransform.transform(self.testset[0], wx),
-                            WhitenTransform.transform(self.testset[1], wy))
-
-            self.tuning = (WhitenTransform.transform(self.tuning[0], wx),
-                           WhitenTransform.transform(self.tuning[1], wy))
 
         hickle.dump(self.trainset, file(train_file, 'w'))
         hickle.dump(self.testset, file(test_file, 'w'))
@@ -162,7 +142,7 @@ class DatasetBase(object):
         train_result = numpy.ndarray([train.shape[0] - test_size, train.shape[1]], dtype=theano.config.floatX)
         test_result = numpy.ndarray([test_size, train.shape[1]], dtype=theano.config.floatX)
 
-        for i in xrange(train.shape[1]):
+        for i in xrange(train.shape[0]):
 
             if i in test_samples:
                 test_result[test_index, :] = train[i, :]

@@ -68,20 +68,27 @@ class Trainer(object):
               top=0,
               validation_set_x=None,
               validation_set_y=None,
-              moving_averages=None):
+              moving_averages=None,
+              decay=False):
+
+        OutputLog().write('Using Decay = {0}'.format(decay))
 
         # Calculating number of batches
         n_training_batches = int(train_set_x.shape[0] / hyper_parameters.batch_size)
         random_stream = RandomState()
 
-        model_updates = [shared(p.get_value() * 0, borrow=True) for p in params]
-        model_deltas = [shared(p.get_value() * 0, borrow=True) for p in params]
+        model_updates = [shared(p.get_value() * 0) for p in params]
+        model_deltas = [shared(p.get_value() * 0) for p in params]
 
         eps = 1e-8
 
         symmetric_double_encoder.set_eval(False)
 
         best_correlations = []
+
+        correlations = []
+
+        tester = TraceCorrelationTester(validation_set_x, validation_set_y, top)
 
         # The training phase, for each epoch we train on every batch
         best_loss = 0
@@ -172,37 +179,38 @@ class Trainer(object):
 
                 symmetric_double_encoder.set_eval(True)
 
-                correlations, best_correlation, var, x, y, layer_id = TraceCorrelationTester(validation_set_x,
-                                                                                             validation_set_y,
-                                                                                             top). \
-                    test(DoubleEncoderTransformer(symmetric_double_encoder, 0),
-                         hyper_parameters)
+                correlations, best_correlation, var, x, y, layer_id = tester.test(
+                    DoubleEncoderTransformer(symmetric_double_encoder, 0),
+                    hyper_parameters)
 
                 symmetric_double_encoder.set_eval(False)
 
                 if math.isnan(var):
                     sys.exit(0)
 
-                if len(best_correlations) == 0:
-                    best_correlations = correlations
-                else:
-                    for best_correlation, current_correlation in zip(best_correlations, correlations):
-                        if current_correlation < best_correlation:
-                            OutputLog().write('Decaying learning rate')
-                            hyper_parameters.learning_rate *= 0.1
-                            break
+                if decay:
+                    if len(best_correlations) == 0:
+                        best_correlations = correlations
+                    else:
+                        for best_correlation, current_correlation in zip(best_correlations, correlations):
+                            if current_correlation < best_correlation:
+                                OutputLog().write('Decaying learning rate')
+                                hyper_parameters.learning_rate *= 0.1
+                                break
 
-                    new_correlations = []
-                    for best_correlation, current_correlation in zip(best_correlations, correlations):
-                        if current_correlation < best_correlation:
-                            new_correlations.append(best_correlation)
-                        else:
-                            new_correlations.append(current_correlation)
-                    best_correlations = new_correlations
+                        new_correlations = []
+                        for best_correlation, current_correlation in zip(best_correlations, correlations):
+                            if current_correlation < best_correlation:
+                                new_correlations.append(best_correlation)
+                            else:
+                                new_correlations.append(current_correlation)
+                        best_correlations = new_correlations
 
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
                                                                           loss_backward / n_training_batches,
                                                                           loss_forward / n_training_batches), 'debug')
+
+        tester.saveResults(OutputLog().output_path)
 
         del model
 
@@ -259,6 +267,7 @@ class Trainer(object):
         print 'Calculating Loss'
 
         if loss == 'L2':
+
             # Compute the loss of the forward encoding as L2 loss
             loss_backward = Tensor.mean(((var_x - x_tilde) ** 2).sum(axis=1))
 
@@ -311,16 +320,20 @@ class Trainer(object):
                 updates = OrderedDict()
                 zipped = zip(params, gradients, model_updates)
                 for param, gradient, model_update in zipped:
-                    delta = hyper_parameters.momentum * model_update - hyper_parameters.learning_rate * gradient
+                    update, delta = Trainer._calc_update(hyper_parameters.learning_rate, gradient, param,
+                                                         last_layer=last_layer)
+                    delta = hyper_parameters.momentum * model_update - delta
 
                     updates[param] = param + delta
                     updates[model_update] = delta
 
             else:
                 # generate the list of updates, each update is a round in the decent
-                updates = []
+                updates = OrderedDict()
                 for param, gradient in zip(params, gradients):
-                    updates.append((param, param - hyper_parameters.learning_rate * gradient))
+                    update, delta = Trainer._calc_update(hyper_parameters.learning_rate, gradient, param,
+                                                         last_layer=last_layer)
+                    updates[param] = update
 
         elif strategy == 'adaGrad':
             updates = OrderedDict()
@@ -432,7 +445,7 @@ class Trainer(object):
         return updates
 
     @staticmethod
-    def _calc_update(step_size, gradient, param, type='Cayley', last_layer=0):
+    def _calc_update(step_size, gradient, param, type='Cayley', last_layer=0, hidden_x=None, hidden_y=None):
 
         if type == 'Cayley' and (param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):
             OutputLog().write('Adding constraint to {0}:'.format(param.name))
@@ -457,7 +470,7 @@ class Trainer(object):
     @classmethod
     def add_negative(cls, var_x, x_tilde, type='samples'):
 
-        if type == None:
+        if type is None:
             return 0
 
         random_stream = RandomStreams()

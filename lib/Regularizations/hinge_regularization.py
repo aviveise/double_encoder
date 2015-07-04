@@ -46,7 +46,7 @@ class HingeRegularization(RegularizationBase):
             hinge = Tensor.sum(1 - Tensor.log(x ** 2 * self._k + self._b))
 
         elif self._hinge_type == 'abs':
-            hinge = Tensor.sum(1 - abs(x * self._k))
+            hinge = 1 - abs(x * self._k)
 
         elif self._hinge_type == 'sqr':
             hinge = Tensor.sum(1 - x ** 2 * self._k)

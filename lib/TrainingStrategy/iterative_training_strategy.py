@@ -28,6 +28,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
               import_path=''):
 
         if not import_net:
+            OutputLog().write('Creating network')
             symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                             numpy_range=self._random_range,
                                                             input_size_x=training_set_x.shape[1],
@@ -37,6 +38,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
         else:
 
+            OutputLog().write('Importing network')
             symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
                                                             numpy_range=self._random_range,
                                                             input_size_x=training_set_x.shape[1],
@@ -86,7 +88,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
                               moving_averages=self._moving_average)
 
                 if dir_name is not None:
-                    symmetric_double_encoder.export_encoder(dir_name,
+                    symmetric_double_encoder.export_encoder(OutputLog().output_path,
                                                             'layer_{0}'.format(len(symmetric_double_encoder) + 1))
 
         if not hyper_parameters.cascade_train:
@@ -104,7 +106,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
                           validation_set_y=validation_set_y)
 
             if dir_name is not None:
-                symmetric_double_encoder.export_encoder(dir_name, 'layer_{0}'.format(len(symmetric_double_encoder) + 1))
+                symmetric_double_encoder.export_encoder(OutputLog().output_path,
+                                                        'layer_{0}'.format(len(symmetric_double_encoder) + 1))
 
         return symmetric_double_encoder
 

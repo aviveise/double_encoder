@@ -1,7 +1,7 @@
 from math import sqrt
 from spectral import orthogonalize
 from theano.tensor.nlinalg import matrix_inverse
-from theano.tensor.shared_randomstreams import RandomStreams
+from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 import scipy
 from theano.ifelse import ifelse
 from theano import printing
@@ -34,12 +34,13 @@ class SymmetricHiddenLayer(object):
                  bias_primeX=None,
                  bias_primeY=None,
                  normalize=False,
-                 dropout=True,
+                 drop='dropout',
+                 k=750,
                  epsilon=0,
                  moving_average=None,
                  dropout_prob=0.5):
 
-        self._dropout = dropout
+        self._dropout = drop
         self._drop_probability = dropout_prob
         self.hidden_layer_size = hidden_layer_size
         self.name = name
@@ -51,6 +52,7 @@ class SymmetricHiddenLayer(object):
         self._eval = False
         self._moving_average = moving_average
         self._random_streams = RandomStreams()
+        self._k = k
 
         if normalize:
             OutputLog().write('Using batch normalization')
@@ -111,6 +113,13 @@ class SymmetricHiddenLayer(object):
             if bias_x is None:
                 self.bias_x = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                             name='bias_x' + '_' + self.name)
+                # self.bias_x = theano.shared(numpy.random.normal(0, 1, size=self.hidden_layer_size),
+                #                             name='bias_x' + '_' + self.name)
+
+                # self.bias_x = theano.shared(
+                #     numpy.cast[theano.config.floatX](numpy.random.binomial(1, 0.5, size=self.hidden_layer_size)),
+                #     name='bias_x' + '_' + self.name)
+
             else:
                 self.bias_x = bias_x
 
@@ -148,6 +157,12 @@ class SymmetricHiddenLayer(object):
             if bias_y is None:
                 self.bias_y = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                             name='bias_y' + '_' + self.name)
+                # self.bias_y = theano.shared(numpy.random.normal(0, 1, size=self.hidden_layer_size),
+                #                             name='bias_y' + '_' + self.name)
+
+                # self.bias_y = theano.shared(
+                    # numpy.cast[theano.config.floatX](numpy.random.binomial(1, 0.5, size=self.hidden_layer_size)),
+                    # name='bias_y' + '_' + self.name)
             else:
                 self.bias_y = bias_y
 
@@ -183,11 +198,11 @@ class SymmetricHiddenLayer(object):
         #                    dtype=theano.config.floatX)
 
         wx = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
-        #wx_out = numpy.random.normal(0, 0.01, size=(self.hidden_layer_size, input_size))
-#        wx = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
+        # wx_out = numpy.random.normal(0, 0.01, size=(self.hidden_layer_size, input_size))
+        #        wx = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
 
-        #wx_out = wx_out.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx_out.T.dot(wx_out))))
-        #wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
+        # wx_out = wx_out.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx_out.T.dot(wx_out))))
+        # wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
 
         initial_Wx = numpy.asarray(wx, dtype=theano.config.floatX)
         # initial_Wx_out = numpy.asarray(wx_out, dtype=theano.config.floatX)
@@ -216,9 +231,9 @@ class SymmetricHiddenLayer(object):
         wy = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
         # wy_out = numpy.random.normal(0, 0.01, size=(self.hidden_layer_size, input_size))
 
-        #wy = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
+        # wy = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
 
-        #wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
+        # wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
         # wy_out = wy_out.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy_out.T.dot(wy_out))))
         #
         initial_Wy = numpy.asarray(wy, dtype=theano.config.floatX)
@@ -239,13 +254,16 @@ class SymmetricHiddenLayer(object):
 
         layer_input = self.x
 
-        layer_input = Tensor.dot(layer_input, self.Wx) + self.bias_x
+        if self._dropout == 'dropconnect':
+            layer_input = self.dropconnect(layer_input, self.Wx, self.bias_x, self._k)
+        else:
+            layer_input = Tensor.dot(layer_input, self.Wx) + self.bias_x
         result = self.activation_hidden(layer_input)
 
         if self.normalize:
             result = self.normalize_activations(result, self.mean_inference_x, self.variance_inference_x)
 
-        if self._dropout:
+        if self._dropout == 'dropout':
             result = self.dropout(result)
 
         return result
@@ -254,25 +272,49 @@ class SymmetricHiddenLayer(object):
 
         layer_input = self.y
 
-        layer_input = Tensor.dot(layer_input, self.Wy) + self.bias_y
+        if self._dropout == 'dropconnect':
+            layer_input = self.dropconnect(layer_input, self.Wy, self.bias_y, self._k)
+        else:
+            layer_input = Tensor.dot(layer_input, self.Wy) + self.bias_y
+
         result = self.activation_hidden(layer_input)
 
         if self.normalize:
             result = self.normalize_activations(result, self.mean_inference_y, self.variance_inference_y)
 
-        if self._dropout:
+        if self._dropout == 'dropout':
             result = self.dropout(result)
 
         return result
 
     def dropout(self, input):
 
-        retain_probability = 1 - self._drop_probability
+        p = 1 - self._drop_probability
+
+        OutputLog().write('Using dropout with p={0}'.format(p))
 
         output_predict = input
-        output_train = input * self._random_streams.binomial(input.shape,
-                                                             p=retain_probability,
-                                                             dtype=Tensor.config.floatX) / retain_probability
+        output_train = self.drop(input, p) / p
+
+        if self._eval:
+            return output_predict
+        else:
+            return output_train
+
+    def dropconnect(self, input, W, b, k):
+
+        p = 1 - self._drop_probability
+
+        OutputLog().write('Using drop connect with k={0} and p={1}'.format(k, p))
+
+        output_train = Tensor.dot(input, self.drop(W, p)) + b
+
+        mean_lin_output = Tensor.dot(input, p * W) + b
+        variance_output = numpy.cast[theano.config.floatX](p * (1. - p)) * Tensor.dot((input * input), (W * W))
+        all_samples = self._random_streams.normal(avg=mean_lin_output, std=variance_output,
+                                                  size=(k, input.shape[0], self.hidden_layer_size),
+                                                  dtype=theano.config.floatX)
+        output_predict = all_samples.mean(axis=0)
 
         if self._eval:
             return output_predict
@@ -281,6 +323,12 @@ class SymmetricHiddenLayer(object):
 
     def set_eval(self, eval):
         self._eval = eval
+
+    def drop(self, input, p):
+        output_train = input * self._random_streams.binomial(input.shape,
+                                                             p=p,
+                                                             dtype=Tensor.config.floatX)
+        return output_train
 
     # Given one input computes the network forward output
     def reconstruct_y(self, input_x=None):
