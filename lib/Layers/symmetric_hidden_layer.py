@@ -113,8 +113,12 @@ class SymmetricHiddenLayer(object):
             if bias_x is None:
                 self.bias_x = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                             name='bias_x' + '_' + self.name)
-                # self.bias_x = theano.shared(numpy.random.normal(0, 1, size=self.hidden_layer_size),
-                #                             name='bias_x' + '_' + self.name)
+
+                OutputLog().write('Initializing bias x to zero')
+
+                # self.bias_x = theano.shared(
+                #     numpy.cast[theano.config.floatX](numpy.random.normal(0, 1, size=self.hidden_layer_size)),
+                #     name='bias_x' + '_' + self.name)
 
                 # self.bias_x = theano.shared(
                 #     numpy.cast[theano.config.floatX](numpy.random.binomial(1, 0.5, size=self.hidden_layer_size)),
@@ -157,12 +161,16 @@ class SymmetricHiddenLayer(object):
             if bias_y is None:
                 self.bias_y = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                             name='bias_y' + '_' + self.name)
-                # self.bias_y = theano.shared(numpy.random.normal(0, 1, size=self.hidden_layer_size),
-                #                             name='bias_y' + '_' + self.name)
+
+                OutputLog().write('Initializing bias y to zero')
 
                 # self.bias_y = theano.shared(
-                    # numpy.cast[theano.config.floatX](numpy.random.binomial(1, 0.5, size=self.hidden_layer_size)),
-                    # name='bias_y' + '_' + self.name)
+                #     numpy.cast[theano.config.floatX](numpy.random.normal(0, 1, size=self.hidden_layer_size)),
+                #     name='bias_y' + '_' + self.name)
+
+                # self.bias_y = theano.shared(
+                # numpy.cast[theano.config.floatX](numpy.random.binomial(1, 0.5, size=self.hidden_layer_size)),
+                # name='bias_y' + '_' + self.name)
             else:
                 self.bias_y = bias_y
 
@@ -198,8 +206,12 @@ class SymmetricHiddenLayer(object):
         #                    dtype=theano.config.floatX)
 
         wx = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
-        # wx_out = numpy.random.normal(0, 0.01, size=(self.hidden_layer_size, input_size))
-        #        wx = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
+        OutputLog().write('Initialized Wx to normal 0 and 0.01')
+        # wx = 0.01 * numpy.random.multivariate_normal(numpy.zeros(self.hidden_layer_size),
+        #                                              numpy.identity(self.hidden_layer_size),
+        #                                              size=input_size)
+        # # wx_out = numpy.random.normal(0, 0.01, size=(self.hidden_layer_size, input_size))
+        #wx = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
 
         # wx_out = wx_out.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx_out.T.dot(wx_out))))
         # wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
@@ -228,8 +240,11 @@ class SymmetricHiddenLayer(object):
         #                                         size=(input_size, self.hidden_layer_size)),
         #                    dtype=theano.config.floatX)
 
+        OutputLog().write('Initialized Wy to normal 0 and 0.01')
+        # wy = 0.01 * numpy.random.multivariate_normal(numpy.zeros(self.hidden_layer_size),
+        #                                              numpy.identity(self.hidden_layer_size),
+        #                                              size=input_size)
         wy = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
-        # wy_out = numpy.random.normal(0, 0.01, size=(self.hidden_layer_size, input_size))
 
         # wy = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
 

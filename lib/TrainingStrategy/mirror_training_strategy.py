@@ -13,7 +13,7 @@ from trainer import Trainer
 class MirrorTrainingStrategy(TrainingStrategy):
     def __init__(self):
         super(MirrorTrainingStrategy, self).__init__()
-        self.name = 'iterative'
+        self.name = 'mirror'
 
     def train(self,
               training_set_x,
@@ -27,6 +27,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
               dir_name=None,
               import_net=False,
               import_path=''):
+
+        OutputLog().write('Using Mirror Strategy')
 
         if len(hyper_parameters.layer_sizes) < 2:
             raise Exception('Mirror works only on more then one layer')
