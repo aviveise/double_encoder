@@ -1,13 +1,5 @@
-from math import sqrt
-from spectral import orthogonalize
-from theano.tensor.nlinalg import matrix_inverse
 from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
-import scipy
-from theano.ifelse import ifelse
-from theano import printing
-from theano.tensor.slinalg import cholesky
 from MISC.logger import OutputLog
-from sklearn.random_projection import gaussian_random_matrix
 
 __author__ = 'aviv'
 
