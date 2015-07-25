@@ -75,3 +75,5 @@ backup/stacked_double_encoder.py
 backup/trainer.py
 *.pkl
 *.p
+*.gz
+*.dat
