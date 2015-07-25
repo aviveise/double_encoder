@@ -27,6 +27,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
               import_net=False,
               import_path=''):
 
+        OutputLog().write('Using Iterative Strategy')
+
         if not import_net:
             OutputLog().write('Creating network')
             symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],

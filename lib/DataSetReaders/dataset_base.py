@@ -48,9 +48,12 @@ class DatasetBase(object):
             self.testset = hickle.load(file(test_file, 'r'))
             self.tuning = hickle.load(file(validate_file, 'r'))
 
-            self.trainset = self.trainset[0].astype(dtype=theano.config.floatX), self.trainset[1].astype(dtype=theano.config.floatX)
-            self.testset = self.testset[0].astype(dtype=theano.config.floatX), self.testset[1].astype(dtype=theano.config.floatX)
-            self.tuning = self.tuning[0].astype(dtype=theano.config.floatX), self.tuning[1].astype(dtype=theano.config.floatX)
+            self.trainset = self.trainset[0].astype(dtype=theano.config.floatX), self.trainset[1].astype(
+                dtype=theano.config.floatX)
+            self.testset = self.testset[0].astype(dtype=theano.config.floatX), self.testset[1].astype(
+                dtype=theano.config.floatX)
+            self.tuning = self.tuning[0].astype(dtype=theano.config.floatX), self.tuning[1].astype(
+                dtype=theano.config.floatX)
 
             OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[1], self.trainset[1].shape[1]))
             OutputLog().write('Training set size = %d' % self.trainset[0].shape[0])
@@ -114,7 +117,6 @@ class DatasetBase(object):
             self.testset = (pca_dim1.transform(self.testset[0]), pca_dim2.transform(self.testset[1]))
             self.tuning = (pca_dim1.transform(self.tuning[0]), pca_dim2.transform(self.tuning[1]))
 
-
         hickle.dump(self.trainset, file(train_file, 'w'))
         hickle.dump(self.testset, file(test_file, 'w'))
         hickle.dump(self.tuning, file(validate_file, 'w'))
@@ -124,7 +126,7 @@ class DatasetBase(object):
         OutputLog().write('Test set size = %d' % self.testset[0].shape[0])
 
         if self.tuning is not None:
-            OutputLog().write('Tuning set size = %d' % self.tuning[0].shape[1])
+            OutputLog().write('Tuning set size = %d' % self.tuning[0].shape[0])
 
     def produce_optimization_sets(self, train, test_samples=None):
 
