@@ -462,6 +462,8 @@ def calculate_mardia(x, y, top):
 
     s = numpy.linalg.svd(numpy.diag(numpy.diag(mat_T)), compute_uv=0)
 
+    del mat_T
+
     if top == 0:
         return numpy.sum(s)
 

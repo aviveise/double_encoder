@@ -15,7 +15,9 @@ class HyperParameters(object):
                  method_out=Tensor.nnet.sigmoid,
                  training_strategy='SGD',
                  rho=0.5,
-                 cascade_train=True):
+                 cascade_train=True,
+                 decay_factor=None,
+                 decay=0.1):
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.epochs = epochs
@@ -26,6 +28,8 @@ class HyperParameters(object):
         self.training_strategy = training_strategy
         self.rho = rho
         self.cascade_train = cascade_train
+        self.decay = decay
+        self.decay_factor = decay_factor
 
     def copy(self):
         return HyperParameters(self.layer_sizes,
@@ -48,13 +52,17 @@ class HyperParameters(object):
                             'method_out: {6} \n'
                             'training strgy: {7} \n'
                             'rho: {8} \n'
+                            'decay factor {10} \n'
+                            'decay epochs {11} \n'
                             'cascade_train: {9} \n'.format(print_list(self.layer_sizes),
-                                                      self.learning_rate,
-                                                      self.batch_size,
-                                                      self.epochs,
-                                                      self.momentum,
-                                                      self.method_in.__str__(),
-                                                      self.method_out.__str__(),
-                                                      self.training_strategy,
-                                                      self.rho,
-                                                      self.cascade_train))
+                                                           self.learning_rate,
+                                                           self.batch_size,
+                                                           self.epochs,
+                                                           self.momentum,
+                                                           self.method_in.__str__(),
+                                                           self.method_out.__str__(),
+                                                           self.training_strategy,
+                                                           self.rho,
+                                                           self.cascade_train,
+                                                           self.decay_factor,
+                                                           self.decay))

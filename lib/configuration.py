@@ -48,6 +48,8 @@ class Configuration(object):
         strategy = training_section['strategy']
         rho = float(training_section['rho'])
         cascade_train = bool(int(training_section['cascade_train']))
+        decay = self._listify(training_section['decay'])
+        decay_factor = float(training_section['decay_factor'])
 
         return HyperParameters(layer_sizes=layer_sizes,
                                learning_rate=learning_rate,
@@ -58,7 +60,9 @@ class Configuration(object):
                                method_out=method_out,
                                training_strategy=strategy,
                                rho=rho,
-                               cascade_train=cascade_train)
+                               cascade_train=cascade_train,
+                               decay=decay,
+                               decay_factor=decay_factor)
 
     def convert_method(self, method_string):
 
@@ -102,3 +106,40 @@ class Configuration(object):
         }
 
         return output_params
+
+    def _listify(self, string):
+        string = string.strip()
+
+        # Making sure we are truly working on a string the symbolizes a list.
+        if string[0] != '[' or string[-1] != ']':
+            raise Exception('Conversion to list failed of value {0}'.format(string))
+
+        # Remove whitespaces
+        string.replace(' ','')
+
+        try:
+            output_list = map(self._convert_value, string[1:-1].strip().split(','))
+        except:
+            raise Exception('Conversion to list failed of value {0}'.format(string))
+
+        return output_list
+
+
+    def _convert_value(self, string_value):
+        for conversion in (self._listify, self._boolify, int, float):
+            try:
+                converted_value = conversion(string_value)
+                return converted_value
+            except:
+                continue
+
+        return string_value
+
+    def _boolify(self, string):
+
+        if string == 'True':
+            return True
+        elif string == 'False':
+            return False
+        else:
+            raise Exception("Conversion of {0} to bool failed".format())

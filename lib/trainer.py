@@ -90,14 +90,20 @@ class Trainer(object):
 
         tester = TraceCorrelationTester(validation_set_x, validation_set_y, top)
 
+        learning_rate = hyper_parameters.learning_rate
+
         # The training phase, for each epoch we train on every batch
         best_loss = 0
         for epoch in numpy.arange(hyper_parameters.epochs):
+
+            if hyper_parameters.decay and epoch in hyper_parameters.decay:
+                learning_rate *= hyper_parameters.decay_factor
 
             OutputLog().write('----------Starting Epoch ({0})-----------'.format(epoch), 'debug')
 
             print 'Building model'
             model = Trainer._build_model(hyper_parameters,
+                                         learning_rate,
                                          symmetric_double_encoder,
                                          params,
                                          regularization_methods,
@@ -241,6 +247,7 @@ class Trainer(object):
 
     @staticmethod
     def _build_model(hyper_parameters,
+                     learning_rate,
                      symmetric_double_encoder,
                      params,
                      regularization_methods,
@@ -320,7 +327,7 @@ class Trainer(object):
                 updates = OrderedDict()
                 zipped = zip(params, gradients, model_updates)
                 for param, gradient, model_update in zipped:
-                    update, delta = Trainer._calc_update(hyper_parameters.learning_rate, gradient, param,
+                    update, delta = Trainer._calc_update(learning_rate, gradient, param,
                                                          last_layer=last_layer)
                     delta = hyper_parameters.momentum * model_update - delta
 
@@ -331,7 +338,7 @@ class Trainer(object):
                 # generate the list of updates, each update is a round in the decent
                 updates = OrderedDict()
                 for param, gradient in zip(params, gradients):
-                    update, delta = Trainer._calc_update(hyper_parameters.learning_rate, gradient, param,
+                    update, delta = Trainer._calc_update(learning_rate, gradient, param,
                                                          last_layer=last_layer)
                     updates[param] = update
 
@@ -340,7 +347,7 @@ class Trainer(object):
             zipped = zip(params, gradients, model_updates)
             for ndx, (param, gradient, accumulated_gradient) in enumerate(zipped):
                 agrad = accumulated_gradient + gradient ** 2
-                effective_learning_rate = (hyper_parameters.learning_rate / (Tensor.sqrt(agrad) + eps))
+                effective_learning_rate = (learning_rate / (Tensor.sqrt(agrad) + eps))
                 update, delta = Trainer._calc_update(effective_learning_rate, gradient, param, last_layer=last_layer)
                 # delta = effective_learning_rate * gradient
                 updates[param] = update
@@ -351,7 +358,7 @@ class Trainer(object):
             zipped = zip(params, gradients, model_updates)
             for ndx, (param, gradient, accumulated_gradient) in enumerate(zipped):
                 agrad = rho * accumulated_gradient + (1 - rho) * gradient ** 2
-                effective_learning_rate = (hyper_parameters.learning_rate / (Tensor.sqrt(agrad) + eps))
+                effective_learning_rate = (learning_rate / (Tensor.sqrt(agrad) + eps))
                 update, delta = Trainer._calc_update(effective_learning_rate, gradient, param, last_layer=last_layer)
                 # delta = effective_learning_rate * gradient
                 updates[param] = update
@@ -362,7 +369,7 @@ class Trainer(object):
             zipped = zip(params, gradients, model_updates)
             for ndx, (param, gradient, accumulated_gradient) in enumerate(zipped):
                 agrad = rho * accumulated_gradient + gradient ** 2
-                effective_learning_rate = (hyper_parameters.learning_rate / (Tensor.sqrt(agrad) + eps))
+                effective_learning_rate = (learning_rate / (Tensor.sqrt(agrad) + eps))
                 update, delta = Trainer._calc_update(effective_learning_rate, gradient, param, last_layer=last_layer)
                 # delta = effective_learning_rate * gradient
                 updates[param] = update
@@ -385,10 +392,10 @@ class Trainer(object):
             for param, gradient in zip(params, gradients):
 
                 if param.name == 'Wx_layer0' or param.name == 'Wy_layer0':
-                    param_update = Trainer._calc_update(hyper_parameters.learning_rate, gradient, param, 'Cayley',
+                    param_update = Trainer._calc_update(learning_rate, gradient, param, 'Cayley',
                                                         last_layer=last_layer)
                 else:
-                    param_update = Trainer._calc_update(hyper_parameters.learning_rate, gradient, param, 'Regular',
+                    param_update = Trainer._calc_update(learning_rate, gradient, param, 'Regular',
                                                         last_layer=last_layer)
 
                 updates.append((param, param_update))
