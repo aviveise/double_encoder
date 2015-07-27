@@ -120,39 +120,69 @@ class StackedDoubleEncoder(object):
             input_y = layer.output_forward_y
             Wy = layer.Wx.T
 
-    def add_hidden_layer(self, symmetric_layer):
+    def add_hidden_layer(self, symmetric_layer, end=True):
 
         if len(self._symmetric_layers) == 0:
 
             self._initialize_first_layer(symmetric_layer)
 
+            #adding the new layer to the list
+            self._symmetric_layers.append(symmetric_layer)
+
         else:
 
-            last_layer = self._symmetric_layers[-1]
+            if end:
+                last_layer = self._symmetric_layers[-1]
 
-            #connecting the X of new layer with the Y of the last layer
-            symmetric_layer.update_y(self.var_y, input_size=self.input_size_y)
-            symmetric_layer.update_x(x=last_layer.output_forward_x, input_size=last_layer.hidden_layer_size)
+                #connecting the X of new layer with the Y of the last layer
+                symmetric_layer.update_y(self.var_y, input_size=self.input_size_y)
+                symmetric_layer.update_x(x=last_layer.output_forward_x, input_size=last_layer.hidden_layer_size)
 
-            Wy = symmetric_layer.Wx.T
+                Wy = symmetric_layer.Wx.T
 
-            input_y = symmetric_layer.output_forward_y
-            input_size = symmetric_layer.hidden_layer_size
+                input_y = symmetric_layer.output_forward_y
+                input_size = symmetric_layer.hidden_layer_size
 
-            #refreshing the connection between Y and X of the other layers
-            for layer in reversed(self._symmetric_layers):
+                #refreshing the connection between Y and X of the other layers
+                for layer in reversed(self._symmetric_layers):
 
-                if self._weight_sharing:
-                    layer.update_y(input_y, Wy, layer.bias_y)
-                    Wy = layer.Wx.T
-                else:
-                    layer.update_y(input_y, input_size=input_size)
+                    if self._weight_sharing:
+                        layer.update_y(input_y, Wy, layer.bias_y)
+                        Wy = layer.Wx.T
+                    else:
+                        layer.update_y(input_y, input_size=input_size)
 
-                input_size = layer.hidden_layer_size
-                input_y = layer.output_forward_y
+                    input_size = layer.hidden_layer_size
+                    input_y = layer.output_forward_y
 
-        #adding the new layer to the list
-        self._symmetric_layers.append(symmetric_layer)
+                #adding the new layer to the list
+                self._symmetric_layers.append(symmetric_layer)
+
+            else:
+                last_layer = self._symmetric_layers[0]
+
+                #connecting the X of new layer with the Y of the last layer
+                symmetric_layer.update_x(self.var_x, input_size=self.input_size_x)
+                symmetric_layer.update_y(x=last_layer.output_forward_y, input_size=last_layer.hidden_layer_size)
+
+                Wx = symmetric_layer.Wy.T
+
+                input_x = symmetric_layer.output_forward_x
+                input_size = symmetric_layer.hidden_layer_size
+
+                #refreshing the connection between Y and X of the other layers
+                for layer in self._symmetric_layers:
+
+                    if self._weight_sharing:
+                        layer.update_x(input_x, Wx, layer.bias_x)
+                        Wx = layer.Wy.T
+                    else:
+                        layer.update_x(input_x, input_size=input_size)
+
+                    input_size = layer.hidden_layer_size
+                    input_x = layer.output_forward_x
+
+                self._symmetric_layers.insert(0, symmetric_layer)
 
     def reconstruct_x(self, layer_num=0):
         return self._symmetric_layers[layer_num].reconstruct_x()

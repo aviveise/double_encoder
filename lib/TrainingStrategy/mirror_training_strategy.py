@@ -69,20 +69,21 @@ class MirrorTrainingStrategy(TrainingStrategy):
                 self._add_cross_encoder_layer(layer_sizes[-(idx + 1)],
                                               symmetric_double_encoder_side_B,
                                               hyper_parameters.method_in,
-                                              hyper_parameters.method_out)
+                                              hyper_parameters.method_out,
+                                              False)
 
                 params_size_A = []
                 params_size_B = []
 
                 if idx == 0:
                     params_size_A.extend(symmetric_double_encoder_side_A[0].x_params)
-                    params_size_B.extend(symmetric_double_encoder_side_B[0].y_params)
+                    params_size_B.extend(symmetric_double_encoder_side_B[-1].y_params)
                 else:
                     params_size_A.extend(symmetric_double_encoder_side_A[-1].x_hidden_params)
-                    params_size_B.extend(symmetric_double_encoder_side_B[-1].y_hidden_params)
+                    params_size_B.extend(symmetric_double_encoder_side_B[0].y_hidden_params)
 
                 params_size_A.extend(symmetric_double_encoder_side_A[-1].y_params)
-                params_size_B.extend(symmetric_double_encoder_side_B[-1].x_params)
+                params_size_B.extend(symmetric_double_encoder_side_B[0].x_params)
 
                 OutputLog().write('--------Starting Training Network A-------')
                 Trainer.train(train_set_x=training_set_x,
@@ -152,7 +153,12 @@ class MirrorTrainingStrategy(TrainingStrategy):
 
         return symmetric_double_encoder_side_A
 
-    def _add_cross_encoder_layer(self, layer_size, symmetric_double_encoder, activation_hidden, activation_output):
+    def _add_cross_encoder_layer(self,
+                                 layer_size,
+                                 symmetric_double_encoder,
+                                 activation_hidden,
+                                 activation_output,
+                                 end=True):
 
         layer_count = len(symmetric_double_encoder)
 
@@ -162,7 +168,7 @@ class MirrorTrainingStrategy(TrainingStrategy):
                                                activation_output=activation_output,
                                                moving_average=self._moving_average)
 
-        symmetric_double_encoder.add_hidden_layer(symmetric_layer)
+        symmetric_double_encoder.add_hidden_layer(symmetric_layer, end)
 
     def set_parameters(self, parameters):
         return
