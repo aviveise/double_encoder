@@ -163,7 +163,7 @@ class StackedDoubleEncoder(object):
 
                 #connecting the X of new layer with the Y of the last layer
                 symmetric_layer.update_x(self.var_x, input_size=self.input_size_x)
-                symmetric_layer.update_y(x=last_layer.output_forward_y, input_size=last_layer.hidden_layer_size)
+                symmetric_layer.update_y(y=last_layer.output_forward_y, input_size=last_layer.hidden_layer_size)
 
                 Wx = symmetric_layer.Wy.T
 
