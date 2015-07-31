@@ -102,7 +102,8 @@ class Configuration(object):
             'sample_number': int(output_section['sample_number']),
             'fine_tune': bool(int(output_section['fine_tune'])),
             'import_net': output_section['import_net'],
-            'verbosity': output_section['verbosity']
+            'verbosity': output_section['verbosity'],
+            'visualize': bool(int(output_section.get('visualize',0)))
         }
 
         return output_params

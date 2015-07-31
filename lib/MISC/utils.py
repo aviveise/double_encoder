@@ -420,13 +420,14 @@ def calculate_square(x):
     return result
 
 
-def match_error(x, y):
+def match_error(x, y, visualize):
     x_scaled = preprocessing.scale(x)
     y_scaled = preprocessing.scale(y)
 
     sym = numpy.dot(x_scaled, y_scaled.T)
 
-    visualize_correlation_matrix(sym, 'similarity_mat')
+    if visualize:
+        visualize_correlation_matrix(sym, 'similarity_mat')
 
     top_1 = numpy.argmax(sym, axis=0)
     error = 1 - float(numpy.sum(top_1 == range(x_scaled.shape[0]))) / x_scaled.shape[0]
@@ -434,7 +435,7 @@ def match_error(x, y):
     return error
 
 
-def calculate_mardia(x, y, top):
+def calculate_mardia(x, y, top, visualize):
     set_size = x.shape[0]
     dim = x.shape[1]
 
@@ -457,8 +458,9 @@ def calculate_mardia(x, y, top):
 
     # mat_T = correlation_matrix[0:x.shape[0], x.shape[0]: x.shape[0] + y.shape[0]]
 
-    visualize_correlation_matrix(mat_T, 'correlation_mat')
-    visualize_correlation_matrix(numpy.sort(mat_T, axis=1), 'correlation_mat_sorted')
+    if visualize:
+        visualize_correlation_matrix(mat_T, 'correlation_mat')
+        visualize_correlation_matrix(numpy.sort(mat_T, axis=1), 'correlation_mat_sorted')
 
     s = numpy.linalg.svd(numpy.diag(numpy.diag(mat_T)), compute_uv=0)
 

@@ -30,15 +30,15 @@ class TraceCorrelationTester(TesterBase):
         loss_var_y = numpy.mean(var_y)
 
         loss = calculate_reconstruction_error(x, y)
-        matches = match_error(x, y)
+        matches = match_error(x, y, self._visualize)
 
         search_recall, describe_recall = complete_rank(x, y)
 
         start_tick = cv2.getTickCount()
         if self.top == 0:
-            correlation = (calculate_mardia(x, y, 0) / x.shape[1]) * 100
+            correlation = (calculate_mardia(x, y, 0, self._visualize) / x.shape[1]) * 100
         else:
-            correlation = (calculate_mardia(x, y, self.top) / self.top) * 100
+            correlation = (calculate_mardia(x, y, self.top, self._visualize) / self.top) * 100
 
         current_time = cv2.getTickCount()
         OutputLog().write('calculated correlation, time: {0}'.format(((current_time - start_tick) / tickFrequency)),

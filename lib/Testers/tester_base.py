@@ -10,9 +10,10 @@ from tabulate import tabulate
 
 class TesterBase(object):
 
-    def __init__(self, test_set_x, test_set_y):
+    def __init__(self, test_set_x, test_set_y, visualize=False):
         self._x = test_set_x
         self._y = test_set_y
+        self._visualize = visualize
 
         self._metrics = {}
 
