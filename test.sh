@@ -9,7 +9,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda-6.5/lib64:/usr/local/cuda-6.5/lib64/lib:/
 export CUDA_ROOT=/usr/local/cuda-6.5/bin
 
 if [ "$strategy" = "iterative" ]; then
-	THEANO_FLAGS=optimization_including=cudnn,mode=FAST_RUN,device=gpu,floatX=float32,"blas.ldflags=-lblas -lgfortran",optimizer=fast_compile python2.7 -u ./lib/double_encoder_iterative.py DataSet/$dataset.ini test_$dataset.ini $top
+	THEANO_FLAGS=optimization_including=cudnn,device=gpu,floatX=float32,"blas.ldflags=-lblas -lgfortran" python2.7 -u ./lib/double_encoder_iterative.py DataSet/$dataset.ini test_$dataset.ini $top
 elif [ "$strategy" = "dropout" ]; then
 	THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python2.7 ./lib/double_encoder_iterative_dropout.py DataSet/$dataset.ini test_$dataset.ini $top
 elif [ "$strategy" = "nonsequential" ]; then
