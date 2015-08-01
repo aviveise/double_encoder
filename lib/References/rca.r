@@ -1,5 +1,7 @@
 library(kernlab)
 
+memory.limit(10000)
+
 geigen <- function (A,B,C,top) {
   p       <- nrow(B) 
   q       <- nrow(C) 
