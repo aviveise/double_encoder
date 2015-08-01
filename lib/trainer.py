@@ -456,11 +456,11 @@ class Trainer(object):
 
         if type == 'Cayley' and (param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):
             OutputLog().write('Adding constraint to {0}:'.format(param.name))
-            A = Tensor.dot((step_size / 2) * gradient, param.T) - Tensor.dot(param, ((step_size / 2) * gradient).T)
+            A = Tensor.dot(((step_size / 2) * gradient).T, param) - Tensor.dot(param.T, ((step_size / 2) * gradient))
             I = Tensor.identity_like(A)
             Q = Tensor.dot(matrix_inverse(I + A), (I - A))
-            update = Tensor.dot(Q, param)
-            delta = (step_size / 2) * Tensor.dot(A, (param + update))
+            update = Tensor.dot(param, Q)
+            delta = (step_size / 2) * Tensor.dot((param + update), A)
             return update, delta
         else:
             delta = step_size * gradient
