@@ -20,28 +20,17 @@ class HiddenL2Regularization(RegularizationBase):
                 hidden_x = layer.output_forward_y
                 hidden_y = layer.output_forward_x
 
-                regularization += Tensor.mean(((hidden_x - hidden_y) ** 2).sum(axis=1))
+                regularization += Tensor.mean(((hidden_x - hidden_y) ** 2).sum(axis=1, dtype=Tensor.config.floatX,
+                                                                               acc_dtype=Tensor.config.floatX))
 
         elif self._layer < len(symmetric_double_encoder):
             hidden_x = symmetric_double_encoder[self._layer].output_forward_x
             hidden_y = symmetric_double_encoder[self._layer].output_forward_y
 
-            regularization += Tensor.mean(((hidden_x - hidden_y) ** 2).sum(axis=1))
+            regularization += Tensor.mean(
+                ((hidden_x - hidden_y) ** 2).sum(axis=1, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX))
 
         return self.weight * regularization
 
     def print_regularization(self, output_stream):
-        super(HingeRegularization, self).print_regularization(output_stream)
-
-    def calc_hinge(self, x):
-
-        if self._hinge_type == 'log':
-            hinge = Tensor.sum(1 - Tensor.log(x ** 2 * self._k + self._b))
-
-        elif self._hinge_type == 'abs':
-            hinge = 1 - abs(x * self._k)
-
-        elif self._hinge_type == 'sqr':
-            hinge = Tensor.sum(1 - x ** 2 * self._k)
-
-        return Tensor.sum(hinge * (hinge > 0))
+        super(HiddenL2Regularization, self).print_regularization(output_stream)
