@@ -279,14 +279,12 @@ class Trainer(object):
         print 'Calculating Loss'
 
         if loss == 'L2':
-
-            # Compute the loss of the forward encoding as L2 loss
             loss_backward = Tensor.mean(
-                ((var_x - x_tilde) ** 2).sum(axis=1, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX))
+                ((var_x - x_tilde) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
             # Compute the loss of the backward encoding as L2 loss
             loss_forward = Tensor.mean(
-                ((var_y - y_tilde) ** 2).sum(axis=1, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX))
+                ((var_y - y_tilde) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
             loss = loss_backward + loss_forward
 
@@ -301,6 +299,8 @@ class Trainer(object):
             loss_forward = 1 - Tensor.mean(Tensor.diag(Tensor.dot(var_y, y_tilde.T)) / (mod_y * mod_y_tilde))
 
             loss = Tensor.mean(loss_forward * loss_backward.T)
+
+            # Compute the loss of the forward encoding as L2 loss
 
         else:
             raise Exception('Loss not recognized')
@@ -317,7 +317,7 @@ class Trainer(object):
         print 'Regularization number = {0}'.format(len(regularizations))
 
         if len(regularizations) > 0:
-            loss += Tensor.sum(regularizations, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX)
+            loss += Tensor.sum(regularizations, dtype=Tensor.config.floatX)
 
         print 'Calculating gradients'
 

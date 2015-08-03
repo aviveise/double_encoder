@@ -20,15 +20,14 @@ class HiddenL2Regularization(RegularizationBase):
                 hidden_x = layer.output_forward_y
                 hidden_y = layer.output_forward_x
 
-                regularization += Tensor.mean(((hidden_x - hidden_y) ** 2).sum(axis=1, dtype=Tensor.config.floatX,
-                                                                               acc_dtype=Tensor.config.floatX))
+                regularization += Tensor.mean(((hidden_x - hidden_y) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
         elif self._layer < len(symmetric_double_encoder):
             hidden_x = symmetric_double_encoder[self._layer].output_forward_x
             hidden_y = symmetric_double_encoder[self._layer].output_forward_y
 
             regularization += Tensor.mean(
-                ((hidden_x - hidden_y) ** 2).sum(axis=1, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX))
+                ((hidden_x - hidden_y) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
         return self.weight * regularization
 
