@@ -1,5 +1,5 @@
-from stacked_auto_encoder_2 import StackedDoubleEncoder2
 from math import floor
+from theano.misc.ordered_set import OrderedSet
 
 __author__ = 'aviv'
 
@@ -72,8 +72,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
                                               hyper_parameters.method_out,
                                               False)
 
-                params_size_A = []
-                params_size_B = []
+                params_size_A = OrderedSet()
+                params_size_B = OrderedSet()
 
                 if idx == 0:
                     params_size_A.extend(symmetric_double_encoder_side_A[0].x_params)
@@ -131,7 +131,7 @@ class MirrorTrainingStrategy(TrainingStrategy):
 
         for layer in symmetric_double_encoder_side_A:
             params += layer.x_hidden_params
-            params.append(layer.bias_y)
+            params.append(layer.bias)
 
         params.append(symmetric_double_encoder_side_A[0].bias_x_prime)
         params.append(symmetric_double_encoder_side_A[-1].bias_y_prime)

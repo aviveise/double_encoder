@@ -62,8 +62,7 @@ class IterativeNonSequentialTrainingStrategy(TrainingStrategy):
         params = []
         for layer in symmetric_double_encoder:
             params.append(layer.Wx)
-            params.append(layer.bias_x)
-            params.append(layer.bias_y)
+            params.append(layer.bias)
 
         params.append(symmetric_double_encoder[0].bias_x_prime)
         params.append(symmetric_double_encoder[-1].bias_y_prime)

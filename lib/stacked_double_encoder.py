@@ -260,13 +260,13 @@ class StackedDoubleEncoder(object):
                                name='Wx_' + layer_name,
                                borrow=True)
 
-            bias_x = theano.shared(encoder['bias_x_' + layer_name].flatten(),
-                                   name='bias_x_' + layer_name,
-                                   borrow=True)
-
-            bias_y = theano.shared(encoder['bias_y_' + layer_name].flatten(),
-                                   name='bias_y_' + layer_name,
-                                   borrow=True)
+            bias = theano.shared(encoder['bias_x_' + layer_name].flatten(),
+                                 name='bias_x_' + layer_name,
+                                 borrow=True)
+            #
+            # bias_y = theano.shared(encoder['bias_y_' + layer_name].flatten(),
+            #                        name='bias_y_' + layer_name,
+            #                        borrow=True)
 
             bias_x_prime = theano.shared(encoder['bias_x_prime_' + layer_name].flatten(),
                                          name='bias_x_prime_' + layer_name,
@@ -287,8 +287,10 @@ class StackedDoubleEncoder(object):
 
             layer.update_x(x,
                            weights=Wx,
-                           bias_x=bias_x,
+                           bias_x=None,
                            bias_x_prime=bias_x_prime)
+
+            layer.bias = bias
 
             x = layer.output_forward_x
 
@@ -302,19 +304,18 @@ class StackedDoubleEncoder(object):
 
                 layer.update_y(y,
                                weights=Wy,
-                               bias_y=bias_y,
+                               bias_y=None,
                                bias_y_prime=bias_y_prime)
 
                 prop_y = layer.output_forward_y
                 Wy = layer.Wx.T
 
                 for back_layer in reversed(self._symmetric_layers):
-                    back_layer.update_y(prop_y, weights=Wy, bias_y=back_layer.bias_y, bias_y_prime=back_layer.bias_y_prime)
+                    back_layer.update_y(prop_y, weights=Wy, bias_y=None, bias_y_prime=back_layer.bias_y_prime)
                     Wy = back_layer.Wx.T
                     prop_y = back_layer.output_forward_y
 
             else:
-                layer.bias_y = bias_y
                 layer.bias_y_prime = bias_y_prime
 
             self._symmetric_layers.append(layer)
