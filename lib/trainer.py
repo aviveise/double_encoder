@@ -69,7 +69,7 @@ class Trainer(object):
               validation_set_x=None,
               validation_set_y=None,
               moving_averages=None,
-              decay=False):
+              decay=True):
 
         OutputLog().write('Using Decay = {0}'.format(decay))
 
@@ -195,22 +195,27 @@ class Trainer(object):
                     sys.exit(0)
 
                 if decay:
-                    if len(best_correlations) == 0:
-                        best_correlations = correlations
-                    else:
-                        for best_correlation, current_correlation in zip(best_correlations, correlations):
-                            if current_correlation < best_correlation:
-                                OutputLog().write('Decaying learning rate')
-                                hyper_parameters.learning_rate *= 0.1
-                                break
+                    if len(hyper_parameters.decay) == 0:
+                        if len(best_correlations) == 0:
+                            best_correlations = correlations
+                        else:
+                            for best_correlation, current_correlation in zip(best_correlations, correlations):
+                                if current_correlation < best_correlation:
+                                    OutputLog().write('Decaying learning rate')
+                                    hyper_parameters.learning_rate *= hyper_parameters.decay_factor
+                                    break
 
-                        new_correlations = []
-                        for best_correlation, current_correlation in zip(best_correlations, correlations):
-                            if current_correlation < best_correlation:
-                                new_correlations.append(best_correlation)
-                            else:
-                                new_correlations.append(current_correlation)
-                        best_correlations = new_correlations
+                            new_correlations = []
+                            for best_correlation, current_correlation in zip(best_correlations, correlations):
+                                if current_correlation < best_correlation:
+                                    new_correlations.append(best_correlation)
+                                else:
+                                    new_correlations.append(current_correlation)
+                            best_correlations = new_correlations
+                    else:
+                        if epoch in hyper_parameters.decay:
+                            OutputLog().write('Decaying learning rate')
+                            hyper_parameters.learning_rate *= hyper_parameters.decay_factor
 
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
                                                                           loss_backward / n_training_batches,
@@ -454,6 +459,7 @@ class Trainer(object):
     @staticmethod
     def _calc_update(step_size, gradient, param, type='Cayley', last_layer=0, hidden_x=None, hidden_y=None):
 
+        # 'W' in param.name:
         if type == 'Cayley' and (param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):
             OutputLog().write('Adding constraint to {0}:'.format(param.name))
             A = Tensor.dot(((step_size / 2) * gradient).T, param) - Tensor.dot(param.T, ((step_size / 2) * gradient))
