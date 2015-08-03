@@ -1,3 +1,4 @@
+from collections import Set
 from math import floor
 from theano.misc.ordered_set import OrderedSet
 
@@ -72,8 +73,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
                                               hyper_parameters.method_out,
                                               False)
 
-                params_size_A = OrderedSet()
-                params_size_B = OrderedSet()
+                params_size_A = []
+                params_size_B = []
 
                 if idx == 0:
                     params_size_A.extend(symmetric_double_encoder_side_A[0].x_params)
