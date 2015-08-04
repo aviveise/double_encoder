@@ -100,7 +100,8 @@ class StackedDoubleEncoder(object):
         for index, layer in enumerate(double_encoder):
             layer.update_x(x=input_x,
                            weights=layer.Wx,
-                           bias_x=layer.bias_x)
+                           bias_x=None,
+                           bias_x_prime=layer.bias_x_prime)
 
             input_x = layer.output_forward_x
 
@@ -115,7 +116,8 @@ class StackedDoubleEncoder(object):
         for layer in reversed(self._symmetric_layers):
             layer.update_y(y=input_y,
                            weights=Wy,
-                           bias_y=layer.bias_y)
+                           bias_y=None,
+                           bias_y_prime=layer.bias_y_prime)
 
             input_y = layer.output_forward_y
             Wy = layer.Wx.T

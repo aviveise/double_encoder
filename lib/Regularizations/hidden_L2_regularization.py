@@ -29,6 +29,7 @@ class HiddenL2Regularization(RegularizationBase):
             regularization += Tensor.mean(
                 ((hidden_x - hidden_y) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
+
         return self.weight * regularization
 
     def print_regularization(self, output_stream):
