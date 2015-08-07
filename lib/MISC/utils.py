@@ -421,10 +421,14 @@ def calculate_square(x):
 
 
 def match_error(x, y, visualize):
-    x_scaled = preprocessing.scale(x)
-    y_scaled = preprocessing.scale(y)
 
-    sym = numpy.dot(x_scaled, y_scaled.T)
+    x_c = center(x)[0]
+    y_c = center(y)[0]
+
+    x_n = preprocessing.normalize(x_c,axis=1)
+    y_n = preprocessing.normalize(y_c,axis=1)
+
+    sym = numpy.dot(x_n, y_n.T)
 
     if visualize:
         visualize_correlation_matrix(sym, 'similarity_mat')
@@ -504,11 +508,14 @@ def calculate_reconstruction_error(x, y):
 
 
 def complete_rank(x, y):
-    x = preprocessing.scale(x)
-    y = preprocessing.scale(y)
 
-    x_x_sim_matrix = numpy.dot(x, x.T)
-    y_x_sim_matrix = numpy.dot(y, x.T)
+    x_c = center(x)[0]
+    y_c = center(y)[0]
+
+    x_n = preprocessing.normalize(x_c,axis=1)
+    y_n = preprocessing.normalize(y_c,axis=1)
+
+    y_x_sim_matrix = numpy.dot(y_n, x_n.T)
 
     num_X_samples = x.shape[0]
     num_Y_samples = y.shape[0]

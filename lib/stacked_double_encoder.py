@@ -262,8 +262,8 @@ class StackedDoubleEncoder(object):
                                name='Wx_' + layer_name,
                                borrow=True)
 
-            bias = theano.shared(encoder['bias_x_' + layer_name].flatten(),
-                                 name='bias_x_' + layer_name,
+            bias = theano.shared(encoder['bias_' + layer_name].flatten(),
+                                 name='bias_' + layer_name,
                                  borrow=True)
             #
             # bias_y = theano.shared(encoder['bias_y_' + layer_name].flatten(),
