@@ -12,7 +12,6 @@ class TrainingStrategy(object):
     def __init__(self):
         self._random_range = RandomState()
 
-    @abc.abstractmethod
     def train(self,
               training_set_x,
               training_set_y,
