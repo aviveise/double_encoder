@@ -434,7 +434,7 @@ def match_error(x, y, visualize):
         visualize_correlation_matrix(sym, 'similarity_mat')
 
     top_1 = numpy.argmax(sym, axis=0)
-    error = 1 - float(numpy.sum(top_1 == range(x_scaled.shape[0]))) / x_scaled.shape[0]
+    error = 1 - float(numpy.sum(top_1 == range(x.shape[0]))) / x.shape[0]
 
     return error
 
