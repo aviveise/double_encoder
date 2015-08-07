@@ -27,6 +27,5 @@ class TrainingStrategy(object):
               import_path=''):
         return
 
-    @abc.abstractmethod
     def set_parameters(self, parameters):
         return

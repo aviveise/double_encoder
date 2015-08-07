@@ -16,6 +16,8 @@ elif [ "$strategy" = "nonsequential" ]; then
 	THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32,"blas.ldflags=-lblas -lgfortran",optimizer=fast_compile nohup python2.7 ./lib/double_encoder_iterative_nonsequential.py DataSet/$dataset.ini test_$dataset.ini $top 
 elif [ "$strategy" = "mirror" ]; then
 	THEANO_FLAGS=optimization_including=cudnn,mode=FAST_RUN,device=gpu,floatX=float32,"blas.ldflags=-lblas -lgfortran",optimizer=fast_compile python2.7 -u ./lib/double_encoder_mirror.py DataSet/$dataset.ini test_$dataset.ini $top
+elif [ "$strategy" = "test" ]; then
+	THEANO_FLAGS=optimization_including=cudnn,mode=FAST_RUN,device=gpu,floatX=float32,"blas.ldflags=-lblas -lgfortran",optimizer=fast_compile python2.7 -u ./lib/double_encoder_test.py DataSet/$dataset.ini test_$dataset.ini $top
 else
 	echo "unknown strategy"
 fi
