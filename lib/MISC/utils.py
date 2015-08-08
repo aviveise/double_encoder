@@ -519,6 +519,7 @@ def complete_rank(x, y, reduce_x=0):
     if reduce_x:
         x_n = x_n[0:x_n.shape[0]:reduce_x, :]
         y_x_mapping = numpy.repeat(numpy.arange(x_n.shape[0]), reduce_x)
+        num_X_samples = num_X_samples / reduce_x
     else:
         y_x_mapping = numpy.arange(x_n.shape[0])
 
@@ -541,7 +542,7 @@ def complete_rank(x, y, reduce_x=0):
 
     describe_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)[:, ::-1]
     describe_y_ranks = numpy.array([numpy.where(numpy.in1d(row, numpy.where(y_x_mapping == index)[0]))[0]
-                                    for index, row in enumerate(describe_y_sorted_neighbs)]).min(axis=0)
+                                    for index, row in enumerate(describe_y_sorted_neighbs)]).min(axis=1)
 
     for idx, recall in enumerate(recall_n_vals):
         describe_x_recall[idx] = numpy.sum(describe_y_ranks <= recall)

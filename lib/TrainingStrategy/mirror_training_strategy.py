@@ -27,7 +27,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
               validation_set_y=None,
               dir_name=None,
               import_net=False,
-              import_path=''):
+              import_path='',
+              reduce_val=0):
 
         OutputLog().write('Using Mirror Strategy')
 
@@ -96,7 +97,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
                               print_verbose=print_verbose,
                               validation_set_x=validation_set_x,
                               validation_set_y=validation_set_y,
-                              moving_averages=self._moving_average)
+                              moving_averages=self._moving_average,
+                              reduce_val=reduce_val)
 
                 OutputLog().write('--------Starting Training Network B-------')
                 Trainer.train(train_set_x=training_set_x,
@@ -108,7 +110,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
                               print_verbose=print_verbose,
                               validation_set_x=validation_set_x,
                               validation_set_y=validation_set_y,
-                              moving_averages=self._moving_average)
+                              moving_averages=self._moving_average,
+                              reduce_val=reduce_val)
 
         else:
             symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
@@ -147,7 +150,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
                       regularization_methods=regularization_methods,
                       print_verbose=print_verbose,
                       validation_set_x=validation_set_x,
-                      validation_set_y=validation_set_y)
+                      validation_set_y=validation_set_y,
+                      reduce_val=reduce_val)
 
         if dir_name is not None:
             symmetric_double_encoder_side_A.export_encoder(dir_name, 'layer_{0}'.format(len(symmetric_double_encoder_side_A) + 1))

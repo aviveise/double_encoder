@@ -69,7 +69,8 @@ class Trainer(object):
               validation_set_x=None,
               validation_set_y=None,
               moving_averages=None,
-              decay=True):
+              decay=True,
+              reduce_val=0):
 
         OutputLog().write('Using Decay = {0}'.format(decay))
 
@@ -137,7 +138,7 @@ class Trainer(object):
                     train_set_y[indices_positive[index * hyper_parameters.batch_size:
                     (index + 1) * hyper_parameters.batch_size], :], borrow=True)
 
-                output = model()
+                output = model(index % 2)
                 loss_backward += output[0]
                 loss_forward += output[1]
 
@@ -148,8 +149,8 @@ class Trainer(object):
                 tickFrequency = cv2.getTickFrequency()
                 current_time = cv2.getTickCount()
 
-                regularizations = [regularization_method for regularization_method in regularization_methods if
-                                   regularization_method.weight > 0]
+                regularizations = [regularization_method for regularization_method in regularization_methods if not
+                                   regularization_method.weight == 0]
 
                 string_output = ''
 
@@ -266,6 +267,8 @@ class Trainer(object):
                      loss='L2',
                      last_layer=0):
 
+        loss_decision = Tensor.iscalar()
+
         # Retrieve the reconstructions of x and y
         x_tilde = symmetric_double_encoder.reconstruct_x()
         y_tilde = symmetric_double_encoder.reconstruct_y()
@@ -286,7 +289,7 @@ class Trainer(object):
             loss_forward = Tensor.mean(
                 ((var_y - y_tilde) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
-            loss = loss_backward + loss_forward
+            loss = ifelse(loss_decision, loss_forward, loss_backward)#loss_backward + loss_forward
 
         elif loss == 'cosine':
 
@@ -436,7 +439,7 @@ class Trainer(object):
         # output : both losses
         # updates : gradient decent updates for all params
         # givens : replacing inputs for each iteration
-        model = function(inputs=[],
+        model = function(inputs=[loss_decision  ],
                          outputs=[Tensor.mean(loss_backward),
                                   Tensor.mean(loss_forward),
                                   Tensor.mean(variance_hidden_x),

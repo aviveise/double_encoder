@@ -6,7 +6,6 @@ from numpy.random import RandomState
 
 
 class TrainingStrategy(object):
-
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
@@ -23,7 +22,8 @@ class TrainingStrategy(object):
               validation_set_x=None,
               validation_set_y=None,
               import_net=False,
-              import_path=''):
+              import_path='',
+              reduce_val=0):
         return
 
     def set_parameters(self, parameters):

@@ -25,7 +25,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
               validation_set_y=None,
               dir_name=None,
               import_net=False,
-              import_path=''):
+              import_path='',
+              reduce_val=0):
 
         OutputLog().write('Using Iterative Strategy')
 
@@ -87,7 +88,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
                               print_verbose=print_verbose,
                               validation_set_x=validation_set_x,
                               validation_set_y=validation_set_y,
-                              moving_averages=self._moving_average)
+                              moving_averages=self._moving_average,
+                              reduce_val=reduce_val)
 
                 if dir_name is not None:
                     symmetric_double_encoder.export_encoder(OutputLog().output_path,

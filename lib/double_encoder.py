@@ -89,7 +89,8 @@ class DoubleEncoder(object):
                                                                  import_net=configuration.output_parameters[
                                                                      'fine_tune'],
                                                                  import_path=configuration.output_parameters[
-                                                                     'import_net'])
+                                                                     'import_net'],
+                                                                 reduce_val=data_set.reduce_val)
 
                 stacked_double_encoder.export_encoder(dir_name)
 
@@ -113,7 +114,7 @@ class DoubleEncoder(object):
         OutputLog().write('test results:')
         correlations, trace_correlation, var, x_test, y_test, test_best_layer = TraceCorrelationTester(
             data_set.testset[0],
-            data_set.testset[1], top, data_set.reduce_x).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+            data_set.testset[1], top, data_set.reduce_test).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                            configuration.hyper_parameters)
 
         # OutputLog().write('train results:')
