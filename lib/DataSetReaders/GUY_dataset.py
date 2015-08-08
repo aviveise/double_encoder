@@ -16,7 +16,7 @@ class GUYDataSet(DatasetBase):
 
     def __init__(self, data_set_parameters):
         super(GUYDataSet, self).__init__(data_set_parameters)
-        self._full = bool(int(data_set_parameters.get('path', 0)))
+        self._full = bool(int(data_set_parameters.get('full', 0)))
         self.reduce_test = 5
 
     def build_dataset(self):
