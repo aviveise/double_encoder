@@ -15,8 +15,8 @@ class GUYDataSet(DatasetBase):
     __metaclass__ = ContainerRegisterMetaClass
 
     def __init__(self, data_set_parameters):
-        super(GUYDataSet, self).__init__(data_set_parameters)
         self._full = bool(int(data_set_parameters.get('full', 0)))
+        super(GUYDataSet, self).__init__(data_set_parameters)
         self.reduce_test = 5
 
     def build_dataset(self):
