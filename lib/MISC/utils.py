@@ -541,10 +541,10 @@ def complete_rank(x, y, reduce_x=0):
 
     describe_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)[:, ::-1]
     describe_y_ranks = numpy.array([numpy.where(numpy.in1d(row, numpy.where(y_x_mapping == index)[0]))[0]
-                                    for index, row in enumerate(describe_y_sorted_neighbs)])
+                                    for index, row in enumerate(describe_y_sorted_neighbs)]).min(axis=0)
 
     for idx, recall in enumerate(recall_n_vals):
-        describe_x_recall[idx] = numpy.sum(describe_y_ranks.min(axis=0) <= recall)
+        describe_x_recall[idx] = numpy.sum(describe_y_ranks <= recall)
 
     describe_x_recall = 100 * describe_x_recall / num_X_samples
 

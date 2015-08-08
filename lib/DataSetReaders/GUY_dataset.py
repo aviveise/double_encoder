@@ -76,5 +76,5 @@ class GUYDataSet(DatasetBase):
             # self.testset[0][i, :] = CNN_output[int(test_image_idx[i]) - 1]
             # self.testset[1][i, :] = feature_vectors[numpy.where(images_sent_mapping == test_image_idx[i])[0][0]]
 
-            self.testset[0][:, i] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
-            self.testset[1][:, i] = feature_vectors[int(test_sen_idx[i]) - 1]
+            self.testset[0][i, :] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
+            self.testset[1][i, :] = feature_vectors[int(test_sen_idx[i]) - 1]
