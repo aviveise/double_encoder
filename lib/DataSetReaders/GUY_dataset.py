@@ -16,6 +16,7 @@ class GUYDataSet(DatasetBase):
 
     def __init__(self, data_set_parameters):
         super(GUYDataSet, self).__init__(data_set_parameters)
+        self.reduce_x = 5
 
     def build_dataset(self):
 
@@ -34,11 +35,11 @@ class GUYDataSet(DatasetBase):
         validation_image_idx = idx_mat['dev_images_I']
 
         test_sen_idx = idx_mat['tst_sent_I']
-        test_image_idx = idx_mat['tst_images_I']
+        #test_image_idx = idx_mat['tst_images_I']
 
         train_size = min(training_image_idx.shape[0], 100000)
         dev_size = min(validation_image_idx.shape[0], 2500)
-        test_size = test_image_idx.shape[0]
+        test_size = test_sen_idx.shape[0]
 
         self.trainset = [numpy.ndarray((train_size, CNN_output.shape[1]), dtype=config.floatX),
                          numpy.ndarray((train_size, feature_vectors[0].shape[0]), dtype=config.floatX)]
@@ -72,8 +73,8 @@ class GUYDataSet(DatasetBase):
 
         for i in range(test_size):
 
-            self.testset[0][i, :] = CNN_output[int(test_image_idx[i]) - 1]
-            self.testset[1][i, :] = feature_vectors[numpy.where(images_sent_mapping == test_image_idx[i])[0][0]]
+            # self.testset[0][i, :] = CNN_output[int(test_image_idx[i]) - 1]
+            # self.testset[1][i, :] = feature_vectors[numpy.where(images_sent_mapping == test_image_idx[i])[0][0]]
 
-           #self.testset[0][:, i] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
-           #self.testset[1][:, i] = feature_vectors[int(test_sen_idx[i]) - 1]
+            self.testset[0][:, i] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
+            self.testset[1][:, i] = feature_vectors[int(test_sen_idx[i]) - 1]

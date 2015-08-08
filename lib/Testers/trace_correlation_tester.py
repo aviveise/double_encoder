@@ -14,12 +14,13 @@ from MISC.utils import calculate_mardia, calculate_reconstruction_error, match_e
 
 
 class TraceCorrelationTester(TesterBase):
-    def __init__(self, test_set_x, test_set_y, top=50):
+    def __init__(self, test_set_x, test_set_y, top=50, reduce_x=0):
         super(TraceCorrelationTester, self).__init__(test_set_x, test_set_y)
 
+        self._reduce_x = reduce_x
         self.top = top
 
-    def _calculate_metric(self, x, y, transformer, print_row):
+    def _calculate_metric(self, x, y, transformer, print_row, reduce_x=0):
 
         tickFrequency = cv2.getTickFrequency()
 
@@ -32,7 +33,7 @@ class TraceCorrelationTester(TesterBase):
         loss = calculate_reconstruction_error(x, y)
         matches = match_error(x, y, self._visualize)
 
-        search_recall, describe_recall = complete_rank(x, y)
+        search_recall, describe_recall = complete_rank(x, y, self._reduce_x)
 
         start_tick = cv2.getTickCount()
         if self.top == 0:

@@ -189,7 +189,7 @@ def normalize(M):
 
 
 def scale_cols(M):
-    #scaler = preprocessing.MinMaxScaler(feature_range=(-1, 1)).fit(M)
+    # scaler = preprocessing.MinMaxScaler(feature_range=(-1, 1)).fit(M)
     scaler = preprocessing.StandardScaler().fit(M)
     return scaler.transform(M), scaler
 
@@ -421,12 +421,11 @@ def calculate_square(x):
 
 
 def match_error(x, y, visualize):
-
     x_c = center(x)[0]
     y_c = center(y)[0]
 
-    x_n = preprocessing.normalize(x_c,axis=1)
-    y_n = preprocessing.normalize(y_c,axis=1)
+    x_n = preprocessing.normalize(x_c, axis=1)
+    y_n = preprocessing.normalize(y_c, axis=1)
 
     sym = numpy.dot(x_n, y_n.T)
 
@@ -507,43 +506,49 @@ def calculate_reconstruction_error(x, y):
     return numpy.mean(((x - y) ** 2).sum(axis=1))
 
 
-def complete_rank(x, y):
-
+def complete_rank(x, y, reduce_x=0):
     x_c = center(x)[0]
     y_c = center(y)[0]
 
-    x_n = preprocessing.normalize(x_c,axis=1)
-    y_n = preprocessing.normalize(y_c,axis=1)
-
-    y_x_sim_matrix = numpy.dot(y_n, x_n.T)
+    x_n = preprocessing.normalize(x_c, axis=1)
+    y_n = preprocessing.normalize(y_c, axis=1)
 
     num_X_samples = x.shape[0]
     num_Y_samples = y.shape[0]
 
+    if reduce_x:
+        x_n = x_n[0:x_n.shape[0]:reduce_x, :]
+        y_x_mapping = numpy.repeat(numpy.arange(x_n.shape[0]), reduce_x)
+    else:
+        y_x_mapping = numpy.arange(x_n.shape[0])
+
+    y_x_sim_matrix = numpy.dot(x_n, y_n.T)
+
     recall_n_vals = [1, 5, 10]
     num_of_recall_n_vals = len(recall_n_vals)
 
-    y_search_recall = numpy.zeros((num_of_recall_n_vals, 1))
-    describe_y_recall = numpy.zeros((num_of_recall_n_vals, 1))
+    x_search_recall = numpy.zeros((num_of_recall_n_vals, 1))
+    describe_x_recall = numpy.zeros((num_of_recall_n_vals, 1))
 
-    y_search_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=0)[::-1, :]
-    y_search_ranks = numpy.array([numpy.where(col == index)[0] for index, col in enumerate(y_search_sorted_neighbs.T)])
+    x_search_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=0)[::-1, :]
+    x_search_ranks = numpy.array(
+        [numpy.where(col == y_x_mapping[index])[0] for index, col in enumerate(x_search_sorted_neighbs.T)])
 
     for idx, recall in enumerate(recall_n_vals):
-        y_search_recall[idx] = numpy.sum(y_search_ranks <= recall)
+        x_search_recall[idx] = numpy.sum(x_search_ranks <= recall)
 
-    y_search_recall = 100 * y_search_recall / num_X_samples
+    x_search_recall = 100 * x_search_recall / num_Y_samples
 
     describe_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)[:, ::-1]
-    describe_y_ranks = numpy.array([numpy.where(row == index)[0]
+    describe_y_ranks = numpy.array([numpy.where(numpy.in1d(row, numpy.where(y_x_mapping == index)[0]))[0]
                                     for index, row in enumerate(describe_y_sorted_neighbs)])
 
     for idx, recall in enumerate(recall_n_vals):
-        describe_y_recall[idx] = numpy.sum(describe_y_ranks <= recall)
+        describe_x_recall[idx] = numpy.sum(describe_y_ranks.min(axis=0) <= recall)
 
-    describe_y_recall = 100 * describe_y_recall / num_Y_samples
+    describe_x_recall = 100 * describe_x_recall / num_X_samples
 
-    return y_search_recall, describe_y_recall
+    return x_search_recall, describe_x_recall
 
 
 def visualize_correlation_matrix(mat, name):

@@ -28,6 +28,7 @@ class DatasetBase(object):
         self.testset = None
         self.tuning = None
         self.negatives = None
+        self.reduce_x = 0
 
         scale = bool(int(data_set_parameters['scale']))
         whiten = bool(int(data_set_parameters['whiten']))

@@ -14,6 +14,7 @@ class TesterBase(object):
         self._x = test_set_x
         self._y = test_set_y
         self._visualize = visualize
+        self._reduce_x = 0
 
         self._metrics = {}
 
@@ -43,7 +44,10 @@ class TesterBase(object):
             row_hidden = ["layer {0} - hidden".format(index)]
 
             #calculation correlation between hidden values
-            correlation_temp_hidden, metrics = self._calculate_metric(x_hid, y_hid, transformer, row_hidden)
+            correlation_temp_hidden, metrics = self._calculate_metric(x_hid,
+                                                                      y_hid,
+                                                                      transformer,
+                                                                      row_hidden)
 
             correlations.append(correlation_temp_hidden)
 

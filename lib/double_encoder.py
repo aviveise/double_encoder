@@ -113,7 +113,7 @@ class DoubleEncoder(object):
         OutputLog().write('test results:')
         correlations, trace_correlation, var, x_test, y_test, test_best_layer = TraceCorrelationTester(
             data_set.testset[0],
-            data_set.testset[1], top).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
+            data_set.testset[1], top, data_set.reduce_x).test(DoubleEncoderTransformer(stacked_double_encoder, 0),
                                            configuration.hyper_parameters)
 
         # OutputLog().write('train results:')
