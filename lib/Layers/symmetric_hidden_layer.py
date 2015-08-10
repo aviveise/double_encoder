@@ -26,7 +26,7 @@ class SymmetricHiddenLayer(object):
                  bias_primeX=None,
                  bias_primeY=None,
                  normalize=False,
-                 drop=None,
+                 drop='dropout',
                  k=750,
                  epsilon=0,
                  moving_average=None,
