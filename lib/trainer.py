@@ -138,7 +138,7 @@ class Trainer(object):
                     train_set_y[indices_positive[index * hyper_parameters.batch_size:
                     (index + 1) * hyper_parameters.batch_size], :], borrow=True)
 
-                output = model(index % 2)
+                output = model()
                 loss_backward += output[0]
                 loss_forward += output[1]
 
@@ -267,7 +267,7 @@ class Trainer(object):
                      loss='L2',
                      last_layer=0):
 
-        loss_decision = Tensor.iscalar()
+        #loss_decision = Tensor.iscalar()
 
         # Retrieve the reconstructions of x and y
         x_tilde = symmetric_double_encoder.reconstruct_x()
@@ -289,7 +289,8 @@ class Trainer(object):
             loss_forward = Tensor.mean(
                 ((var_y - y_tilde) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
-            loss = ifelse(loss_decision, loss_forward, loss_backward)#loss_backward + loss_forward
+            #loss = ifelse(loss_decision, loss_forward, loss_backward)#loss_backward + loss_forward
+            loss = loss_forward + loss_backward
 
         elif loss == 'cosine':
 
