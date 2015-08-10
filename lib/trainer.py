@@ -440,7 +440,7 @@ class Trainer(object):
         # output : both losses
         # updates : gradient decent updates for all params
         # givens : replacing inputs for each iteration
-        model = function(inputs=[loss_decision  ],
+        model = function(inputs=[],
                          outputs=[Tensor.mean(loss_backward),
                                   Tensor.mean(loss_forward),
                                   Tensor.mean(variance_hidden_x),
