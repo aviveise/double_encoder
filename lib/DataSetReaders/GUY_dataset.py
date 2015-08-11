@@ -19,6 +19,9 @@ class GUYDataSet(DatasetBase):
         super(GUYDataSet, self).__init__(data_set_parameters)
         self.reduce_test = 5
 
+        if self._full:
+            self.reduce_val = 5
+
     def build_dataset(self):
 
         CNN_mat = h5py.File(os.path.join(self.dataset_path, 'visual_dataset_info.mat'), 'r')
