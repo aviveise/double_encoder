@@ -85,7 +85,7 @@ class Trainer(object):
 
         symmetric_double_encoder.set_eval(False)
 
-        best_correlations = []
+        max_best_correlation = 0
 
         correlations = []
 
@@ -197,26 +197,20 @@ class Trainer(object):
 
                 if decay:
                     if len(hyper_parameters.decay) == 0:
-                        if len(best_correlations) == 0:
-                            best_correlations = correlations
+                        if max_best_correlation == 0:
+                            max_best_correlation = max(correlations)
                         else:
-                            for best_correlation, current_correlation in zip(best_correlations, correlations):
-                                if current_correlation < best_correlation:
-                                    OutputLog().write('Decaying learning rate')
-                                    hyper_parameters.learning_rate *= hyper_parameters.decay_factor
-                                    break
-
-                            new_correlations = []
-                            for best_correlation, current_correlation in zip(best_correlations, correlations):
-                                if current_correlation < best_correlation:
-                                    new_correlations.append(best_correlation)
-                                else:
-                                    new_correlations.append(current_correlation)
-                            best_correlations = new_correlations
+                            if max(correlations) < max_best_correlation:
+                                OutputLog().write('Decaying learning rate')
+                                hyper_parameters.learning_rate *= hyper_parameters.decay_factor
+                            else:
+                                max_best_correlation = max(correlations)
                     else:
                         if epoch in hyper_parameters.decay:
                             OutputLog().write('Decaying learning rate')
                             hyper_parameters.learning_rate *= hyper_parameters.decay_factor
+                            symmetric_double_encoder.export_encoder(OutputLog().output_path,'epoch_{0}'.format(epoch))
+
 
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
                                                                           loss_backward / n_training_batches,
