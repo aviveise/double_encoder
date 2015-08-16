@@ -111,6 +111,9 @@ class Configuration(object):
     def _listify(self, string):
         string = string.strip()
 
+        if string == 'None':
+            return None
+
         # Making sure we are truly working on a string the symbolizes a list.
         if string[0] != '[' or string[-1] != ']':
             raise Exception('Conversion to list failed of value {0}'.format(string))

@@ -85,7 +85,7 @@ class Trainer(object):
 
         symmetric_double_encoder.set_eval(False)
 
-        max_best_correlation = 0
+        last_correlation = 0
 
         correlations = []
 
@@ -138,7 +138,7 @@ class Trainer(object):
                     train_set_y[indices_positive[index * hyper_parameters.batch_size:
                     (index + 1) * hyper_parameters.batch_size], :], borrow=True)
 
-                output = model()
+                output = model(index + 1)
                 loss_backward += output[0]
                 loss_forward += output[1]
 
@@ -150,7 +150,7 @@ class Trainer(object):
                 current_time = cv2.getTickCount()
 
                 regularizations = [regularization_method for regularization_method in regularization_methods if not
-                                   regularization_method.weight == 0]
+                regularization_method.weight == 0]
 
                 string_output = ''
 
@@ -196,21 +196,20 @@ class Trainer(object):
                     sys.exit(0)
 
                 if decay:
-                    if len(hyper_parameters.decay) == 0:
-                        if max_best_correlation == 0:
-                            max_best_correlation = max(correlations)
+                    if not hyper_parameters.decay:
+                        if last_correlation == 0:
+                            last_correlation = max(correlations)
                         else:
-                            if max(correlations) < max_best_correlation:
+                            if max(correlations) < last_correlation:
                                 OutputLog().write('Decaying learning rate')
                                 hyper_parameters.learning_rate *= hyper_parameters.decay_factor
-                            else:
-                                max_best_correlation = max(correlations)
+
+                            last_correlation = max(correlations)
                     else:
                         if epoch in hyper_parameters.decay:
                             OutputLog().write('Decaying learning rate')
                             hyper_parameters.learning_rate *= hyper_parameters.decay_factor
-                            symmetric_double_encoder.export_encoder(OutputLog().output_path,'epoch_{0}'.format(epoch))
-
+                            symmetric_double_encoder.export_encoder(OutputLog().output_path, 'epoch_{0}'.format(epoch))
 
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
                                                                           loss_backward / n_training_batches,
@@ -256,12 +255,15 @@ class Trainer(object):
                      moving_averages,
                      number_of_batches,
                      strategy='SGDCayley',
+                     bias_1=0.9,
+                     bias_2=0.999,
                      rho=0.5,
                      eps=1e-8,
                      loss='L2',
                      last_layer=0):
 
-        #loss_decision = Tensor.iscalar()
+        # loss_decision = Tensor.iscalar()
+        t = Tensor.dscalar()
 
         # Retrieve the reconstructions of x and y
         x_tilde = symmetric_double_encoder.reconstruct_x()
@@ -283,7 +285,7 @@ class Trainer(object):
             loss_forward = Tensor.mean(
                 ((var_y - y_tilde) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
-            #loss = ifelse(loss_decision, loss_forward, loss_backward)#loss_backward + loss_forward
+            # loss = ifelse(loss_decision, loss_forward, loss_backward)#loss_backward + loss_forward
             loss = loss_forward + loss_backward
 
         elif loss == 'cosine':
@@ -391,7 +393,20 @@ class Trainer(object):
                 updates[param] = update
                 updates[accumulated_gradient] = agrad
                 updates[accumulated_delta] = rho * accumulated_delta + (1 - rho) * (delta ** 2)
+        elif strategy == 'adam':
+            updates = OrderedDict()
+            zipped = zip(params, gradients, model_updates, model_deltas)
+            for ndx, (param, gradient, accumulated_gradient, accumulated_delta) in enumerate(zipped):
+                moment_1 = bias_1 * accumulated_gradient + (1 - bias_1) * gradient
+                moment_2 = bias_2 * accumulated_delta + (1 - bias_2) * gradient ** 2
+                corrected_moment_1 = moment_1 / (1 - bias_1 ** t)
+                corrected_moment_2 = moment_2 / (1 - bias_2 ** t)
+                g = corrected_moment_1 / (Tensor.sqrt(corrected_moment_2 + eps))
+                update, delta = Trainer._calc_update(learning_rate, g, param, last_layer=last_layer)
 
+                updates[param] = update
+                updates[accumulated_gradient] = moment_1
+                updates[accumulated_delta] = moment_2
         elif strategy == 'SGDCayley':
             updates = []
             for param, gradient in zip(params, gradients):
@@ -434,7 +449,7 @@ class Trainer(object):
         # output : both losses
         # updates : gradient decent updates for all params
         # givens : replacing inputs for each iteration
-        model = function(inputs=[],
+        model = function(inputs=[t],
                          outputs=[Tensor.mean(loss_backward),
                                   Tensor.mean(loss_forward),
                                   Tensor.mean(variance_hidden_x),
