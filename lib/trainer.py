@@ -406,7 +406,7 @@ class Trainer(object):
                 g = corrected_moment_1 / (Tensor.sqrt(corrected_moment_2 + eps))
                 update, delta = Trainer._calc_update(learning_rate, g, param, last_layer=last_layer)
 
-                updates[param] = update
+                updates[param] = Tensor.cast(update, theano.config.floatX)
                 updates[accumulated_gradient] = moment_1
                 updates[accumulated_delta] = moment_2
         elif strategy == 'SGDCayley':
