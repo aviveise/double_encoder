@@ -395,18 +395,19 @@ class Trainer(object):
                 updates[param] = update
                 updates[accumulated_gradient] = agrad
                 updates[accumulated_delta] = rho * accumulated_delta + (1 - rho) * (delta ** 2)
+
         elif strategy == 'adam':
             updates = OrderedDict()
             zipped = zip(params, gradients, model_updates, model_deltas)
             for ndx, (param, gradient, accumulated_gradient, accumulated_delta) in enumerate(zipped):
                 moment_1 = bias_1 * accumulated_gradient + (1 - bias_1) * gradient
                 moment_2 = bias_2 * accumulated_delta + (1 - bias_2) * gradient ** 2
-                corrected_moment_1 = moment_1 / (1 - bias_1 ** t)
-                corrected_moment_2 = moment_2 / (1 - bias_2 ** t)
+                corrected_moment_1 = moment_1 / Tensor.cast((1 - bias_1 ** t), theano.config.floatX)
+                corrected_moment_2 = moment_2 / Tensor.cast((1 - bias_2 ** t), theano.config.floatX)
                 g = corrected_moment_1 / (Tensor.sqrt(corrected_moment_2 + eps))
                 update, delta = Trainer._calc_update(learning_rate, g, param, last_layer=last_layer)
 
-                updates[param] = Tensor.cast(update, theano.config.floatX)
+                updates[param] = update
                 updates[accumulated_gradient] = moment_1
                 updates[accumulated_delta] = moment_2
         elif strategy == 'SGDCayley':
