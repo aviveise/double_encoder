@@ -113,6 +113,8 @@ class Trainer(object):
                                          moving_averages,
                                          n_training_batches,
                                          hyper_parameters.training_strategy,
+                                         0.9,
+                                         0.999,
                                          hyper_parameters.rho,
                                          eps,
                                          'L2',
