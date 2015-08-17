@@ -30,7 +30,7 @@ class SymmetricHiddenLayer(object):
                  k=750,
                  epsilon=0,
                  moving_average=None,
-                 dropout_prob=0.25):
+                 dropout_prob=0.5):
 
         self._dropout = drop
         self._drop_probability = dropout_prob
