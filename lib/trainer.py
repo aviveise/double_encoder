@@ -69,7 +69,7 @@ class Trainer(object):
               validation_set_x=None,
               validation_set_y=None,
               moving_averages=None,
-              decay=True,
+              decay=False,
               reduce_val=0):
 
         OutputLog().write('Using Decay = {0}'.format(decay))
@@ -197,7 +197,7 @@ class Trainer(object):
                 if math.isnan(var):
                     sys.exit(0)
 
-                if decay:
+                if hyper_parameters.decay_factor > 0:
                     if not hyper_parameters.decay:
                         if last_correlation == 0:
                             last_correlation = max(correlations)
@@ -212,6 +212,11 @@ class Trainer(object):
                             OutputLog().write('Decaying learning rate')
                             hyper_parameters.learning_rate *= hyper_parameters.decay_factor
                             symmetric_double_encoder.export_encoder(OutputLog().output_path, 'epoch_{0}'.format(epoch))
+                else:
+                    if last_correlation == 0:
+                            last_correlation = max(correlations)
+                    elif abs(last_correlation - max(correlations)) < 0.5:
+                        break
 
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
                                                                           loss_backward / n_training_batches,
@@ -452,13 +457,14 @@ class Trainer(object):
         # output : both losses
         # updates : gradient decent updates for all params
         # givens : replacing inputs for each iteration
+
         model = function(inputs=[t],
                          outputs=[Tensor.mean(loss_backward),
                                   Tensor.mean(loss_forward),
                                   Tensor.mean(variance_hidden_x),
                                   Tensor.mean(variance_hidden_y),
                                   x_hidden,
-                                  y_hidden, update_mean, update_var] + regularizations,
+                                  y_hidden, update_mean, update_var] + regularizations + [t],
                          updates=updates)
 
         return model
