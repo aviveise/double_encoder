@@ -8,6 +8,9 @@ __author__ = 'avive'
 
 
 class DoubleEncoderTransform():
+    """
+    This class transforms two nxs matrices to correlated forms
+    """
 
     @staticmethod
     def scaled_tanh(x):
@@ -29,7 +32,11 @@ class DoubleEncoderTransform():
             return DoubleEncoderTransform.scaled_tanh(numpy.dot(x, self._W) + self._bias)
 
     def __init__(self, network_path, layer_num=-1):
-
+        """
+        Constructor which imports the network
+        :param network_path: path to a .mat file of the network
+        :param layer_num: if -1 takes the middle layers otherwise takes the requested layer
+        """
         layers_x, layers_y = self._import_encoder(network_path)
 
         self._layers_x = layers_x
@@ -41,7 +48,12 @@ class DoubleEncoderTransform():
         self._layer_num = layer_num
 
     def transform(self, x, y):
-
+        """
+        Transforms x,y to correlated forms
+        :param x: matrix of size NxS where N-number of samples and S-number of features
+        :param y: matrix of size NxS where N-number of samples and S-number of features
+        :returns a tuple (x',y') of the transformed x and y
+        """
         current_x = x
         current_y = y
 
