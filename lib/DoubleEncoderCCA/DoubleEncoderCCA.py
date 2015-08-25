@@ -6,14 +6,18 @@ import sys
 
 __author__ = 'avive'
 
+
 class DoubleEncoderTransform():
 
-    scaled_tanh = lambda x: 1.7159 * numpy.tanh(0.66 * x)
+    @staticmethod
+    def scaled_tanh(x):
+        return 1.7159 * numpy.tanh(0.66 * x)
 
     class encodeLayer():
-        def init(self, W, bias):
+        def __init__(self, W, bias):
             self._W = W
             self._bias = bias
+
 
         def transform(self, x):
             """
@@ -32,7 +36,7 @@ class DoubleEncoderTransform():
         self._layers_y = layers_y
 
         if layer_num == -1:
-            layer_num = floor(len(self._layers_x) / 2.)
+            layer_num = int(floor(len(self._layers_x) / 2.))
 
         self._layer_num = layer_num
 
@@ -41,14 +45,14 @@ class DoubleEncoderTransform():
         current_x = x
         current_y = y
 
-        for index, layer_x in self._layers_x:
+        for index, layer_x in enumerate(self._layers_x):
             current_x = layer_x.transform(current_x)
 
             if index == self._layer_num:
                 break
 
-        for index, layer_y in self._layers_y:
-            current_y = layer_x.transform(current_y)
+        for index, layer_y in enumerate(reversed(self._layers_y)):
+            current_y = layer_y.transform(current_y)
 
             if index == (len(self._layers_y) - self._layer_num - 1):
                 break
@@ -70,20 +74,26 @@ class DoubleEncoderTransform():
 
             layer_name = 'layer' + str(i)
 
-            Wx = encoder['Wx_' + layer_name],
+            Wx = encoder['Wx_' + layer_name]
             bias = encoder['bias_' + layer_name]
 
             layer_x = DoubleEncoderTransform.encodeLayer(Wx, bias)
+            layers_x.append(layer_x)
+
+
+        for i in range(layer_number):
+
+            layer_name = 'layer' + str(i)
 
             wy_name = 'Wy' + '_' + layer_name
-            Wy = Wx.T
 
             if wy_name in encoder:
                 Wy = encoder[wy_name]
+            else:
+                Wy = layers_x[i + 1]._W.T
 
-            layer_y = DoubleEncoderTransform.encodeLayer(Wy, bias)
+            layer_y = DoubleEncoderTransform.encodeLayer(Wy, layers_x[i]._bias)
 
-            layers_x.append(layer_x)
             layers_y.append(layer_y)
 
         return layers_x, layers_y
