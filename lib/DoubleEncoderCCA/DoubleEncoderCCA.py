@@ -47,7 +47,7 @@ class DoubleEncoderTransform():
 
         self._layer_num = layer_num
 
-    def transform(self, x, y):
+    def transform_x(self, x):
         """
         Transforms x,y to correlated forms
         :param x: matrix of size NxS where N-number of samples and S-number of features
@@ -55,7 +55,6 @@ class DoubleEncoderTransform():
         :returns a tuple (x',y') of the transformed x and y
         """
         current_x = x
-        current_y = y
 
         for index, layer_x in enumerate(self._layers_x):
             current_x = layer_x.transform(current_x)
@@ -63,13 +62,19 @@ class DoubleEncoderTransform():
             if index == self._layer_num:
                 break
 
+        return current_x
+
+    def transform_y(self, y):
+
+        current_y = y
+
         for index, layer_y in enumerate(reversed(self._layers_y)):
             current_y = layer_y.transform(current_y)
 
             if index == (len(self._layers_y) - self._layer_num - 1):
                 break
 
-        return current_x, current_y
+        return current_y
 
     def _import_encoder(self, file_name):
 
