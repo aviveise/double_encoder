@@ -78,6 +78,8 @@ class Trainer(object):
         n_training_batches = int(train_set_x.shape[0] / hyper_parameters.batch_size)
         random_stream = RandomState()
 
+        early_stop_count=0
+
         model_updates = [shared(p.get_value() * 0) for p in params]
         model_deltas = [shared(p.get_value() * 0) for p in params]
 
@@ -197,12 +199,15 @@ class Trainer(object):
                 if math.isnan(var):
                     sys.exit(0)
 
+                if last_correlation == max(correlations):
+                    early_stop_count += 1
+
                 if hyper_parameters.decay_factor > 0:
                     if not hyper_parameters.decay:
                         if last_correlation == 0:
                             last_correlation = max(correlations)
                         else:
-                            if max(correlations) < last_correlation:
+                            if last_correlation - max(correlations) > 0.1:
                                 OutputLog().write('Decaying learning rate')
                                 hyper_parameters.learning_rate *= hyper_parameters.decay_factor
 
@@ -217,6 +222,11 @@ class Trainer(object):
                             last_correlation = max(correlations)
                     elif abs(last_correlation - max(correlations)) < 0.5:
                         break
+
+            if early_stop_count == 3:
+                break
+
+
 
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
                                                                           loss_backward / n_training_batches,
