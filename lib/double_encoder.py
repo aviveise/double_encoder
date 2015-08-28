@@ -72,6 +72,8 @@ class DoubleEncoder(object):
 
         start = clock()
 
+        print_verbose = True if configuration.output_parameters['verbosity'] == 'debug' else False
+
         if train:
 
             try:
@@ -82,7 +84,7 @@ class DoubleEncoder(object):
                                                                  hyper_parameters=configuration.hyper_parameters,
                                                                  regularization_methods=regularization_methods.values(),
                                                                  activation_method=None,
-                                                                 print_verbose=True,
+                                                                 print_verbose=print_verbose,
                                                                  validation_set_x=data_set.tuning[0],
                                                                  validation_set_y=data_set.tuning[1],
                                                                  dir_name=dir_name,
