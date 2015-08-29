@@ -34,3 +34,4 @@ class HiddenL2Regularization(RegularizationBase):
 
     def print_regularization(self, output_stream):
         super(HiddenL2Regularization, self).print_regularization(output_stream)
+        output_stream.write('layer: %f' % self._layer)

@@ -7,6 +7,7 @@ import hickle
 import scipy
 import theano
 import numpy
+import pickle
 
 from sklearn.decomposition import PCA
 from MISC.utils import scale_cols
@@ -73,28 +74,11 @@ class DatasetBase(object):
             self.tuning = scaler_x.transform(self.tuning[0]), scaler_y.transform(self.tuning[1])
             self.testset = scaler_x.transform(self.testset[0]), scaler_y.transform(self.testset[1])
 
-        # region deprecated
-        # if center:
-        #     train_set_x, mean_x = center_function(self.trainset[0])
-        #     train_set_y, mean_y = center_function(self.trainset[1])
-        #
-        #     self.trainset = train_set_x, train_set_y
-        #     self.tuning = self.tuning[0] - mean_x * numpy.ones([1, self.tuning[0].shape[1]], dtype=theano.config.floatX), \
-        #                   self.tuning[1] - mean_y * numpy.ones([1, self.tuning[1].shape[1]], dtype=theano.config.floatX)
-        #
-        #     self.testset = self.testset[0] - mean_x * numpy.ones([1, self.testset[0].shape[1]], dtype=theano.config.floatX),\
-        #                    self.testset[1] - mean_y * numpy.ones([1, self.testset[1].shape[1]], dtype=theano.config.floatX)
-        # if normalize:
-        #     train_set_x, norm_x = normalize_function(self.trainset[0])
-        #     train_set_y, norm_y = normalize_function(self.trainset[1])
-        #
-        #     self.trainset = train_set_x, train_set_y
-        #     self.tuning = self.tuning[0] / norm_x * numpy.ones([1, self.tuning[0].shape[1]], dtype=theano.config.floatX), \
-        #                   self.tuning[1] / norm_y * numpy.ones([1, self.tuning[1].shape[1]], dtype=theano.config.floatX)
-        #
-        #     self.testset = self.testset[0] / norm_x * numpy.ones([1, self.testset[0].shape[1]], dtype=theano.config.floatX),\
-        #                    self.testset[1] / norm_y * numpy.ones([1, self.testset[1].shape[1]], dtype=theano.config.floatX)
-        # endregion
+            scaler_x_path = os.path.join(path,'scaler_x.p')
+            scaler_y_path = os.path.join(path,'scaler_y.p')
+
+            pickle.dump(scaler_x, file(scaler_x_path, 'w'))
+            pickle.dump(scaler_y, file(scaler_y_path, 'w'))
 
         if not pca[0] == 0 and not pca[1] == 0:
             pca_dim1 = PCA(pca[0], whiten)

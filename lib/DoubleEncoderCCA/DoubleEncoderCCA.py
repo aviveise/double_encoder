@@ -31,7 +31,7 @@ class DoubleEncoderTransform():
             """
             return DoubleEncoderTransform.scaled_tanh(numpy.dot(x, self._W) + self._bias)
 
-    def __init__(self, network_path, layer_num=-1):
+    def __init__(self, network_path, scaler_x_path=None, scaler_y_path=None, layer_num=-1):
         """
         Constructor which imports the network
         :param network_path: path to a .mat file of the network
@@ -46,6 +46,13 @@ class DoubleEncoderTransform():
             layer_num = int(floor(len(self._layers_x) / 2.))
 
         self._layer_num = layer_num
+        self._scaler_x = None
+        self._scaler_y = None
+
+        if scaler_x_path and scaler_y_path:
+            self._scaler_x = pickle.load(file(scaler_x_path, 'r'))
+            self._scaler_y = pickle.load(file(scaler_y_path, 'r'))
+
 
     def transform_x(self, x):
         """
@@ -55,6 +62,9 @@ class DoubleEncoderTransform():
         :returns a tuple (x',y') of the transformed x and y
         """
         current_x = x
+
+        if self._scaler_x:
+            current_x = self._scaler_x.transform(x)
 
         for index, layer_x in enumerate(self._layers_x):
             current_x = layer_x.transform(current_x)
@@ -67,6 +77,9 @@ class DoubleEncoderTransform():
     def transform_y(self, y):
 
         current_y = y
+
+        if self._scaler_y:
+            current_y = self._scaler_y.transform(y)
 
         for index, layer_y in enumerate(reversed(self._layers_y)):
             current_y = layer_y.transform(current_y)
