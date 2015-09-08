@@ -52,5 +52,5 @@ class ARIKDataSet(DatasetBase):
 
         if not self.testset[0].shape[0] == self.testset[1].shape[0]:
             size = min(self.testset[1].shape[0], self.testset[0].shape[0])
-            self.testset[0] = self.testset[0][size, :]
-            self.testset[1] = self.testset[1][size, :]
+            self.testset[0] = self.testset[0][0:size, :]
+            self.testset[1] = self.testset[1][0:size, :]
