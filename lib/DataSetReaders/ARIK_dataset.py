@@ -49,3 +49,8 @@ class ARIKDataSet(DatasetBase):
         self.tuning = [numpy.cast[theano.config.floatX](A_tuning_set), numpy.cast[theano.config.floatX](B_tuning_set)]
 
         self.testset = [numpy.cast[theano.config.floatX](type_A_test), numpy.cast[theano.config.floatX](type_B_test)]
+
+        if not self.testset[0].shape[0] == self.testset[1].shape[0]:
+            size = min(self.testset[1].shape[0], self.testset[0].shape[0])
+            self.testset[0] = self.testset[0][size, :]
+            self.testset[1] = self.testset[1][size, :]
