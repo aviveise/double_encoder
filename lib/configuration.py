@@ -84,6 +84,12 @@ class Configuration(object):
         elif method_string == 'relu2':
             return lambda x: Tensor.switch(Tensor.lt(x, -1), -1, x) * Tensor.switch(Tensor.gt(x, 1), 1, x) / x
 
+        elif method_string == 'leakyrelu':
+            return lambda x: x * (x > 0) + 0.01 * x * (x < 0)
+
+        elif method_string == 'shiftedrelu':
+            return lambda x: x * (x > -1)
+
         elif method_string == 'hard_sigmoid':
             return Tensor.nnet.hard_sigmoid
 
