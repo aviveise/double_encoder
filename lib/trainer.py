@@ -78,7 +78,7 @@ class Trainer(object):
         n_training_batches = int(train_set_x.shape[0] / hyper_parameters.batch_size)
         random_stream = RandomState()
 
-        early_stop_count=0
+        early_stop_count = 0
 
         model_updates = [shared(p.get_value() * 0) for p in params]
         model_deltas = [shared(p.get_value() * 0) for p in params]
@@ -98,9 +98,6 @@ class Trainer(object):
         # The training phase, for each epoch we train on every batch
         best_loss = 0
         for epoch in numpy.arange(hyper_parameters.epochs):
-
-            if hyper_parameters.decay and epoch in hyper_parameters.decay:
-                learning_rate *= hyper_parameters.decay_factor
 
             OutputLog().write('----------Starting Epoch ({0})-----------'.format(epoch), 'debug')
 
@@ -211,28 +208,28 @@ class Trainer(object):
                     else:
                         if last_correlation - max(correlations) > 0.1:
                             OutputLog().write('Decaying learning rate')
-                            hyper_parameters.learning_rate *= hyper_parameters.decay_factor
+                            learning_rate *= hyper_parameters.decay_factor
 
                         last_correlation = max(correlations)
                 else:
                     if epoch in hyper_parameters.decay:
                         OutputLog().write('Decaying learning rate')
-                        hyper_parameters.learning_rate *= hyper_parameters.decay_factor
+                        learning_rate *= hyper_parameters.decay_factor
                         symmetric_double_encoder.export_encoder(OutputLog().output_path, 'epoch_{0}'.format(epoch))
             else:
                 if last_correlation == 0:
-                        last_correlation = max(correlations)
+                    last_correlation = max(correlations)
                 elif abs(last_correlation - max(correlations)) < 0.5:
                     break
 
             if early_stop_count == 3:
                 break
 
-
-
-            OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f\n' % (epoch,
-                                                                          loss_backward / n_training_batches,
-                                                                          loss_forward / n_training_batches), 'debug')
+            OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f, learning_rate = %f\n' % (epoch,
+                                                                                              loss_backward / n_training_batches,
+                                                                                              loss_forward / n_training_batches,
+                                                                                              learning_rate
+                                                                                              ), 'debug')
 
         tester.saveResults(OutputLog().output_path)
 
@@ -305,7 +302,7 @@ class Trainer(object):
                 ((var_y - y_tilde) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
             # loss = ifelse(loss_decision, loss_forward, loss_backward)#loss_backward + loss_forward
-            loss = loss_forward + loss_backward
+            loss = (loss_forward + loss_backward)
 
         elif loss == 'cosine':
 
@@ -482,12 +479,13 @@ class Trainer(object):
         return model
 
     @staticmethod
-    def _add_moving_averages(moving_averages, updates, length):
+    def _add_moving_averages(moving_averages, updates, length, factor=0.1):
 
         params = list(itertools.chain(*[i[1] for i in moving_averages]))
         values = list(itertools.chain(*[i[0] for i in moving_averages]))
 
-        factor = 1.0 / length
+        if not factor:
+            factor = 1.0 / length
         for tensor, param in zip(values, params):
             updates[param] = (1.0 - factor) * param + factor * tensor
         return updates

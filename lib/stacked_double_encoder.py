@@ -211,6 +211,13 @@ class StackedDoubleEncoder(object):
 
         return list(params_set)
 
+    def getMovingAverages(self):
+        moving_average = []
+        for layer in self._symmetric_layers:
+            moving_average.append(layer.moving_average_x)
+            moving_average.append(layer.moving_average_y)
+        return moving_average
+
     def export_encoder(self, dir_name, suffix=''):
 
         output = {
@@ -260,11 +267,11 @@ class StackedDoubleEncoder(object):
 
             Wx = theano.shared(encoder['Wx_' + layer_name],
                                name='Wx_' + layer_name,
-                               borrow=True)
+                               borrow=False)
 
             bias = theano.shared(encoder['bias_' + layer_name].flatten(),
                                  name='bias_' + layer_name,
-                                 borrow=True)
+                                 borrow=False)
             #
             # bias_y = theano.shared(encoder['bias_y_' + layer_name].flatten(),
             #                        name='bias_y_' + layer_name,
@@ -272,11 +279,11 @@ class StackedDoubleEncoder(object):
 
             bias_x_prime = theano.shared(encoder['bias_x_prime_' + layer_name].flatten(),
                                          name='bias_x_prime_' + layer_name,
-                                         borrow=True)
+                                         borrow=False)
 
             bias_y_prime = theano.shared(encoder['bias_y_prime_' + layer_name].flatten(),
                                          name='bias_y_prime_' + layer_name,
-                                         borrow=True)
+                                         borrow=False)
 
             layer_size = Wx.get_value(borrow=True).shape[1]
 
@@ -289,10 +296,8 @@ class StackedDoubleEncoder(object):
 
             layer.update_x(x,
                            weights=Wx,
-                           bias_x=None,
+                           bias=bias,
                            bias_x_prime=bias_x_prime)
-
-            layer.bias = bias
 
             x = layer.output_forward_x
 
@@ -302,7 +307,7 @@ class StackedDoubleEncoder(object):
 
                 Wy = theano.shared(encoder[wy_name],
                                    name='Wy' + '_' + layer_name,
-                                   borrow=True)
+                                   borrow=False)
 
                 layer.update_y(y,
                                weights=Wy,
