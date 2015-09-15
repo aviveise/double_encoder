@@ -51,8 +51,6 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
             symmetric_double_encoder.import_encoder(import_path, hyper_parameters)
 
-        self._moving_average = []
-
         # In this phase we train the stacked encoder one layer at a time
         # once a layer was added, weights not belonging to the new layer are
         # not changed
@@ -78,6 +76,10 @@ class IterativeTrainingStrategy(TrainingStrategy):
             params.extend(symmetric_double_encoder[-1].y_params)
 
             if hyper_parameters.cascade_train:
+
+                for regularization in regularization_methods:
+                    regularization.set_layer(idx)
+
                 OutputLog().write('--------Starting Training Network-------')
                 Trainer.train(train_set_x=training_set_x,
                               train_set_y=training_set_y,
@@ -87,31 +89,36 @@ class IterativeTrainingStrategy(TrainingStrategy):
                               regularization_methods=regularization_methods,
                               print_verbose=print_verbose,
                               validation_set_x=validation_set_x,
-                              validation_set_y=validation_set_y,
-                              moving_averages=self._moving_average,
-                              reduce_val=reduce_val)
+                              validation_set_y=validation_set_y)
 
                 if dir_name is not None:
                     symmetric_double_encoder.export_encoder(OutputLog().output_path,
                                                             'layer_{0}'.format(len(symmetric_double_encoder) + 1))
 
-        if not hyper_parameters.cascade_train:
-            params = symmetric_double_encoder.getParams()
+        if hyper_parameters.cascade_train:
+            hyper_parameters.learning_rate *= 0.1
 
-            OutputLog().write('--------Starting Training Network-------')
-            Trainer.train(train_set_x=training_set_x,
-                          train_set_y=training_set_y,
-                          hyper_parameters=hyper_parameters,
-                          symmetric_double_encoder=symmetric_double_encoder,
-                          params=params,
-                          regularization_methods=regularization_methods,
-                          print_verbose=print_verbose,
-                          validation_set_x=validation_set_x,
-                          validation_set_y=validation_set_y)
+        for regularization in regularization_methods:
+            regularization.reset()
 
-            if dir_name is not None:
-                symmetric_double_encoder.export_encoder(OutputLog().output_path,
-                                                        'layer_{0}'.format(len(symmetric_double_encoder) + 1))
+        params = symmetric_double_encoder.getParams()
+        moving_averages = symmetric_double_encoder.getMovingAverages()
+
+        OutputLog().write('--------Starting Training Network-------')
+        Trainer.train(train_set_x=training_set_x,
+                      train_set_y=training_set_y,
+                      hyper_parameters=hyper_parameters,
+                      symmetric_double_encoder=symmetric_double_encoder,
+                      params=params,
+                      regularization_methods=regularization_methods,
+                      print_verbose=print_verbose,
+                      validation_set_x=validation_set_x,
+                      validation_set_y=validation_set_y,
+                      moving_averages=moving_averages)
+
+        if dir_name is not None:
+            symmetric_double_encoder.export_encoder(OutputLog().output_path,
+                                                    'layer_{0}'.format(len(symmetric_double_encoder) + 1))
 
         return symmetric_double_encoder
 
@@ -122,8 +129,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
         symmetric_layer = SymmetricHiddenLayer(hidden_layer_size=layer_size,
                                                name="layer" + str(layer_count),
                                                activation_hidden=activation_hidden,
-                                               activation_output=activation_output,
-                                               moving_average=self._moving_average)
+                                               activation_output=activation_output)
 
         symmetric_double_encoder.add_hidden_layer(symmetric_layer)
 

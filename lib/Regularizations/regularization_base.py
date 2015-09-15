@@ -21,6 +21,11 @@ class RegularizationBase(object):
     def compute(self, symmetric_double_encoder, params):
         return
 
+    def set_layer(self, layer):
+        pass
+
+    def reset(self):
+        pass
 
     def print_regularization(self, output_stream):
 

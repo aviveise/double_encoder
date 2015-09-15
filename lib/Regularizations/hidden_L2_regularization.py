@@ -11,6 +11,13 @@ class HiddenL2Regularization(RegularizationBase):
     def __init__(self, regularization_parameters):
         super(HiddenL2Regularization, self).__init__(regularization_parameters)
         self._layer = int(regularization_parameters['layer'])
+        self._layer_base = self._layer
+
+    def set_layer(self, layer):
+        self._layer = layer
+
+    def reset(self):
+        self._layer = self._layer_base
 
     def compute(self, symmetric_double_encoder, params):
 
