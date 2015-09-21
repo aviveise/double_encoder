@@ -119,8 +119,8 @@ class SymmetricHiddenLayer(object):
             if self.beta_x is None or self.gamma_x is None:
                 self.beta_x = theano.shared(numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX), name='beta_x' + '_' + self.name)
                 self.gamma_x = theano.shared(
-                    numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
-                    #numpy.cast[theano.config.floatX](numpy.random.uniform(-0.05, 0.05, self.hidden_layer_size)),
+                    #numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
+                    numpy.cast[theano.config.floatX](numpy.random.uniform(0.95, 1.05, self.hidden_layer_size)),
                     name='gamma_x' + '_' + self.name)
 
             self.x_params = [self.Wx,
@@ -158,8 +158,8 @@ class SymmetricHiddenLayer(object):
             if self.beta_y is None or  self.gamma_y is None:
                 self.beta_y = theano.shared(numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX), name='beta_y' + '_' + self.name)
                 self.gamma_y = theano.shared(
-                    numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
-                    #numpy.cast[theano.config.floatX](numpy.random.uniform(-0.05, 0.05, self.hidden_layer_size)),
+                    #numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
+                    numpy.cast[theano.config.floatX](numpy.random.uniform(0.95, 1.05, self.hidden_layer_size)),
                     name='gamma_y' + '_' + self.name)
 
             self.y_params = [self.Wy,
@@ -258,13 +258,13 @@ class SymmetricHiddenLayer(object):
             layer_input = Tensor.dot(layer_input, self.Wx) + self.bias
         result = self.activation_hidden(layer_input)
 
-        if self._dropout == 'dropout':
-            result = self.dropout(result)
-
         if self.normalize:
             self.moving_average_x = []
             result = self.normalize_activations(result, self.mean_inference_x, self.variance_inference_x,
                                                 self.gamma_x, self.beta_x, self.moving_average_x)
+
+        if self._dropout == 'dropout':
+            result = self.dropout(result)
 
         return result
 
@@ -279,13 +279,13 @@ class SymmetricHiddenLayer(object):
 
         result = self.activation_hidden(layer_input)
 
-        if self._dropout == 'dropout':
-            result = self.dropout(result)
-
         if self.normalize:
             self.moving_average_y = []
             result = self.normalize_activations(result, self.mean_inference_y, self.variance_inference_y,
                                                 self.gamma_y, self.beta_y, self.moving_average_y)
+
+        if self._dropout == 'dropout':
+            result = self.dropout(result)
 
         return result
 
