@@ -231,7 +231,7 @@ class StackedDoubleEncoder(object):
 
         filename += '.mat'
 
-        for layer in self._symmetric_layers:
+        for index, layer in enumerate(self._symmetric_layers):
 
             for param in layer.x_params:
                 OutputLog().write('exporting param:' + param.name)
@@ -247,6 +247,11 @@ class StackedDoubleEncoder(object):
                     output[param.name] = param.get_value(borrow=True)
                 except:
                     OutputLog().write('Failed exporting param:' + param.name)
+
+            output['layer_{0}_mean_x'.format(index)] = layer.mean_inference_x.get_value()
+            output['layer_{0}_mean_y'.format(index)] = layer.mean_inference_y.get_value()
+            output['layer_{0}_std_x'.format(index)] = layer.variance_inference_x.get_value()
+            output['layer_{0}_std_y'.format(index)] = layer.variance_inference_y.get_value()
 
         scipy.io.savemat(os.path.join(dir_name, filename), output)
 
@@ -272,10 +277,6 @@ class StackedDoubleEncoder(object):
             bias = theano.shared(encoder['bias_' + layer_name].flatten(),
                                  name='bias_' + layer_name,
                                  borrow=False)
-            #
-            # bias_y = theano.shared(encoder['bias_y_' + layer_name].flatten(),
-            #                        name='bias_y_' + layer_name,
-            #                        borrow=True)
 
             bias_x_prime = theano.shared(encoder['bias_x_prime_' + layer_name].flatten(),
                                          name='bias_x_prime_' + layer_name,
@@ -284,6 +285,20 @@ class StackedDoubleEncoder(object):
             bias_y_prime = theano.shared(encoder['bias_y_prime_' + layer_name].flatten(),
                                          name='bias_y_prime_' + layer_name,
                                          borrow=False)
+
+            layer.mean_inference_x = theano.shared(encoder['layer_{0}_mean_x'.format(i)],
+                                                   name=layer_name + '_mean_x',
+                                                   borrow=False)
+            layer.mean_inference_y = theano.shared(encoder['layer_{0}_mean_y'.format(i)],
+                                                   name=layer_name + '_mean_y',
+                                                   borrow=False)
+            layer.variance_inference_x = theano.shared(encoder['layer_{0}_var_x'.format(i)],
+                                                   name=layer_name + '_var_x',
+                                                   borrow=False)
+            layer.variance_inference_y= theano.shared(encoder['layer_{0}_var_y'.format(i)],
+                                                   name=layer_name + '_var_y',
+                                                   borrow=False)
+
 
             layer_size = Wx.get_value(borrow=True).shape[1]
 

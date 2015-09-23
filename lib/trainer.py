@@ -3,6 +3,7 @@ import itertools
 from theano.ifelse import IfElse, ifelse
 from theano.tensor.nlinalg import matrix_inverse
 from theano.tensor.shared_randomstreams import RandomStreams
+from lib.MISC.theano_ops import batched_inv
 
 __author__ = 'aviv'
 
@@ -498,7 +499,9 @@ class Trainer(object):
             OutputLog().write('Adding constraint to {0}:'.format(param.name))
             A = Tensor.dot(((step_size / 2) * gradient).T, param) - Tensor.dot(param.T, ((step_size / 2) * gradient))
             I = Tensor.identity_like(A)
-            Q = Tensor.dot(matrix_inverse(I + A), (I - A))
+            temp = I + A
+            Q = Tensor.dot(batched_inv(temp.dimshuffle('x',0,1)).reshape(temp.shape, ndim=2), (I - A))
+            #Q = Tensor.dot(matrix_inverse(temp), I-A)
             update = Tensor.dot(param, Q)
             delta = (step_size / 2) * Tensor.dot((param + update), A)
             return update, delta
