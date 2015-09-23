@@ -3,7 +3,7 @@ import itertools
 from theano.ifelse import IfElse, ifelse
 from theano.tensor.nlinalg import matrix_inverse
 from theano.tensor.shared_randomstreams import RandomStreams
-from lib.MISC.theano_ops import batched_inv
+from MISC.theano_ops import batched_inv
 
 __author__ = 'aviv'
 
