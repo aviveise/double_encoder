@@ -1,12 +1,6 @@
-from time import time
-import numpy
-import pycuda
-from skcuda import cublas
 import theano
-from theano import tensor
 from theano.sandbox.cuda import GpuOp, as_cuda_ndarray_variable, CudaNdarrayType
-from theano.sandbox.cuda.basic_ops import gpu_contiguous, gpu_alloc_empty, gpu_alloc
-from theano.sandbox.cuda.fftconv import bptrs, scikits
+from theano.sandbox.cuda.basic_ops import gpu_contiguous
 
 __author__ = 'avive'
 
