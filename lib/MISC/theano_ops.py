@@ -112,6 +112,8 @@ class BatchedInvOp(GpuOp):
             static int %(n)s_prep(int batch_size, int size)
             {
                 int p_s = batch_size * size;
+                int i;
+                float* temp;
                 if(%(n)s_pivot_size != p_s || %(n)s_info_size != batch_size)
                 {
                     if(%(n)s_pivot) device_free(%(n)s_pivot);
@@ -123,7 +125,7 @@ class BatchedInvOp(GpuOp):
 
                     float *host_info = (float *) malloc(batch_size * sizeof(float));
 
-                    for(float* temp = host_info, int i = 0; i < batch_size; i++)
+                    for(temp = host_info, i = 0; i < batch_size; i++)
                     {
                         *temp = 0;
                         ++temp;
