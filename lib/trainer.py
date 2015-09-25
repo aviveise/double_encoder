@@ -500,7 +500,7 @@ class Trainer(object):
             A = Tensor.dot(((step_size / 2) * gradient).T, param) - Tensor.dot(param.T, ((step_size / 2) * gradient))
             I = Tensor.identity_like(A)
             temp = I + A
-            Q = Tensor.dot(batched_inv(temp.dimshuffle('x',0,1)).reshape(temp.shape, ndim=2), (I - A))
+            Q = Tensor.dot(batched_inv(temp.dimshuffle('x',0,1))[0], (I - A))
             #Q = Tensor.dot(matrix_inverse(temp), I-A)
             update = Tensor.dot(param, Q)
             delta = (step_size / 2) * Tensor.dot((param + update), A)
