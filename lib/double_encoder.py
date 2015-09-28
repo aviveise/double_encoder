@@ -92,7 +92,7 @@ class DoubleEncoder(object):
                                                                      'fine_tune'],
                                                                  import_path=configuration.output_parameters[
                                                                      'import_net'],
-                                                                 reduce_val=data_set.reduce_val)
+                                                                 reduce_val=data_set.reduce_test)
 
                 stacked_double_encoder.export_encoder(dir_name)
 

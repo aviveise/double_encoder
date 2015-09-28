@@ -14,7 +14,6 @@ from Layers.symmetric_hidden_layer import SymmetricHiddenLayer
 
 
 class StackedDoubleEncoder(object):
-
     def __init__(self,
                  hidden_layers,
                  numpy_range,
@@ -128,7 +127,7 @@ class StackedDoubleEncoder(object):
 
             self._initialize_first_layer(symmetric_layer)
 
-            #adding the new layer to the list
+            # adding the new layer to the list
             self._symmetric_layers.append(symmetric_layer)
 
         else:
@@ -136,7 +135,7 @@ class StackedDoubleEncoder(object):
             if end:
                 last_layer = self._symmetric_layers[-1]
 
-                #connecting the X of new layer with the Y of the last layer
+                # connecting the X of new layer with the Y of the last layer
                 symmetric_layer.update_y(self.var_y, input_size=self.input_size_y)
                 symmetric_layer.update_x(x=last_layer.output_forward_x, input_size=last_layer.hidden_layer_size)
 
@@ -145,7 +144,7 @@ class StackedDoubleEncoder(object):
                 input_y = symmetric_layer.output_forward_y
                 input_size = symmetric_layer.hidden_layer_size
 
-                #refreshing the connection between Y and X of the other layers
+                # refreshing the connection between Y and X of the other layers
                 for layer in reversed(self._symmetric_layers):
 
                     if self._weight_sharing:
@@ -157,13 +156,13 @@ class StackedDoubleEncoder(object):
                     input_size = layer.hidden_layer_size
                     input_y = layer.output_forward_y
 
-                #adding the new layer to the list
+                # adding the new layer to the list
                 self._symmetric_layers.append(symmetric_layer)
 
             else:
                 last_layer = self._symmetric_layers[0]
 
-                #connecting the X of new layer with the Y of the last layer
+                # connecting the X of new layer with the Y of the last layer
                 symmetric_layer.update_x(self.var_x, input_size=self.input_size_x)
                 symmetric_layer.update_y(y=last_layer.output_forward_y, input_size=last_layer.hidden_layer_size)
 
@@ -172,7 +171,7 @@ class StackedDoubleEncoder(object):
                 input_x = symmetric_layer.output_forward_x
                 input_size = symmetric_layer.hidden_layer_size
 
-                #refreshing the connection between Y and X of the other layers
+                # refreshing the connection between Y and X of the other layers
                 for layer in self._symmetric_layers:
 
                     if self._weight_sharing:
@@ -192,7 +191,7 @@ class StackedDoubleEncoder(object):
     def reconstruct_y(self, layer_num=-1):
         return self._symmetric_layers[layer_num].reconstruct_y()
 
-    #Initialize the inputs of the first layer to be 'x' and 'y' variables
+    # Initialize the inputs of the first layer to be 'x' and 'y' variables
     def _initialize_first_layer(self, layer):
         layer.update_x(self.var_x, input_size=self.input_size_x)
         layer.update_y(self.var_y, input_size=self.input_size_y)
@@ -286,26 +285,45 @@ class StackedDoubleEncoder(object):
                                          name='bias_y_prime_' + layer_name,
                                          borrow=False)
 
-            layer.mean_inference_x = theano.shared(encoder['layer_{0}_mean_x'.format(i)],
-                                                   name=layer_name + '_mean_x',
-                                                   borrow=False)
-            layer.mean_inference_y = theano.shared(encoder['layer_{0}_mean_y'.format(i)],
-                                                   name=layer_name + '_mean_y',
-                                                   borrow=False)
-            layer.variance_inference_x = theano.shared(encoder['layer_{0}_var_x'.format(i)],
-                                                   name=layer_name + '_var_x',
-                                                   borrow=False)
-            layer.variance_inference_y= theano.shared(encoder['layer_{0}_var_y'.format(i)],
-                                                   name=layer_name + '_var_y',
-                                                   borrow=False)
-
-
             layer_size = Wx.get_value(borrow=True).shape[1]
 
             layer = SymmetricHiddenLayer(hidden_layer_size=layer_size,
                                          name=layer_name,
                                          activation_hidden=hyperparameters.method_in,
                                          activation_output=hyperparameters.method_out)
+
+            layer.mean_inference_x = theano.shared(encoder['layer_{0}_mean_x'.format(i)],
+                                                   name=layer_name + '_mean_x',
+                                                   borrow=False,
+                                                   broadcastable=(True, False))
+            layer.mean_inference_y = theano.shared(encoder['layer_{0}_mean_y'.format(i)],
+                                                   name=layer_name + '_mean_y',
+                                                   borrow=False,
+                                                   broadcastable=(True, False))
+            layer.variance_inference_x = theano.shared(encoder['layer_{0}_std_x'.format(i)],
+                                                       name=layer_name + '_var_x',
+                                                       borrow=False,
+                                                       broadcastable=(True, False))
+            layer.variance_inference_y = theano.shared(encoder['layer_{0}_std_y'.format(i)],
+                                                       name=layer_name + '_var_y',
+                                                       borrow=False,
+                                                       broadcastable=(True, False))
+
+            layer.gamma_x = theano.shared(encoder['gamma_x_' + layer_name].flatten(),
+                                          name='gamma_x_' + layer_name,
+                                          borrow=False)
+
+            layer.gamma_y = theano.shared(encoder['gamma_y_' + layer_name].flatten(),
+                                          name='gamma_y_' + layer_name,
+                                          borrow=False)
+
+            layer.beta_x = theano.shared(encoder['beta_x_' + layer_name].flatten(),
+                                         name='beta_x_' + layer_name,
+                                         borrow=False)
+
+            layer.beta_y = theano.shared(encoder['beta_y_' + layer_name].flatten(),
+                                         name='beta_y_' + layer_name,
+                                         borrow=False)
 
             wy_name = 'Wy' + '_' + layer_name
 
@@ -346,9 +364,3 @@ class StackedDoubleEncoder(object):
 
         output_stream.write('Using stacked double encoder:\n'
                             'Weight Sharing: %r' % (self._weight_sharing))
-
-
-
-
-
-

@@ -92,7 +92,7 @@ class Trainer(object):
 
         correlations = []
 
-        tester = TraceCorrelationTester(validation_set_x, validation_set_y, top)
+        tester = TraceCorrelationTester(validation_set_x, validation_set_y, top, reduce_val)
 
         learning_rate = hyper_parameters.learning_rate
 
@@ -482,6 +482,10 @@ class Trainer(object):
     @staticmethod
     def _add_moving_averages(moving_averages, updates, length, factor=0.1):
 
+        for l in moving_averages:
+            if len(l) == 0:
+                return updates
+
         params = list(itertools.chain(*[i[1] for i in moving_averages]))
         values = list(itertools.chain(*[i[0] for i in moving_averages]))
 
@@ -500,8 +504,8 @@ class Trainer(object):
             A = Tensor.dot(((step_size / 2) * gradient).T, param) - Tensor.dot(param.T, ((step_size / 2) * gradient))
             I = Tensor.identity_like(A)
             temp = I + A
-            Q = Tensor.dot(batched_inv(temp.dimshuffle('x',0,1))[0], (I - A))
-            #Q = Tensor.dot(matrix_inverse(temp), I-A)
+            #Q = Tensor.dot(batched_inv(temp.dimshuffle('x',0,1))[0], (I - A))
+            Q = Tensor.dot(matrix_inverse(temp), I - A)
             update = Tensor.dot(param, Q)
             delta = (step_size / 2) * Tensor.dot((param + update), A)
             return update, delta

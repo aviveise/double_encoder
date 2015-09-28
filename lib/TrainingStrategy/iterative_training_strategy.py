@@ -89,7 +89,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
                               regularization_methods=regularization_methods,
                               print_verbose=print_verbose,
                               validation_set_x=validation_set_x,
-                              validation_set_y=validation_set_y)
+                              validation_set_y=validation_set_y,
+                              reduce_val=reduce_val)
 
                 if dir_name is not None:
                     symmetric_double_encoder.export_encoder(OutputLog().output_path,
@@ -114,7 +115,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
                       print_verbose=print_verbose,
                       validation_set_x=validation_set_x,
                       validation_set_y=validation_set_y,
-                      moving_averages=moving_averages)
+                      moving_averages=moving_averages,
+                      reduce_val=reduce_val)
 
         if dir_name is not None:
             symmetric_double_encoder.export_encoder(OutputLog().output_path,

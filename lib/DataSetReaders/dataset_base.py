@@ -33,6 +33,7 @@ class DatasetBase(object):
         self.reduce_val = 0
 
         scale = bool(int(data_set_parameters['scale']))
+        scale_rows = bool(int(data_set_parameters['scale_samples']))
         whiten = bool(int(data_set_parameters['whiten']))
         pca = map(int, data_set_parameters['pca'].split())
 
@@ -66,6 +67,16 @@ class DatasetBase(object):
 
         self.build_dataset()
 
+        if scale_rows:
+            self.trainset[0] = scale_cols(self.trainset[0].T)[0].T
+            self.trainset[1] = scale_cols(self.trainset[1].T)[0].T
+
+            self.tuning[0] = scale_cols(self.tuning[0].T)[0].T
+            self.tuning[1] = scale_cols(self.tuning[1].T)[0].T
+
+            self.testset[0] = scale_cols(self.testset[0].T)[0].T
+            self.testset[1] = scale_cols(self.testset[1].T)[0].T
+
         if scale:
             train_set_x, scaler_x = scale_cols(self.trainset[0])
             train_set_y, scaler_y = scale_cols(self.trainset[1])
@@ -74,8 +85,8 @@ class DatasetBase(object):
             self.tuning = scaler_x.transform(self.tuning[0]), scaler_y.transform(self.tuning[1])
             self.testset = scaler_x.transform(self.testset[0]), scaler_y.transform(self.testset[1])
 
-            scaler_x_path = os.path.join(path,'scaler_x.p')
-            scaler_y_path = os.path.join(path,'scaler_y.p')
+            scaler_x_path = os.path.join(path, 'scaler_x.p')
+            scaler_y_path = os.path.join(path, 'scaler_y.p')
 
             pickle.dump(scaler_x, file(scaler_x_path, 'w'))
             pickle.dump(scaler_y, file(scaler_y_path, 'w'))
