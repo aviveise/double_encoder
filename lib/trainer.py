@@ -496,22 +496,40 @@ class Trainer(object):
         return updates
 
     @staticmethod
-    def _calc_update(step_size, gradient, param, type='Cayley', last_layer=0, hidden_x=None, hidden_y=None):
+    def _calc_update(step_size, gradient, param, last_layer):
 
-        # 'W' in param.name:
-        if type == 'Cayley' and (param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):
+        delta = step_size * gradient
+        return param - delta, delta
+
+        if param.name == 'Wx_layer1':
             OutputLog().write('Adding constraint to {0}:'.format(param.name))
-            A = Tensor.dot(((step_size / 2) * gradient).T, param) - Tensor.dot(param.T, ((step_size / 2) * gradient))
-            I = Tensor.identity_like(A)
-            temp = I + A
-            #Q = Tensor.dot(batched_inv(temp.dimshuffle('x',0,1))[0], (I - A))
-            Q = Tensor.dot(matrix_inverse(temp), I - A)
-            update = Tensor.dot(param, Q)
-            delta = (step_size / 2) * Tensor.dot((param + update), A)
-            return update, delta
+            return Trainer._calc_caylay_delta(step_size, gradient, param)
+        elif param.name == 'Wx_layer2':
+            OutputLog().write('Adding constraint to {0}:'.format(param.name))
+            update, delta = Trainer._calc_caylay_delta(step_size, gradient.T, param.T)
+            return update.T, delta.T
         else:
             delta = step_size * gradient
             return param - delta, delta
+
+        # 'W' in param.name:
+        # if type == 'Cayley' and (param.name == 'Wx_layer1' or param.name == 'Wx_layer2'):#(param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):# or param.name == 'Wx_layer1' or param.name == 'Wx_layer2'):# or param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):
+        #     OutputLog().write('Adding constraint to {0}:'.format(param.name))
+        #
+        # else:
+        #     delta = step_size * gradient
+        #     return param - delta, delta
+
+    @staticmethod
+    def _calc_caylay_delta(step_size, param, gradient):
+        A = Tensor.dot(((step_size / 2) * gradient).T, param) - Tensor.dot(param.T, ((step_size / 2) * gradient))
+        I = Tensor.identity_like(A)
+        temp = I + A
+        #Q = Tensor.dot(batched_inv(temp.dimshuffle('x',0,1))[0], (I - A))
+        Q = Tensor.dot(matrix_inverse(temp), I - A)
+        update = Tensor.dot(param, Q)
+        delta = (step_size / 2) * Tensor.dot((param + update), A)
+        return update, delta
 
     @staticmethod
     def get_output(symmetric_double_encoder, layer):

@@ -15,51 +15,44 @@ class ReconstructionRegularization(RegularizationBase):
         self._zeroing_param = float(regularization_parameters['zeroing_param'])
         self._randomStream = shared_randomstreams.RandomStreams()
         self._recon_strategy = regularization_parameters['recon_strategy']
+        self._layer = int(regularization_parameters['layer'])
 
     def compute(self, symmetric_double_encoder, params, eps=1e-8):
         regularization = 0
 
-        if self._recon_strategy == 'all':
-            for index, layer in enumerate(symmetric_double_encoder):
-                # regularization += Tensor.mean((layer.output_forward_y - layer.output_forward_x).norm(2, axis=1))
-
-                mod_y = Tensor.sqrt(Tensor.sum(layer.output_forward_y ** 2, 1) + eps)
-                mod_x = Tensor.sqrt(Tensor.sum(layer.output_forward_x ** 2, 1) + eps)
-                regularization += 1 - Tensor.mean(
-                    Tensor.diag(Tensor.dot(layer.output_forward_x, layer.output_forward_y.T)) / (mod_y * mod_x))
-                #
-                # perm_indx = self._randomStream.permutation(n=layer.output_forward_x.shape[0], size=(1,))
-                #
-                # regularization -= Tensor.cast(
-                #     (layer.output_forward_y - layer.output_forward_x[perm_indx]).norm(2, axis=1)
-                #         .sum(dtype=Tensor.config.floatX), dtype=Tensor.config.floatX)
-
-        elif self._recon_strategy == 'last':
-            layer = symmetric_double_encoder[-1]
-
-            regularization += Tensor.mean((layer.output_forward_y - layer.output_forward_x).norm(2, axis=1))
-
-            perm_indx = self._randomStream.permutation(n=layer.output_forward_x.shape[0], size=(1,))
-
-            regularization -= Tensor.cast((layer.output_forward_y - layer.output_forward_x[perm_indx]).norm(2, axis=1)
-                                          .sum(dtype=Tensor.config.floatX), dtype=Tensor.config.floatX)
-
-        elif self._recon_strategy == 'twin':
-            layer_x = symmetric_double_encoder[0]
-            layer_y = symmetric_double_encoder[-1]
-
-            regularization += Tensor.cast((layer_y.output_forward_x - layer_x.output_forward_y).norm(2, axis=1).sum(
-                dtype=Tensor.config.floatX) / layer_x.output_forward_x.shape[0], dtype=Tensor.config.floatX)
-
-            perm_indx = self._randomStream.permutation(n=layer_y.output_forward_y.shape[0], size=(1,))
-
-            regularization -= Tensor.cast(
-                (layer_y.output_forward_x - layer_x.output_forward_y[perm_indx]).norm(2, axis=1)
-                    .sum(dtype=Tensor.config.floatX), dtype=Tensor.config.floatX)
+        if self._layer == -1:
+            for layer in symmetric_double_encoder:
+                regularization += self.add_regularization(layer)
         else:
-            raise Exception('unknown recon command')
+            regularization += self.add_regularization(symmetric_double_encoder[self._layer])
 
-        return (self.weight / 2) * regularization
+        return self.weight * regularization
+
+    def add_regularization(self, layer):
+        regularization = 0
+
+        if self._recon_strategy == 'forward':
+            input_x = layer.x
+            recon_x = layer.reconstruct_x()
+
+            input_y = layer.y
+            recon_y = layer.reconstruct_y()
+
+            regularization += Tensor.mean((abs(input_x - recon_x)).sum(axis=1, dtype=Tensor.config.floatX))
+            regularization += Tensor.mean((abs(input_y - recon_y)).sum(axis=1, dtype=Tensor.config.floatX))
+        elif self._recon_strategy == 'backward':
+            input_x = layer.x
+            recon_x = Tensor.dot(layer.output_forward_x,
+                                 layer.Wx.T)
+
+            input_y = layer.y
+            recon_y = Tensor.dot(layer.output_forward_y,
+                                 layer.Wy.T)
+
+            regularization += Tensor.mean((abs(input_x - recon_x)).sum(axis=1, dtype=Tensor.config.floatX))
+            regularization += Tensor.mean((abs(input_y - recon_y)).sum(axis=1, dtype=Tensor.config.floatX))
+
+        return regularization
 
     def print_regularization(self, output_stream):
         super(ReconstructionRegularization, self).print_regularization(output_stream)

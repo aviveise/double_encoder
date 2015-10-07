@@ -8,6 +8,7 @@ import numpy
 import theano
 import theano.tensor as Tensor
 import theano.printing
+from theano.tensor import nlinalg
 
 
 class SymmetricHiddenLayer(object):
@@ -26,10 +27,12 @@ class SymmetricHiddenLayer(object):
                  bias_primeX=None,
                  bias_primeY=None,
                  normalize=True,
-                 drop=None,#'dropout',
+                 normalize_sample=False,
+                 decorrelate=False,
+                 drop=None,
                  k=750,
                  epsilon=1e-8,
-                 dropout_prob=0.5):
+                 dropout_prob=0.25):
 
         self._dropout = drop
         self._drop_probability = dropout_prob
@@ -38,10 +41,13 @@ class SymmetricHiddenLayer(object):
         self.activation_hidden = activation_hidden
         self.activation_output = activation_output
         self.normalize = normalize
+        self.normalize_sample = normalize_sample
+        self.decorrelate = decorrelate
         self.epsilon = epsilon
         self.is_training = is_training
         self._eval = False
-        self.moving_average = []
+        self.moving_average_x = []
+        self.moving_average_y = []
         self._random_streams = RandomStreams()
         self._k = k
         self.gamma_x = None
@@ -78,6 +84,16 @@ class SymmetricHiddenLayer(object):
             borrow=True,
             broadcastable=(True, False))
         self.variance_inference_y.name = self.name + "_var_y"
+
+        self.cov_inference_x = theano.shared(
+            numpy.cast[theano.config.floatX](self.generate_random_basis(self.hidden_layer_size, self.hidden_layer_size)),
+            borrow=True)
+        self.variance_inference_x.name = self.name + "_cov_x"
+
+        self.cov_inference_y = theano.shared(
+            numpy.cast[theano.config.floatX](self.generate_random_basis(self.hidden_layer_size, self.hidden_layer_size)),
+            borrow=True)
+        self.variance_inference_x.name = self.name + "_cov_x"
 
         if self.activation_hidden is None or self.activation_output is None:
             raise Exception('Activation must be provided')
@@ -117,17 +133,16 @@ class SymmetricHiddenLayer(object):
                 self.bias_x_prime = bias_x_prime
 
             if self.beta_x is None or self.gamma_x is None:
-                self.beta_x = theano.shared(numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX), name='beta_x' + '_' + self.name)
+                self.beta_x = theano.shared(numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
+                                            name='beta_x' + '_' + self.name)
                 self.gamma_x = theano.shared(
-                    #numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
-                    numpy.cast[theano.config.floatX](numpy.random.uniform(0.95, 1.05, self.hidden_layer_size)),
+                    # numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
+                    numpy.cast[theano.config.floatX](numpy.random.uniform(1.00, 1.05, self.hidden_layer_size)),
                     name='gamma_x' + '_' + self.name)
 
             self.x_params = [self.Wx,
                              self.bias,
-                             self.bias_x_prime,
-                             self.beta_x,
-                             self.gamma_x]
+                             self.bias_x_prime]
 
             self.x_hidden_params = [self.Wx, self.bias, self.beta_x, self.gamma_x]
 
@@ -155,18 +170,17 @@ class SymmetricHiddenLayer(object):
             else:
                 self.bias_y_prime = bias_y_prime
 
-            if self.beta_y is None or  self.gamma_y is None:
-                self.beta_y = theano.shared(numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX), name='beta_y' + '_' + self.name)
+            if self.beta_y is None or self.gamma_y is None:
+                self.beta_y = theano.shared(numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
+                                            name='beta_y' + '_' + self.name)
                 self.gamma_y = theano.shared(
-                    #numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
-                    numpy.cast[theano.config.floatX](numpy.random.uniform(0.95, 1.05, self.hidden_layer_size)),
+                    # numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
+                    numpy.cast[theano.config.floatX](numpy.random.uniform(1.00, 1.05, self.hidden_layer_size)),
                     name='gamma_y' + '_' + self.name)
 
             self.y_params = [self.Wy,
                              self.bias,
-                             self.bias_y_prime,
-                             self.beta_y,
-                             self.gamma_y]
+                             self.bias_y_prime]
 
             self.y_hidden_params = [self.Wy, self.bias, self.beta_y, self.gamma_y]
 
@@ -256,12 +270,24 @@ class SymmetricHiddenLayer(object):
             layer_input = self.dropconnect(layer_input, self.Wx, self.bias, self._k)
         else:
             layer_input = Tensor.dot(layer_input, self.Wx) + self.bias
+
         result = self.activation_hidden(layer_input)
+        #result = layer_input
 
         if self.normalize:
             self.moving_average_x = []
             result = self.normalize_activations(result, self.mean_inference_x, self.variance_inference_x,
                                                 self.gamma_x, self.beta_x, self.moving_average_x)
+
+        if self.normalize_sample:
+            result = self.normalize_samples(result, self.gamma_x, self.beta_x)
+
+        if self.decorrelate:
+            self.moving_average_x = []
+            result = self.withen_activations(result, self.cov_inference_x, self.moving_average_x, self.gamma_x,
+                                             self.beta_x)
+
+        #result = self.activation_hidden(result)
 
         if self._dropout == 'dropout':
             result = self.dropout(result)
@@ -278,11 +304,22 @@ class SymmetricHiddenLayer(object):
             layer_input = Tensor.dot(layer_input, self.Wy) + self.bias
 
         result = self.activation_hidden(layer_input)
+        # result = layer_input
 
         if self.normalize:
             self.moving_average_y = []
             result = self.normalize_activations(result, self.mean_inference_y, self.variance_inference_y,
                                                 self.gamma_y, self.beta_y, self.moving_average_y)
+
+        if self.normalize_sample:
+            result = self.normalize_samples(result, self.gamma_y, self.beta_y)
+
+        if self.decorrelate:
+            self.moving_average_y = []
+            result = self.withen_activations(result, self.cov_inference_y, self.moving_average_y, self.gamma_y,
+                                             self.beta_y)
+
+        # result = self.activation_hidden(result)
 
         if self._dropout == 'dropout':
             result = self.dropout(result)
@@ -356,11 +393,19 @@ class SymmetricHiddenLayer(object):
     def input_y(self):
         return self.y
 
+    def normalize_samples(self, x, gamma, beta):
+        OutputLog().write('Normalizing Samples')
+        mean = Tensor.mean(x, axis=1, keepdims=True)
+        var = Tensor.sum(abs(x ** 2), axis=1, keepdims=True) ** (0.5)  # axis=1, keepdims=True)
+
+        normalized_output = (x - mean) / Tensor.sqrt(var + self.epsilon)
+        return normalized_output * gamma + beta
+
     def normalize_activations(self, x, mean_inference, variance_inference, gamma, beta, moving_average):
 
         if not self._eval:
             mean = Tensor.mean(x, axis=0, keepdims=True)
-            var = Tensor.var(x, axis=0, keepdims=True)
+            var = Tensor.std(x, axis=0, keepdims=True)
 
             moving_average.append([mean, var])
             moving_average.append([mean_inference, variance_inference])
@@ -369,5 +414,32 @@ class SymmetricHiddenLayer(object):
             mean = mean_inference
             var = variance_inference
 
-        normalized_output = (x - mean) / Tensor.sqrt(var + self.epsilon)
+        normalized_output = (x - mean) / var
         return normalized_output * gamma + beta
+
+    def withen_activations(self, x, mean_cov, moving_average, gamma, beta):
+
+        if not self._eval:
+            cov = Tensor.dot(x.T, x)
+
+            v, w = Tensor.nlinalg.eigh(cov)
+
+            moving_average.append([w])
+            moving_average.append([mean_cov])
+        else:
+            w = mean_cov
+
+        decorrelated_output = Tensor.dot(x, w.T)
+        return decorrelated_output * gamma + beta
+
+    def generate_random_basis(self, n, m):
+        random_vectors = []
+        for i in range(m):
+            vr = numpy.random.normal(0, 1, n)
+            vo = numpy.copy(vr)
+            for v in random_vectors:
+                proj_vec = v * numpy.dot(vr, v) / numpy.dot(v, v)
+                vo -= proj_vec
+            random_vectors.append(vo)
+
+        return numpy.vstack(random_vectors)
