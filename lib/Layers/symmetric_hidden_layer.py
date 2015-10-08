@@ -31,7 +31,7 @@ class SymmetricHiddenLayer(object):
                  decorrelate=False,
                  drop=None,
                  k=750,
-                 epsilon=1e-8,
+                 epsilon=1e-6,
                  dropout_prob=0.25):
 
         self._dropout = drop
@@ -85,15 +85,15 @@ class SymmetricHiddenLayer(object):
             broadcastable=(True, False))
         self.variance_inference_y.name = self.name + "_var_y"
 
-        self.cov_inference_x = theano.shared(
-            numpy.cast[theano.config.floatX](self.generate_random_basis(self.hidden_layer_size, self.hidden_layer_size)),
-            borrow=True)
-        self.variance_inference_x.name = self.name + "_cov_x"
-
-        self.cov_inference_y = theano.shared(
-            numpy.cast[theano.config.floatX](self.generate_random_basis(self.hidden_layer_size, self.hidden_layer_size)),
-            borrow=True)
-        self.variance_inference_x.name = self.name + "_cov_x"
+        # self.cov_inference_x = theano.shared(
+        #     numpy.cast[theano.config.floatX](self.generate_random_basis(self.hidden_layer_size, self.hidden_layer_size)),
+        #     borrow=True)
+        # self.variance_inference_x.name = self.name + "_cov_x"
+        #
+        # self.cov_inference_y = theano.shared(
+        #     numpy.cast[theano.config.floatX](self.generate_random_basis(self.hidden_layer_size, self.hidden_layer_size)),
+        #     borrow=True)
+        # self.variance_inference_x.name = self.name + "_cov_x"
 
         if self.activation_hidden is None or self.activation_output is None:
             raise Exception('Activation must be provided')
@@ -272,7 +272,7 @@ class SymmetricHiddenLayer(object):
             layer_input = Tensor.dot(layer_input, self.Wx) + self.bias
 
         result = self.activation_hidden(layer_input)
-        #result = layer_input
+        # result = layer_input
 
         if self.normalize:
             self.moving_average_x = []
@@ -287,7 +287,7 @@ class SymmetricHiddenLayer(object):
             result = self.withen_activations(result, self.cov_inference_x, self.moving_average_x, self.gamma_x,
                                              self.beta_x)
 
-        #result = self.activation_hidden(result)
+        result = self.activation_hidden(result)
 
         if self._dropout == 'dropout':
             result = self.dropout(result)
@@ -319,7 +319,7 @@ class SymmetricHiddenLayer(object):
             result = self.withen_activations(result, self.cov_inference_y, self.moving_average_y, self.gamma_y,
                                              self.beta_y)
 
-        # result = self.activation_hidden(result)
+        result = self.activation_hidden(result)
 
         if self._dropout == 'dropout':
             result = self.dropout(result)
@@ -405,16 +405,20 @@ class SymmetricHiddenLayer(object):
 
         if not self._eval:
             mean = Tensor.mean(x, axis=0, keepdims=True)
-            var = Tensor.std(x, axis=0, keepdims=True)
+            var = Tensor.var(x, axis=0, keepdims=True)
+            std = Tensor.sqrt(var + self.epsilon)
 
-            moving_average.append([mean, var])
+            # std = Tensor.std(x, axis=0, keepdims=True)
+
+            moving_average.append([mean, std])
             moving_average.append([mean_inference, variance_inference])
 
         else:
             mean = mean_inference
-            var = variance_inference
+            std = variance_inference
 
-        normalized_output = (x - mean) / var
+        # std += self.epsilon
+        normalized_output = (x - mean) / std
         return normalized_output * gamma + beta
 
     def withen_activations(self, x, mean_cov, moving_average, gamma, beta):

@@ -67,16 +67,6 @@ class DatasetBase(object):
 
         self.build_dataset()
 
-        if scale_rows:
-            self.trainset[0] = scale_cols(self.trainset[0].T)[0].T
-            self.trainset[1] = scale_cols(self.trainset[1].T)[0].T
-
-            self.tuning[0] = scale_cols(self.tuning[0].T)[0].T
-            self.tuning[1] = scale_cols(self.tuning[1].T)[0].T
-
-            self.testset[0] = scale_cols(self.testset[0].T)[0].T
-            self.testset[1] = scale_cols(self.testset[1].T)[0].T
-
         if scale:
             train_set_x, scaler_x = scale_cols(self.trainset[0])
             train_set_y, scaler_y = scale_cols(self.trainset[1])
@@ -90,6 +80,11 @@ class DatasetBase(object):
 
             pickle.dump(scaler_x, file(scaler_x_path, 'w'))
             pickle.dump(scaler_y, file(scaler_y_path, 'w'))
+
+        if scale_rows:
+            self.trainset = (scale_cols(self.trainset[0].T)[0].T, scale_cols(self.trainset[1].T)[0].T)
+            self.tuning = (scale_cols(self.tuning[0].T)[0].T, scale_cols(self.tuning[1].T)[0].T)
+            self.testset = (scale_cols(self.testset[0].T)[0].T, scale_cols(self.testset[1].T)[0].T)
 
         if not pca[0] == 0 and not pca[1] == 0:
             pca_dim1 = PCA(pca[0], whiten)
