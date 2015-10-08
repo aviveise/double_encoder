@@ -271,8 +271,8 @@ class SymmetricHiddenLayer(object):
         else:
             layer_input = Tensor.dot(layer_input, self.Wx) + self.bias
 
-        result = self.activation_hidden(layer_input)
-        # result = layer_input
+        # result = self.activation_hidden(layer_input)
+        result = layer_input
 
         if self.normalize:
             self.moving_average_x = []
@@ -303,8 +303,8 @@ class SymmetricHiddenLayer(object):
         else:
             layer_input = Tensor.dot(layer_input, self.Wy) + self.bias
 
-        result = self.activation_hidden(layer_input)
-        # result = layer_input
+        # result = self.activation_hidden(layer_input)
+        result = layer_input
 
         if self.normalize:
             self.moving_average_y = []
