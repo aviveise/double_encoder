@@ -30,10 +30,17 @@ class VarianceRegularization(RegularizationBase):
             hidden_x = symmetric_double_encoder[self._layer].output_forward_x
             hidden_y = symmetric_double_encoder[self._layer].output_forward_y
 
-            cov_x = Tensor.dot(hidden_x.T, hidden_x)
-            cov_y = Tensor.dot(hidden_y.T, hidden_y)
+            norm_x = Tensor.mean(Tensor.sum(hidden_x ** 2, axis=1, dtype=Tensor.config.floatX))
+            norm_y = Tensor.mean(Tensor.sum(hidden_y ** 2, axis=1, dtype=Tensor.config.floatX))
 
-            regularization += (Tensor.sqrt((Tensor.sum(cov_x ** 2)) + Tensor.sqrt(Tensor.sum(cov_y ** 2))))
+            regularization -= norm_x
+            regularization -= norm_y
+
+            #
+            # cov_x = Tensor.dot(hidden_x.T, hidden_x)
+            # cov_y = Tensor.dot(hidden_y.T, hidden_y)
+            #
+            # regularization -= ((Tensor.sum(abs(cov_x))) + (Tensor.sum(abs(cov_y))))
 
 
         return self.weight * regularization

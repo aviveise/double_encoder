@@ -136,8 +136,8 @@ class SymmetricHiddenLayer(object):
                 self.beta_x = theano.shared(numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                             name='beta_x' + '_' + self.name)
                 self.gamma_x = theano.shared(
-                    # numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
-                    numpy.cast[theano.config.floatX](numpy.random.uniform(1.00, 1.05, self.hidden_layer_size)),
+                    numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
+                    # numpy.cast[theano.config.floatX](numpy.random.uniform(1.00, 1.05, self.hidden_layer_size)),
                     name='gamma_x' + '_' + self.name)
 
             self.x_params = [self.Wx,
@@ -174,8 +174,8 @@ class SymmetricHiddenLayer(object):
                 self.beta_y = theano.shared(numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                             name='beta_y' + '_' + self.name)
                 self.gamma_y = theano.shared(
-                    # numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
-                    numpy.cast[theano.config.floatX](numpy.random.uniform(1.00, 1.05, self.hidden_layer_size)),
+                    numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
+                    # numpy.cast[theano.config.floatX](numpy.random.uniform(1.00, 1.05, self.hidden_layer_size)),
                     name='gamma_y' + '_' + self.name)
 
             self.y_params = [self.Wy,
@@ -396,10 +396,10 @@ class SymmetricHiddenLayer(object):
     def normalize_samples(self, x, gamma, beta):
         OutputLog().write('Normalizing Samples')
         mean = Tensor.mean(x, axis=1, keepdims=True)
-        var = Tensor.sum(abs(x ** 2), axis=1, keepdims=True) ** (0.5)  # axis=1, keepdims=True)
+        var = Tensor.var(x, axis=1, keepdims=True)
 
         normalized_output = (x - mean) / Tensor.sqrt(var + self.epsilon)
-        return normalized_output * gamma + beta
+        return normalized_output / gamma + beta
 
     def normalize_activations(self, x, mean_inference, variance_inference, gamma, beta, moving_average):
 

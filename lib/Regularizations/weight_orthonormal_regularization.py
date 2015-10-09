@@ -1,5 +1,6 @@
 import numpy
 from MISC.logger import OutputLog
+from sphinx.pycode import sym
 
 l__author__ = 'aviv'
 import theano
@@ -25,20 +26,23 @@ class WeightOrthonormalRegularization(RegularizationBase):
 
             OutputLog().write('Adding orthonormal regularization for layer')
 
-            hidden_x = layer.output_forward_x
-            hidden_y = layer.output_forward_y
-
-            hidden_x_sqr = Tensor.dot(hidden_x.T, hidden_x)
-            hidden_y_sqr = Tensor.dot(hidden_y.T, hidden_y)
-
-            regularization += Tensor.sum((hidden_x_sqr - Tensor.identity_like(hidden_x_sqr)) ** 2, dtype=Tensor.config.floatX)
-            regularization += Tensor.sum((hidden_y_sqr - Tensor.identity_like(hidden_y_sqr)) ** 2, dtype=Tensor.config.floatX)
+            # hidden_x = layer.output_forward_x
+            # hidden_y = layer.output_forward_y
+            #
+            # hidden_x_sqr = Tensor.dot(hidden_x.T, hidden_x)
+            # hidden_y_sqr = Tensor.dot(hidden_y.T, hidden_y)
+            #
+            # regularization += Tensor.sum((hidden_x_sqr - Tensor.identity_like(hidden_x_sqr)) ** 2, dtype=Tensor.config.floatX)
+            # regularization += Tensor.sum((hidden_y_sqr - Tensor.identity_like(hidden_y_sqr)) ** 2, dtype=Tensor.config.floatX)
 
             # Wy_Square = Tensor.dot(layer.Wy.T, layer.Wy)
-            # Wx_Square = Tensor.dot(layer.Wx.T, layer.Wx)
+            Wx_Square = Tensor.dot(layer.Wx, layer.Wx.T)
             #
             # regularization += Tensor.sum((Wy_Square - Tensor.identity_like(Wy_Square)) ** 2, dtype=Tensor.config.floatX)
-            # regularization += Tensor.sum((Wx_Square - Tensor.identity_like(Wx_Square)) ** 2, dtype=Tensor.config.floatX)
+            regularization += Tensor.sum(Wx_Square ** 2, dtype=Tensor.config.floatX)
+
+        Wy_Square = Tensor.dot(symmetric_double_encoder[-1].Wy, symmetric_double_encoder[-1].Wy.T)
+        regularization += Tensor.sum(Wy_Square ** 2, dtype=Tensor.config.floatX)
 
         OutputLog().write('Computing regularization')
 

@@ -254,7 +254,12 @@ class StackedDoubleEncoder(object):
             output['layer_{0}_mean_x'.format(index)] = layer.mean_inference_x.get_value()
             output['layer_{0}_mean_y'.format(index)] = layer.mean_inference_y.get_value()
             output['layer_{0}_std_x'.format(index)] = layer.variance_inference_x.get_value()
+            output['gamma_x_layer{0}'.format(index)] = layer.gamma_x.get_value()
+            output['gamma_y_layer{0}'.format(index)] = layer.gamma_y.get_value()
+            output['beta_x_layer{0}'.format(index)] = layer.beta_x.get_value()
+            output['beta_y_layer{0}'.format(index)] = layer.beta_y.get_value()
             output['layer_{0}_std_y'.format(index)] = layer.variance_inference_y.get_value()
+
 
         scipy.io.savemat(os.path.join(dir_name, filename), output)
 
