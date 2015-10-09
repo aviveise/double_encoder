@@ -25,7 +25,11 @@ class WeightDecayRegularization(RegularizationBase):
 
         for layer in symmetric_double_encoder:
             regularization += Tensor.sum(layer.Wx ** 2, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX)
-            regularization += Tensor.sum(layer.Wy ** 2, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX)
+            regularization += Tensor.sum(layer.gamma_x ** 2, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX)
+            regularization += Tensor.sum(layer.gamma_y ** 2, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX)
+
+
+        regularization += Tensor.sum(symmetric_double_encoder[-1].Wy ** 2, dtype=Tensor.config.floatX, acc_dtype=Tensor.config.floatX)
 
         return regularization
 
