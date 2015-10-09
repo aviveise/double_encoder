@@ -1,6 +1,5 @@
 import numpy
 from MISC.logger import OutputLog
-from sphinx.pycode import sym
 
 l__author__ = 'aviv'
 import theano
