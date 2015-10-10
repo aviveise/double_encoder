@@ -197,7 +197,7 @@ class Trainer(object):
                 if math.isnan(var):
                     sys.exit(0)
 
-                current_metric = tester._metrics[hyper_parameters.early_stopping_layer][hyper_parameters.early_stopping_metric]
+                current_metric = tester._metrics[hyper_parameters.early_stopping_layer][hyper_parameters.early_stopping_metric][-1]
                 if last_metric > current_metric:
                     early_stop_count += 1
 
