@@ -24,6 +24,9 @@ class RegularizationBase(object):
     def set_layer(self, layer):
         pass
 
+    def disable(self):
+        pass
+
     def reset(self):
         pass
 

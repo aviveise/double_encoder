@@ -48,8 +48,12 @@ class Configuration(object):
         strategy = training_section['strategy']
         rho = float(training_section['rho'])
         cascade_train = bool(int(training_section['cascade_train']))
+        validation_epoch = int(training_section['validation_epoch'])
         decay = self._listify(training_section['decay'])
         decay_factor = float(training_section['decay_factor'])
+        early_stopping = bool(int(training_section['early_stopping']))
+        early_stopping_layer = int(training_section['early_stopping_layer'])
+        early_stopping_metric = training_section['early_stopping_metric']
 
         return HyperParameters(layer_sizes=layer_sizes,
                                learning_rate=learning_rate,
@@ -62,7 +66,11 @@ class Configuration(object):
                                rho=rho,
                                cascade_train=cascade_train,
                                decay=decay,
-                               decay_factor=decay_factor)
+                               decay_factor=decay_factor,
+                               early_stopping=early_stopping,
+                               early_stopping_layer=early_stopping_layer,
+                               early_stopping_metric=early_stopping_metric,
+                               validation_epoch=validation_epoch)
 
     def convert_method(self, method_string):
 

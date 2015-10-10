@@ -48,7 +48,7 @@ class GUYDataSet(DatasetBase):
             train_size = min(training_image_idx.shape[0], 100000)
             self.reduce_val = 0
 
-        dev_size = min(validation_sen_idx.shape[0], 2500)
+        dev_size = validation_sen_idx.shape[0]
         test_size = test_sen_idx.shape[0]
 
         self.trainset = [numpy.ndarray((train_size, CNN_output.shape[1]), dtype=config.floatX),

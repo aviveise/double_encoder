@@ -65,21 +65,29 @@ class IterativeTrainingStrategy(TrainingStrategy):
                                           hyper_parameters.method_in,
                                           hyper_parameters.method_out)
 
-            params = []
-
-            if idx == 0:
-                params.extend(symmetric_double_encoder[0].x_params)
-
-            else:
-                params.extend(symmetric_double_encoder[-1].x_hidden_params)
-
-            params.extend(symmetric_double_encoder[-1].y_params)
-
             if hyper_parameters.cascade_train:
 
-                for regularization in regularization_methods:
-                    regularization.set_layer(idx)
+                params = []
 
+                if idx == 0:
+                    params.extend(symmetric_double_encoder[0].x_params)
+
+                else:
+                    params.extend(symmetric_double_encoder[-1].x_hidden_params)
+
+                params.extend(symmetric_double_encoder[-1].y_params)
+                params.append(symmetric_double_encoder[-1].gamma_x)
+                params.append(symmetric_double_encoder[-1].gamma_y)
+                params.append(symmetric_double_encoder[-1].beta_x)
+                params.append(symmetric_double_encoder[-1].beta_y)
+
+
+                for regularization in regularization_methods:
+                    regularization.disable()
+
+                moving_averages = symmetric_double_encoder.getMovingAverages()
+
+                OutputLog().write('--------Starting Training Network-------')
                 OutputLog().write('--------Starting Training Network-------')
                 Trainer.train(train_set_x=training_set_x,
                               train_set_y=training_set_y,
@@ -90,6 +98,7 @@ class IterativeTrainingStrategy(TrainingStrategy):
                               print_verbose=print_verbose,
                               validation_set_x=validation_set_x,
                               validation_set_y=validation_set_y,
+                              moving_averages=moving_averages,
                               reduce_val=reduce_val)
 
                 if dir_name is not None:

@@ -6,6 +6,15 @@ from MISC.utils import print_list
 
 
 class HyperParameters(object):
+    def copy(self):
+        return HyperParameters(self.layer_sizes,
+                               self.learning_rate,
+                               self.batch_size,
+                               self.epochs,
+                               self.momentum,
+                               self.method_in,
+                               self.method_out)
+
     def __init__(self, layer_sizes=[0],
                  learning_rate=0,
                  batch_size=0,
@@ -17,7 +26,11 @@ class HyperParameters(object):
                  rho=0.5,
                  cascade_train=True,
                  decay_factor=None,
-                 decay=0.1):
+                 decay=0.1,
+                 early_stopping=False,
+                 early_stopping_layer=1,
+                 early_stopping_metric='correlation',
+                 validation_epoch=1):
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.epochs = epochs
@@ -30,15 +43,10 @@ class HyperParameters(object):
         self.cascade_train = cascade_train
         self.decay = decay
         self.decay_factor = decay_factor
-
-    def copy(self):
-        return HyperParameters(self.layer_sizes,
-                               self.learning_rate,
-                               self.batch_size,
-                               self.epochs,
-                               self.momentum,
-                               self.method_in,
-                               self.method_out)
+        self.early_stopping = early_stopping
+        self.early_stopping_layer = early_stopping_layer
+        self.early_stopping_metric = early_stopping_metric
+        self.validation_epoch = validation_epoch
 
     def print_parameters(self, output_stream):
         output_stream.write('Hyperparameters:')
@@ -54,7 +62,8 @@ class HyperParameters(object):
                             'rho: {8} \n'
                             'decay factor {10} \n'
                             'decay epochs {11} \n'
-                            'cascade_train: {9} \n'.format(print_list(self.layer_sizes),
+                            'cascade_train: {9} \n'
+                            'early_stopping: {12}'.format(print_list(self.layer_sizes),
                                                            self.learning_rate,
                                                            self.batch_size,
                                                            self.epochs,
@@ -65,4 +74,5 @@ class HyperParameters(object):
                                                            self.rho,
                                                            self.cascade_train,
                                                            self.decay_factor,
-                                                           self.decay))
+                                                           self.decay,
+                                                           self.early_stopping))

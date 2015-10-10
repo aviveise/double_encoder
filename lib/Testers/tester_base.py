@@ -60,8 +60,6 @@ class TesterBase(object):
                 correlation = correlation_temp_hidden
                 layer_id = index
 
-            index += 1
-
             for metric in metrics.keys():
                 if index not in self._metrics:
                     self._metrics[index] = {}
@@ -70,6 +68,8 @@ class TesterBase(object):
                     self._metrics[index][metric] = []
 
                 self._metrics[index][metric].append(metrics[metric])
+
+            index += 1
 
         OutputLog().write(tabulate(table_rows, headers=table_header))
 

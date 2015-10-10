@@ -88,7 +88,7 @@ class Trainer(object):
 
         symmetric_double_encoder.set_eval(False)
 
-        last_correlation = 0
+        last_metric = 0
 
         correlations = []
 
@@ -182,9 +182,7 @@ class Trainer(object):
             OutputLog().write('Average loss_x: {0} loss_y: {1}'.format(loss_backward / (n_training_batches * 2),
                                                                        loss_forward / (n_training_batches * 2)))
 
-            correlations = [-1]
-
-            if print_verbose and not validation_set_y is None and not validation_set_x is None:
+            if print_verbose and not validation_set_y is None and not validation_set_x is None and epoch % hyper_parameters.validation_epoch == 0:
 
                 OutputLog().write('----------epoch (%d)----------' % epoch, 'debug')
 
@@ -199,32 +197,25 @@ class Trainer(object):
                 if math.isnan(var):
                     sys.exit(0)
 
-            if last_correlation == max(correlations):
-                early_stop_count += 1
+                current_metric = tester._metrics[hyper_parameters.early_stopping_layer][hyper_parameters.early_stopping_metric]
+                if last_metric > current_metric:
+                    early_stop_count += 1
 
-            if hyper_parameters.decay_factor > 0:
-                if not hyper_parameters.decay:
-                    if last_correlation == 0:
-                        last_correlation = max(correlations)
-                    else:
-                        if last_correlation - max(correlations) > 0.1:
+                if hyper_parameters.decay_factor > 0:
+                    if not hyper_parameters.decay:
+                        if last_metric - current_metric > 0.1:
                             OutputLog().write('Decaying learning rate')
                             learning_rate *= hyper_parameters.decay_factor
+                    else:
+                        if epoch in hyper_parameters.decay:
+                            OutputLog().write('Decaying learning rate')
+                            learning_rate *= hyper_parameters.decay_factor
+                            symmetric_double_encoder.export_encoder(OutputLog().output_path, 'epoch_{0}'.format(epoch))
 
-                        last_correlation = max(correlations)
-                else:
-                    if epoch in hyper_parameters.decay:
-                        OutputLog().write('Decaying learning rate')
-                        learning_rate *= hyper_parameters.decay_factor
-                        symmetric_double_encoder.export_encoder(OutputLog().output_path, 'epoch_{0}'.format(epoch))
-            else:
-                if last_correlation == 0:
-                    last_correlation = max(correlations)
-                elif abs(last_correlation - max(correlations)) < 0.5:
+                last_metric = current_metric
+
+                if early_stop_count == 1:
                     break
-
-            if early_stop_count == 3:
-                break
 
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f, learning_rate = %f\n' % (epoch,
                                                                                               loss_backward / n_training_batches,

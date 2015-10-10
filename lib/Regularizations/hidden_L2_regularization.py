@@ -12,12 +12,17 @@ class HiddenL2Regularization(RegularizationBase):
         super(HiddenL2Regularization, self).__init__(regularization_parameters)
         self._layer = int(regularization_parameters['layer'])
         self._layer_base = self._layer
+        self._weight_base = self.weight
 
     def set_layer(self, layer):
         self._layer = layer
 
+    def disable(self):
+        self.weight = 0
+
     def reset(self):
         self._layer = self._layer_base
+        self.weight = self._weight_base
 
     def compute(self, symmetric_double_encoder, params):
 
