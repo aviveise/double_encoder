@@ -215,7 +215,8 @@ class Trainer(object):
                 last_metric = current_metric
 
             if early_stop_count == 1:
-                break
+                tester.saveResults(OutputLog().output_path)
+                return
 
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f, learning_rate = %f\n' % (epoch,
                                                                                               loss_backward / n_training_batches,
