@@ -3,7 +3,7 @@ import scipy.io
 import h5py
 import numpy
 
-from theano.tensor import config
+from theano.tensor import config, theano
 
 from MISC.container import ContainerRegisterMetaClass
 from dataset_base import DatasetBase
@@ -83,3 +83,9 @@ class GUYDataSet(DatasetBase):
         for i in range(test_size):
             self.testset[0][i, :] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
             self.testset[1][i, :] = feature_vectors[int(test_sen_idx[i]) - 1]
+
+        self.trainset = (self.add_jitter(self.trainset[0]), self.add_jitter(self.trainset[1]))
+
+    def add_jitter(self, set):
+        new_samples = set + numpy.cast[theano.config.floatX](numpy.random.normal(0, 0.5, set.shape))
+        return numpy.vstack((set, new_samples))
