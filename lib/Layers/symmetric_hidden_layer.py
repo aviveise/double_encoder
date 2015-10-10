@@ -303,8 +303,8 @@ class SymmetricHiddenLayer(object):
         else:
             layer_input = Tensor.dot(layer_input, self.Wy) + self.bias
 
-        # result = self.activation_hidden(layer_input)
-        result = layer_input
+        result = self.activation_hidden(layer_input)
+        # result = layer_input
 
         if self.normalize:
             self.moving_average_y = []
@@ -319,7 +319,7 @@ class SymmetricHiddenLayer(object):
             result = self.withen_activations(result, self.cov_inference_y, self.moving_average_y, self.gamma_y,
                                              self.beta_y)
 
-        result = self.activation_hidden(result)
+        # result = self.activation_hidden(result)
 
         if self._dropout == 'dropout':
             result = self.dropout(result)
