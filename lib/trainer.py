@@ -214,7 +214,7 @@ class Trainer(object):
 
                 last_metric = current_metric
 
-            if early_stop_count == 1:
+            if early_stop_count == 1 and hyper_parameters.early_stopping:
                 tester.saveResults(OutputLog().output_path)
                 return
 
