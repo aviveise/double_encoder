@@ -87,5 +87,5 @@ class GUYDataSet(DatasetBase):
         self.trainset = (self.add_jitter(self.trainset[0]), self.add_jitter(self.trainset[1]))
 
     def add_jitter(self, set):
-        new_samples = set + numpy.cast[theano.config.floatX](numpy.random.normal(0, 0.5, set.shape))
+        new_samples = set + numpy.cast[theano.config.floatX](numpy.random.normal(0, 0.1, set.shape))
         return numpy.vstack((set, new_samples))
