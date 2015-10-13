@@ -42,8 +42,8 @@ class GUYDataSet(DatasetBase):
         # test_image_idx = idx_mat['tst_images_I']
 
         if self._full:
-            train_size = min(training_sen_idx.shape[0], 100000)
-            self.reduce_val = 5
+            train_size = training_sen_idx.shape[0]
+            self.reduce_val = training_sen_idx.shape[0] / training_image_idx.shape[0]
         else:
             train_size = min(training_image_idx.shape[0], 100000)
             self.reduce_val = 0
