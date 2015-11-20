@@ -11,10 +11,10 @@ from MISC.logger import OutputLog
 from trainer import Trainer
 
 
-class MirrorTrainingStrategy(TrainingStrategy):
+class HybridTrainingStrategy(TrainingStrategy):
     def __init__(self):
-        super(MirrorTrainingStrategy, self).__init__()
-        self.name = 'mirror'
+        super(HybridTrainingStrategy, self).__init__()
+        self.name = 'hybrid'
 
     def train(self,
               training_set_x,
@@ -75,8 +75,7 @@ class MirrorTrainingStrategy(TrainingStrategy):
                                               False)
 
                 for regularization in regularization_methods:
-                    regularization.set_layer(idx)
-
+                    regularization.disable()
 
                 params_size_A = []
                 params_size_B = []
@@ -88,11 +87,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
                     params_size_A.extend(symmetric_double_encoder_side_A[-1].x_hidden_params)
                     params_size_B.extend(symmetric_double_encoder_side_B[0].y_hidden_params)
 
-                params_size_A.extend(symmetric_double_encoder_side_A[-1].y_params)
-                params_size_B.extend(symmetric_double_encoder_side_B[0].x_params)
-
-                moving_average_A = symmetric_double_encoder_side_A.getMovingAverages()
-                moving_average_B = symmetric_double_encoder_side_B.getMovingAverages()
+                #params_size_A.extend(symmetric_double_encoder_side_A[-1].y_params)
+                #params_size_B.extend(symmetric_double_encoder_side_B[0].x_params)
 
                 OutputLog().write('--------Starting Training Network A-------')
                 Trainer.train(train_set_x=training_set_x,
@@ -104,8 +100,9 @@ class MirrorTrainingStrategy(TrainingStrategy):
                               print_verbose=print_verbose,
                               validation_set_x=validation_set_x,
                               validation_set_y=validation_set_y,
-                              moving_averages=moving_average_A,
-                              reduce_val=reduce_val)
+                              moving_averages=self._moving_average,
+                              reduce_val=reduce_val,
+                              autoencoder_x=True)
 
                 OutputLog().write('--------Starting Training Network B-------')
                 Trainer.train(train_set_x=training_set_x,
@@ -117,8 +114,9 @@ class MirrorTrainingStrategy(TrainingStrategy):
                               print_verbose=print_verbose,
                               validation_set_x=validation_set_x,
                               validation_set_y=validation_set_y,
-                              moving_averages=moving_average_B,
-                              reduce_val=reduce_val)
+                              moving_averages=self._moving_average,
+                              reduce_val=reduce_val,
+                              autoencoder_y=True)
 
         else:
             symmetric_double_encoder = StackedDoubleEncoder(hidden_layers=[],
@@ -151,8 +149,6 @@ class MirrorTrainingStrategy(TrainingStrategy):
         params.append(symmetric_double_encoder_side_A[-1].bias_y_prime)
         params.append(symmetric_double_encoder_side_A[-1].Wy)
 
-        moving_average_A = symmetric_double_encoder_side_A.getMovingAverages()
-
         OutputLog().write('--------Starting Training Network-------')
         Trainer.train(train_set_x=training_set_x,
                       train_set_y=training_set_y,
@@ -163,7 +159,6 @@ class MirrorTrainingStrategy(TrainingStrategy):
                       print_verbose=print_verbose,
                       validation_set_x=validation_set_x,
                       validation_set_y=validation_set_y,
-                      moving_averages=moving_average_A,
                       reduce_val=reduce_val)
 
         if dir_name is not None:

@@ -1,7 +1,7 @@
 import numpy
 from MISC.logger import OutputLog
 
-l__author__ = 'aviv'
+__author__ = 'aviv'
 import theano
 
 
@@ -16,6 +16,13 @@ class WeightOrthonormalRegularization(RegularizationBase):
 
     def __init__(self, regularization_parameters):
         super(WeightOrthonormalRegularization, self).__init__(regularization_parameters)
+        self._weight_base = self.weight
+
+    def disable(self):
+        self.weight = 0
+
+    def reset(self):
+        self.weight = self._weight_base
 
     def compute(self, symmetric_double_encoder, params):
 
@@ -35,12 +42,12 @@ class WeightOrthonormalRegularization(RegularizationBase):
             # regularization += Tensor.sum((hidden_y_sqr - Tensor.identity_like(hidden_y_sqr)) ** 2, dtype=Tensor.config.floatX)
 
             # Wy_Square = Tensor.dot(layer.Wy.T, layer.Wy)
-            Wx_Square = Tensor.dot(layer.Wx, layer.Wx.T)
+            Wx_Square = Tensor.dot(layer.Wx.T, layer.Wx)
             #
             # regularization += Tensor.sum((Wy_Square - Tensor.identity_like(Wy_Square)) ** 2, dtype=Tensor.config.floatX)
             regularization += Tensor.sum(Wx_Square ** 2, dtype=Tensor.config.floatX)
 
-        Wy_Square = Tensor.dot(symmetric_double_encoder[-1].Wy, symmetric_double_encoder[-1].Wy.T)
+        Wy_Square = Tensor.dot(symmetric_double_encoder[-1].Wy.T, symmetric_double_encoder[-1].Wy)
         regularization += Tensor.sum(Wy_Square ** 2, dtype=Tensor.config.floatX)
 
         OutputLog().write('Computing regularization')

@@ -99,7 +99,7 @@ class StackedDoubleEncoder(object):
         for index, layer in enumerate(double_encoder):
             layer.update_x(x=input_x,
                            weights=layer.Wx,
-                           bias_x=None,
+                           bias=None,
                            bias_x_prime=layer.bias_x_prime)
 
             input_x = layer.output_forward_x

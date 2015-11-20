@@ -43,9 +43,9 @@ class GUYDataSet(DatasetBase):
 
         if self._full:
             train_size = training_sen_idx.shape[0]
-            self.reduce_val = training_sen_idx.shape[0] / training_image_idx.shape[0]
+            self.reduce_val = 5
         else:
-            train_size = min(training_image_idx.shape[0], 100000)
+            train_size = training_image_idx.shape[0]
             self.reduce_val = 0
 
         dev_size = validation_sen_idx.shape[0]
@@ -76,7 +76,6 @@ class GUYDataSet(DatasetBase):
                     numpy.where(images_sent_mapping == training_image_idx[i])[0][0]]
 
         for i in range(dev_size):
-
             self.tuning[0][i, :] = CNN_output[int(images_sent_mapping[int(validation_sen_idx[i]) - 1]) - 1]
             self.tuning[1][i, :] = feature_vectors[int(validation_sen_idx[i]) - 1]
 
@@ -84,10 +83,10 @@ class GUYDataSet(DatasetBase):
             self.testset[0][i, :] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
             self.testset[1][i, :] = feature_vectors[int(test_sen_idx[i]) - 1]
 
-        image_jitter = (self.jitter(self.trainset[0]), self.trainset[1])
-        sen_jitter = (self.trainset[0], self.jitter(self.trainset[1]))
-        self.trainset = (numpy.vstack((self.trainset[0], image_jitter[0], sen_jitter[0])),
-                         numpy.vstack((self.trainset[1], image_jitter[1], sen_jitter[1])))
+        # image_jitter = (self.jitter(self.trainset[0]), self.trainset[1])
+        # sen_jitter = (self.trainset[0], self.jitter(self.trainset[1]))
+        # self.trainset = (numpy.vstack((self.trainset[0], image_jitter[0], sen_jitter[0])),
+        #                  numpy.vstack((self.trainset[1], image_jitter[1], sen_jitter[1])))
 
     def jitter(self, set):
         new_samples = set + numpy.cast[theano.config.floatX](numpy.random.normal(0, 0.25, set.shape))

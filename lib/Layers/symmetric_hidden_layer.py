@@ -85,6 +85,7 @@ class SymmetricHiddenLayer(object):
             broadcastable=(True, False))
         self.variance_inference_y.name = self.name + "_var_y"
 
+
         # self.cov_inference_x = theano.shared(
         #     numpy.cast[theano.config.floatX](self.generate_random_basis(self.hidden_layer_size, self.hidden_layer_size)),
         #     borrow=True)
@@ -141,10 +142,10 @@ class SymmetricHiddenLayer(object):
                     name='gamma_x' + '_' + self.name)
 
             self.x_params = [self.Wx,
-                             self.bias,
+                             #self.bias,
                              self.bias_x_prime]
 
-            self.x_hidden_params = [self.Wx, self.bias, self.beta_x, self.gamma_x]
+            self.x_hidden_params = [self.Wx, self.beta_x, self.gamma_x] #self.bias
 
             self.output_forward_x = self.compute_forward_hidden_x()
 
@@ -179,10 +180,10 @@ class SymmetricHiddenLayer(object):
                     name='gamma_y' + '_' + self.name)
 
             self.y_params = [self.Wy,
-                             self.bias,
+                            # self.bias,
                              self.bias_y_prime]
 
-            self.y_hidden_params = [self.Wy, self.bias, self.beta_y, self.gamma_y]
+            self.y_hidden_params = [self.Wy, self.beta_y, self.gamma_y] #self.bias
 
             self.output_forward_y = self.compute_forward_hidden_y()
 

@@ -149,6 +149,28 @@ def tile_raster_images(X, img_shape, tile_shape, tile_spacing=(0, 0),
         return out_array
 
 
+class MinMaxScaler():
+    def __init__(self, range):
+        self._max = 0
+        self._min = 0
+        self._range_max = range[1]
+        self._range_min = range[0]
+
+    def fit(self, M):
+        self._max = numpy.max(M)
+        self._min = numpy.min(M)
+        return self
+
+    def transform(self, M):
+        M_copy = numpy.copy(M)
+        M_std = (M_copy - self._min) / (self._max - self._min)
+        M_scaled = M_std * (self._range_max - self._range_min) + self._range_min
+        return M_scaled
+
+    def fit_transform(self, M):
+        self.fit(M)
+        return self.fit_transform(M)
+
 def unitnorm_rows(M):
     if M is None:
         return
@@ -191,6 +213,9 @@ def normalize(M):
 def scale_cols(M):
     # scaler = preprocessing.MinMaxScaler(feature_range=(-1, 1)).fit(M)
     scaler = preprocessing.StandardScaler().fit(M)
+    # scaler = preprocessing.Normalizer().fit(M)
+    # scaler = MinMaxScaler((0, 1)).fit(M)
+    # scaler = MinMaxScaler((-1, 1)).fit(M)
     return scaler.transform(M), scaler
 
 
@@ -421,59 +446,67 @@ def calculate_square(x):
 
 
 def match_error(x, y, visualize):
-    x_c = center(x)[0]
-    y_c = center(y)[0]
 
-    x_n = preprocessing.normalize(x_c, axis=1)
-    y_n = preprocessing.normalize(y_c, axis=1)
+    try:
+        x_n = preprocessing.normalize(x, axis=1)
+        y_n = preprocessing.normalize(y, axis=1)
 
-    sym = numpy.dot(x_n, y_n.T)
+        x_c = center(x_n)[0]
+        y_c = center(y_n)[0]
 
-    if visualize:
-        visualize_correlation_matrix(sym, 'similarity_mat')
+        sym = numpy.dot(x_c, y_c.T)
 
-    top_1 = numpy.argmax(sym, axis=0)
-    error = 1 - float(numpy.sum(top_1 == range(x.shape[0]))) / x.shape[0]
+        if visualize:
+            visualize_correlation_matrix(sym, 'similarity_mat')
+
+        top_1 = numpy.argmax(sym, axis=0)
+        error = 1 - float(numpy.sum(top_1 == range(x.shape[0]))) / x.shape[0]
+    except:
+        OutputLog().write('Error while calculating match error')
+        error = 0
 
     return error
 
 
 def calculate_mardia(x, y, top, visualize):
-    set_size = x.shape[0]
-    dim = x.shape[1]
+    try:
+        set_size = x.shape[0]
+        dim = x.shape[1]
 
-    x, mean_x = center(x.T)
-    y, mean_y = center(y.T)
+        x, mean_x = center(x.T)
+        y, mean_y = center(y.T)
 
-    # correlation_matrix = numpy.corrcoef(x, y)
+        # correlation_matrix = numpy.corrcoef(x, y)
 
-    s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
-    s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
-    s12 = numpy.dot(x, y.T) / (set_size - 1)
+        s11 = numpy.diag(numpy.diag(numpy.dot(x, x.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
+        s22 = numpy.diag(numpy.diag(numpy.dot(y, y.T) / (set_size - 1) + 10 ** (-8) * numpy.eye(dim, dim)))
+        s12 = numpy.dot(x, y.T) / (set_size - 1)
 
-    s11_chol = scipy.linalg.sqrtm(s11)
-    s22_chol = scipy.linalg.sqrtm(s22)
+        s11_chol = scipy.linalg.sqrtm(s11)
+        s22_chol = scipy.linalg.sqrtm(s22)
 
-    s11_chol_inv = scipy.linalg.inv(s11_chol)
-    s22_chol_inv = scipy.linalg.inv(s22_chol)
+        s11_chol_inv = scipy.linalg.inv(s11_chol)
+        s22_chol_inv = scipy.linalg.inv(s22_chol)
 
-    mat_T = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
+        mat_T = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
 
-    # mat_T = correlation_matrix[0:x.shape[0], x.shape[0]: x.shape[0] + y.shape[0]]
+        # mat_T = correlation_matrix[0:x.shape[0], x.shape[0]: x.shape[0] + y.shape[0]]
 
-    if visualize:
-        visualize_correlation_matrix(mat_T, 'correlation_mat')
-        visualize_correlation_matrix(numpy.sort(mat_T, axis=1), 'correlation_mat_sorted')
+        if visualize:
+            visualize_correlation_matrix(mat_T, 'correlation_mat')
+            visualize_correlation_matrix(numpy.sort(mat_T, axis=1), 'correlation_mat_sorted')
 
-    s = numpy.linalg.svd(numpy.diag(numpy.diag(mat_T)), compute_uv=0)
+        s = numpy.linalg.svd(numpy.diag(numpy.diag(mat_T)), compute_uv=0)
 
-    del mat_T
+        del mat_T
 
-    if top == 0:
-        return numpy.sum(s)
+        if top == 0:
+            return numpy.sum(s)
 
-    return numpy.sum(s[0:top])
-
+        return numpy.sum(s[0:top])
+    except:
+        OutputLog().write('Error while calculating meridia error')
+        return 0
 
 def calculate_trace(x, y):
     centered_x = center(x)
@@ -507,50 +540,53 @@ def calculate_reconstruction_error(x, y):
 
 
 def complete_rank(x, y, reduce_x=0):
-    x_c = center(x)[0]
-    y_c = center(y)[0]
+    try:
+        x_c = center(x)[0]
+        y_c = center(y)[0]
 
-    x_n = preprocessing.normalize(x_c, axis=1)
-    y_n = preprocessing.normalize(y_c, axis=1)
+        x_n = preprocessing.normalize(x_c, axis=1)
+        y_n = preprocessing.normalize(y_c, axis=1)
 
-    num_X_samples = x.shape[0]
-    num_Y_samples = y.shape[0]
+        num_X_samples = x.shape[0]
+        num_Y_samples = y.shape[0]
 
-    if reduce_x:
-        x_n = x_n[0:x_n.shape[0]:reduce_x, :]
-        y_x_mapping = numpy.repeat(numpy.arange(x_n.shape[0]), reduce_x)
-        num_X_samples = num_X_samples / reduce_x
-    else:
-        y_x_mapping = numpy.arange(x_n.shape[0])
+        if reduce_x:
+            x_n = x_n[0:x_n.shape[0]:reduce_x, :]
+            y_x_mapping = numpy.repeat(numpy.arange(x_n.shape[0]), reduce_x)
+            num_X_samples = num_X_samples / reduce_x
+        else:
+            y_x_mapping = numpy.arange(x_n.shape[0])
 
-    y_x_sim_matrix = numpy.dot(x_n, y_n.T)
+        y_x_sim_matrix = numpy.dot(x_n, y_n.T)
 
-    recall_n_vals = [1, 5, 10]
-    num_of_recall_n_vals = len(recall_n_vals)
+        recall_n_vals = [1, 5, 10]
+        num_of_recall_n_vals = len(recall_n_vals)
 
-    x_search_recall = numpy.zeros((num_of_recall_n_vals, 1))
-    describe_x_recall = numpy.zeros((num_of_recall_n_vals, 1))
+        x_search_recall = numpy.zeros((num_of_recall_n_vals, 1))
+        describe_x_recall = numpy.zeros((num_of_recall_n_vals, 1))
 
-    x_search_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=0)[::-1, :]
-    x_search_ranks = numpy.array(
-        [numpy.where(col == y_x_mapping[index])[0] for index, col in enumerate(x_search_sorted_neighbs.T)])
+        x_search_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=0)[::-1, :]
+        x_search_ranks = numpy.array(
+            [numpy.where(col == y_x_mapping[index])[0] for index, col in enumerate(x_search_sorted_neighbs.T)])
 
-    for idx, recall in enumerate(recall_n_vals):
-        x_search_recall[idx] = numpy.sum(x_search_ranks <= recall)
+        for idx, recall in enumerate(recall_n_vals):
+            x_search_recall[idx] = numpy.sum(x_search_ranks <= recall)
 
-    x_search_recall = 100 * x_search_recall / num_Y_samples
+        x_search_recall = 100 * x_search_recall / num_Y_samples
 
-    describe_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)[:, ::-1]
-    describe_y_ranks = numpy.array([numpy.where(numpy.in1d(row, numpy.where(y_x_mapping == index)[0]))[0]
-                                    for index, row in enumerate(describe_y_sorted_neighbs)]).min(axis=1)
+        describe_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)[:, ::-1]
+        describe_y_ranks = numpy.array([numpy.where(numpy.in1d(row, numpy.where(y_x_mapping == index)[0]))[0]
+                                        for index, row in enumerate(describe_y_sorted_neighbs)]).min(axis=1)
 
-    for idx, recall in enumerate(recall_n_vals):
-        describe_x_recall[idx] = numpy.sum(describe_y_ranks <= recall)
+        for idx, recall in enumerate(recall_n_vals):
+            describe_x_recall[idx] = numpy.sum(describe_y_ranks <= recall)
 
-    describe_x_recall = 100 * describe_x_recall / num_X_samples
+        describe_x_recall = 100 * describe_x_recall / num_X_samples
 
-    return x_search_recall, describe_x_recall
-
+        return x_search_recall, describe_x_recall
+    except:
+        OutputLog().write('Error calculating rank score')
+        return [0,0,0], [0,0,0]
 
 def visualize_correlation_matrix(mat, name):
     path = OutputLog().output_path

@@ -81,9 +81,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
                 params.append(symmetric_double_encoder[-1].beta_x)
                 params.append(symmetric_double_encoder[-1].beta_y)
 
-
                 for regularization in regularization_methods:
-                    regularization.disable()
+                    regularization.set_layer(idx)
 
                 moving_averages = symmetric_double_encoder.getMovingAverages()
 

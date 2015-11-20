@@ -36,9 +36,12 @@ if __name__ == '__main__':
     # construct data set
     data_set = Container().create(data_parameters['name'], data_parameters)
 
-    t = DoubleEncoderTransform(configuration.output_parameters['import_net'])
+    t = DoubleEncoderTransform(configuration.output_parameters['import_net'],
+                               r'C:\Theses\double_encoder\Datasets\XRMB\scaler_x.p',
+                               r'C:\Theses\double_encoder\Datasets\XRMB\scaler_y.p')
 
-    transformed_x, transformed_y = t.transform(data_set.testset[0], data_set.testset[1])
+    transformed_x = t.transform_x(data_set.testset[0])
+    transformed_y = t.transform_y(data_set.testset[1])
 
     corr = calculate_mardia(transformed_x, transformed_y, top, False)
 

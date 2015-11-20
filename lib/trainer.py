@@ -1,9 +1,7 @@
 import cv2
 import itertools
-from theano.ifelse import IfElse, ifelse
 from theano.tensor.nlinalg import matrix_inverse
 from theano.tensor.shared_randomstreams import RandomStreams
-from MISC.theano_ops import batched_inv
 
 __author__ = 'aviv'
 
@@ -71,7 +69,9 @@ class Trainer(object):
               validation_set_y=None,
               moving_averages=None,
               decay=False,
-              reduce_val=0):
+              reduce_val=0,
+              autoencoder_x=False,
+              autoencoder_y=False):
 
         OutputLog().write('Using Decay = {0}'.format(decay))
 
@@ -118,7 +118,9 @@ class Trainer(object):
                                          hyper_parameters.rho,
                                          eps,
                                          'L2',
-                                         len(symmetric_double_encoder) - 1)
+                                         len(symmetric_double_encoder) - 1,
+                                         autoencoder_x,
+                                         autoencoder_y)
 
             OutputLog().write('Shuffling dataset', 'debug')
             indices_positive = random_stream.permutation(train_set_x.shape[0])
@@ -197,7 +199,8 @@ class Trainer(object):
                 if math.isnan(var):
                     sys.exit(0)
 
-                current_metric = tester._metrics[hyper_parameters.early_stopping_layer][hyper_parameters.early_stopping_metric][-1]
+                current_metric = \
+                tester._metrics[hyper_parameters.early_stopping_layer][hyper_parameters.early_stopping_metric][-1]
                 if last_metric > current_metric:
                     early_stop_count += 1
 
@@ -221,8 +224,7 @@ class Trainer(object):
             OutputLog().write('epoch (%d) ,Loss X = %f, Loss Y = %f, learning_rate = %f\n' % (epoch,
                                                                                               loss_backward / n_training_batches,
                                                                                               loss_forward / n_training_batches,
-                                                                                              learning_rate
-                                                                                              ), 'debug')
+                                                                                              learning_rate), 'debug')
 
         tester.saveResults(OutputLog().output_path)
 
@@ -269,7 +271,9 @@ class Trainer(object):
                      rho=0.5,
                      eps=1e-8,
                      loss='L2',
-                     last_layer=0):
+                     last_layer=0,
+                     autoencoder_x=False,
+                     autoencoder_y=False):
 
         # loss_decision = Tensor.iscalar()
         t = Tensor.dscalar()
@@ -286,7 +290,19 @@ class Trainer(object):
 
         print 'Calculating Loss'
 
-        if loss == 'L2':
+        if autoencoder_x == True or autoencoder_y == True:
+            loss_forward = Tensor.constant(0)
+            loss_backward = Tensor.constant(0)
+
+            if autoencoder_x == True:
+                loss_forward = Tensor.mean((var_x - symmetric_double_encoder[-1].reconstruct_x(x_hidden)) ** 2)
+
+            if autoencoder_y == True:
+                loss_backward = Tensor.mean((var_y - symmetric_double_encoder[-1].reconstruct_y(y_hidden)) ** 2)
+
+            loss = loss_forward + loss_backward
+
+        elif loss == 'L2':
             loss_backward = Tensor.mean(
                 ((var_x - x_tilde) ** 2).sum(axis=1, dtype=Tensor.config.floatX))
 
@@ -472,7 +488,7 @@ class Trainer(object):
         return model
 
     @staticmethod
-    def _add_moving_averages(moving_averages, updates, length, factor=0.1):
+    def _add_moving_averages(moving_averages, updates, length, factor=0.01):
 
         for l in moving_averages:
             if len(l) == 0:
@@ -504,20 +520,20 @@ class Trainer(object):
             delta = step_size * gradient
             return param - delta, delta
 
-        # 'W' in param.name:
-        # if type == 'Cayley' and (param.name == 'Wx_layer1' or param.name == 'Wx_layer2'):#(param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):# or param.name == 'Wx_layer1' or param.name == 'Wx_layer2'):# or param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):
-        #     OutputLog().write('Adding constraint to {0}:'.format(param.name))
-        #
-        # else:
-        #     delta = step_size * gradient
-        #     return param - delta, delta
+            # 'W' in param.name:
+            # if type == 'Cayley' and (param.name == 'Wx_layer1' or param.name == 'Wx_layer2'):#(param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):# or param.name == 'Wx_layer1' or param.name == 'Wx_layer2'):# or param.name == 'Wx_layer0' or param.name == 'Wy_layer{0}'.format(last_layer)):
+            #     OutputLog().write('Adding constraint to {0}:'.format(param.name))
+            #
+            # else:
+            #     delta = step_size * gradient
+            #     return param - delta, delta
 
     @staticmethod
     def _calc_caylay_delta(step_size, param, gradient):
         A = Tensor.dot(((step_size / 2) * gradient).T, param) - Tensor.dot(param.T, ((step_size / 2) * gradient))
         I = Tensor.identity_like(A)
         temp = I + A
-        #Q = Tensor.dot(batched_inv(temp.dimshuffle('x',0,1))[0], (I - A))
+        # Q = Tensor.dot(batched_inv(temp.dimshuffle('x',0,1))[0], (I - A))
         Q = Tensor.dot(matrix_inverse(temp), I - A)
         update = Tensor.dot(param, Q)
         delta = (step_size / 2) * Tensor.dot((param + update), A)
