@@ -59,6 +59,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
             # once a layer was added, weights not belonging to the new layer are
             # not changed
 
+            hyper_parameters.epochs *= 2
+
             for idx, layer_size in enumerate(range(int(floor(len(layer_sizes) / 2)))):
 
                 OutputLog().write('--------Adding Layer of Size - %d to A--------' % layer_sizes[0])
@@ -152,6 +154,8 @@ class MirrorTrainingStrategy(TrainingStrategy):
         params.append(symmetric_double_encoder_side_A[-1].Wy)
 
         moving_average_A = symmetric_double_encoder_side_A.getMovingAverages()
+
+        hyper_parameters.epochs /= 2
 
         OutputLog().write('--------Starting Training Network-------')
         Trainer.train(train_set_x=training_set_x,

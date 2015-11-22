@@ -57,6 +57,8 @@ class IterativeTrainingStrategy(TrainingStrategy):
 
         layer_sizes = hyper_parameters.layer_sizes[len(symmetric_double_encoder):]
 
+        hyper_parameters.epochs /= 2
+
         for idx, layer_size in enumerate(layer_sizes):
 
             OutputLog().write('--------Adding Layer of Size - %d--------' % layer_size)
@@ -107,11 +109,13 @@ class IterativeTrainingStrategy(TrainingStrategy):
         if hyper_parameters.cascade_train:
             hyper_parameters.learning_rate *= 0.1
 
-        for regularization in regularization_methods:
-            regularization.reset()
+        # for regularization in regularization_methods:
+        #     regularization.disable()
 
         params = symmetric_double_encoder.getParams()
         moving_averages = symmetric_double_encoder.getMovingAverages()
+
+        hyper_parameters.epochs *= 2
 
         OutputLog().write('--------Starting Training Network-------')
         Trainer.train(train_set_x=training_set_x,

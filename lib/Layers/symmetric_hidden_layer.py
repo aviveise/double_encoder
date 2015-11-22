@@ -29,10 +29,10 @@ class SymmetricHiddenLayer(object):
                  normalize=True,
                  normalize_sample=False,
                  decorrelate=False,
-                 drop=None,
+                 drop='dropout',
                  k=750,
                  epsilon=1e-6,
-                 dropout_prob=0.25):
+                 dropout_prob=0.5):
 
         self._dropout = drop
         self._drop_probability = dropout_prob
@@ -366,9 +366,8 @@ class SymmetricHiddenLayer(object):
         self._eval = eval
 
     def drop(self, input, p):
-        output_train = input * self._random_streams.binomial(input.shape,
-                                                             p=p,
-                                                             dtype=Tensor.config.floatX)
+        output_train = input * Tensor.cast(self._random_streams.binomial(input.shape,
+                                                             p=p),dtype=Tensor.config.floatX)
         return output_train
 
     # Given one input computes the network forward output
