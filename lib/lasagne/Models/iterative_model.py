@@ -1,36 +1,32 @@
 import lasagne
 from math import floor
+from theano import tensor
+from theano.tensor.shared_randomstreams import RandomStreams
 
-from lasagne.regularization import l2
-
-from lib.lasagne.Layers.Penelties import orthonormality
-from lib.lasagne.Layers.TiedDropoutLayer import TiedDropoutLayer
 from lib.lasagne.learnedactivations import BatchNormalizationLayer, BatchNormLayer
 
-WEIGHT_DECAY = 0.0005
-L2_LOSS = 0.1
+WEIGHT_DECAY = 0.005
+
 
 def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
                 weight_init=lasagne.init.GlorotUniform(), drop_prob=None, **kwargs):
+    hooks = {}
 
     # Create x to y network
-    model_x, hidden_x, weights_x, biases_x, prediction_y, hooks_x, dropouts_x = build_single_channel(var_x, input_size_x,
-                                                                                                   input_size_y,
-                                                                                                   layer_sizes,
-                                                                                                   weight_init,
-                                                                                                   lasagne.init.Constant(
-                                                                                                       0.),
-                                                                                                   drop_prob, 'x')
+    model_x, hidden_x, weights_x, biases_x, prediction_y, hooks_x = build_single_channel(var_x, input_size_x,
+                                                                                         input_size_y, layer_sizes,
+                                                                                         weight_init,
+                                                                                         lasagne.init.Constant(0.),
+                                                                                         drop_prob, 'x')
 
-    model_y, hidden_y, weights_y, biases_y, prediction_x, hooks_y, dropouts_y = build_single_channel(var_y, input_size_y,
+    model_y, hidden_y, weights_y, biases_y, prediction_x, hooks_y = build_single_channel(var_y, input_size_y,
                                                                                          input_size_x, layer_sizes,
                                                                                          [w.T for w in
                                                                                           reversed(weights_x)],
                                                                                          list(reversed(biases_x))[
                                                                                          1:] + [
                                                                                              lasagne.init.Constant(0.)],
-                                                                                         drop_prob, 'y',
-                                                                                         dropouts_x)
+                                                                                         drop_prob, 'y')
 
     reversed_hidden_y = list(reversed(hidden_y))
 
@@ -48,14 +44,14 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
     middle_x = lasagne.layers.get_output(hidden_x[middle_layer], moving_avg_hooks=hooks_temp)
     middle_y = lasagne.layers.get_output(reversed_hidden_y[middle_layer], moving_avg_hooks=hooks_temp)
 
-    loss_l2 = L2_LOSS * lasagne.objectives.squared_error(middle_x, middle_y).sum(axis=1).mean()
+    loss_l2 = lasagne.objectives.squared_error(middle_x, middle_y).sum(axis=1).mean()
 
     loss_weight_decay = 0
 
     loss_weight_decay += lasagne.regularization.regularize_layer_params(model_x,
-                                                                        penalty=l2) * WEIGHT_DECAY
+                                                                        penalty=lasagne.regularization.l2) * WEIGHT_DECAY
     loss_weight_decay += lasagne.regularization.regularize_layer_params(model_y,
-                                                                        penalty=l2) * WEIGHT_DECAY
+                                                                        penalty=lasagne.regularization.l2) * WEIGHT_DECAY
 
     loss = loss_x + loss_y + loss_l2 + loss_weight_decay
 
@@ -70,12 +66,11 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
 
 def build_single_channel(var, input_size, output_size, layer_sizes, weight_init=lasagne.init.GlorotUniform(),
-                         bias_init=lasagne.init.Constant(0.), drop_prob=None, name='', dropouts_init=None):
+                         bias_init=lasagne.init.Constant(0.), drop_prob=None, name=''):
     model = []
     weights = []
     biases = []
     hidden = []
-    dropouts = []
     hooks = {}
 
     if isinstance(weight_init, lasagne.init.Initializer):
@@ -83,9 +78,6 @@ def build_single_channel(var, input_size, output_size, layer_sizes, weight_init=
 
     if isinstance(bias_init, lasagne.init.Initializer):
         bias_init = [bias_init for i in range(len(layer_sizes) + 1)]
-
-    if dropouts_init is None:
-        dropouts_init = [dropouts_init for i in range(len(layer_sizes) + 1)]
 
     # Add Input Layer
     model.append(lasagne.layers.InputLayer((None, input_size), var, 'input_layer_{0}'.format(name)))
@@ -105,9 +97,8 @@ def build_single_channel(var, input_size, output_size, layer_sizes, weight_init=
                                              nonlinearity=lasagne.nonlinearities.identity))
 
         drop = 0 if drop_prob is None else drop_prob[index]
-        model.append(TiedDropoutLayer(model[-1], rescale=True, p=drop, dropout_layer=dropouts_init[-(index + 1)]))
+        model.append(lasagne.layers.DropoutLayer(model[-1], rescale=True, p=drop))
 
-        dropouts.append(model[-1])
         hidden.append(model[-1])
 
     # Add output layer
@@ -121,4 +112,4 @@ def build_single_channel(var, input_size, output_size, layer_sizes, weight_init=
 
     prediction = lasagne.layers.get_output(model[-1], moving_avg_hooks=hooks)
 
-    return model, hidden, weights, biases, prediction, hooks, dropouts
+    return model, hidden, weights, biases, prediction, hooks
