@@ -16,7 +16,7 @@ import numpy.linalg
 import scipy.linalg
 import scipy.sparse.linalg
 from sklearn import preprocessing
-from MISC.logger import OutputLog
+from logger import OutputLog
 
 global file_ndx
 file_ndx = {}
@@ -468,7 +468,7 @@ def match_error(x, y, visualize):
     return error
 
 
-def calculate_mardia(x, y, top, visualize):
+def calculate_mardia(x, y, top, visualize=False):
     try:
         set_size = x.shape[0]
         dim = x.shape[1]
@@ -539,13 +539,20 @@ def calculate_reconstruction_error(x, y):
     return numpy.mean(((x - y) ** 2).sum(axis=1))
 
 
-def complete_rank(x, y, reduce_x=0):
+def complete_rank(x, y, reduce_x=0, normalize_axis=1):
     try:
-        x_c = center(x)[0]
-        y_c = center(y)[0]
+        if normalize_axis == 1:
+            x_c = center(x)[0]
+            y_c = center(y)[0]
 
-        x_n = preprocessing.normalize(x_c, axis=1)
-        y_n = preprocessing.normalize(y_c, axis=1)
+            x_n = preprocessing.normalize(x_c, axis=1)
+            y_n = preprocessing.normalize(y_c, axis=1)
+        elif normalize_axis == 0:
+            x_c = center(x.T)[0].T
+            y_c = center(y.T)[0].T
+
+            x_n = preprocessing.normalize(x_c, axis=0)
+            y_n = preprocessing.normalize(y_c, axis=0)
 
         num_X_samples = x.shape[0]
         num_Y_samples = y.shape[0]
