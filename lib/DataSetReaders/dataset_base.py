@@ -4,17 +4,13 @@ import struct
 
 import random
 import hickle
-import scipy
 import theano
 import numpy
 import pickle
 
 from sklearn.decomposition import PCA
-from MISC.utils import scale_cols
-from MISC.utils import center as center_function
-from MISC.utils import normalize as normalize_function
-from MISC.whiten_transform import WhitenTransform
-from MISC.logger import OutputLog
+from lib.MISC.utils import scale_cols
+from lib.MISC.logger import OutputLog
 
 __author__ = 'aviv'
 

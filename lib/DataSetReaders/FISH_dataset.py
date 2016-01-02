@@ -3,9 +3,9 @@ import os
 import numpy
 import scipy.io
 from theano import config
-from MISC import utils
+from lib.MISC import utils
 
-from MISC.container import ContainerRegisterMetaClass
+from lib.MISC.container import ContainerRegisterMetaClass
 from dataset_base import DatasetBase
 
 TRAINING_PERCENT = 0.8

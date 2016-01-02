@@ -5,7 +5,7 @@ import numpy
 import cv2
 from theano import config
 
-from MISC.container import ContainerRegisterMetaClass
+from lib.MISC.container import ContainerRegisterMetaClass
 from dataset_base import DatasetBase
 
 

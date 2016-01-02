@@ -1,8 +1,4 @@
-import cPickle
-import gzip
-import theano
-
-from MISC.container import ContainerRegisterMetaClass
+from lib.MISC.container import ContainerRegisterMetaClass
 from dataset_base import DatasetBase
 
 import numpy

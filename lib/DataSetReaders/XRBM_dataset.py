@@ -6,11 +6,10 @@ import gzip
 import theano
 
 import numpy
-# import rpy2.robjects as robjects
 
 from theano import config
 
-from MISC.container import ContainerRegisterMetaClass
+from lib.MISC.container import ContainerRegisterMetaClass
 from dataset_base import DatasetBase
 
 
