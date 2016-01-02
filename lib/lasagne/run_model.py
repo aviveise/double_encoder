@@ -3,7 +3,6 @@ import os
 import sys
 from collections import OrderedDict
 from math import floor
-
 import cPickle
 import lasagne
 import numpy
@@ -19,7 +18,9 @@ from tabulate import tabulate
 
 OUTPUT_DIR = r'C:\Workspace\output'
 BATCH_SIZE = 128
-EPOCH_NUMBER = 1
+EPOCH_NUMBER = 40
+DECAY_EPOCH = [10, 20, 30]
+BASE_LEARNING_RATE = 0.0001
 
 
 def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
@@ -34,10 +35,11 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
             excerpt = slice(start_idx, start_idx + batchsize)
         yield inputs_x[excerpt], inputs_y[excerpt]
 
-def test_model(model_x, model_y, dataset_x, dataset_y):
+
+def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1):
     # Test
-    x_values = model_x(dataset_x, dataset_y)
-    y_values = model_y(dataset_x, dataset_y)
+    y_values = model_x(dataset_x, dataset_y)
+    x_values = model_y(dataset_x, dataset_y)
 
     OutputLog().write('\nTesting model\n')
 
@@ -79,7 +81,7 @@ if __name__ == '__main__':
     y_var = tensor.fmatrix()
     x_var = tensor.fmatrix()
 
-    model = parallel_model
+    model = tied_dropout_iterative_model
 
     OutputLog().write('Model: {0}'.format(model.__name__))
 
@@ -87,8 +89,8 @@ if __name__ == '__main__':
                                                                                    data_set.trainset[0].shape[1],
                                                                                    y_var,
                                                                                    data_set.trainset[1].shape[1],
-                                                                                   layer_sizes=[2048, 4096, 2048],
-                                                                                   parallel_width=2,
+                                                                                   layer_sizes=[2048, 2048, 2048],
+                                                                                   parallel_width=4,
                                                                                    drop_prob=[0.5, 0.5, 0.5],
                                                                                    weight_init=lasagne.init.GlorotUniform())
 
@@ -117,7 +119,9 @@ if __name__ == '__main__':
 
     params = lasagne.utils.unique(params_x)
 
-    updates.update(lasagne.updates.nesterov_momentum(loss, params, learning_rate=0.0001, momentum=0.9))
+    current_learning_rate = BASE_LEARNING_RATE
+
+    updates.update(lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=0.9))
 
     train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
@@ -140,8 +144,8 @@ if __name__ == '__main__':
         for index, batch in enumerate(
                 iterate_minibatches(data_set.trainset[0], data_set.trainset[1], BATCH_SIZE, True)):
             input_x, input_y = batch
-            loss = train_fn(input_x, input_y)
-            OutputLog().write(output_string.format(index, batch_number, *loss))
+            train_loss = train_fn(input_x, input_y)
+            OutputLog().write(output_string.format(index, batch_number, *train_loss))
 
         x_values = test_y(data_set.tuning[0], data_set.tuning[1])
         y_values = test_x(data_set.tuning[0], data_set.tuning[1])
@@ -150,22 +154,29 @@ if __name__ == '__main__':
 
         for index, (x, y) in enumerate(zip(x_values, y_values)):
             search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
-            loss = calculate_reconstruction_error(x, y)
+            validation_loss = calculate_reconstruction_error(x, y)
             correlation = calculate_mardia(x, y, 0)
 
             OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}'.format(index,
-                                                                                            loss,
+                                                                                            validation_loss,
                                                                                             correlation,
                                                                                             sum(search_recall) + sum(
                                                                                                 describe_recall)))
 
+        if epoch in DECAY_EPOCH:
+            current_learning_rate *= 0.1
+            updates = OrderedDict(batchnormalizeupdates(hooks, 100))
+            updates.update(
+                lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=0.9))
+            train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
+
     OutputLog().write('Test results')
 
-    test_model(test_x, test_y, data_set.testset[0], data_set.testset[1])
+    test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5)
 
     OutputLog().write('Train results')
 
-    test_model(test_x, test_y, data_set.trainset[0], data_set.trainset[1])
+    test_model(test_x, test_y, data_set.trainset[0], data_set.trainset[1], parallel=5)
 
     # Export network
     path = OutputLog().output_path

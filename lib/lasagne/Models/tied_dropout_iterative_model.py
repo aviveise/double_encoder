@@ -2,13 +2,16 @@ import lasagne
 from math import floor
 
 from lasagne.regularization import l2
+from theano import tensor as T
+
 
 from lib.lasagne.Layers.Penelties import orthonormality
 from lib.lasagne.Layers.TiedDropoutLayer import TiedDropoutLayer
-from lib.lasagne.learnedactivations import BatchNormalizationLayer, BatchNormLayer
+from lib.lasagne.learnedactivations import BatchNormalizationLayer, BatchNormLayer, BatchWhiteningLayer
 
-WEIGHT_DECAY = 0.0005
-L2_LOSS = 0.1
+WEIGHT_DECAY = 0.005
+WITHEN_REG = 0.1
+L2_LOSS = 1
 
 def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
                 weight_init=lasagne.init.GlorotUniform(), drop_prob=None, **kwargs):
@@ -52,18 +55,26 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
     loss_weight_decay = 0
 
+    cov_x = T.dot(middle_x.T, middle_x)
+    cov_y = T.dot(middle_y.T, middle_y)
+
+    loss_withen = T.constant(0)
+    loss_withen += WITHEN_REG * T.mean(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
+    loss_withen += WITHEN_REG * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
+
     loss_weight_decay += lasagne.regularization.regularize_layer_params(model_x,
                                                                         penalty=l2) * WEIGHT_DECAY
     loss_weight_decay += lasagne.regularization.regularize_layer_params(model_y,
                                                                         penalty=l2) * WEIGHT_DECAY
 
-    loss = loss_x + loss_y + loss_l2 + loss_weight_decay
+    loss = loss_x + loss_y + loss_l2 + loss_weight_decay + loss_withen
 
     output = {
         'loss_x': loss_x,
         'loss_y': loss_y,
         'loss_l2': loss_l2,
-        'loss_weight_decay': loss_weight_decay
+        'loss_weight_decay': loss_weight_decay,
+        'loss_withen': loss_withen
     }
 
     return model_x, model_y, hidden_x, reversed_hidden_y, loss, output, hooks

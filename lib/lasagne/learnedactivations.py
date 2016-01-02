@@ -12,6 +12,72 @@ __all__ = [
 ]
 
 
+class BatchWhiteningLayer(Layer):
+    def __init__(self, incoming,
+                 gamma=init.Uniform([0.95, 1.05]),
+                 beta=init.Constant(0.),
+                 nonlinearity=nonlinearities.rectify,
+                 epsilon=0.001,
+                 **kwargs):
+        super(BatchWhiteningLayer, self).__init__(incoming, **kwargs)
+        if nonlinearity is None:
+            self.nonlinearity = nonlinearities.identity
+        else:
+            self.nonlinearity = nonlinearity
+
+        self.num_units = int(np.prod(self.input_shape[1:]))
+        self.gamma = self.add_param(gamma, (self.num_units,), name="BatchNormalizationLayer:gamma", regularizable=True)
+        self.beta = self.add_param(beta, (self.num_units,), name="BatchNormalizationLayer:beta", regularizable=False)
+        self.epsilon = epsilon
+
+        self.eigen_values_inference = theano.shared(
+            np.zeros(self.num_units, dtype=theano.config.floatX),
+            borrow=True)
+
+        self.eigen_vectors_inference = theano.shared(
+            np.zeros((self.num_units, self.num_units), dtype=theano.config.floatX),
+            borrow=True,
+            broadcastable=(False, False))
+
+        self.mean_inference = theano.shared(
+            np.zeros((1, self.num_units), dtype=theano.config.floatX),
+            borrow=True,
+            broadcastable=(True, False))
+        self.mean_inference.name = "shared:mean"
+
+    def get_output_shape_for(self, input_shape):
+        return input_shape
+
+    def get_output_for(self, input, moving_avg_hooks=None,
+                       deterministic=False, *args, **kwargs):
+
+        if deterministic is False:
+            m = T.mean(input, axis=0, keepdims=True)
+            m.name = "tensor:mean"
+
+            centered_input = (input - m)
+
+            cov = (1 / T.cast(self.num_units,T.config.floatX)) * (T.dot(centered_input.T, centered_input))
+
+            q, r = T.nlinalg.eigh(cov)
+
+            key = "BatchNormalizationLayer:movingavg"
+            if key not in moving_avg_hooks:
+                moving_avg_hooks[key] = []
+            moving_avg_hooks[key].append(
+                [[m, q, r], [self.mean_inference, self.eigen_values_inference, self.eigen_vectors_inference]])
+        else:
+            m = self.mean_inference
+            q = self.eigen_values_inference
+            r = self.eigen_vectors_inference
+
+        diag = T.nlinalg.alloc_diag(1 / q)
+        input_hat = T.dot(input - m, T.dot(diag, r.T))  # normalize
+        y = input_hat / self.gamma + self.beta  # scale and shift
+
+        return self.nonlinearity(y)
+
+
 class BatchNormalizationLayer(Layer):
     """
     Batch normalization Layer [1]
