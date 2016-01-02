@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('Agg')
+
 import ConfigParser
 import os
 import sys
