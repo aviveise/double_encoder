@@ -26,7 +26,7 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
                                                                                                    drop_prob, 'x')
 
     model_y, hidden_y, weights_y, biases_y, prediction_x, hooks_y, dropouts_y = build_single_channel(var_y, input_size_y,
-                                                                                         input_size_x, layer_sizes,
+                                                                                         input_size_x, reversed(layer_sizes),
                                                                                          [w.T for w in
                                                                                           reversed(weights_x)],
                                                                                          list(reversed(biases_x))[

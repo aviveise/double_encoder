@@ -92,7 +92,7 @@ if __name__ == '__main__':
                                                                                    data_set.trainset[0].shape[1],
                                                                                    y_var,
                                                                                    data_set.trainset[1].shape[1],
-                                                                                   layer_sizes=[2048, 2048, 2048],
+                                                                                   layer_sizes=[2048, 2048, 1024],
                                                                                    parallel_width=4,
                                                                                    drop_prob=[0.5, 0.5, 0.5],
                                                                                    weight_init=lasagne.init.GlorotUniform())
