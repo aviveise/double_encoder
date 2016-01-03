@@ -92,7 +92,7 @@ if __name__ == '__main__':
                                                                                    data_set.trainset[0].shape[1],
                                                                                    y_var,
                                                                                    data_set.trainset[1].shape[1],
-                                                                                   layer_sizes=[2048, 2048, 1024],
+                                                                                   layer_sizes=[2048, 2048, 2048],
                                                                                    parallel_width=4,
                                                                                    drop_prob=[0.5, 0.5, 0.5],
                                                                                    weight_init=lasagne.init.GlorotUniform())
@@ -176,10 +176,6 @@ if __name__ == '__main__':
     OutputLog().write('Test results')
 
     test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5)
-
-    OutputLog().write('Train results')
-
-    test_model(test_x, test_y, data_set.trainset[0], data_set.trainset[1], parallel=5)
 
     # Export network
     path = OutputLog().output_path
