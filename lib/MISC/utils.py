@@ -555,7 +555,7 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
             y_n = preprocessing.normalize(y_c, axis=0)
 
         if not x.shape[0] % reduce_x == 0:
-            for i in range(reduce_x - x.shape[0] % reduce_x):
+            for i in range(0, reduce_x - x.shape[0] % reduce_x):
                 x = numpy.vstack((x, x[-1: 0]))
                 y = numpy.vstack((y, y[-1: 0]))
 
