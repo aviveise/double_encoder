@@ -558,7 +558,7 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
         num_Y_samples = y.shape[0]
 
         if not num_X_samples % reduce_x == 0:
-            for i in range(num_X_samples % reduce_x):
+            for i in range(reduce_x - num_X_samples % reduce_x):
                 x = numpy.vstack((x, x[-1: 0]))
                 y = numpy.vstack((y, y[-1: 0]))
 
