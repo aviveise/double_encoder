@@ -554,13 +554,13 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
             x_n = preprocessing.normalize(x_c, axis=0)
             y_n = preprocessing.normalize(y_c, axis=0)
 
-        num_X_samples = x.shape[0]
-        num_Y_samples = y.shape[0]
-
-        if not num_X_samples % reduce_x == 0:
-            for i in range(reduce_x - num_X_samples % reduce_x):
+        if not x.shape[0] % reduce_x == 0:
+            for i in range(reduce_x - x.shape[0] % reduce_x):
                 x = numpy.vstack((x, x[-1: 0]))
                 y = numpy.vstack((y, y[-1: 0]))
+
+        num_X_samples = x.shape[0]
+        num_Y_samples = y.shape[0]
 
         if reduce_x:
             x_n = x_n[0:x_n.shape[0]:reduce_x, :]
