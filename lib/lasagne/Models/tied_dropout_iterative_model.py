@@ -12,6 +12,8 @@ from lib.lasagne.learnedactivations import BatchNormalizationLayer, BatchNormLay
 WEIGHT_DECAY = 0.005
 WITHEN_REG = 0.1
 L2_LOSS = 1
+LOSS_X = 1
+LOSS_Y = 1
 
 def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
                 weight_init=lasagne.init.GlorotUniform(), drop_prob=None, **kwargs):
@@ -41,8 +43,8 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
     hooks = hooks_x
     hooks["BatchNormalizationLayer:movingavg"].extend(hooks_y["BatchNormalizationLayer:movingavg"])
 
-    loss_x = lasagne.objectives.squared_error(var_x, prediction_x).sum(axis=1).mean()
-    loss_y = lasagne.objectives.squared_error(var_y, prediction_y).sum(axis=1).mean()
+    loss_x = LOSS_X * lasagne.objectives.squared_error(var_x, prediction_x).sum(axis=0).mean()
+    loss_y = LOSS_Y * lasagne.objectives.squared_error(var_y, prediction_y).sum(axis=0).mean()
 
     middle_layer = int(floor(float(len(hidden_x)) / 2.))
 
@@ -55,10 +57,11 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
     loss_weight_decay = 0
 
+    loss_withen = T.constant(0)
+
     cov_x = T.dot(middle_x.T, middle_x)
     cov_y = T.dot(middle_y.T, middle_y)
 
-    loss_withen = T.constant(0)
     loss_withen += WITHEN_REG * T.mean(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
     loss_withen += WITHEN_REG * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
 
@@ -79,6 +82,19 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
     return model_x, model_y, hidden_x, reversed_hidden_y, loss, output, hooks
 
+def add_withening_regularization(hidden_x, hidden_y_reversed):
+    hooks_temp = {}
+    loss_withen = T.constant(0)
+    for x, y in zip(hidden_x, hidden_y_reversed):
+        x_value = lasagne.layers.get_output(x, moving_avg_hooks=hooks_temp)
+        y_value = lasagne.layers.get_output(y, moving_avg_hooks=hooks_temp)
+
+        cov_x = T.dot(x_value.T, x_value)
+        cov_y = T.dot(y_value.T, y_value)
+
+        loss_withen += WITHEN_REG * T.mean(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
+        loss_withen += WITHEN_REG * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
+    return loss_withen
 
 def build_single_channel(var, input_size, output_size, layer_sizes, weight_init=lasagne.init.GlorotUniform(),
                          bias_init=lasagne.init.Constant(0.), drop_prob=None, name='', dropouts_init=None):
