@@ -43,8 +43,8 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
     hooks = hooks_x
     hooks["BatchNormalizationLayer:movingavg"].extend(hooks_y["BatchNormalizationLayer:movingavg"])
 
-    loss_x = LOSS_X * lasagne.objectives.squared_error(var_x, prediction_x).sum(axis=0).mean()
-    loss_y = LOSS_Y * lasagne.objectives.squared_error(var_y, prediction_y).sum(axis=0).mean()
+    loss_x = LOSS_X * lasagne.objectives.squared_error(var_x, prediction_x).sum(axis=1).mean()
+    loss_y = LOSS_Y * lasagne.objectives.squared_error(var_y, prediction_y).sum(axis=1).mean()
 
     middle_layer = int(floor(float(len(hidden_x)) / 2.))
 
