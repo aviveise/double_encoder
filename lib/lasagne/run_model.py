@@ -124,7 +124,7 @@ if __name__ == '__main__':
 
     current_learning_rate = BASE_LEARNING_RATE
 
-    updates.update(lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=0.9))
+    updates.update(lasagne.updates.momentum(loss, params, learning_rate=current_learning_rate, momentum=0.9))
 
     train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
