@@ -1,10 +1,11 @@
 import lasagne
 from math import floor
 
+from lasagne.layers import DenseLayer
 from lasagne.regularization import l2
 from theano import tensor as T
 
-
+from lib.lasagne.Layers.LocallyDenseLayer import TiedDenseLayer, LocallyDenseLayer
 from lib.lasagne.Layers.Penelties import orthonormality
 from lib.lasagne.Layers.TiedDropoutLayer import TiedDropoutLayer
 from lib.lasagne.learnedactivations import BatchNormalizationLayer, BatchNormLayer, BatchWhiteningLayer
@@ -15,27 +16,46 @@ L2_LOSS = 1
 LOSS_X = 1
 LOSS_Y = 1
 
+
+def transpose_recursive(w):
+
+    if not isinstance(w, list):
+        return w.T
+
+    return [transpose_recursive(item) for item in w]
+
 def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
                 weight_init=lasagne.init.GlorotUniform(), drop_prob=None, **kwargs):
 
-    # Create x to y network
-    model_x, hidden_x, weights_x, biases_x, prediction_y, hooks_x, dropouts_x = build_single_channel(var_x, input_size_x,
-                                                                                                   input_size_y,
-                                                                                                   layer_sizes,
-                                                                                                   weight_init,
-                                                                                                   lasagne.init.Constant(
-                                                                                                       0.),
-                                                                                                   drop_prob, 'x')
+    layer_types = [TiedDenseLayer,
+                   TiedDenseLayer,
+                   TiedDenseLayer,
+                   TiedDenseLayer]
 
-    model_y, hidden_y, weights_y, biases_y, prediction_x, hooks_y, dropouts_y = build_single_channel(var_y, input_size_y,
-                                                                                         input_size_x, reversed(layer_sizes),
-                                                                                         [w.T for w in
-                                                                                          reversed(weights_x)],
-                                                                                         list(reversed(biases_x))[
-                                                                                         1:] + [
-                                                                                             lasagne.init.Constant(0.)],
-                                                                                         drop_prob, 'y',
-                                                                                         dropouts_x)
+    # Create x to y network
+    model_x, hidden_x, weights_x, biases_x, prediction_y, hooks_x, dropouts_x = build_single_channel(var_x,
+                                                                                                     input_size_x,
+                                                                                                     input_size_y,
+                                                                                                     layer_sizes,
+                                                                                                     layer_types,
+                                                                                                     weight_init,
+                                                                                                     lasagne.init.Constant(
+                                                                                                         0.),
+                                                                                                     drop_prob, 'x')
+
+    weights_y = [transpose_recursive(w) for w in reversed(weights_x)]
+    bias_y = lasagne.init.Constant(0.)
+
+
+    model_y, hidden_y, weights_y, biases_y, prediction_x, hooks_y, dropouts_y = build_single_channel(var_y,
+                                                                                                     input_size_y,
+                                                                                                     input_size_x,
+                                                                                                     list(reversed(layer_sizes)),
+                                                                                                     list(reversed(layer_types)),
+                                                                                                     weights_y,
+                                                                                                     bias_y,
+                                                                                                     drop_prob, 'y',
+                                                                                                     dropouts_x)
 
     reversed_hidden_y = list(reversed(hidden_y))
 
@@ -82,6 +102,7 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
     return model_x, model_y, hidden_x, reversed_hidden_y, loss, output, hooks
 
+
 def add_withening_regularization(hidden_x, hidden_y_reversed):
     hooks_temp = {}
     loss_withen = T.constant(0)
@@ -96,7 +117,9 @@ def add_withening_regularization(hidden_x, hidden_y_reversed):
         loss_withen += WITHEN_REG * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
     return loss_withen
 
-def build_single_channel(var, input_size, output_size, layer_sizes, weight_init=lasagne.init.GlorotUniform(),
+
+def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
+                         weight_init=lasagne.init.GlorotUniform(),
                          bias_init=lasagne.init.Constant(0.), drop_prob=None, name='', dropouts_init=None):
     model = []
     weights = []
@@ -119,11 +142,12 @@ def build_single_channel(var, input_size, output_size, layer_sizes, weight_init=
 
     # Add hidden layers
     for index, layer_size in enumerate(layer_sizes):
-        model.append(lasagne.layers.DenseLayer(incoming=model[-1],
-                                               num_units=layer_size,
-                                               W=weight_init[index],
-                                               b=bias_init[index],
-                                               nonlinearity=lasagne.nonlinearities.LeakyRectify(0.3)))
+        model.append(layer_types[index](incoming=model[-1],
+                                        num_units=layer_size,
+                                        W=weight_init[index],
+                                        b=bias_init[index],
+                                        nonlinearity=lasagne.nonlinearities.LeakyRectify(0.3),
+                                        cell_num=2))
 
         weights.append(model[-1].W)
         biases.append(model[-1].b)
@@ -138,11 +162,12 @@ def build_single_channel(var, input_size, output_size, layer_sizes, weight_init=
         hidden.append(model[-1])
 
     # Add output layer
-    model.append(lasagne.layers.DenseLayer(model[-1],
-                                           num_units=output_size,
-                                           W=weight_init[-1],
-                                           b=bias_init[-1],
-                                           nonlinearity=lasagne.nonlinearities.identity))
+    model.append(layer_types[-1](model[-1],
+                                 num_units=output_size,
+                                 W=weight_init[-1],
+                                 b=bias_init[-1],
+                                 nonlinearity=lasagne.nonlinearities.identity,
+                                 cell_num=2))
     weights.append(model[-1].W)
     biases.append(model[-1].b)
 
