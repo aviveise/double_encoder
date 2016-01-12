@@ -63,10 +63,10 @@ class LocallyDenseLayer(Layer):
         self.cell_size = self.num_units / cell_num
 
         if isinstance(W, lasagne.init.Initializer):
-            W = [W for i in range(0, cell_num + 1)]
+            W = [W for i in range(0, cell_num)]
 
         if isinstance(b, lasagne.init.Initializer):
-            b = [b for i in range(0, cell_num + 1)]
+            b = [b for i in range(0, cell_num)]
 
         self._dense_layers = []
         self.W = []

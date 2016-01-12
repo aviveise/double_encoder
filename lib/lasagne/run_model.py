@@ -15,15 +15,15 @@ from lib.MISC.container import Container
 from lib.MISC.logger import OutputLog
 from lib.MISC.utils import ConfigSectionMap, complete_rank, calculate_reconstruction_error, calculate_mardia
 from lib.lasagne.Models import parallel_model, bisimilar_model, iterative_model, tied_dropout_iterative_model
-from lib.lasagne.learnedactivations import batchnormalizeupdates
+from lib.lasagne.learnedactivations import batchnormalizeupdates, whiteningupdates
 import lib.DataSetReaders
 from tabulate import tabulate
 
 OUTPUT_DIR = r'C:\Workspace\output'
 BATCH_SIZE = 128
-EPOCH_NUMBER = 40
-DECAY_EPOCH = [10, 20, 30]
-BASE_LEARNING_RATE = 0.0001
+EPOCH_NUMBER = 80
+DECAY_EPOCH = [10, 30, 50, 70]
+BASE_LEARNING_RATE = 0.001
 
 
 def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
@@ -92,29 +92,13 @@ if __name__ == '__main__':
                                                                                    data_set.trainset[0].shape[1],
                                                                                    y_var,
                                                                                    data_set.trainset[1].shape[1],
-                                                                                   layer_sizes=[2048, 2048, 2048],
-                                                                                   parallel_width=4,
+                                                                                   layer_sizes=[1024, 2048, 1024],
+                                                                                   parallel_width=2,
                                                                                    drop_prob=[0.5, 0.5, 0.5],
                                                                                    weight_init=lasagne.init.GlorotUniform())
 
     params_x = lasagne.layers.get_all_params(model_x, trainable=True)
     params_y = lasagne.layers.get_all_params(model_y, trainable=True)
-
-    ####### NEGATIVE LOSS ##########
-    # Adding negative regularization
-    # middle_layer = int(floor(float(len(hidden_x)) / 2.))
-
-    # hooks_temp = {}
-
-    # middle_x = lasagne.layers.get_output(hidden_x[middle_layer], moving_avg_hooks=hooks_temp)
-    # middle_y = lasagne.layers.get_output(hidden_y[middle_layer], moving_avg_hooks=hooks_temp)
-
-    # srng = RandomStreams(seed=234)
-    # shuffle_indices = srng.permutation(n=BATCH_SIZE, size=(1,))
-    # shuffled_middle_x = middle_x[shuffle_indices]
-    #
-    # negative_loss = NEGATIVE_LOSS_WEIGHT * abs(tensor.dot(shuffled_middle_x, middle_y.T)).sum(axis=1).mean()
-    # loss += negative_loss
 
     updates = OrderedDict(batchnormalizeupdates(hooks, 100))
 
