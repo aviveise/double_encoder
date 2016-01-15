@@ -86,8 +86,11 @@ def fit(values, data_set, params):
 
     OutputLog().write('Model: {0}'.format(model.__name__))
 
-    for value, param in zip(values, params):
-        update_param(param, value)
+    if len(params) == 1:
+        update_param(params[0], values)
+    else:
+        for value, param in zip(values, params):
+            update_param(param, value)
 
     model_x, model_y, hidden_x, hidden_y, loss, outputs, hooks = model.build_model(x_var,
                                                                                    data_set.trainset[0].shape[1],
@@ -174,5 +177,5 @@ if __name__ == '__main__':
 
     Params.EPOCH_NUMBER = 10
 
-    ranges = (slice(0, 1, 0.05), slice(0, 1, 0.05))
-    brute(fit, ranges, args=(data_set, ['L2_LOSS', ['WITHEN_REG_X', 'WITHEN_REG_Y']]))
+    ranges = (slice(1000, 4000, 1000),)
+    brute(fit, ranges, args=(data_set, [('LAYER_SIZES', 1)]))
