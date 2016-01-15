@@ -10,19 +10,16 @@ import cPickle
 import lasagne
 import numpy
 import json
-
 from collections import OrderedDict
 from tabulate import tabulate
 from theano import tensor, theano
 from scipy.optimize import brute
-
 from lib.MISC.container import Container
 from lib.MISC.logger import OutputLog
 from lib.MISC.utils import ConfigSectionMap, complete_rank, calculate_reconstruction_error, calculate_mardia
 from lib.lasagne.Models import parallel_model, bisimilar_model, iterative_model, tied_dropout_iterative_model
 from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
-
 import lib.DataSetReaders
 
 OUTPUT_DIR = r'C:\Workspace\output'
@@ -68,6 +65,7 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1):
 
     OutputLog().write(tabulate(rows, headers=header))
 
+
 def update_param(param, value):
     if isinstance(param, list):
         for sub_param in param:
@@ -76,11 +74,14 @@ def update_param(param, value):
         Params.__dict__[param[0]][param[1]] = value
         OutputLog().write('Param {0}[{1}] = {2}'.format(param[0], param[1], value))
     else:
-        Params.__dict__[param] = value
-        OutputLog().write('Param {0} = {1}'.format(param, value))
+        if isinstance(Params.__dict__[param], list):
+            Params.__dict__[param] = [value for i in Params.__dict__[param]]
+        else:
+            Params.__dict__[param] = value
+            OutputLog().write('Param {0} = {1}'.format(param, value))
+
 
 def fit(values, data_set, params):
-
     model = tied_dropout_iterative_model
 
     OutputLog().write('Model: {0}'.format(model.__name__))
@@ -108,7 +109,8 @@ def fit(values, data_set, params):
 
     current_learning_rate = Params.BASE_LEARNING_RATE
 
-    updates.update(lasagne.updates.momentum(loss, params, learning_rate=current_learning_rate, momentum=Params.MOMENTUM))
+    updates.update(
+        lasagne.updates.momentum(loss, params, learning_rate=current_learning_rate, momentum=Params.MOMENTUM))
 
     train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
@@ -151,8 +153,8 @@ def fit(values, data_set, params):
                                                                                             describe_recall)))
     return sum(search_recall) + sum(describe_recall)
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     data_set_config = sys.argv[1]
 
     OutputLog().set_path(OUTPUT_DIR)
@@ -168,11 +170,9 @@ if __name__ == '__main__':
     y_var = tensor.fmatrix()
     x_var = tensor.fmatrix()
 
-
     Params.print_params()
 
     Params.EPOCH_NUMBER = 10
 
     ranges = (slice(0, 1, 0.05), slice(0, 1, 0.05))
-    brute(fit, ranges, args=(data_set, ['L2_LOSS', ['WITHEN_REG_X','WITHEN_REG_Y']]))
-
+    brute(fit, ranges, args=(data_set, ['L2_LOSS', ['WITHEN_REG_X', 'WITHEN_REG_Y']]))
