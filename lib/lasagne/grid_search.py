@@ -68,6 +68,16 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1):
 
     OutputLog().write(tabulate(rows, headers=header))
 
+def update_param(param, value):
+    if isinstance(param, list):
+        for sub_param in param:
+            update_param(sub_param, value)
+    elif isinstance(param, tuple):
+        Params.__dict__[param[0]][param[1]] = value
+        OutputLog().write('Param {0}[{1}] = {2}'.format(param[0], param[1], value))
+    else:
+        Params.__dict__[param] = value
+        OutputLog().write('Param {0} = {1}'.format(param, value))
 
 def fit(values, data_set, params):
 
@@ -76,13 +86,7 @@ def fit(values, data_set, params):
     OutputLog().write('Model: {0}'.format(model.__name__))
 
     for value, param in zip(values, params):
-        if isinstance(param,list):
-            for sub_param in param:
-                Params.__dict__[sub_param] = value
-                OutputLog().write('Params: {0} = {1}'.format(sub_param, value))
-        else:
-            Params.__dict__[param] = value
-            OutputLog().write('Params: {0} = {1}'.format(param, value))
+        update_param(param, value)
 
     model_x, model_y, hidden_x, hidden_y, loss, outputs, hooks = model.build_model(x_var,
                                                                                    data_set.trainset[0].shape[1],
