@@ -14,36 +14,38 @@ __all__ = [
 
 class BatchWhiteningLayer(Layer):
     def __init__(self, incoming,
+                 W=init.GlorotNormal(),
                  gamma=init.Uniform([0.95, 1.05]),
                  beta=init.Constant(0.),
-                 nonlinearity=nonlinearities.rectify,
                  epsilon=0.001,
                  **kwargs):
         super(BatchWhiteningLayer, self).__init__(incoming, **kwargs)
-        if nonlinearity is None:
-            self.nonlinearity = nonlinearities.identity
-        else:
-            self.nonlinearity = nonlinearity
 
         self.num_units = int(np.prod(self.input_shape[1:]))
+        self.W = self.add_param(W, (self.num_units, self.num_units), name="WhiteningLayer:W", regularizable=False,
+                                trainable=False)
+
         self.gamma = self.add_param(gamma, (self.num_units,), name="BatchNormalizationLayer:gamma", regularizable=True)
         self.beta = self.add_param(beta, (self.num_units,), name="BatchNormalizationLayer:beta", regularizable=False)
         self.epsilon = epsilon
-
-        self.eigen_values_inference = theano.shared(
-            np.zeros(self.num_units, dtype=theano.config.floatX),
-            borrow=True)
-
-        self.eigen_vectors_inference = theano.shared(
-            np.zeros((self.num_units, self.num_units), dtype=theano.config.floatX),
-            borrow=True,
-            broadcastable=(False, False))
 
         self.mean_inference = theano.shared(
             np.zeros((1, self.num_units), dtype=theano.config.floatX),
             borrow=True,
             broadcastable=(True, False))
         self.mean_inference.name = "shared:mean"
+
+        self.variance_inference = theano.shared(
+            np.zeros((1, self.num_units), dtype=theano.config.floatX),
+            borrow=True,
+            broadcastable=(True, False))
+        self.variance_inference.name = "shared:variance"
+
+        self.R_inference = theano.shared(
+            np.zeros((self.num_units, self.num_units), dtype=theano.config.floatX),
+            borrow=True,
+            broadcastable=(False, False))
+        self.variance_inference.name = "shared:R"
 
     def get_output_shape_for(self, input_shape):
         return input_shape
@@ -52,30 +54,33 @@ class BatchWhiteningLayer(Layer):
                        deterministic=False, *args, **kwargs):
 
         if deterministic is False:
+
             m = T.mean(input, axis=0, keepdims=True)
             m.name = "tensor:mean"
+            v = T.sqrt(T.var(input, axis=0, keepdims=True) + self.epsilon)
+            v.name = "tensor:variance"
 
-            centered_input = (input - m)
+            R = T.dot(((input - m)).T, ((input - m)))
 
-            cov = (1 / T.cast(self.num_units,T.config.floatX)) * (T.dot(centered_input.T, centered_input))
-
-            q, r = T.nlinalg.eigh(cov)
+            key = "WhiteningLayer:movingavg"
+            if key not in moving_avg_hooks:
+                moving_avg_hooks[key] = []
+            moving_avg_hooks[key].append(
+                [[self.R_inference], [self.W]])
 
             key = "BatchNormalizationLayer:movingavg"
             if key not in moving_avg_hooks:
                 moving_avg_hooks[key] = []
             moving_avg_hooks[key].append(
-                [[m, q, r], [self.mean_inference, self.eigen_values_inference, self.eigen_vectors_inference]])
+                [[m, v, R], [self.mean_inference, self.variance_inference, self.R_inference]])
         else:
             m = self.mean_inference
-            q = self.eigen_values_inference
-            r = self.eigen_vectors_inference
+            v = self.variance_inference
 
-        diag = T.nlinalg.alloc_diag(1 / q)
-        input_hat = T.dot(input - m, T.dot(diag, r.T))  # normalize
+        input_hat = T.dot((input - m), self.W.T) # normalize
         y = input_hat / self.gamma + self.beta  # scale and shift
 
-        return self.nonlinearity(y)
+        return y
 
 
 class BatchNormalizationLayer(Layer):
@@ -168,6 +173,16 @@ def batchnormalizeupdates(hooks, avglen):
     mulfac = 1.0 / avglen
     for tensor, param in zip(tensors, params):
         updates.append((param, (1.0 - mulfac) * param + mulfac * tensor))
+    return updates
+
+
+def whiteningupdates(hooks, learning_rate=0.0001):
+    params = list(itertools.chain(*[i[1] for i in hooks["WhiteningLayer:movingavg"]]))
+    Rs = list(itertools.chain(*[i[0] for i in hooks["WhiteningLayer:movingavg"]]))
+
+    updates = []
+    for tensor, param in zip(Rs, params):
+        updates.append((param, param + learning_rate * (param - T.dot(tensor, param))))
     return updates
 
 

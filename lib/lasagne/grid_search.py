@@ -1,4 +1,5 @@
 import matplotlib
+import scipy
 
 matplotlib.use('Agg')
 
@@ -13,6 +14,7 @@ import json
 from collections import OrderedDict
 from tabulate import tabulate
 from theano import tensor, theano
+from scipy.optimize import brute
 
 from lib.MISC.container import Container
 from lib.MISC.logger import OutputLog
@@ -67,28 +69,16 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1):
     OutputLog().write(tabulate(rows, headers=header))
 
 
-if __name__ == '__main__':
+def fit(values, data_set, params):
 
-    data_set_config = sys.argv[1]
-
-    OutputLog().set_path(OUTPUT_DIR)
-    OutputLog().set_verbosity('info')
-
-    data_config = ConfigParser.ConfigParser()
-    data_config.read(data_set_config)
-    data_parameters = ConfigSectionMap("dataset_parameters", data_config)
-
-    # construct data set
-    data_set = Container().create(data_parameters['name'], data_parameters)
-
-    y_var = tensor.fmatrix()
-    x_var = tensor.fmatrix()
-
-    model = tied_dropout_iterative_model
-
-    Params.print_params()
-
-    OutputLog().write('Model: {0}'.format(model.__name__))
+    for value, param in zip(values, params):
+        if isinstance(param,list):
+            for sub_param in param:
+                Params.__dict__[sub_param] = value
+                OutputLog().write('Params: {0} = {1}'.format(sub_param, value))
+        else:
+            Params.__dict__[param] = value
+            OutputLog().write('Params: {0} = {1}'.format(param, value))
 
     model_x, model_y, hidden_x, hidden_y, loss, outputs, hooks = model.build_model(x_var,
                                                                                    data_set.trainset[0].shape[1],
@@ -136,38 +126,49 @@ if __name__ == '__main__':
             train_loss = train_fn(input_x, input_y)
             OutputLog().write(output_string.format(index, batch_number, *train_loss))
 
-        x_values = test_y(data_set.tuning[0], data_set.tuning[1])
-        y_values = test_x(data_set.tuning[0], data_set.tuning[1])
+    x_values = test_y(data_set.tuning[0], data_set.tuning[1])
+    y_values = test_x(data_set.tuning[0], data_set.tuning[1])
 
-        OutputLog().write('\nValidating model\n')
+    OutputLog().write('\nValidating model\n')
 
-        for index, (x, y) in enumerate(zip(x_values, y_values)):
-            search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
-            validation_loss = calculate_reconstruction_error(x, y)
-            correlation = calculate_mardia(x, y, 0)
+    for index, (x, y) in enumerate(zip(x_values, y_values)):
+        search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+        validation_loss = calculate_reconstruction_error(x, y)
+        correlation = calculate_mardia(x, y, 0)
 
-            OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}'.format(index,
-                                                                                            validation_loss,
-                                                                                            correlation,
-                                                                                            sum(search_recall) + sum(
-                                                                                                describe_recall)))
+        OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}'.format(index,
+                                                                                        validation_loss,
+                                                                                        correlation,
+                                                                                        sum(search_recall) + sum(
+                                                                                            describe_recall)))
+    return sum(search_recall) + sum(describe_recall)
+    return 0
 
-        if epoch in Params.DECAY_EPOCH:
-            current_learning_rate *= Params.DECAY_RATE
-            updates = OrderedDict(batchnormalizeupdates(hooks, 100))
-            updates.update(
-                lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=0.9))
-            train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
+if __name__ == '__main__':
 
-    OutputLog().write('Test results')
+    data_set_config = sys.argv[1]
 
-    test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5)
+    OutputLog().set_path(OUTPUT_DIR)
+    OutputLog().set_verbosity('info')
 
-    # Export network
-    path = OutputLog().output_path
+    data_config = ConfigParser.ConfigParser()
+    data_config.read(data_set_config)
+    data_parameters = ConfigSectionMap("dataset_parameters", data_config)
 
-    with file(os.path.join(path, 'model_x.p'), 'w') as model_x_file:
-        cPickle.dump(model_x, model_x_file)
+    # construct data set
+    data_set = Container().create(data_parameters['name'], data_parameters)
 
-    with file(os.path.join(path, 'model_y.p'), 'w') as model_y_file:
-        cPickle.dump(model_y, model_y_file)
+    y_var = tensor.fmatrix()
+    x_var = tensor.fmatrix()
+
+    model = tied_dropout_iterative_model
+
+    Params.print_params()
+
+    OutputLog().write('Model: {0}'.format(model.__name__))
+
+    Params.EPOCH_NUMBER = 0
+
+    ranges = (slice(0, 1, 0.05), slice(0, 1, 0.05))
+    brute(fit, ranges, args=(data_set, ['L2_LOSS', ['WITHEN_REG_X','WITHEN_REG_Y']]))
+

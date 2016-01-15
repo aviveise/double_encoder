@@ -102,6 +102,8 @@ class LocallyDenseLayer(Layer):
 
         return results
 
+    def __str__(self):
+        return 'LocallyDenseLayer {0} units'.format(self.num_units)
 
 class DownsizeLayer():
     def __init__(self, layer, downsize):
@@ -121,3 +123,6 @@ class TiedDenseLayer(DenseLayer):
 
         if self.b and not isinstance(b, lasagne.init.Initializer):
             self.params[self.b].remove('trainable')
+
+    def __str__(self):
+        return 'TiedDenseLayer {0} units'.format(self.num_units)
