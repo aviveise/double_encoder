@@ -71,6 +71,10 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1):
 
 def fit(values, data_set, params):
 
+    model = tied_dropout_iterative_model
+
+    OutputLog().write('Model: {0}'.format(model.__name__))
+
     for value, param in zip(values, params):
         if isinstance(param,list):
             for sub_param in param:
@@ -142,7 +146,6 @@ def fit(values, data_set, params):
                                                                                         sum(search_recall) + sum(
                                                                                             describe_recall)))
     return sum(search_recall) + sum(describe_recall)
-    return 0
 
 if __name__ == '__main__':
 
@@ -161,13 +164,10 @@ if __name__ == '__main__':
     y_var = tensor.fmatrix()
     x_var = tensor.fmatrix()
 
-    model = tied_dropout_iterative_model
 
     Params.print_params()
 
-    OutputLog().write('Model: {0}'.format(model.__name__))
-
-    Params.EPOCH_NUMBER = 0
+    Params.EPOCH_NUMBER = 10
 
     ranges = (slice(0, 1, 0.05), slice(0, 1, 0.05))
     brute(fit, ranges, args=(data_set, ['L2_LOSS', ['WITHEN_REG_X','WITHEN_REG_Y']]))
