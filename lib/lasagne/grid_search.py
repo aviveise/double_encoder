@@ -76,6 +76,7 @@ def update_param(param, value):
     else:
         if isinstance(Params.__dict__[param], list):
             Params.__dict__[param] = [value for i in Params.__dict__[param]]
+            OutputLog().write('Param {0} = {2}'.format(param, value))
         else:
             Params.__dict__[param] = value
             OutputLog().write('Param {0} = {1}'.format(param, value))
@@ -175,7 +176,7 @@ if __name__ == '__main__':
 
     Params.print_params()
 
-    Params.EPOCH_NUMBER = 10
+    Params.EPOCH_NUMBER = 1
 
-    ranges = (slice(1000, 4000, 1000),)
-    brute(fit, ranges, args=(data_set, [('LAYER_SIZES', 1)]))
+    ranges = (slice(0, 1, 0.05), slice(0, 1, 0.05))
+    brute(fit, ranges, args=(data_set, ['L2_LOSS', ['WITHEN_REG_X','WITHEN_REG_Y']]))
