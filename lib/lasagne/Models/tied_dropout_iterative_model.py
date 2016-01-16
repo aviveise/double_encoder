@@ -141,14 +141,14 @@ def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
                                         num_units=layer_size,
                                         W=weight_init[index],
                                         b=bias_init[index],
-                                        nonlinearity=lasagne.nonlinearities.identity,
+                                        nonlinearity=lasagne.nonlinearities.LeakyRectify(Params.LEAKINESS),
                                         cell_num=Params.CELL_NUM))
 
         weights.append(model[-1].W)
         biases.append(model[-1].b)
 
         model.append(BatchNormalizationLayer(model[-1],
-                                             nonlinearity=lasagne.nonlinearities.LeakyRectify(Params.LEAKINESS)))
+                                             nonlinearity=lasagne.nonlinearities.identity))
 
         drop = 0 if drop_prob is None else drop_prob[index]
         model.append(TiedDropoutLayer(model[-1], rescale=True, p=drop, dropout_layer=dropouts_init[-(index + 1)]))

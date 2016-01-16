@@ -76,7 +76,7 @@ def update_param(param, value):
     else:
         if isinstance(Params.__dict__[param], list):
             Params.__dict__[param] = [value for i in Params.__dict__[param]]
-            OutputLog().write('Param {0} = {2}'.format(param, value))
+            OutputLog().write('Param {0} = {1}'.format(param, value))
         else:
             Params.__dict__[param] = value
             OutputLog().write('Param {0} = {1}'.format(param, value))
@@ -155,6 +155,7 @@ def fit(values, data_set, params):
                                                                                         correlation,
                                                                                         sum(search_recall) + sum(
                                                                                             describe_recall)))
+
     return sum(search_recall) + sum(describe_recall)
 
 
