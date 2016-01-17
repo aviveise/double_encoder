@@ -131,7 +131,8 @@ if __name__ == '__main__':
     for epoch in range(Params.EPOCH_NUMBER):
         OutputLog().write('Epoch {0}'.format(epoch))
         for index, batch in enumerate(
-                iterate_minibatches(data_set.trainset[0], data_set.trainset[1], Params.BATCH_SIZE, True)):
+                iterate_minibatches(numpy.cast[theano.config.floatX](data_set.trainset[0]),
+                                    numpy.cast[theano.config.floatX](data_set.trainset[1]), Params.BATCH_SIZE, True)):
             input_x, input_y = batch
             train_loss = train_fn(input_x, input_y)
             OutputLog().write(output_string.format(index, batch_number, *train_loss))
