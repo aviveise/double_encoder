@@ -177,7 +177,7 @@ if __name__ == '__main__':
 
     Params.print_params()
 
-    Params.EPOCH_NUMBER = 1
+    Params.EPOCH_NUMBER = 10
 
     ranges = (slice(0, 1, 0.05), slice(0, 1, 0.05))
     brute(fit, ranges, args=(data_set, ['L2_LOSS', ['WITHEN_REG_X','WITHEN_REG_Y']]))

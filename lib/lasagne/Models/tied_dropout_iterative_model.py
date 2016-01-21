@@ -79,9 +79,9 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
     loss_withen_y = Params.WITHEN_REG_Y * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
 
     loss_weight_decay += lasagne.regularization.regularize_layer_params(model_x,
-                                                                        penalty=l1) * Params.WEIGHT_DECAY
+                                                                        penalty=l2) * Params.WEIGHT_DECAY
     loss_weight_decay += lasagne.regularization.regularize_layer_params(model_y,
-                                                                        penalty=l1) * Params.WEIGHT_DECAY
+                                                                        penalty=l2) * Params.WEIGHT_DECAY
 
     loss = loss_x + loss_y + loss_l2 + loss_weight_decay + loss_withen_x + loss_withen_y
 
