@@ -142,7 +142,7 @@ class BatchNormalizationLayer(Layer):
                        deterministic=False, *args, **kwargs):
 
         if deterministic is False:
-            m = T.mean(input, axis=0, keepdims=True)
+            m = T.mean(input, axis=0, keepdims=True, dtype=theano.config.floatX)
             v = T.sqrt(T.var(input, axis=0, keepdims=True) + self.epsilon)
             m.name = "tensor:mean"
             v.name = "tensor:variance"
