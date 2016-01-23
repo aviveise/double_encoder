@@ -20,10 +20,8 @@ def transpose_recursive(w):
 
 def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
                 weight_init=lasagne.init.GlorotUniform(), drop_prob=None, **kwargs):
-    layer_types = [TiedDenseLayer,
-                   TiedDenseLayer,
-                   TiedDenseLayer,
-                   TiedDenseLayer]
+
+    layer_types = Params.LAYER_TYPES
 
     # Create x to y network
     model_x, hidden_x, weights_x, biases_x, prediction_y, hooks_x, dropouts_x = build_single_channel(var_x,

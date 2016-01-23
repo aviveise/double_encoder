@@ -71,14 +71,14 @@ def update_param(param, value):
         for sub_param in param:
             update_param(sub_param, value)
     elif isinstance(param, tuple):
-        Params.__dict__[param[0]][param[1]] = value
+        Params.__dict__[param[0]][param[1]] = float(value)
         OutputLog().write('Param {0}[{1}] = {2}'.format(param[0], param[1], value))
     else:
         if isinstance(Params.__dict__[param], list):
-            Params.__dict__[param] = [value for i in Params.__dict__[param]]
+            Params.__dict__[param] = [float(value) for i in Params.__dict__[param]]
             OutputLog().write('Param {0} = {1}'.format(param, value))
         else:
-            Params.__dict__[param] = value
+            Params.__dict__[param] = float(value)
             OutputLog().write('Param {0} = {1}'.format(param, value))
 
 
@@ -177,7 +177,7 @@ if __name__ == '__main__':
 
     Params.print_params()
 
-    Params.EPOCH_NUMBER = 1
+    Params.EPOCH_NUMBER = 10
 
-    ranges = (slice(0.1, 0.5, 0.1),)
-    brute(fit, ranges, args=(data_set, ['LEAKINESS']))
+    ranges = (slice(500, 4000, 500),)
+    brute(fit, ranges, args=(data_set, [('LAYER_SIZES',2)]))
