@@ -9,6 +9,8 @@ image from a set of samples or weights.
 import math
 import os
 import datetime
+import traceback
+
 from matplotlib import pyplot
 from matplotlib.pyplot import pcolor, colorbar, yticks, xticks, pcolormesh, matplotlib
 import numpy
@@ -596,8 +598,8 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
         describe_x_recall = 100 * describe_x_recall / num_X_samples
 
         return x_search_recall, describe_x_recall
-    except:
-        OutputLog().write('Error calculating rank score')
+    except Exception as e:
+        OutputLog().write('Error calculating rank score with exception: {0}, {1}'.format(e, traceback.format_exc()))
         return [0,0,0], [0,0,0]
 
 def visualize_correlation_matrix(mat, name):
