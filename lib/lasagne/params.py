@@ -2,6 +2,7 @@ import lasagne
 
 from lib.MISC.logger import OutputLog
 from lib.lasagne.Layers.LocallyDenseLayer import TiedDenseLayer
+from lib.lasagne.Layers.TiedNoiseLayer import TiedGaussianNoiseLayer
 
 
 class Params:
@@ -17,9 +18,9 @@ class Params:
 
     # region Loss Weights
     WEIGHT_DECAY = 0.0005
-    WITHEN_REG_X = 0.05
-    WITHEN_REG_Y = 0.05
-    L2_LOSS = 0
+    WITHEN_REG_X = 0.1
+    WITHEN_REG_Y = 0.1
+    L2_LOSS = 0.25
     LOSS_X = 1
     LOSS_Y = 1
     # endregion
@@ -32,6 +33,7 @@ class Params:
     LAYER_TYPES = [TiedDenseLayer, TiedDenseLayer, TiedDenseLayer, TiedDenseLayer]
     LEAKINESS = 0.3
     CELL_NUM = 2
+    NOISE_LAYER = TiedGaussianNoiseLayer
     # endregion
 
     @classmethod
