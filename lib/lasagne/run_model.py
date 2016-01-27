@@ -153,11 +153,15 @@ if __name__ == '__main__':
                                                                                             sum(search_recall) + sum(
                                                                                                 describe_recall)))
 
+        del x_values
+        del y_values
+
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
             updates = OrderedDict(batchnormalizeupdates(hooks, 100))
             updates.update(
                 lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=0.9))
+            del train_fn
             train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
     OutputLog().write('Test results')
