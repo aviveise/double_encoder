@@ -560,8 +560,8 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
             for i in range(0, reduce_x - x.shape[0] % reduce_x):
                 x_n = numpy.vstack((x_n, x_n[-1,:]))
 
-        num_X_samples = x.shape[0]
-        num_Y_samples = y.shape[0]
+        num_X_samples = x_n.shape[0]
+        num_Y_samples = y_n.shape[0]
 
         if reduce_x:
             x_n = x_n[0:x_n.shape[0]:reduce_x, :]
