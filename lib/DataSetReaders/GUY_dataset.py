@@ -26,11 +26,12 @@ class GUYDataSet(DatasetBase):
 
         CNN_mat = h5py.File(os.path.join(self.dataset_path, 'visual_dataset_info.mat'), 'r')
         FV_mat = h5py.File(os.path.join(self.dataset_path, 'sentences_FV.mat'), 'r')
+        map_mat = h5py.File(os.path.join(self.dataset_path, 'image_sent_map.mat'), 'r')
         idx_mat = h5py.File(os.path.join(self.dataset_path, 'dataset_info_idx.mat'), 'r')
 
         CNN_output = CNN_mat['image_vecs']
         feature_vectors = FV_mat['sent_vecs']
-        images_sent_mapping = CNN_mat['image_idx_of_sent'].value
+        images_sent_mapping = map_mat['image_idx_of_sent'].value
 
         training_sen_idx = idx_mat['trn_sent_I']
         training_image_idx = idx_mat['trn_images_I']
