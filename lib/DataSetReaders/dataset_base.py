@@ -84,7 +84,7 @@ class DatasetBase(object):
 
             pickle.dump(normalizer_x, file(scaler_x_path, 'w'))
 
-        if normalize_data[0]:
+        if normalize_data[1]:
             train_set_y, normalizer_y = normalize(self.trainset[1])
             self.trainset = train_set_x, train_set_y
             self.tuning = (self.tuning[0], normalizer_y.transform(self.tuning[1]))
