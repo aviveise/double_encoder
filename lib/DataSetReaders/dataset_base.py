@@ -28,7 +28,7 @@ class DatasetBase(object):
         self.reduce_test = 0
         self.reduce_val = 0
 
-        scale = bool(int(data_set_parameters['scale']))
+        scale = map(int, data_set_parameters['scale'].split())
         scale_rows = bool(int(data_set_parameters['scale_samples']))
         whiten = bool(int(data_set_parameters['whiten']))
         pca = map(int, data_set_parameters['pca'].split())
