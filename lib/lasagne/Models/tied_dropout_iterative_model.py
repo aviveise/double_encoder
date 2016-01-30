@@ -150,8 +150,7 @@ def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
                                              nonlinearity=lasagne.nonlinearities.identity))
 
         drop = 0 if drop_prob is None else drop_prob[index]
-        # model.append(TiedDropoutLayer(model[-1], rescale=True, p=drop, dropout_layer=dropouts_init[-(index + 1)]))
-        model.append(Params.NOISE_LAYER(model[-1], noise_layer=dropouts_init[-(index + 1)]))
+        model.append(Params.NOISE_LAYER(model[-1], noise_layer=dropouts_init[-(index + 1)], rescale=True, p=drop))
 
         dropouts.append(model[-1])
         hidden.append(model[-1])

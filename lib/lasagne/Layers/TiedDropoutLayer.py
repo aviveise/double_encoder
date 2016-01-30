@@ -45,12 +45,12 @@ class TiedDropoutLayer(Layer):
            Journal of Machine Learning Research, 5(Jun)(2), 1929-1958.
     """
 
-    def __init__(self, incoming, p=0.5, rescale=True, dropout_layer=None, **kwargs):
+    def __init__(self, incoming, p=0.5, rescale=True, noise_layer=None, **kwargs):
         super(TiedDropoutLayer, self).__init__(incoming, **kwargs)
         self._srng = RandomStreams(get_rng().randint(1, 2147462579))
         self.p = p
         self.rescale = rescale
-        self._master = dropout_layer
+        self._master = noise_layer
         self._mask = None
 
     def get_output_for(self, input, deterministic=False, **kwargs):
