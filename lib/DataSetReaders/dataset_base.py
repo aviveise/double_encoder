@@ -44,9 +44,12 @@ class DatasetBase(object):
         if os.path.exists(train_file) and \
                 os.path.exists(test_file) and \
                 os.path.exists(validate_file):
-            self.trainset = hickle.load(file(train_file, 'r'))
-            self.testset = hickle.load(file(test_file, 'r'))
-            self.tuning = hickle.load(file(validate_file, 'r'))
+            with open(train_file, 'r') as f:
+                self.trainset = hickle.load(f)
+            with open(test_file, 'r') as f:
+                self.testset = hickle.load(f)
+            with open(validate_file, 'r') as f:
+                self.tuning = hickle.load(f)
 
             self.trainset = self.trainset[0].astype(dtype=theano.config.floatX), self.trainset[1].astype(
                 dtype=theano.config.floatX)
@@ -63,18 +66,23 @@ class DatasetBase(object):
 
         self.build_dataset()
 
-        if scale:
+        if scale[0]:
             train_set_x, scaler_x = scale_cols(self.trainset[0])
+            self.trainset = train_set_x, train_set_y
+            self.tuning = (scaler_x.transform(self.tuning[0]), self.tuning[1])
+            self.testset = (scaler_x.transform(self.testset[0]), self.testset[1])
+            scaler_x_path = os.path.join(path, 'scaler_x.p')
+
+            pickle.dump(scaler_x, file(scaler_x_path, 'w'))
+
+        if scale[1]:
             train_set_y, scaler_y = scale_cols(self.trainset[1])
 
             self.trainset = train_set_x, train_set_y
-            self.tuning = scaler_x.transform(self.tuning[0]), scaler_y.transform(self.tuning[1])
-            self.testset = scaler_x.transform(self.testset[0]), scaler_y.transform(self.testset[1])
-
-            scaler_x_path = os.path.join(path, 'scaler_x.p')
+            self.tuning = (self.tuning[0], scaler_y.transform(self.tuning[1]))
+            self.testset = (self.testset[0], scaler_y.transform(self.testset[1]))
             scaler_y_path = os.path.join(path, 'scaler_y.p')
 
-            pickle.dump(scaler_x, file(scaler_x_path, 'w'))
             pickle.dump(scaler_y, file(scaler_y_path, 'w'))
 
         if scale_rows:
@@ -82,16 +90,21 @@ class DatasetBase(object):
             self.tuning = (scale_cols(self.tuning[0].T)[0].T, scale_cols(self.tuning[1].T)[0].T)
             self.testset = (scale_cols(self.testset[0].T)[0].T, scale_cols(self.testset[1].T)[0].T)
 
-        if not pca[0] == 0 and not pca[1] == 0:
+        if not pca[0] == 0:
             pca_dim1 = PCA(pca[0], whiten)
-            pca_dim2 = PCA(pca[1], whiten)
-
             pca_dim1.fit(self.trainset[0])
+
+            self.trainset = (pca_dim1.transform(self.trainset[0]), self.trainset[1])
+            self.testset = (pca_dim1.transform(self.testset[0]), self.testset[1])
+            self.tuning = (pca_dim1.transform(self.tuning[0]), self.tuning[1])
+
+        if not pca[1] == 0:
+            pca_dim2 = PCA(pca[1], whiten)
             pca_dim2.fit(self.trainset[1])
 
-            self.trainset = (pca_dim1.transform(self.trainset[0]), pca_dim2.transform(self.trainset[1]))
-            self.testset = (pca_dim1.transform(self.testset[0]), pca_dim2.transform(self.testset[1]))
-            self.tuning = (pca_dim1.transform(self.tuning[0]), pca_dim2.transform(self.tuning[1]))
+            self.trainset = (self.trainset[0], pca_dim2.transform(self.trainset[1]))
+            self.testset = (self.testset[0], pca_dim2.transform(self.testset[1]))
+            self.tuning = (self.tuning[0], pca_dim2.transform(self.tuning[1]))
 
         if whiten:
             OutputLog().write('using whiten')
