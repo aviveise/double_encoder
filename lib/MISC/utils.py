@@ -200,16 +200,8 @@ def unitnorm_cols(M):
 
 
 def normalize(M):
-    if M is None:
-        return
-
-    norm = numpy.linalg.norm(M, ord=2, axis=1).reshape([M.shape[0], 1])
-
-    norm[norm == 0] = 1
-
-    M /= norm * numpy.ones([1, M.shape[1]])
-
-    return M, norm
+    normalizer = preprocessing.Normalizer().fit(M)
+    return normalizer.transform(M), normalizer
 
 
 def scale_cols(M):
