@@ -39,7 +39,7 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
         yield inputs_x[excerpt], inputs_y[excerpt]
 
 
-def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1):
+def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True):
     # Test
     y_values = model_x(dataset_x, dataset_y)
     x_values = model_y(dataset_x, dataset_y)
@@ -51,12 +51,29 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1):
 
     rows = []
 
-    for index, (x, y) in enumerate(zip(x_values, y_values)):
-        search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
-        loss = calculate_reconstruction_error(x, y)
-        correlation = calculate_mardia(x, y, 0)
+    if validate_all:
+        for index, (x, y) in enumerate(zip(x_values, y_values)):
+            search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+            loss = calculate_reconstruction_error(x, y)
+            correlation = calculate_mardia(x, y, 0)
 
-        print_row = ["{0} ".format(index), loss, correlation]
+            print_row = ["{0} ".format(index), loss, correlation]
+            print_row.extend(search_recall)
+            print_row.append(sum(search_recall))
+            print_row.extend(describe_recall)
+            print_row.append(sum(describe_recall))
+
+            rows.append(print_row)
+    else:
+        middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
+        middle_x = x_values[middle]
+        middle_y = y_values[middle]
+
+        search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
+        loss = calculate_reconstruction_error(middle_x, middle_y)
+        correlation = calculate_mardia(middle_x, middle_y, 0)
+
+        print_row = ["{0} ".format(middle), loss, correlation]
         print_row.extend(search_recall)
         print_row.append(sum(search_recall))
         print_row.extend(describe_recall)
@@ -155,7 +172,8 @@ if __name__ == '__main__':
                 OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}'.format(index,
                                                                                                 validation_loss,
                                                                                                 correlation,
-                                                                                                sum(search_recall) + sum(
+                                                                                                sum(
+                                                                                                    search_recall) + sum(
                                                                                                     describe_recall)))
         else:
             middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
@@ -171,14 +189,13 @@ if __name__ == '__main__':
                                                                                         sum(search_recall) + sum(
                                                                                             describe_recall)))
 
-
         del x_values
         del y_values
 
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
             updates = OrderedDict(batchnormalizeupdates(hooks, 100))
-            test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5)
+            test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, validate_all=VALIDATE_ALL)
 
             with file(os.path.join(path, 'model_x_{0}.p'.format(epoch)), 'w') as model_x_file:
                 cPickle.dump(model_x, model_x_file)
