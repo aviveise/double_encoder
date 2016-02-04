@@ -60,7 +60,10 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
     loss_x = Params.LOSS_X * lasagne.objectives.squared_error(var_x, prediction_x).sum(axis=1).mean()
     loss_y = Params.LOSS_Y * lasagne.objectives.squared_error(var_y, prediction_y).sum(axis=1).mean()
 
-    middle_layer = int(floor(float(len(hidden_x)) / 2.))
+    if len(hidden_x) % 2 == 0:
+        middle_layer = int(len(hidden_x) / 2.) - 1
+    else:
+        middle_layer = int(floor(float(len(hidden_x)) / 2.))
 
     hooks_temp = {}
 
