@@ -90,6 +90,9 @@ if __name__ == '__main__':
 
     OutputLog().write('Model: {0}'.format(model.__name__))
 
+    # Export network
+    path = OutputLog().output_path
+
     model_x, model_y, hidden_x, hidden_y, loss, outputs, hooks = model.build_model(x_var,
                                                                                    data_set.trainset[0].shape[1],
                                                                                    y_var,
@@ -159,6 +162,14 @@ if __name__ == '__main__':
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
             updates = OrderedDict(batchnormalizeupdates(hooks, 100))
+            test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5)
+
+            with file(os.path.join(path, 'model_x_{0}.p'.format(epoch)), 'w') as model_x_file:
+                cPickle.dump(model_x, model_x_file)
+
+            with file(os.path.join(path, 'model_y{0}.p'.format(epoch)), 'w') as model_y_file:
+                cPickle.dump(model_y, model_y_file)
+
             updates.update(
                 lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=0.9))
             del train_fn
@@ -167,9 +178,6 @@ if __name__ == '__main__':
     OutputLog().write('Test results')
 
     test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5)
-
-    # Export network
-    path = OutputLog().output_path
 
     with file(os.path.join(path, 'model_x.p'), 'w') as model_x_file:
         cPickle.dump(model_x, model_x_file)
