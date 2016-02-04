@@ -1,3 +1,5 @@
+from math import floor
+
 import matplotlib
 
 matplotlib.use('Agg')
@@ -9,21 +11,19 @@ import cPickle
 import lasagne
 import numpy
 import json
-
 from collections import OrderedDict
 from tabulate import tabulate
 from theano import tensor, theano
-
 from lib.MISC.container import Container
 from lib.MISC.logger import OutputLog
 from lib.MISC.utils import ConfigSectionMap, complete_rank, calculate_reconstruction_error, calculate_mardia
 from lib.lasagne.Models import parallel_model, bisimilar_model, iterative_model, tied_dropout_iterative_model
 from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
-
 import lib.DataSetReaders
 
 OUTPUT_DIR = r'C:\Workspace\output'
+VALIDATE_ALL = False
 
 
 def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
@@ -113,7 +113,8 @@ if __name__ == '__main__':
 
     current_learning_rate = Params.BASE_LEARNING_RATE
 
-    updates.update(lasagne.updates.momentum(loss, params, learning_rate=current_learning_rate, momentum=Params.MOMENTUM))
+    updates.update(
+        lasagne.updates.momentum(loss, params, learning_rate=current_learning_rate, momentum=Params.MOMENTUM))
 
     train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
@@ -145,16 +146,31 @@ if __name__ == '__main__':
 
         OutputLog().write('\nValidating model\n')
 
-        for index, (x, y) in enumerate(zip(x_values, y_values)):
-            search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
-            validation_loss = calculate_reconstruction_error(x, y)
-            correlation = calculate_mardia(x, y, 0)
+        if VALIDATE_ALL:
+            for index, (x, y) in enumerate(zip(x_values, y_values)):
+                search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+                validation_loss = calculate_reconstruction_error(x, y)
+                correlation = calculate_mardia(x, y, 0)
 
-            OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}'.format(index,
-                                                                                            validation_loss,
-                                                                                            correlation,
-                                                                                            sum(search_recall) + sum(
-                                                                                                describe_recall)))
+                OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}'.format(index,
+                                                                                                validation_loss,
+                                                                                                correlation,
+                                                                                                sum(search_recall) + sum(
+                                                                                                    describe_recall)))
+        else:
+            middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
+            middle_x = x_values[middle]
+            middle_y = y_values[middle]
+            search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
+            validation_loss = calculate_reconstruction_error(middle_x, middle_y)
+            correlation = calculate_mardia(middle_x, middle_y, 0)
+
+            OutputLog().write('Layer - loss: {1}, correlation: {2}, recall: {3}'.format(index,
+                                                                                        validation_loss,
+                                                                                        correlation,
+                                                                                        sum(search_recall) + sum(
+                                                                                            describe_recall)))
+
 
         del x_values
         del y_values
