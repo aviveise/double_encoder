@@ -67,18 +67,18 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
     hooks_temp = {}
 
-    middle_x = lasagne.layers.get_output(hidden_x[middle_layer], moving_avg_hooks=hooks_temp)
-    middle_y = lasagne.layers.get_output(reversed_hidden_y[middle_layer], moving_avg_hooks=hooks_temp)
+    layer_x = lasagne.layers.get_output(hidden_x[Params.TEST_LAYER], moving_avg_hooks=hooks_temp)
+    layer_y = lasagne.layers.get_output(reversed_hidden_y[Params.TEST_LAYER], moving_avg_hooks=hooks_temp)
 
-    loss_l2 = Params.L2_LOSS * lasagne.objectives.squared_error(middle_x, middle_y).sum(axis=1).mean()
+    loss_l2 = Params.L2_LOSS * lasagne.objectives.squared_error(layer_x, layer_y).sum(axis=1).mean()
 
     loss_weight_decay = 0
 
-    cov_x = T.dot(middle_x.T, middle_x)
-    cov_y = T.dot(middle_y.T, middle_y)
+    cov_x = T.dot(layer_x.T, layer_x) / layer_x.shape[0]
+    cov_y = T.dot(layer_y.T, layer_y) / layer_y.shape[0]
 
-    loss_withen_x = Params.WITHEN_REG_X * T.mean(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
-    loss_withen_y = Params.WITHEN_REG_Y * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
+    loss_withen_x = Params.WITHEN_REG_X * T.sum(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
+    loss_withen_y = Params.WITHEN_REG_Y * T.sum(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
 
     loss_weight_decay += lasagne.regularization.regularize_layer_params(model_x,
                                                                         penalty=l2) * Params.WEIGHT_DECAY
@@ -106,11 +106,11 @@ def add_withening_regularization(hidden_x, hidden_y_reversed):
         x_value = lasagne.layers.get_output(x, moving_avg_hooks=hooks_temp)
         y_value = lasagne.layers.get_output(y, moving_avg_hooks=hooks_temp)
 
-        cov_x = T.dot(x_value.T, x_value)
-        cov_y = T.dot(y_value.T, y_value)
+        cov_x = T.dot(x_value.T, x_value) / x_value.shape[0]
+        cov_y = T.dot(y_value.T, y_value) / y_value.shape[0]
 
-        loss_withen += WITHEN_REG * T.mean(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
-        loss_withen += WITHEN_REG * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
+        loss_withen += Params.WITHEN_REG_X * T.mean(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
+        loss_withen += Params.WITHEN_REG_Y * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
     return loss_withen
 
 
