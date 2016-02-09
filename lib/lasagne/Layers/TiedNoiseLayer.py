@@ -45,7 +45,7 @@ class TiedGaussianNoiseLayer(Layer):
            Journal of Machine Learning Research, 5(Jun)(2), 1929-1958.
     """
     def __init__(self, incoming, sigma=0.1, noise_layer=None, **kwargs):
-        super(TiedGaussianNoiseLayer, self).__init__(incoming, **kwargs)
+        super(TiedGaussianNoiseLayer, self).__init__(incoming)
         self._srng = RandomStreams(get_rng().randint(1, 2147462579))
         self.sigma = sigma
         self._master = noise_layer
