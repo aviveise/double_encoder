@@ -65,9 +65,8 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
 
             rows.append(print_row)
     else:
-        middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
-        middle_x = x_values[middle]
-        middle_y = y_values[middle]
+        middle_x = x_values[Params.TEST_LAYER]
+        middle_y = y_values[Params.TEST_LAYER]
 
         search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
         loss = calculate_reconstruction_error(middle_x, middle_y)
