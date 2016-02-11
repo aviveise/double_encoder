@@ -74,11 +74,11 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
     loss_weight_decay = 0
 
-    cov_x = T.dot(layer_x.T, layer_x) / layer_x.shape[0]
-    cov_y = T.dot(layer_y.T, layer_y) / layer_y.shape[0]
+    cov_x = T.dot(layer_x.T, layer_x)
+    cov_y = T.dot(layer_y.T, layer_y)
 
-    loss_withen_x = Params.WITHEN_REG_X * T.sum(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
-    loss_withen_y = Params.WITHEN_REG_Y * T.sum(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
+    loss_withen_x = Params.WITHEN_REG_X * T.mean(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
+    loss_withen_y = Params.WITHEN_REG_Y * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
 
     loss_weight_decay += lasagne.regularization.regularize_layer_params(model_x,
                                                                         penalty=l2) * Params.WEIGHT_DECAY
