@@ -19,15 +19,16 @@ class Params:
 
     # region Loss Weights
     WEIGHT_DECAY = 0.005
-    WITHEN_REG_X = 0.005
-    WITHEN_REG_Y = 0.005
+    WITHEN_REG_X = 0.1
+    WITHEN_REG_Y = 0.1
     L2_LOSS = 0.25
     LOSS_X = 1
     LOSS_Y = 1
+    SHRINKAGE = 0.1
     # endregion
 
     # region Architecture
-    LAYER_SIZES = [2048, 2048, 2048]
+    LAYER_SIZES = [2000, 3000, 4000]
     TEST_LAYER = 1
     DROPOUT = [0.5, 0.5, 0.5]
     PARALLEL_WIDTH = 2
@@ -35,7 +36,7 @@ class Params:
     LAYER_TYPES = [TiedDenseLayer, TiedDenseLayer, TiedDenseLayer, TiedDenseLayer]
     LEAKINESS = 0.3
     CELL_NUM = 2
-    NOISE_LAYER = TiedGaussianNoiseLayer
+    NOISE_LAYER = TiedDropoutLayer
     # endregion
 
     @classmethod

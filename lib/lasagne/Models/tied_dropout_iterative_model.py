@@ -74,8 +74,16 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
     loss_weight_decay = 0
 
+    shrinkage = Params.SHRINKAGE
+
     cov_x = T.dot(layer_x.T, layer_x)
     cov_y = T.dot(layer_y.T, layer_y)
+
+    mu_x = T.nlinalg.trace(cov_x) / layer_x.shape[1]
+    mu_y = T.nlinalg.trace(cov_y) / layer_y.shape[1]
+
+    cov_x = (1. - shrinkage) * cov_x + shrinkage * mu_x * T.identity_like(cov_x)
+    cov_y = (1. - shrinkage) * cov_y + shrinkage * mu_y * T.identity_like(cov_y)
 
     loss_withen_x = Params.WITHEN_REG_X * T.mean(T.sum(abs(cov_x - T.identity_like(cov_x)), axis=0))
     loss_withen_y = Params.WITHEN_REG_Y * T.mean(T.sum(abs(cov_y - T.identity_like(cov_y)), axis=0))
