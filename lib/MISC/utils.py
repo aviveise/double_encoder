@@ -10,7 +10,6 @@ import math
 import os
 import datetime
 import traceback
-
 from matplotlib import pyplot
 from matplotlib.pyplot import pcolor, colorbar, yticks, xticks, pcolormesh, matplotlib
 import numpy
@@ -172,6 +171,7 @@ class MinMaxScaler():
     def fit_transform(self, M):
         self.fit(M)
         return self.fit_transform(M)
+
 
 def unitnorm_rows(M):
     if M is None:
@@ -440,7 +440,6 @@ def calculate_square(x):
 
 
 def match_error(x, y, visualize):
-
     try:
         x_n = preprocessing.normalize(x, axis=1)
         y_n = preprocessing.normalize(y, axis=1)
@@ -498,9 +497,12 @@ def calculate_mardia(x, y, top, visualize=False):
             return numpy.sum(s)
 
         return numpy.sum(s[0:top])
-    except:
+    except Exception as e:
         OutputLog().write('Error while calculating meridia error')
+        OutputLog().write('Exception {0}'.format(e))
+        traceback.print_exc()
         return 0
+
 
 def calculate_trace(x, y):
     centered_x = center(x)
@@ -548,10 +550,10 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
             x_n = preprocessing.normalize(x_c, axis=0)
             y_n = preprocessing.normalize(y_c, axis=0)
 
-        if not x.shape[0] % reduce_x == 0:
+        if reduce_x and not x.shape[0] % reduce_x == 0:
             for i in range(0, reduce_x - x.shape[0] % reduce_x):
-                x_n = numpy.vstack((x_n, x_n[-1,:]))
-                y_n = numpy.vstack((y_n, y_n[-1,:]))
+                x_n = numpy.vstack((x_n, x_n[-1, :]))
+                y_n = numpy.vstack((y_n, y_n[-1, :]))
 
         num_X_samples = x_n.shape[0]
         num_Y_samples = y_n.shape[0]
@@ -592,7 +594,8 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
         return x_search_recall, describe_x_recall
     except Exception as e:
         OutputLog().write('Error calculating rank score with exception: {0}, {1}'.format(e, traceback.format_exc()))
-        return [0,0,0], [0,0,0]
+        return [0, 0, 0], [0, 0, 0]
+
 
 def visualize_correlation_matrix(mat, name):
     path = OutputLog().output_path
