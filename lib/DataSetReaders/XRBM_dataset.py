@@ -4,11 +4,8 @@ import random
 import cPickle
 import gzip
 import theano
-
 import numpy
-
 from theano import config
-
 from lib.MISC.container import ContainerRegisterMetaClass
 from dataset_base import DatasetBase
 
@@ -66,17 +63,29 @@ class XRBMSampledDataSet(DatasetBase):
     def __init__(self, data_set_parameters):
         self._samples_train = int(data_set_parameters['samples_train'])
         self._samples_test = int(data_set_parameters['samples_test'])
+        self._fold_num = int(data_set_parameters['fold'])
         super(XRBMSampledDataSet, self).__init__(data_set_parameters)
 
     def build_dataset(self):
 
         train_x1 = numpy.ndarray((0, 112))
         train_x2 = numpy.ndarray((0, 273))
-        for i in range(5):
-            path = os.path.join(self.dataset_path, 'JW11_fold{0}'.format(i))
+        if self._fold_num == -1:
+            for i in range(5):
+                path = os.path.join(self.dataset_path, 'JW11_fold{0}'.format(i))
 
-            train_x1_file_name = os.path.join(path, 'XRMB[JW11,numfr1=7,numfr2=7,fold{0},training].dat'.format(i))
-            train_x2_file_name = os.path.join(path, 'MFCC[JW11,numfr1=7,numfr2=7,fold{0},training].dat'.format(i))
+                train_x1_file_name = os.path.join(path, 'XRMB[JW11,numfr1=7,numfr2=7,fold{0},training].dat'.format(i))
+                train_x2_file_name = os.path.join(path, 'MFCC[JW11,numfr1=7,numfr2=7,fold{0},training].dat'.format(i))
+
+                train_x1 = numpy.vstack((train_x1, self.ReadBin(train_x1_file_name, 112).T))
+                train_x2 = numpy.vstack((train_x2, self.ReadBin(train_x2_file_name, 273).T))
+        else:
+            path = os.path.join(self.dataset_path, 'JW11_fold{0}'.format(self._fold_num))
+
+            train_x1_file_name = os.path.join(path, 'XRMB[JW11,numfr1=7,numfr2=7,fold{0},training].dat'.format(
+                self._fold_num))
+            train_x2_file_name = os.path.join(path, 'MFCC[JW11,numfr1=7,numfr2=7,fold{0},training].dat'.format(
+                self._fold_num))
 
             train_x1 = numpy.vstack((train_x1, self.ReadBin(train_x1_file_name, 112).T))
             train_x2 = numpy.vstack((train_x2, self.ReadBin(train_x2_file_name, 273).T))
@@ -87,11 +96,22 @@ class XRBMSampledDataSet(DatasetBase):
 
         test_x1 = numpy.ndarray((0, 112))
         test_x2 = numpy.ndarray((0, 273))
-        for i in range(5):
-            path = os.path.join(self.dataset_path, 'JW11_fold{0}'.format(i))
+        if self._fold_num == -1:
+            for i in range(5):
+                path = os.path.join(self.dataset_path, 'JW11_fold{0}'.format(i))
 
-            test_x1_file_name = os.path.join(path, 'XRMB[JW11,numfr1=7,numfr2=7,fold{0},testing].dat'.format(i))
-            test_x2_file_name = os.path.join(path, 'MFCC[JW11,numfr1=7,numfr2=7,fold{0},testing].dat'.format(i))
+                test_x1_file_name = os.path.join(path, 'XRMB[JW11,numfr1=7,numfr2=7,fold{0},testing].dat'.format(i))
+                test_x2_file_name = os.path.join(path, 'MFCC[JW11,numfr1=7,numfr2=7,fold{0},testing].dat'.format(i))
+
+                test_x1 = numpy.vstack((train_x1, self.ReadBin(test_x1_file_name, 112).T))
+                test_x2 = numpy.vstack((train_x2, self.ReadBin(test_x2_file_name, 273).T))
+        else:
+            path = os.path.join(self.dataset_path, 'JW11_fold{0}'.format(self._samples_train))
+
+            test_x1_file_name = os.path.join(path, 'XRMB[JW11,numfr1=7,numfr2=7,fold{0},testing].dat'.format(
+                self._samples_train))
+            test_x2_file_name = os.path.join(path, 'MFCC[JW11,numfr1=7,numfr2=7,fold{0},testing].dat'.format(
+                self._samples_train))
 
             test_x1 = numpy.vstack((train_x1, self.ReadBin(test_x1_file_name, 112).T))
             test_x2 = numpy.vstack((train_x2, self.ReadBin(test_x2_file_name, 273).T))
@@ -102,11 +122,22 @@ class XRBMSampledDataSet(DatasetBase):
 
         tuning_x1 = numpy.ndarray((0, 112))
         tuning_x2 = numpy.ndarray((0, 273))
-        for i in range(5):
-            path = os.path.join(self.dataset_path, 'JW11_fold{0}'.format(i))
+        if self._fold_num == -1:
+            for i in range(5):
+                path = os.path.join(self.dataset_path, 'JW11_fold{0}'.format(i))
 
-            tuning_x1_file_name = os.path.join(path, 'XRMB[JW11,numfr1=7,numfr2=7,fold{0},tuning].dat'.format(i))
-            tuning_x2_file_name = os.path.join(path, 'MFCC[JW11,numfr1=7,numfr2=7,fold{0},tuning].dat'.format(i))
+                tuning_x1_file_name = os.path.join(path, 'XRMB[JW11,numfr1=7,numfr2=7,fold{0},tuning].dat'.format(i))
+                tuning_x2_file_name = os.path.join(path, 'MFCC[JW11,numfr1=7,numfr2=7,fold{0},tuning].dat'.format(i))
+
+                tuning_x1 = numpy.vstack((train_x1, self.ReadBin(tuning_x1_file_name, 112).T))
+                tuning_x2 = numpy.vstack((train_x2, self.ReadBin(tuning_x2_file_name, 273).T))
+        else:
+            path = os.path.join(self.dataset_path, 'JW11_fold{0}'.format(self._samples_train))
+
+            tuning_x1_file_name = os.path.join(path, 'XRMB[JW11,numfr1=7,numfr2=7,fold{0},tuning].dat'.format(
+                self._samples_train))
+            tuning_x2_file_name = os.path.join(path, 'MFCC[JW11,numfr1=7,numfr2=7,fold{0},tuning].dat'.format(
+                self._samples_train))
 
             tuning_x1 = numpy.vstack((train_x1, self.ReadBin(tuning_x1_file_name, 112).T))
             tuning_x2 = numpy.vstack((train_x2, self.ReadBin(tuning_x2_file_name, 273).T))

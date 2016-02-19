@@ -160,7 +160,6 @@ if __name__ == '__main__':
             train_loss = train_fn(numpy.cast[theano.config.floatX](input_x),
                                   numpy.cast[theano.config.floatX](input_y))
             OutputLog().write(output_string.format(index, batch_number, *train_loss))
-            break
 
         x_values = test_y(data_set.tuning[0], data_set.tuning[1])
         y_values = test_x(data_set.tuning[0], data_set.tuning[1])
