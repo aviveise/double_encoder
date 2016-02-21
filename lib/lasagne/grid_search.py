@@ -171,6 +171,7 @@ if __name__ == '__main__':
 
     # construct data set
     data_set = Container().create(data_parameters['name'], data_parameters)
+    data_set.load()
 
     y_var = tensor.fmatrix()
     x_var = tensor.fmatrix()

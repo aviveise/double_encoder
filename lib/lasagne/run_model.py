@@ -100,6 +100,7 @@ if __name__ == '__main__':
 
     # construct data set
     data_set = Container().create(data_parameters['name'], data_parameters)
+    data_set.load()
 
     y_var = tensor.fmatrix()
     x_var = tensor.fmatrix()
@@ -198,7 +199,8 @@ if __name__ == '__main__':
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
             updates = OrderedDict(batchnormalizeupdates(hooks, 100))
-            test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, validate_all=VALIDATE_ALL)
+            test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, validate_all=VALIDATE_ALL,
+                       top=top)
 
             with file(os.path.join(path, 'model_x_{0}.p'.format(epoch)), 'w') as model_x_file:
                 cPickle.dump(model_x, model_x_file)

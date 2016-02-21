@@ -61,11 +61,6 @@ class GUYDataSet(DatasetBase):
         self.testset = [numpy.ndarray((test_size, CNN_output.shape[1]), dtype=config.floatX),
                         numpy.ndarray((test_size, feature_vectors[0].shape[0]), dtype=config.floatX)]
 
-        # for i in range(train_size):
-        #
-        #     self.trainset[0][:, i] = CNN_output[int(training_image_idx[i]) - 1]
-        #     self.trainset[1][:, i] = feature_vectors[int(numpy.random.choice(numpy.where(images_sent_mapping == training_image_idx[i])[0]))]
-
         for i in range(train_size):
 
             if self._full:
@@ -84,10 +79,9 @@ class GUYDataSet(DatasetBase):
             self.testset[0][i, :] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
             self.testset[1][i, :] = feature_vectors[int(test_sen_idx[i]) - 1]
 
-        # image_jitter = (self.jitter(self.trainset[0]), self.trainset[1])
-        # sen_jitter = (self.trainset[0], self.jitter(self.trainset[1]))
-        # self.trainset = (numpy.vstack((self.trainset[0], image_jitter[0], sen_jitter[0])),
-        #                  numpy.vstack((self.trainset[1], image_jitter[1], sen_jitter[1])))
+        del CNN_output
+        del feature_vectors
+        del images_sent_mapping
 
     def jitter(self, set):
         new_samples = set + numpy.cast[theano.config.floatX](numpy.random.normal(0, 0.25, set.shape))
