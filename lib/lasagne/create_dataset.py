@@ -8,6 +8,7 @@ import numpy
 from theano import config
 
 from lib.MISC.container import Container
+from lib.MISC.logger import OutputLog
 from lib.MISC.utils import ConfigSectionMap, normalize
 import lib.DataSetReaders
 
@@ -15,6 +16,10 @@ OUTPUT_PATH = ''
 
 if __name__ == '__main__':
     data_set_config = sys.argv[1]
+
+    OutputLog().set_path(OUTPUT_PATH)
+    OutputLog().set_verbosity('info')
+
 
     data_config = ConfigParser.ConfigParser()
     data_config.read(data_set_config)
