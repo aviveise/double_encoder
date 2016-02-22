@@ -1,16 +1,15 @@
 import lasagne
 from math import floor
-
 from lasagne.layers import DenseLayer
 from lasagne.regularization import l2, l1
 from theano import tensor as T
-
 from lib.lasagne.Layers.LocallyDenseLayer import TiedDenseLayer, LocallyDenseLayer
 from lib.lasagne.Layers.Penelties import orthonormality
 from lib.lasagne.Layers.TiedDropoutLayer import TiedDropoutLayer
 from lib.lasagne.Layers.TiedNoiseLayer import TiedGaussianNoiseLayer
 from lib.lasagne.learnedactivations import BatchNormalizationLayer, BatchNormLayer, BatchWhiteningLayer
 from lib.lasagne.params import Params
+
 
 def transpose_recursive(w):
     if not isinstance(w, list):
@@ -21,7 +20,6 @@ def transpose_recursive(w):
 
 def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
                 weight_init=lasagne.init.GlorotUniform(), drop_prob=None, **kwargs):
-
     layer_types = Params.LAYER_TYPES
 
     # Create x to y network
@@ -52,10 +50,12 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
     reversed_hidden_y = list(reversed(hidden_y))
 
-    # Merge the two dictionaries
-    hooks = hooks_x
-    hooks["BatchNormalizationLayer:movingavg"].extend(hooks_y["BatchNormalizationLayer:movingavg"])
-    # hooks["WhiteningLayer:movingavg"].extend(hooks_y["WhiteningLayer:movingavg"])
+    hooks = {}
+    if "BatchNormalizationLayer:movingavg" in hooks_x:
+        # Merge the two dictionaries
+        hooks = hooks_x
+        hooks["BatchNormalizationLayer:movingavg"].extend(hooks_y["BatchNormalizationLayer:movingavg"])
+        # hooks["WhiteningLayer:movingavg"].extend(hooks_y["WhiteningLayer:movingavg"])
 
     loss_x = Params.LOSS_X * lasagne.objectives.squared_error(var_x, prediction_x).sum(axis=1).mean()
     loss_y = Params.LOSS_Y * lasagne.objectives.squared_error(var_y, prediction_y).sum(axis=1).mean()
@@ -76,8 +76,8 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
 
     shrinkage = Params.SHRINKAGE
 
-    cov_x = T.dot(layer_x.T, layer_x) / layer_x.shape[0]
-    cov_y = T.dot(layer_y.T, layer_y) / layer_x.shape[0]
+    cov_x = T.dot(layer_x.T, layer_x) / T.cast(layer_x.shape[0], dtype=T.config.floatX)
+    cov_y = T.dot(layer_y.T, layer_y) / T.cast(layer_x.shape[0], dtype=T.config.floatX)
 
     # mu_x = T.nlinalg.trace(cov_x) / layer_x.shape[1]
     # mu_y = T.nlinalg.trace(cov_y) / layer_y.shape[1]
@@ -104,7 +104,13 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
         'loss_l2': loss_l2,
         'loss_weight_decay': loss_weight_decay,
         'loss_withen_x': loss_withen_x,
-        'loss_withen_y': loss_withen_y
+        'loss_withen_y': loss_withen_y,
+        'mean_x': T.mean(T.mean(layer_x, axis=0)),
+        'mean_y': T.mean(T.mean(layer_y, axis=0)),
+        'var_x': T.mean(T.var(layer_x, axis=0)),
+        'var_y': T.mean(T.var(layer_y, axis=0)),
+        'var_mean_x': T.var(T.mean(layer_x, axis=0)),
+        'var_mean_y': T.var(T.mean(layer_y, axis=0))
     }
 
     return model_x, model_y, hidden_x, reversed_hidden_y, loss, output, hooks
@@ -149,7 +155,6 @@ def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
 
     # Add hidden layers
     for index, layer_size in enumerate(layer_sizes):
-
         model.append(layer_types[index](incoming=model[-1],
                                         num_units=layer_size,
                                         W=weight_init[index],
@@ -167,6 +172,7 @@ def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
         model.append(Params.NOISE_LAYER(model[-1], noise_layer=dropouts_init[-(index + 1)], rescale=True, p=drop))
 
         dropouts.append(model[-1])
+
         hidden.append(model[-1])
 
     # Add output layer

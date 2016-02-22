@@ -126,7 +126,10 @@ if __name__ == '__main__':
     params_x = lasagne.layers.get_all_params(model_x, trainable=True)
     params_y = lasagne.layers.get_all_params(model_y, trainable=True)
 
-    updates = OrderedDict(batchnormalizeupdates(hooks, 100))
+    if hooks:
+        updates = OrderedDict(batchnormalizeupdates(hooks, 100))
+    else:
+        updates = OrderedDict()
 
     params_x.extend(params_y)
 
@@ -135,6 +138,7 @@ if __name__ == '__main__':
     current_learning_rate = Params.BASE_LEARNING_RATE
 
     updates.update(
+        # lasagne.updates.rmsprop(loss,params,learning_rate=current_learning_rate))
         lasagne.updates.momentum(loss, params, learning_rate=current_learning_rate, momentum=Params.MOMENTUM))
 
     train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
@@ -186,15 +190,21 @@ if __name__ == '__main__':
             search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
             validation_loss = calculate_reconstruction_error(middle_x, middle_y)
             correlation = calculate_mardia(middle_x, middle_y, top)
+            mean_x = numpy.mean(numpy.mean(middle_x, axis=0)),
+            mean_y = numpy.mean(numpy.mean(middle_y, axis=0)),
+            var_x = numpy.mean(numpy.var(middle_x, axis=0)),
+            var_y = numpy.mean(numpy.var(middle_y, axis=0)),
 
-            OutputLog().write('Layer - loss: {1}, correlation: {2}, recall: {3}'.format(index,
-                                                                                        validation_loss,
-                                                                                        correlation,
-                                                                                        sum(search_recall) + sum(
-                                                                                            describe_recall)))
-
-        del x_values
-        del y_values
+            OutputLog().write('Layer - loss: {1}, correlation: {2}, recall: {3}, mean_x: {4}, mean_y: {5},'
+                              'var_x: {6}, var_y: {7}'.format(index,
+                                                              validation_loss,
+                                                              correlation,
+                                                              sum(search_recall) + sum(
+                                                                  describe_recall),
+                                                              mean_x,
+                                                              mean_y,
+                                                              var_x,
+                                                              var_y))
 
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
