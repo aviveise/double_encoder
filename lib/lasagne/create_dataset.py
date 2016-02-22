@@ -67,7 +67,7 @@ if __name__ == '__main__':
     for i in range(test_size):
         testset_x[i, :] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
 
-    hickle.dump({'train': trainset_x, 'tune':tuning_x, 'test':testset_x}, open(os.path.join(OUTPUT_PATH, 'x.p')))
+    hickle.dump({'train': trainset_x, 'tune':tuning_x, 'test':testset_x}, open(os.path.join(OUTPUT_PATH, 'x.p'), 'w'))
 
     del trainset_x
     del testset_x
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     for i in range(test_size):
         testset_x[i, :] = feature_vectors[int(test_sen_idx[i]) - 1]
 
-    hickle.dump({'train': trainset_y, 'tune':tuning_y, 'test':testset_y}, open(os.path.join(OUTPUT_PATH, 'y.p')))
+    hickle.dump({'train': trainset_y, 'tune':tuning_y, 'test':testset_y}, open(os.path.join(OUTPUT_PATH, 'y.p'), 'w'))
 
     del trainset_y
     del testset_y
