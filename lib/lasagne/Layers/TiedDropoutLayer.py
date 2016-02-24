@@ -64,11 +64,11 @@ class TiedDropoutLayer(Layer):
         """
         if deterministic or self.p == 0:
             return input
-            if self.rescale and not self.p == 0:
-                input *= retain_prob
 
         else:
             retain_prob = 1 - self.p
+            if self.rescale and not self.p == 0:
+                input /= retain_prob
 
             # use nonsymbolic shape for dropout mask if possible
             input_shape = self.input_shape
