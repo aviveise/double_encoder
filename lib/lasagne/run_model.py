@@ -41,8 +41,26 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
 
 def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0):
     # Test
-    y_values = model_x(dataset_x, dataset_y)
-    x_values = model_y(dataset_x, dataset_y)
+    x_total_value = None
+    y_total_value = None
+    for index, batch in enumerate(
+                iterate_minibatches(dataset_x, dataset_y, Params.VALIDATION_BATCH_SIZE, True)):
+        input_x, input_y = batch
+        y_values = model_x(input_x, input_y)
+        x_values = model_y(input_x, input_y)
+
+        if not x_total_value:
+            x_total_value = x_values
+        else:
+            x_total_value = [numpy.vstack((x_total, x_value)) for x_total, x_value in zip(x_total_value, x_values)]
+
+        if not y_total_value:
+            y_total_value = y_values
+        else:
+            x_total_value = [numpy.vstack((x_total, y_value)) for x_total, y_value in zip(y_total_value, y_values)]
+
+
+
 
     OutputLog().write('\nTesting model\n')
 
@@ -52,7 +70,7 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
     rows = []
 
     if validate_all:
-        for index, (x, y) in enumerate(zip(x_values, y_values)):
+        for index, (x, y) in enumerate(zip(x_total_value, y_total_value)):
             search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
             loss = calculate_reconstruction_error(x, y)
             correlation = calculate_mardia(x, y, top)
