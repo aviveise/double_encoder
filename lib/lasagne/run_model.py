@@ -41,26 +41,33 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
 
 def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0):
     # Test
-    x_total_value = None
-    y_total_value = None
-    for index, batch in enumerate(
-                iterate_minibatches(dataset_x, dataset_y, Params.VALIDATION_BATCH_SIZE, True)):
-        input_x, input_y = batch
-        y_values = model_x(input_x, input_y)
-        x_values = model_y(input_x, input_y)
 
-        if not x_total_value:
-            x_total_value = x_values
-        else:
-            x_total_value = [numpy.vstack((x_total, x_value)) for x_total, x_value in zip(x_total_value, x_values)]
+    if dataset_x.shape[0] > 10000:
+        validate_all = False
+        x_total_value = None
+        y_total_value = None
+        for index, batch in enumerate(
+                    iterate_minibatches(dataset_x, dataset_y, Params.VALIDATION_BATCH_SIZE, True)):
+            input_x, input_y = batch
+            y_values = model_x(input_x, input_y)
+            x_values = model_y(input_x, input_y)
 
-        if not y_total_value:
-            y_total_value = y_values
-        else:
-            x_total_value = [numpy.vstack((x_total, y_value)) for x_total, y_value in zip(y_total_value, y_values)]
+            if not x_total_value:
+                x_total_value = x_values
+            else:
+                x_total_value = [numpy.vstack((x_total, x_value)) for x_total, x_value in zip(x_total_value, x_values)]
 
+            if not y_total_value:
+                y_total_value = y_values
+            else:
+                x_total_value = [numpy.vstack((x_total, y_value)) for x_total, y_value in zip(y_total_value, y_values)]
+    else:
+        y_values = model_x(dataset_x, dataset_y)
+        x_values = model_y(dataset_x, dataset_y)
 
-
+        if not validate_all:
+            x_total_value = x_values[Params.TEST_LAYER]
+            y_total_value = y_values[Params.TEST_LAYER]
 
     OutputLog().write('\nTesting model\n')
 
@@ -70,7 +77,7 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
     rows = []
 
     if validate_all:
-        for index, (x, y) in enumerate(zip(x_total_value, y_total_value)):
+        for index, (x, y) in enumerate(zip(x_values, y_values)):
             search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
             loss = calculate_reconstruction_error(x, y)
             correlation = calculate_mardia(x, y, top)
@@ -83,8 +90,8 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
 
             rows.append(print_row)
     else:
-        middle_x = x_values[Params.TEST_LAYER]
-        middle_y = y_values[Params.TEST_LAYER]
+        middle_x = x_total_value
+        middle_y = y_total_value
 
         search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
         loss = calculate_reconstruction_error(middle_x, middle_y)
