@@ -124,12 +124,12 @@ class DatasetBase(object):
             path = os.path.dirname(os.path.abspath(self.dataset_path))
 
         if self.normalize_data[0]:
-            self.trainset = normalize(self.trainset[0]), self.trainset[1]
+            self.trainset = (normalize(self.trainset[0]), self.trainset[1])
             self.tuning = (normalize(self.tuning[0]), self.tuning[1])
             self.testset = (normalize(self.testset[0]), self.testset[1])
 
         if self.normalize_data[1]:
-            self.trainset = self.trainset[0], normalize(self.trainset[1])
+            self.trainset = (self.trainset[0], normalize(self.trainset[1]))
             self.tuning = (self.tuning[0], normalize(self.tuning[1]))
             self.testset = (self.testset[0], normalize(self.testset[1]))
 
