@@ -41,7 +41,7 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
 
 
 def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0):
-    # Test
+    # Testing
 
     if dataset_x.shape[0] > 10000:
         validate_all = False
