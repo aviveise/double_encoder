@@ -1,3 +1,4 @@
+import traceback
 from math import floor
 
 import matplotlib
@@ -235,8 +236,13 @@ if __name__ == '__main__':
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
             updates = OrderedDict(batchnormalizeupdates(hooks, 100))
-            test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, validate_all=VALIDATE_ALL,
-                       top=top)
+            try:
+                test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, validate_all=VALIDATE_ALL,
+                           top=top)
+
+            except Exception as e:
+                OutputLog.write('Failed testing model with exception {0}'.format(e))
+                OutputLog.write('{0}'.format(traceback.format_exc()))
 
             with file(os.path.join(path, 'model_x_{0}.p'.format(epoch)), 'w') as model_x_file:
                 cPickle.dump(model_x, model_x_file)
