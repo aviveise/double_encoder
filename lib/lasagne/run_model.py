@@ -191,45 +191,46 @@ if __name__ == '__main__':
                                   numpy.cast[theano.config.floatX](input_y))
             OutputLog().write(output_string.format(index, batch_number, *train_loss))
 
-        x_values = test_y(data_set.tuning[0], data_set.tuning[1])
-        y_values = test_x(data_set.tuning[0], data_set.tuning[1])
+        if Params.CROSS_VALIDATION:
+            x_values = test_y(data_set.tuning[0], data_set.tuning[1])
+            y_values = test_x(data_set.tuning[0], data_set.tuning[1])
 
-        OutputLog().write('\nValidating model\n')
+            OutputLog().write('\nValidating model\n')
 
-        if VALIDATE_ALL:
-            for index, (x, y) in enumerate(zip(x_values, y_values)):
-                search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
-                validation_loss = calculate_reconstruction_error(x, y)
-                correlation = calculate_mardia(x, y, top)
+            if VALIDATE_ALL:
+                for index, (x, y) in enumerate(zip(x_values, y_values)):
+                    search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+                    validation_loss = calculate_reconstruction_error(x, y)
+                    correlation = calculate_mardia(x, y, top)
 
-                OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}'.format(index,
-                                                                                                validation_loss,
-                                                                                                correlation,
-                                                                                                sum(
-                                                                                                    search_recall) + sum(
-                                                                                                    describe_recall)))
-        else:
-            middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
-            middle_x = x_values[middle]
-            middle_y = y_values[middle]
-            search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
-            validation_loss = calculate_reconstruction_error(middle_x, middle_y)
-            correlation = calculate_mardia(middle_x, middle_y, top)
-            mean_x = numpy.mean(numpy.mean(middle_x, axis=0)),
-            mean_y = numpy.mean(numpy.mean(middle_y, axis=0)),
-            var_x = numpy.mean(numpy.var(middle_x, axis=0)),
-            var_y = numpy.mean(numpy.var(middle_y, axis=0)),
+                    OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}'.format(index,
+                                                                                                    validation_loss,
+                                                                                                    correlation,
+                                                                                                    sum(
+                                                                                                        search_recall) + sum(
+                                                                                                        describe_recall)))
+            else:
+                middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
+                middle_x = x_values[middle]
+                middle_y = y_values[middle]
+                search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
+                validation_loss = calculate_reconstruction_error(middle_x, middle_y)
+                correlation = calculate_mardia(middle_x, middle_y, top)
+                mean_x = numpy.mean(numpy.mean(middle_x, axis=0)),
+                mean_y = numpy.mean(numpy.mean(middle_y, axis=0)),
+                var_x = numpy.mean(numpy.var(middle_x, axis=0)),
+                var_y = numpy.mean(numpy.var(middle_y, axis=0)),
 
-            OutputLog().write('Layer - loss: {1}, correlation: {2}, recall: {3}, mean_x: {4}, mean_y: {5},'
-                              'var_x: {6}, var_y: {7}'.format(index,
-                                                              validation_loss,
-                                                              correlation,
-                                                              sum(search_recall) + sum(
-                                                                  describe_recall),
-                                                              mean_x,
-                                                              mean_y,
-                                                              var_x,
-                                                              var_y))
+                OutputLog().write('Layer - loss: {1}, correlation: {2}, recall: {3}, mean_x: {4}, mean_y: {5},'
+                                  'var_x: {6}, var_y: {7}'.format(index,
+                                                                  validation_loss,
+                                                                  correlation,
+                                                                  sum(search_recall) + sum(
+                                                                      describe_recall),
+                                                                  mean_x,
+                                                                  mean_y,
+                                                                  var_x,
+                                                                  var_y))
 
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
