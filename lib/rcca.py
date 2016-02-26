@@ -24,10 +24,10 @@ OUTPUT_DIR = r'C:\Workspace\output'
 
 if __name__ == '__main__':
     data_set_config = sys.argv[1]
-    rca_location = sys.argv[3]
-    kx = int(sys.argv[4])
-    ky = int(sys.argv[5])
-    top = int(sys.argv[6])
+    rca_location = sys.argv[2]
+    kx = int(sys.argv[3])
+    ky = int(sys.argv[4])
+    top = int(sys.argv[5])
 
     # parse runtime configuration
     OutputLog().set_path(OUTPUT_DIR)
