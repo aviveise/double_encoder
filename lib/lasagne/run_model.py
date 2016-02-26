@@ -241,8 +241,8 @@ if __name__ == '__main__':
                            top=top)
 
             except Exception as e:
-                OutputLog.write('Failed testing model with exception {0}'.format(e))
-                OutputLog.write('{0}'.format(traceback.format_exc()))
+                OutputLog().write('Failed testing model with exception {0}'.format(e))
+                OutputLog().write('{0}'.format(traceback.format_exc()))
 
             with file(os.path.join(path, 'model_x_{0}.p'.format(epoch)), 'w') as model_x_file:
                 cPickle.dump(model_x, model_x_file)
