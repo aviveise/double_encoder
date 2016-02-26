@@ -1,3 +1,5 @@
+import os
+import pickle
 import sys
 import ConfigParser
 import gc
@@ -5,10 +7,11 @@ import rpy2.robjects.numpy2ri as numpy2ri
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import STAP
 import numpy
+from tabulate import tabulate
 
 from Testers.trace_correlation_tester import TraceCorrelationTester
 from Transformers.identity_transform import IdentityTransformer
-from MISC.utils import ConfigSectionMap
+from MISC.utils import ConfigSectionMap, complete_rank, calculate_mardia
 from MISC.container import Container
 
 import DataSetReaders
@@ -17,20 +20,17 @@ from MISC.logger import OutputLog
 
 __author__ = 'aviv'
 
+OUTPUT_DIR = r'C:\Workspace\output'
+
 if __name__ == '__main__':
     data_set_config = sys.argv[1]
-    run_time_config = sys.argv[2]
     rca_location = sys.argv[3]
     kx = int(sys.argv[4])
     ky = int(sys.argv[5])
     top = int(sys.argv[6])
 
     # parse runtime configuration
-    configuration = Configuration(run_time_config)
-    dir_name = configuration.output_parameters['path']
-
-    OutputLog().set_path(dir_name)
-    OutputLog().set_verbosity(configuration.output_parameters['verbosity'])
+    OutputLog().set_path(OUTPUT_DIR)
 
     data_config = ConfigParser.ConfigParser()
     data_config.read(data_set_config)
@@ -92,7 +92,28 @@ if __name__ == '__main__':
     x = numpy.array(eval_results[0])
     y = numpy.array(eval_results[1])
     #
-    trace_correlation = TraceCorrelationTester(x, y, top).test(IdentityTransformer(), None)
 
+    OutputLog().write('Output shape: {0}'.format(x.shape))
 
-    print 'done'
+    header = ['layer', 'corr', 'search1', 'search5', 'search10', 'search_sum', 'desc1', 'desc5', 'desc10',
+              'desc_sum']
+
+    rows=[]
+
+    correlation = calculate_mardia(x, y, top)
+    search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+
+    print_row = ["rcca", correlation]
+    print_row.extend(search_recall)
+    print_row.append(sum(search_recall))
+    print_row.extend(describe_recall)
+    print_row.append(sum(describe_recall))
+
+    rows.append(print_row)
+
+    OutputLog().write(tabulate(rows, headers=header))
+
+    OutputLog().write('done')
+
+    pickle.dump(x,open(os.path.join(OutputLog().output_path, 'test_x.p', 'rb')))
+    pickle.dump(y,open(os.path.join(OutputLog().output_path, 'test_y.p', 'rb')))
