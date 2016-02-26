@@ -124,22 +124,14 @@ class DatasetBase(object):
             path = os.path.dirname(os.path.abspath(self.dataset_path))
 
         if self.normalize_data[0]:
-            train_set_x, normalizer_x = normalize(self.trainset[0])
-            self.trainset = train_set_x, self.trainset[1]
-            self.tuning = (normalizer_x.transform(self.tuning[0]), self.tuning[1])
-            self.testset = (normalizer_x.transform(self.testset[0]), self.testset[1])
-            scaler_x_path = os.path.join(path, 'scaler_x.p')
-
-            pickle.dump(normalizer_x, file(scaler_x_path, 'w'))
+            self.trainset = normalize(self.trainset[0]), self.trainset[1]
+            self.tuning = (normalize(self.tuning[0]), self.tuning[1])
+            self.testset = (normalize(self.testset[0]), self.testset[1])
 
         if self.normalize_data[1]:
-            train_set_y, normalizer_y = normalize(self.trainset[1])
-            self.trainset = self.trainset[0], train_set_y
-            self.tuning = (self.tuning[0], normalizer_y.transform(self.tuning[1]))
-            self.testset = (self.testset[0], normalizer_y.transform(self.testset[1]))
-            scaler_y_path = os.path.join(path, 'scaler_y.p')
-
-            pickle.dump(normalizer_y, file(scaler_y_path, 'w'))
+            self.trainset = self.trainset[0], normalize(self.trainset[1])
+            self.tuning = (self.tuning[0], normalize(self.tuning[1]))
+            self.testset = (self.testset[0], normalize(self.testset[1]))
 
         if self.scale[0]:
             train_set_x, scaler_x = scale_cols(self.trainset[0])
@@ -151,7 +143,7 @@ class DatasetBase(object):
             pickle.dump(scaler_x, file(scaler_x_path, 'w'))
 
         if self.scale[1]:
-            train_set_y, scaler_y = scale_cols  (self.trainset[1])
+            train_set_y, scaler_y = scale_cols(self.trainset[1])
 
             self.trainset = self.trainset[0], train_set_y
             self.tuning = (self.tuning[0], scaler_y.transform(self.tuning[1]))
