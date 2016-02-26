@@ -77,6 +77,52 @@ class DatasetBase(object):
 
         self.build_dataset()
 
+        self.preprocess()
+
+        self.dump()
+
+        OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[1], self.trainset[1].shape[1]))
+        OutputLog().write('Training set size = %d' % self.trainset[0].shape[0])
+        OutputLog().write('Test set size = %d' % self.testset[0].shape[0])
+
+        OutputLog().write('Dataset params: {0}'.format(self.data_set_parameters))
+
+        if self.tuning is not None:
+            OutputLog().write('Tuning set size = %d' % self.tuning[0].shape[0])
+
+    def produce_optimization_sets(self, train, test_samples=None):
+
+        if test_samples == 0:
+            return [train, numpy.ndarray([0, 0]), 0]
+
+        test_size = int(round(train.shape[0] / 10))
+
+        if test_samples is None:
+            test_samples = random.sample(xrange(0, train.shape[0] - 1), test_size)
+
+        train_index = 0
+        test_index = 0
+
+        train_result = numpy.ndarray([train.shape[0] - test_size, train.shape[1]], dtype=theano.config.floatX)
+        test_result = numpy.ndarray([test_size, train.shape[1]], dtype=theano.config.floatX)
+
+        for i in xrange(train.shape[0]):
+
+            if i in test_samples:
+                test_result[test_index, :] = train[i, :]
+                test_index += 1
+            else:
+                train_result[train_index, :] = train[i, :]
+                train_index += 1
+
+        return [train_result, test_result, test_samples]
+
+    def preprocess(self):
+
+        path = self.dataset_path
+        if not os.path.isdir(self.dataset_path):
+            path = os.path.dirname(os.path.abspath(self.dataset_path))
+
         if self.normalize_data[0]:
             train_set_x, normalizer_x = normalize(self.trainset[0])
             self.trainset = train_set_x, self.trainset[1]
@@ -147,46 +193,22 @@ class DatasetBase(object):
             self.testset = (pca_dim1.transform(self.testset[0]), pca_dim2.transform(self.testset[1]))
             self.tuning = (pca_dim1.transform(self.tuning[0]), pca_dim2.transform(self.tuning[1]))
 
+    def dump(self, suffix=''):
+
+        path = self.dataset_path
+        if not os.path.isdir(self.dataset_path):
+            path = os.path.dirname(os.path.abspath(self.dataset_path))
+
+        train_file = os.path.join(path, 'train{0}.p'.format(suffix))
+        test_file = os.path.join(path, 'test{0}.p'.format(suffix))
+        validate_file = os.path.join(path, 'validate{0}.p'.format(suffix))
+        params_file = os.path.join(path, 'params{0}.p'.format(suffix))
+
         hickle.dump(self.trainset, file(train_file, 'w'))
         hickle.dump(self.testset, file(test_file, 'w'))
         hickle.dump(self.tuning, file(validate_file, 'w'))
         hickle.dump(self.data_set_parameters, file(params_file, 'w'))
 
-        OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[1], self.trainset[1].shape[1]))
-        OutputLog().write('Training set size = %d' % self.trainset[0].shape[0])
-        OutputLog().write('Test set size = %d' % self.testset[0].shape[0])
-
-        OutputLog().write('Dataset params: {0}'.format(self.data_set_parameters))
-
-        if self.tuning is not None:
-            OutputLog().write('Tuning set size = %d' % self.tuning[0].shape[0])
-
-    def produce_optimization_sets(self, train, test_samples=None):
-
-        if test_samples == 0:
-            return [train, numpy.ndarray([0, 0]), 0]
-
-        test_size = int(round(train.shape[0] / 10))
-
-        if test_samples is None:
-            test_samples = random.sample(xrange(0, train.shape[0] - 1), test_size)
-
-        train_index = 0
-        test_index = 0
-
-        train_result = numpy.ndarray([train.shape[0] - test_size, train.shape[1]], dtype=theano.config.floatX)
-        test_result = numpy.ndarray([test_size, train.shape[1]], dtype=theano.config.floatX)
-
-        for i in xrange(train.shape[0]):
-
-            if i in test_samples:
-                test_result[test_index, :] = train[i, :]
-                test_index += 1
-            else:
-                train_result[train_index, :] = train[i, :]
-                train_index += 1
-
-        return [train_result, test_result, test_samples]
 
     @abc.abstractmethod
     def build_dataset(self):
