@@ -258,7 +258,11 @@ if __name__ == '__main__':
 
     OutputLog().write('Test results')
 
-    test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top)
+    try:
+        test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top)
+    except Exception as e:
+        OutputLog().write('Error testing model with exception {0}'.format(e))
+        traceback.print_exc()
 
     with file(os.path.join(path, 'model_x.p'), 'w') as model_x_file:
         cPickle.dump(model_x, model_x_file)
