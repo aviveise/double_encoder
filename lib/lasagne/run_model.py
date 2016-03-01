@@ -50,18 +50,18 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
         for index, batch in enumerate(
                     iterate_minibatches(dataset_x, dataset_y, Params.VALIDATION_BATCH_SIZE, True)):
             input_x, input_y = batch
-            y_values = model_x(input_x, input_y)
-            x_values = model_y(input_x, input_y)
+            y_values = model_x(input_x, input_y)[Params.TEST_LAYER]
+            x_values = model_y(input_x, input_y)[Params.TEST_LAYER]
 
             if not x_total_value:
                 x_total_value = x_values
             else:
-                x_total_value = [numpy.vstack((x_total, x_value)) for x_total, x_value in zip(x_total_value, x_values)]
+                x_total_value = numpy.vstack((x_total_value, x_values))
 
             if not y_total_value:
                 y_total_value = y_values
             else:
-                x_total_value = [numpy.vstack((x_total, y_value)) for x_total, y_value in zip(y_total_value, y_values)]
+                y_total_value = numpy.vstack((y_total_value, y_values))
     else:
         y_values = model_x(dataset_x, dataset_y)
         x_values = model_y(dataset_x, dataset_y)
@@ -237,7 +237,8 @@ if __name__ == '__main__':
             current_learning_rate *= Params.DECAY_RATE
             updates = OrderedDict(batchnormalizeupdates(hooks, 100))
             try:
-                test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, validate_all=VALIDATE_ALL,
+                test_model(test_x, test_y, numpy.cast[theano.config.floatX](data_set.testset[0]),
+                           numpy.cast[theano.config.floatX](data_set.testset[1]), parallel=5, validate_all=VALIDATE_ALL,
                            top=top)
 
             except Exception as e:
