@@ -111,6 +111,7 @@ class BatchNormalizationLayer(Layer):
                  beta=init.Constant(0.),
                  nonlinearity=nonlinearities.rectify,
                  epsilon=0.001,
+                 regularize_gamma=True,
                  **kwargs):
         super(BatchNormalizationLayer, self).__init__(incoming, **kwargs)
         if nonlinearity is None:
@@ -119,7 +120,7 @@ class BatchNormalizationLayer(Layer):
             self.nonlinearity = nonlinearity
 
         self.num_units = int(np.prod(self.input_shape[1:]))
-        self.gamma = self.add_param(gamma, (self.num_units,), name="BatchNormalizationLayer:gamma", regularizable=True)
+        self.gamma = self.add_param(gamma, (self.num_units,), name="BatchNormalizationLayer:gamma", regularizable=regularize_gamma)
         self.beta = self.add_param(beta, (self.num_units,), name="BatchNormalizationLayer:beta", regularizable=False)
         self.epsilon = epsilon
 

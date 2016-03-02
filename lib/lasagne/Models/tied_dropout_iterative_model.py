@@ -167,7 +167,8 @@ def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
         biases.append(model[-1].b)
 
         model.append(BatchNormalizationLayer(model[-1],
-                                             nonlinearity=lasagne.nonlinearities.identity))
+                                             nonlinearity=lasagne.nonlinearities.identity,
+                                             regularize_gamma=Params.GAMMA_REG))
 
         drop = 0 if drop_prob is None else drop_prob[index]
         model.append(Params.NOISE_LAYER(model[-1], rescale=Params.RESCALE, p=drop, noise_layer=dropouts_init[-(index + 1)]))
