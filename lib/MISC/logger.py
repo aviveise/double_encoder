@@ -15,7 +15,7 @@ class OutputLog(object):
     __metaclass__ = Singleton
 
     def __init__(self):
-        self.output_file_name = 'double_encoder.txt'
+        self.output_file_name = 'double_encoder'
         self._verbosity = verbosity_map['info']
 
     def write(self, message, verbosity='info'):
@@ -26,10 +26,16 @@ class OutputLog(object):
 
     def set_path(self, path):
         self.path = path
-        self.output_path = os.path.join(self.path, datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
+        self.set_output_path(os.path.join(self.path, datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')))
+
+    def set_output_path(self, path, suffix=''):
+        self.output_path = path
+        if suffix:
+            suffix += '_'
         if not os.path.exists(self.output_path):
             os.mkdir(self.output_path)
-        self.output_file = open(os.path.join(self.output_path, self.output_file_name), 'w+')
+        self.output_file = open(os.path.join(self.output_path, self.output_file_name + suffix + '.txt'), 'w+')
+
 
     def __del__(self):
         self.output_file.close()
