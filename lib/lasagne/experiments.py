@@ -17,6 +17,6 @@ experiments = [
      [('NOISE_LAYER', DropoutLayer), ('DROPOUT', [0.5, 0, 0.5])],
      [('NOISE_LAYER', DropoutLayer), ('DROPOUT', [0, 0, 0])]],
 
-    [('LEAKINESS', numpy.arange(0, 1.1, 0.1))]
-    [('GAMMA_COEF', numpy.arange(0, 0.6, 0.05))]
+    ('LEAKINESS', numpy.arange(0, 1.1, 0.1)),
+    ('GAMMA_COEF', numpy.arange(0, 0.6, 0.05))
 ]
