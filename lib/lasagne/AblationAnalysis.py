@@ -19,6 +19,8 @@ from lib.MISC.container import Container
 from lib.MISC.logger import OutputLog
 from lib.MISC.utils import ConfigSectionMap, complete_rank
 from lib.MISC.utils import calculate_reconstruction_error, calculate_mardia
+from lib.lasagne.experiments import experiments
+from lib.lasagne.Layers import TiedDropoutLayer
 from lib.lasagne.Models import tied_dropout_iterative_model
 from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
@@ -26,7 +28,7 @@ import lib.DataSetReaders
 
 OUTPUT_DIR = r'C:\Workspace\output'
 VALIDATE_ALL = False
-PROCESS_NUMBER = 1
+PROCESS_NUMBER = 4
 
 
 def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
@@ -229,10 +231,6 @@ if __name__ == '__main__':
     data_parameters = ConfigSectionMap("dataset_parameters", data_config)
 
     Params.print_params()
-
-    experiments = [
-        [[('LEAKINESS', 0.1), ('DROPOUT', [0.5, 0.5, 0.5]), ('BN', False)]]
-    ]
 
     path = OutputLog().output_path
 

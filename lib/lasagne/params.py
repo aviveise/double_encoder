@@ -29,7 +29,7 @@ class Params:
     # endregion
 
     # region Architecture
-    LAYER_SIZES = [392, 50, 392]
+    LAYER_SIZES = [392, 1000, 392]
     TEST_LAYER = 1
     DROPOUT = [0, 0.5, 0]
     RESCALE = True
