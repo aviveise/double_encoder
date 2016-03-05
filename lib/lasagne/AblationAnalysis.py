@@ -11,6 +11,7 @@ from multiprocessing import Pool
 import functools
 from uuid import UUID
 import lasagne
+import multiprocessing
 import numpy
 import simplejson
 from tabulate import tabulate
@@ -25,6 +26,7 @@ from lib.lasagne.Models import tied_dropout_iterative_model
 from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
 import lib.DataSetReaders
+
 
 OUTPUT_DIR = r'C:\Workspace\output'
 VALIDATE_ALL = False
@@ -251,7 +253,12 @@ if __name__ == '__main__':
         elif isinstance(experiment, list):
             mapping = experiment
 
-        results = process_pool.map(run_experiment_partial, mapping)
+        results = []
+        if PROCESS_NUMBER > 1:
+            results = process_pool.map(run_experiment_partial, mapping)
+        else:
+            for mapped in mapping:
+                results.append(run_experiment_partial(mapped))
 
         experiment_result = {'experiment': experiment,
                              'result': results}
