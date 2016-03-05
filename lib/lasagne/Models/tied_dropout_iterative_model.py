@@ -97,13 +97,21 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
     loss_weight_decay += lasagne.regularization.regularize_layer_params(model_y,
                                                                         penalty=l2) * Params.WEIGHT_DECAY
 
-    loss = loss_x + loss_y + loss_l2 + loss_weight_decay + loss_withen_x + loss_withen_y
+    gamma_x = lasagne.layers.get_all_params(model_x, gamma=True)
+    gamma_y = lasagne.layers.get_all_params(model_y, gamma=True)
+
+    loss_gamma = T.constant(0)
+    loss_gamma += sum(l2(1 / gamma) for gamma in gamma_x) * Params.GAMMA_COEF
+    loss_gamma += sum(l2(1 / gamma) for gamma in gamma_y) * Params.GAMMA_COEF
+
+    loss = loss_x + loss_y + loss_l2 + loss_weight_decay + loss_withen_x + loss_withen_y + loss_gamma
 
     output = {
         'loss_x': loss_x,
         'loss_y': loss_y,
         'loss_l2': loss_l2,
         'loss_weight_decay': loss_weight_decay,
+        'loss_gamma': loss_gamma,
         'loss_withen_x': loss_withen_x,
         'loss_withen_y': loss_withen_y,
         'mean_x': T.mean(T.mean(layer_x, axis=0)),
@@ -160,18 +168,21 @@ def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
                                         num_units=layer_size,
                                         W=weight_init[index],
                                         b=bias_init[index],
-                                        nonlinearity=lasagne.nonlinearities.LeakyRectify(Params.LEAKINESS),
+                                        nonlinearity=lasagne.nonlinearities.LeakyRectify(
+                                            Params.LEAKINESS) if not Params.BN_ACTIVATION else lasagne.nonlinearities.identity,
                                         cell_num=Params.CELL_NUM))
 
         weights.append(model[-1].W)
         biases.append(model[-1].b)
 
-        model.append(BatchNormalizationLayer(model[-1],
-                                             nonlinearity=lasagne.nonlinearities.identity,
-                                             regularize_gamma=Params.GAMMA_REG))
+        if Params.BN:
+            model.append(BatchNormalizationLayer(model[-1],
+                                                 nonlinearity=lasagne.nonlinearities.LeakyRectify(
+                                                     Params.LEAKINESS) if Params.BN_ACTIVATION else lasagne.nonlinearities.identity))
 
         drop = 0 if drop_prob is None else drop_prob[index]
-        model.append(Params.NOISE_LAYER(model[-1], rescale=Params.RESCALE, p=drop, noise_layer=dropouts_init[-(index + 1)]))
+        model.append(
+            Params.NOISE_LAYER(model[-1], rescale=Params.RESCALE, p=drop, noise_layer=dropouts_init[-(index + 1)]))
 
         dropouts.append(model[-1])
 

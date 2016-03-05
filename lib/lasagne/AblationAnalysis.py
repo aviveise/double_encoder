@@ -1,30 +1,32 @@
-import traceback
-from math import floor
-
-import matplotlib
-
-matplotlib.use('Agg')
-
 import ConfigParser
+import copy
 import os
+import pickle
 import sys
-import cPickle
+import traceback
+import uuid
+from collections import OrderedDict
+import itertools
+from multiprocessing import Pool
+import functools
+from uuid import UUID
 import lasagne
 import numpy
-import json
-from collections import OrderedDict
+import simplejson
 from tabulate import tabulate
 from theano import tensor, theano
 from lib.MISC.container import Container
 from lib.MISC.logger import OutputLog
-from lib.MISC.utils import ConfigSectionMap, complete_rank, calculate_reconstruction_error, calculate_mardia
-from lib.lasagne.Models import parallel_model, bisimilar_model, iterative_model, tied_dropout_iterative_model
+from lib.MISC.utils import ConfigSectionMap, complete_rank
+from lib.MISC.utils import calculate_reconstruction_error, calculate_mardia
+from lib.lasagne.Models import tied_dropout_iterative_model
 from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
 import lib.DataSetReaders
 
 OUTPUT_DIR = r'C:\Workspace\output'
 VALIDATE_ALL = False
+PROCESS_NUMBER = 1
 
 
 def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
@@ -40,107 +42,37 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
         yield inputs_x[excerpt], inputs_y[excerpt]
 
 
-def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0):
-    # Testing
-
-    if dataset_x.shape[0] > 10000:
-        validate_all = False
-        x_total_value = None
-        y_total_value = None
-        for index, batch in enumerate(
-                    iterate_minibatches(dataset_x, dataset_y, Params.VALIDATION_BATCH_SIZE, True)):
-            input_x, input_y = batch
-            y_values = model_x(input_x, input_y)[Params.TEST_LAYER]
-            x_values = model_y(input_x, input_y)[Params.TEST_LAYER]
-
-            if not x_total_value:
-                x_total_value = x_values
-            else:
-                x_total_value = numpy.vstack((x_total_value, x_values))
-
-            if not y_total_value:
-                y_total_value = y_values
-            else:
-                y_total_value = numpy.vstack((y_total_value, y_values))
-    else:
-        y_values = model_x(dataset_x, dataset_y)
-        x_values = model_y(dataset_x, dataset_y)
-
-        if not validate_all:
-            x_total_value = x_values[Params.TEST_LAYER]
-            y_total_value = y_values[Params.TEST_LAYER]
-
-    OutputLog().write('\nTesting model\n')
-
-    header = ['layer', 'loss', 'corr', 'search1', 'search5', 'search10', 'search_sum', 'desc1', 'desc5', 'desc10',
-              'desc_sum']
-
-    rows = []
-
-    if validate_all:
-        for index, (x, y) in enumerate(zip(x_values, y_values)):
-            search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
-            loss = calculate_reconstruction_error(x, y)
-            correlation = calculate_mardia(x, y, top)
-
-            print_row = ["{0} ".format(index), loss, correlation]
-            print_row.extend(search_recall)
-            print_row.append(sum(search_recall))
-            print_row.extend(describe_recall)
-            print_row.append(sum(describe_recall))
-
-            rows.append(print_row)
-    else:
-        middle_x = x_total_value
-        middle_y = y_total_value
-
-        search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
-        loss = calculate_reconstruction_error(middle_x, middle_y)
-        correlation = calculate_mardia(middle_x, middle_y, top)
-
-        print_row = ["{0} ".format(middle), loss, correlation]
-        print_row.extend(search_recall)
-        print_row.append(sum(search_recall))
-        print_row.extend(describe_recall)
-        print_row.append(sum(describe_recall))
-
-        rows.append(print_row)
-
-    OutputLog().write(tabulate(rows, headers=header))
+def update_param(param):
+    if isinstance(param, list):
+        for sub_param in param:
+            update_param(sub_param)
+    elif isinstance(param, tuple):
+        if isinstance(param[1], numpy.ndarray):
+            Params.__dict__[param[0]] = [float(p) for p in param[1]]
+        else:
+            Params.__dict__[param[0]] = param[1]
+        OutputLog().write('Param {0} = {1}'.format(param[0], param[1]))
 
 
-if __name__ == '__main__':
+def run_experiment(experiment_values, data_parameters, path):
+    id = uuid.uuid4()
+    OutputLog().set_output_path(path, suffix=str(id))
 
-    data_set_config = sys.argv[1]
-    if len(sys.argv) > 2:
-        top = int(sys.argv[2])
-    else:
-        top = 0
+    top = 0
 
-    model_results = {'train': [], 'validate': []}
+    param_backup = copy.deepcopy(Params.__dict__)
+    update_param(experiment_values)
 
-    OutputLog().set_path(OUTPUT_DIR)
-    OutputLog().set_verbosity('info')
-
-    data_config = ConfigParser.ConfigParser()
-    data_config.read(data_set_config)
-    data_parameters = ConfigSectionMap("dataset_parameters", data_config)
+    y_var = tensor.fmatrix()
+    x_var = tensor.fmatrix()
 
     # construct data set
     data_set = Container().create(data_parameters['name'], data_parameters)
     data_set.load()
 
-    y_var = tensor.fmatrix()
-    x_var = tensor.fmatrix()
+    model_results = {'train': [], 'validate': []}
 
     model = tied_dropout_iterative_model
-
-    Params.print_params()
-
-    OutputLog().write('Model: {0}'.format(model.__name__))
-
-    # Export network
-    path = OutputLog().output_path
 
     model_x, model_y, hidden_x, hidden_y, loss, outputs, hooks = model.build_model(x_var,
                                                                                    data_set.trainset[0].shape[1],
@@ -159,11 +91,10 @@ if __name__ == '__main__':
     else:
         updates = OrderedDict()
 
-    params_x.extend(params_y)
-
-    params = lasagne.utils.unique(params_x)
-
     current_learning_rate = Params.BASE_LEARNING_RATE
+
+    params_x.extend(params_y)
+    params = lasagne.utils.unique(params_x)
 
     updates.update(
         lasagne.updates.momentum(loss, params, learning_rate=current_learning_rate, momentum=Params.MOMENTUM))
@@ -224,9 +155,8 @@ if __name__ == '__main__':
                                                                                                         search_recall) + sum(
                                                                                                         describe_recall)))
             else:
-                middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
-                middle_x = x_values[middle]
-                middle_y = y_values[middle]
+                middle_x = x_values[Params.TEST_LAYER]
+                middle_y = y_values[Params.TEST_LAYER]
                 search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
                 validation_loss = calculate_reconstruction_error(middle_x, middle_y)
                 correlation = calculate_mardia(middle_x, middle_y, top)
@@ -261,39 +191,72 @@ if __name__ == '__main__':
                 updates = OrderedDict(batchnormalizeupdates(hooks, 100))
             else:
                 updates = OrderedDict()
-            try:
-                test_model(test_x, test_y, numpy.cast[theano.config.floatX](data_set.testset[0]),
-                           numpy.cast[theano.config.floatX](data_set.testset[1]), parallel=5, validate_all=VALIDATE_ALL,
-                           top=top)
-
-            except Exception as e:
-                OutputLog().write('Failed testing model with exception {0}'.format(e))
-                OutputLog().write('{0}'.format(traceback.format_exc()))
-
-            with file(os.path.join(path, 'model_x_{0}.p'.format(epoch)), 'w') as model_x_file:
-                cPickle.dump(model_x, model_x_file)
-
-            with file(os.path.join(path, 'model_y{0}.p'.format(epoch)), 'w') as model_y_file:
-                cPickle.dump(model_y, model_y_file)
 
             updates.update(
                 lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=0.9))
             del train_fn
             train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
-    OutputLog().write('Test results')
+    model_results['experiment'] = experiment_values
 
-    try:
-        test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top)
-    except Exception as e:
-        OutputLog().write('Error testing model with exception {0}'.format(e))
-        traceback.print_exc()
+    with file(os.path.join(path, 'results_{0}.p'.format(id)), 'w') as results_file:
+        pickle.dump(model_results, results_file)
 
-    with file(os.path.join(path, 'model_x.p'), 'w') as model_x_file:
-        cPickle.dump(model_x, model_x_file)
+    Params.__dict__ = param_backup
 
-    with file(os.path.join(path, 'model_y.p'), 'w') as model_y_file:
-        cPickle.dump(model_y, model_y_file)
+    del train_fn
+    del test_x
+    del test_y
+    del model_x
+    del model_y
 
-    with file(os.path.join(path, 'results.p'), 'w') as results_file:
-        cPickle.dump(model_results, results_file)
+    return model_results
+
+
+if __name__ == '__main__':
+
+    data_set_config = sys.argv[1]
+    if len(sys.argv) > 2:
+        top = int(sys.argv[2])
+    else:
+        top = 0
+
+    OutputLog().set_path(OUTPUT_DIR)
+    OutputLog().set_verbosity('info')
+
+    data_config = ConfigParser.ConfigParser()
+    data_config.read(data_set_config)
+    data_parameters = ConfigSectionMap("dataset_parameters", data_config)
+
+    Params.print_params()
+
+    experiments = [
+        [[('LEAKINESS', 0.1), ('DROPOUT', [0.5, 0.5, 0.5]), ('BN', False)]]
+    ]
+
+    path = OutputLog().output_path
+
+    process_pool = Pool(PROCESS_NUMBER)
+
+    run_experiment_partial = functools.partial(run_experiment, data_parameters=data_parameters, path=path)
+
+    with open(os.path.join(path, 'experiments.pkl'), 'w') as experiment_file:
+        pickle.dump(experiments, experiment_file)
+
+    for index, experiment in enumerate(experiments):
+        OutputLog().write('Starting Experiment {0}'.format(experiment))
+
+        if isinstance(experiment, tuple) and isinstance(experiment[1], numpy.ndarray):
+            mapping = [(experiment[0], float(value)) for value in experiment[1]]
+        elif isinstance(experiment, tuple):
+            mapping = [experiment]
+        elif isinstance(experiment, list):
+            mapping = experiment
+
+        results = process_pool.map(run_experiment_partial, mapping)
+
+        experiment_result = {'experiment': experiment,
+                             'result': results}
+
+        with open(os.path.join(path, 'experiment_result_{0}'.format(index)), 'w') as ex_file:
+            pickle.dump(experiment_result, ex_file)

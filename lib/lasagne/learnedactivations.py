@@ -3,9 +3,12 @@ import lasagne
 import numpy as np
 import theano
 import theano.tensor as T
+from theano.printing import Print
 from lasagne import init
 from lasagne import nonlinearities
 from lasagne.layers import Layer
+
+from lib.lasagne.params import Params
 
 __all__ = [
     "BatchNormalizationLayer"
@@ -111,7 +114,6 @@ class BatchNormalizationLayer(Layer):
                  beta=init.Constant(0.),
                  nonlinearity=nonlinearities.rectify,
                  epsilon=0.001,
-                 regularize_gamma=True,
                  **kwargs):
         super(BatchNormalizationLayer, self).__init__(incoming, **kwargs)
         if nonlinearity is None:
@@ -120,7 +122,8 @@ class BatchNormalizationLayer(Layer):
             self.nonlinearity = nonlinearity
 
         self.num_units = int(np.prod(self.input_shape[1:]))
-        self.gamma = self.add_param(gamma, (self.num_units,), name="BatchNormalizationLayer:gamma", regularizable=regularize_gamma)
+        self.gamma = self.add_param(gamma, (self.num_units,), name="BatchNormalizationLayer:gamma", regularizable=False,
+                                    gamma=True)
         self.beta = self.add_param(beta, (self.num_units,), name="BatchNormalizationLayer:beta", regularizable=False)
         self.epsilon = epsilon
 
@@ -158,7 +161,7 @@ class BatchNormalizationLayer(Layer):
             v = self.variance_inference
 
         input_hat = (input - m) / v  # normalize
-        y = input_hat / self.gamma + self.beta  # scale and shift
+        y = input_hat * self.gamma + self.beta  # scale and shift
 
         if input.ndim > 2:
             y = T.reshape(y, output_shape)
