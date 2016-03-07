@@ -233,7 +233,6 @@ if __name__ == '__main__':
     data_parameters = ConfigSectionMap("dataset_parameters", data_config)
 
     Params.print_params()
-
     path = OutputLog().output_path
 
     process_pool = Pool(PROCESS_NUMBER)
