@@ -157,6 +157,6 @@ class DropoutLayer(Layer):
                                                 dtype=theano.config.floatX)
 
             if self.rescale:
-                input /= sqrt(retain_prob)
+                input /= retain_prob
 
             return input
