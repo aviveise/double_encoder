@@ -203,7 +203,7 @@ def run_experiment(experiment_values, data_parameters, path):
 
     model_results['experiment'] = experiment_values
 
-    with file(os.path.join(path, 'results_{0}.p'.format(id)), 'w') as results_file:
+    with file(os.path.join(path, 'results_{0}.p'.format(id)), 'wb') as results_file:
         pickle.dump(model_results, results_file)
 
     Params.__dict__ = param_backup
@@ -240,7 +240,7 @@ if __name__ == '__main__':
 
     run_experiment_partial = functools.partial(run_experiment, data_parameters=data_parameters, path=path)
 
-    with open(os.path.join(path, 'experiments.pkl'), 'w') as experiment_file:
+    with open(os.path.join(path, 'experiments.pkl'), 'wb') as experiment_file:
         pickle.dump(experiments, experiment_file)
 
     for index, experiment in enumerate(experiments):
@@ -263,5 +263,5 @@ if __name__ == '__main__':
         experiment_result = {'experiment': experiment,
                              'result': results}
 
-        with open(os.path.join(path, 'experiment_result_{0}'.format(index)), 'w') as ex_file:
+        with open(os.path.join(path, 'experiment_result_{0}.pkl'.format(index)), 'wb') as ex_file:
             pickle.dump(experiment_result, ex_file)
