@@ -259,9 +259,3 @@ if __name__ == '__main__':
         else:
             for mapped in mapping:
                 results.append(run_experiment_partial(mapped))
-
-        experiment_result = {'experiment': experiment,
-                             'result': results}
-
-        with open(os.path.join(path, 'experiment_result_{0}.pkl'.format(index)), 'wb') as ex_file:
-            pickle.dump(experiment_result, ex_file)
