@@ -17,7 +17,10 @@ import numpy.linalg
 import scipy.linalg
 import scipy.sparse.linalg
 from sklearn import preprocessing
+
+from lib.lasagne.params import Params
 from logger import OutputLog
+from scipy.spatial.distance import cdist
 
 global file_ndx
 file_ndx = {}
@@ -558,12 +561,13 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
         num_X_samples = x_n.shape[0]
         num_Y_samples = y_n.shape[0]
 
-        if reduce_x:
-            x_n = x_n[0:x_n.shape[0]:reduce_x, :]
-            y_x_mapping = numpy.repeat(numpy.arange(x_n.shape[0]), reduce_x)
-            num_X_samples = num_X_samples / reduce_x
-        else:
-            y_x_mapping = numpy.arange(x_n.shape[0])
+        if y_x_mapping is None:
+            if reduce_x:
+                x_n = x_n[0:x_n.shape[0]:reduce_x, :]
+                y_x_mapping = numpy.repeat(numpy.arange(x_n.shape[0]), reduce_x)
+                num_X_samples = num_X_samples / reduce_x
+            else:
+                y_x_mapping = numpy.arange(x_n.shape[0])
 
         y_x_sim_matrix = numpy.dot(x_n, y_n.T)
 
@@ -596,6 +600,41 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
         OutputLog().write('Error calculating rank score with exception: {0}, {1}'.format(e, traceback.format_exc()))
         return [0, 0, 0], [0, 0, 0]
 
+
+def complete_rank_2(x, y, x_y_mapping):
+    num_X_samples = x.shape[0]
+    num_Y_samples = y.shape[0]
+
+    x_c = center(x)[0]
+    y_c = center(y)[0]
+
+    x_n = preprocessing.normalize(x_c, axis=1)
+    y_n = preprocessing.normalize(y_c, axis=1)
+
+    y_x_sim_matrix = cdist(x_n, y_n, metric=Params.SIMILARITY_METRIC)
+
+    y_to_x_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=0)[::-1, :]
+    x_to_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)[:, ::-1]
+
+    y_to_x_ranks = numpy.array([x_y_mapping.T[index, col] for index, col in enumerate(y_to_x_sorted_neighbs.T)])
+    x_to_y_ranks = numpy.array([x_y_mapping[index, row] for index, row in enumerate(x_to_y_sorted_neighbs)])
+
+    ranks = [1, 5, 10]
+
+    y_to_x_score = numpy.zeros((len(ranks), 1))
+    x_to_y_score = numpy.zeros((len(ranks), 1))
+
+    for index, rank in enumerate(ranks):
+        reduced_y_to_x = y_to_x_ranks[:, 0: rank]
+        reduced_x_to_y = x_to_y_ranks[:, 0: rank]
+
+        y_to_x_score[index] = sum([1 if numpy.sum(row) > 0 else 0 for row in reduced_y_to_x])
+        x_to_y_score[index] = sum([1 if numpy.sum(row) > 0 else 0 for row in reduced_x_to_y])
+
+    y_to_x_recall = 100 * y_to_x_score / num_Y_samples
+    x_to_y_recall = 100 * x_to_y_score / num_X_samples
+
+    return y_to_x_recall, x_to_y_recall
 
 def visualize_correlation_matrix(mat, name):
     path = OutputLog().output_path

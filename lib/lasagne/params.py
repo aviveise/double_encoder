@@ -7,10 +7,10 @@ from lib.lasagne.Layers.TiedDropoutLayer import TiedDropoutLayer, DropoutLayer
 
 class Params:
     # region Training Params
-    BATCH_SIZE = 128
+    BATCH_SIZE = 10
     VALIDATION_BATCH_SIZE = 1000
     CROSS_VALIDATION = True
-    EPOCH_NUMBER = 60
+    EPOCH_NUMBER = 10
     DECAY_EPOCH = [20, 40, 60]
     DECAY_RATE = 0.5
     BASE_LEARNING_RATE = 0.0001
@@ -18,10 +18,10 @@ class Params:
     # endregion
 
     # region Loss Weights
-    WEIGHT_DECAY = 0.05
-    GAMMA_COEF = 0.05
-    WITHEN_REG_X = 0.05
-    WITHEN_REG_Y = 0.05
+    WEIGHT_DECAY = 0.005
+    GAMMA_COEF = 0.005
+    WITHEN_REG_X = 0.5
+    WITHEN_REG_Y = 0.5
     L2_LOSS = 1
     LOSS_X = 1
     LOSS_Y = 1
@@ -29,10 +29,10 @@ class Params:
     # endregion
 
     # region Architecture
-    LAYER_SIZES = [392, 1000, 392]
+    LAYER_SIZES = [512, 256, 691]
     TEST_LAYER = 1
     DROPOUT = [0, 0.5, 0]
-    RESCALE = True
+    RESCALE = False
     PARALLEL_WIDTH = 2
     WEIGHT_INIT = lasagne.init.GlorotUniform()
     LAYER_TYPES = [TiedDenseLayer, TiedDenseLayer, TiedDenseLayer, TiedDenseLayer]
@@ -41,7 +41,7 @@ class Params:
     NOISE_LAYER = TiedDropoutLayer
     BN = True
     BN_ACTIVATION = False
-
+    SIMILARITY_METRIC = 'euclidean'
     # endregion
 
     @classmethod

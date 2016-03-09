@@ -17,7 +17,8 @@ from tabulate import tabulate
 from theano import tensor, theano
 from lib.MISC.container import Container
 from lib.MISC.logger import OutputLog
-from lib.MISC.utils import ConfigSectionMap, complete_rank, calculate_reconstruction_error, calculate_mardia
+from lib.MISC.utils import ConfigSectionMap, complete_rank, calculate_reconstruction_error, calculate_mardia, \
+    complete_rank_2
 from lib.lasagne.Models import parallel_model, bisimilar_model, iterative_model, tied_dropout_iterative_model
 from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
@@ -40,7 +41,7 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
         yield inputs_x[excerpt], inputs_y[excerpt]
 
 
-def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0):
+def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None):
     # Testing
 
     if dataset_x.shape[0] > 10000:
@@ -79,7 +80,11 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
 
     if validate_all:
         for index, (x, y) in enumerate(zip(x_values, y_values)):
-            search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+            if data_set.x_y_mapping is not None:
+                search_recall, describe_recall = complete_rank_2(x, y, x_y_mapping)
+            else:
+                search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+
             loss = calculate_reconstruction_error(x, y)
             correlation = calculate_mardia(x, y, top)
 
@@ -94,7 +99,11 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
         middle_x = x_total_value
         middle_y = y_total_value
 
-        search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
+        if data_set.x_y_mapping is not None:
+            search_recall, describe_recall = complete_rank_2(middle_x, middle_y, x_y_mapping)
+        else:
+            search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
+
         loss = calculate_reconstruction_error(middle_x, middle_y)
         correlation = calculate_mardia(middle_x, middle_y, top)
 
@@ -213,7 +222,11 @@ if __name__ == '__main__':
 
             if VALIDATE_ALL:
                 for index, (x, y) in enumerate(zip(x_values, y_values)):
-                    search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+                    if data_set.x_y_mapping is not None:
+                        search_recall, describe_recall = complete_rank_2(x, y, data_set.x_y_mapping['dev'])
+                    else:
+                        search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+
                     validation_loss = calculate_reconstruction_error(x, y)
                     correlation = calculate_mardia(x, y, top)
 
@@ -227,7 +240,11 @@ if __name__ == '__main__':
                 middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
                 middle_x = x_values[middle]
                 middle_y = y_values[middle]
-                search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
+                if data_set.x_y_mapping is not None:
+                    search_recall, describe_recall = complete_rank_2(middle_x, middle_y, data_set.x_y_mapping['dev'])
+                else:
+                    search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
+
                 validation_loss = calculate_reconstruction_error(middle_x, middle_y)
                 correlation = calculate_mardia(middle_x, middle_y, top)
                 mean_x = numpy.mean(numpy.mean(middle_x, axis=0)),
@@ -264,7 +281,7 @@ if __name__ == '__main__':
             try:
                 test_model(test_x, test_y, numpy.cast[theano.config.floatX](data_set.testset[0]),
                            numpy.cast[theano.config.floatX](data_set.testset[1]), parallel=5, validate_all=VALIDATE_ALL,
-                           top=top)
+                           top=top,x_y_mapping=data_set.x_y_mapping['test'])
 
             except Exception as e:
                 OutputLog().write('Failed testing model with exception {0}'.format(e))
@@ -284,7 +301,7 @@ if __name__ == '__main__':
     OutputLog().write('Test results')
 
     try:
-        test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top)
+        test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top, x_y_mapping=data_set.x_y_mapping['test'])
     except Exception as e:
         OutputLog().write('Error testing model with exception {0}'.format(e))
         traceback.print_exc()
