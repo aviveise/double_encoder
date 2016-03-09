@@ -80,7 +80,7 @@ class QADataSet(DatasetBase):
             current_pair += index
 
         current_pair = 0
-        for i in range(tst_number_of_pairs):
+        for i in range(tst_number_of_questions):
 
             if 'q_vec' not in sent_mat[testing_sents[i][0]]:
                 continue
