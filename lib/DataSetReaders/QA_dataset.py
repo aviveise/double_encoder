@@ -85,8 +85,8 @@ class QADataSet(DatasetBase):
             if 'q_vec' not in sent_mat[testing_sents[i][0]]:
                 continue
 
-            question = sent_mat[training_sents[i][0]]['q_vec'][0]
-            answares = sent_mat[training_sents[i][0]]['a_vecs']
+            question = sent_mat[testing_sents[i][0]]['q_vec'][0]
+            answares = sent_mat[testing_sents[i][0]]['a_vecs']
 
             for index, answare in enumerate(answares):
                 self.testset[0][index, :] = question.T
