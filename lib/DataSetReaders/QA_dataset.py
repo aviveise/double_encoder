@@ -75,7 +75,7 @@ class QADataSet(DatasetBase):
             for index, answare in enumerate(answares):
                 self.tuning[0][index, :] = question.T
                 self.tuning[1][index, :] = answare.T
-                self.x_y_mapping['dev'][i, current_pair + index] = info_mat[info_mat[info_mat['sets_data'][1][0]][0][i]]['labels'][index][0]
+                self.x_y_mapping['dev'][i, current_pair + index] = info_mat[info_mat[info_mat['sets_data'][2][0]][0][i]]['labels'][index][0]
 
             current_pair += index
 
@@ -91,7 +91,7 @@ class QADataSet(DatasetBase):
             for index, answare in enumerate(answares):
                 self.testset[0][index, :] = question.T
                 self.testset[1][index, :] = answare.T
-                self.x_y_mapping['test'][i, current_pair + index] = info_mat[info_mat[info_mat['sets_data'][1][0]][0][i]]['labels'][index][0]
+                self.x_y_mapping['test'][i, current_pair + index] = info_mat[info_mat[info_mat['sets_data'][3][0]][0][i]]['labels'][index][0]
 
             current_pair += index
 
