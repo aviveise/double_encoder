@@ -27,6 +27,7 @@ class DatasetBase(object):
         self.negatives = None
         self.reduce_test = 0
         self.reduce_val = 0
+        self.x_y_mapping = {'train': None, 'dev': None, 'test': None}
 
         self.data_set_parameters = data_set_parameters
         self.scale = map(int, data_set_parameters['scale'].split())
@@ -44,6 +45,7 @@ class DatasetBase(object):
         test_file = os.path.join(path, 'test.p')
         validate_file = os.path.join(path, 'validate.p')
         params_file = os.path.join(path, 'params.p')
+        mapping = os.path.join(path, 'mapping.p')
 
         if os.path.exists(train_file) and \
                 os.path.exists(test_file) and \
@@ -59,6 +61,10 @@ class DatasetBase(object):
                     loaded_data_set_parameters = hickle.load(f)
             else:
                     loaded_data_set_parameters = 'No params file found'
+
+            if os.path.exists(mapping):
+                with open(mapping, 'r') as f:
+                    self.x_y_mapping = hickle.load(f)
 
             self.trainset = self.trainset[0].astype(dtype=theano.config.floatX), self.trainset[1].astype(
                 dtype=theano.config.floatX)
@@ -195,11 +201,13 @@ class DatasetBase(object):
         test_file = os.path.join(path, 'test{0}.p'.format(suffix))
         validate_file = os.path.join(path, 'validate{0}.p'.format(suffix))
         params_file = os.path.join(path, 'params{0}.p'.format(suffix))
+        mapping_file = os.path.join(path, 'mapping{0}.p'.format(suffix))
 
         hickle.dump(self.trainset, file(train_file, 'w'))
         hickle.dump(self.testset, file(test_file, 'w'))
         hickle.dump(self.tuning, file(validate_file, 'w'))
         hickle.dump(self.data_set_parameters, file(params_file, 'w'))
+        hickle.dump(self.x_y_mapping, file(mapping_file, 'w'))
 
 
     @abc.abstractmethod
