@@ -601,20 +601,18 @@ def complete_rank(x, y, reduce_x=0, normalize_axis=1):
         return [0, 0, 0], [0, 0, 0]
 
 
-def complete_rank_2(x, y, x_y_mapping):
+def complete_rank_2(x, y, x_y_mapping, reduce_map=None):
+
+    if reduce_map:
+        x = x[reduce_map]
+
     num_X_samples = x.shape[0]
     num_Y_samples = y.shape[0]
 
-    x_c = center(x)[0]
-    y_c = center(y)[0]
+    y_x_sim_matrix = cdist(x, y, metric=Params.SIMILARITY_METRIC)
 
-    x_n = preprocessing.normalize(x_c, axis=1)
-    y_n = preprocessing.normalize(y_c, axis=1)
-
-    y_x_sim_matrix = cdist(x_n, y_n, metric=Params.SIMILARITY_METRIC)
-
-    y_to_x_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=0)[::-1, :]
-    x_to_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)[:, ::-1]
+    y_to_x_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=0)
+    x_to_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)
 
     y_to_x_ranks = numpy.array([x_y_mapping.T[index, col] for index, col in enumerate(y_to_x_sorted_neighbs.T)])
     x_to_y_ranks = numpy.array([x_y_mapping[index, row] for index, row in enumerate(x_to_y_sorted_neighbs)])
@@ -634,7 +632,14 @@ def complete_rank_2(x, y, x_y_mapping):
     y_to_x_recall = 100 * y_to_x_score / num_Y_samples
     x_to_y_recall = 100 * x_to_y_score / num_X_samples
 
-    return y_to_x_recall, x_to_y_recall
+    ranks = numpy.zeros(x_to_y_ranks.shape[0])
+    precisions = numpy.zeros(x_to_y_ranks.shape[0])
+    for i, x in enumerate(x_to_y_ranks):
+        rank, precision = calc_rank_an_ap(x)
+        ranks[i] = rank
+        precisions[i] = precision
+
+    return y_to_x_recall, x_to_y_recall, numpy.mean(ranks), numpy.mean(precision)
 
 def visualize_correlation_matrix(mat, name):
     path = OutputLog().output_path
@@ -675,3 +680,12 @@ def calc_correlation_matrix(x, y):
     mat_T = numpy.dot(numpy.dot(s11_chol_inv, s12), s22_chol_inv)
 
     return mat_T
+
+
+def calc_rank_an_ap(ranks):
+    positive_ranks = numpy.nonzero(ranks)[0] + 1
+
+    rank = 1. / float(positive_ranks[0])
+    precision = numpy.sum(1. / numpy.cast['float32'](positive_ranks))
+
+    return rank, precision

@@ -28,6 +28,7 @@ class DatasetBase(object):
         self.reduce_test = 0
         self.reduce_val = 0
         self.x_y_mapping = {'train': None, 'dev': None, 'test': None}
+        self.x_reduce = None
 
         self.data_set_parameters = data_set_parameters
         self.scale = map(int, data_set_parameters['scale'].split())
@@ -64,7 +65,9 @@ class DatasetBase(object):
 
             if os.path.exists(mapping):
                 with open(mapping, 'r') as f:
-                    self.x_y_mapping = hickle.load(f)
+                    map_reduce = hickle.load(f)
+                    self.x_y_mapping = map_reduce['map']
+                    self.x_reduce = map_reduce['reduce']
 
             self.trainset = self.trainset[0].astype(dtype=theano.config.floatX), self.trainset[1].astype(
                 dtype=theano.config.floatX)
@@ -207,7 +210,7 @@ class DatasetBase(object):
         hickle.dump(self.testset, file(test_file, 'w'))
         hickle.dump(self.tuning, file(validate_file, 'w'))
         hickle.dump(self.data_set_parameters, file(params_file, 'w'))
-        hickle.dump(self.x_y_mapping, file(mapping_file, 'w'))
+        hickle.dump({'map': self.x_y_mapping, 'reduce': self.x_reduce}, file(mapping_file, 'w'))
 
 
     @abc.abstractmethod

@@ -41,7 +41,7 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
         yield inputs_x[excerpt], inputs_y[excerpt]
 
 
-def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None):
+def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None, x_reduce=None):
     # Testing
 
     if dataset_x.shape[0] > 10000:
@@ -74,16 +74,18 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
     OutputLog().write('\nTesting model\n')
 
     header = ['layer', 'loss', 'corr', 'search1', 'search5', 'search10', 'search_sum', 'desc1', 'desc5', 'desc10',
-              'desc_sum']
+              'desc_sum', 'mrr', 'map']
 
     rows = []
 
     if validate_all:
         for index, (x, y) in enumerate(zip(x_values, y_values)):
             if data_set.x_y_mapping is not None:
-                search_recall, describe_recall = complete_rank_2(x, y, x_y_mapping)
+                search_recall, describe_recall, mrr, map = complete_rank_2(x, y, x_y_mapping, x_reduce)
             else:
                 search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+                mrr = 0
+                map = 0
 
             loss = calculate_reconstruction_error(x, y)
             correlation = calculate_mardia(x, y, top)
@@ -93,6 +95,8 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
             print_row.append(sum(search_recall))
             print_row.extend(describe_recall)
             print_row.append(sum(describe_recall))
+            print_row.append(mrr)
+            print_row.append(map)
 
             rows.append(print_row)
     else:
@@ -100,9 +104,11 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
         middle_y = y_total_value
 
         if data_set.x_y_mapping is not None:
-            search_recall, describe_recall = complete_rank_2(middle_x, middle_y, x_y_mapping)
+            search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y, x_y_mapping, x_reduce)
         else:
             search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
+            mrr = 0
+            map = 0
 
         loss = calculate_reconstruction_error(middle_x, middle_y)
         correlation = calculate_mardia(middle_x, middle_y, top)
@@ -112,6 +118,8 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
         print_row.append(sum(search_recall))
         print_row.extend(describe_recall)
         print_row.append(sum(describe_recall))
+        print_row.append(mrr)
+        print_row.append(map)
 
         rows.append(print_row)
 
@@ -223,27 +231,30 @@ if __name__ == '__main__':
             if VALIDATE_ALL:
                 for index, (x, y) in enumerate(zip(x_values, y_values)):
                     if data_set.x_y_mapping is not None:
-                        search_recall, describe_recall = complete_rank_2(x, y, data_set.x_y_mapping['dev'])
+                        search_recall, describe_recall, mrr, map = complete_rank_2(x, y, data_set.x_y_mapping['dev'],data_set.x_reduce['dev'])
                     else:
                         search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
+                        mrr = 0
+                        map = 0
 
                     validation_loss = calculate_reconstruction_error(x, y)
                     correlation = calculate_mardia(x, y, top)
 
-                    OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}'.format(index,
+                    OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}, mrr: {4}, map: {5}'.format(index,
                                                                                                     validation_loss,
                                                                                                     correlation,
-                                                                                                    sum(
-                                                                                                        search_recall) + sum(
-                                                                                                        describe_recall)))
+                                                                                                    sum(search_recall) + sum(describe_recall),
+                                                                                                                        mrr, map))
             else:
                 middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
                 middle_x = x_values[middle]
                 middle_y = y_values[middle]
                 if data_set.x_y_mapping is not None:
-                    search_recall, describe_recall = complete_rank_2(middle_x, middle_y, data_set.x_y_mapping['dev'])
+                    search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y, data_set.x_y_mapping['dev'],data_set.x_reduce['dev'])
                 else:
                     search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
+                    mrr = 0
+                    map = 0
 
                 validation_loss = calculate_reconstruction_error(middle_x, middle_y)
                 correlation = calculate_mardia(middle_x, middle_y, top)
@@ -253,15 +264,12 @@ if __name__ == '__main__':
                 var_y = numpy.mean(numpy.var(middle_y, axis=0)),
 
                 OutputLog().write('Layer - loss: {1}, correlation: {2}, recall: {3}, mean_x: {4}, mean_y: {5},'
-                                  'var_x: {6}, var_y: {7}'.format(index,
+                                  'var_x: {6}, var_y: {7}, mrr: {8}, map: {9}'.format(index,
                                                                   validation_loss,
                                                                   correlation,
                                                                   sum(search_recall) + sum(
                                                                       describe_recall),
-                                                                  mean_x,
-                                                                  mean_y,
-                                                                  var_x,
-                                                                  var_y))
+                                                                  mean_x, mean_y, var_x, var_y, mrr, map))
 
                 model_results['validate'][epoch]['loss'] = validation_loss
                 model_results['validate'][epoch]['correlation'] = correlation
@@ -281,7 +289,7 @@ if __name__ == '__main__':
             try:
                 test_model(test_x, test_y, numpy.cast[theano.config.floatX](data_set.testset[0]),
                            numpy.cast[theano.config.floatX](data_set.testset[1]), parallel=5, validate_all=VALIDATE_ALL,
-                           top=top,x_y_mapping=data_set.x_y_mapping['test'])
+                           top=top,x_y_mapping=data_set.x_y_mapping['test'], x_reduce=data_set.x_reduce['test'])
 
             except Exception as e:
                 OutputLog().write('Failed testing model with exception {0}'.format(e))
@@ -301,7 +309,8 @@ if __name__ == '__main__':
     OutputLog().write('Test results')
 
     try:
-        test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top, x_y_mapping=data_set.x_y_mapping['test'])
+        test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top, x_y_mapping=data_set.x_y_mapping['test'],
+                   x_reduce=data_set.x_reduce['test'])
     except Exception as e:
         OutputLog().write('Error testing model with exception {0}'.format(e))
         traceback.print_exc()

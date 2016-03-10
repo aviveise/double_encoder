@@ -40,7 +40,7 @@ class GUYDataSet(DatasetBase):
         validation_image_idx = idx_mat['dev_images_I']
 
         test_sen_idx = idx_mat['tst_sent_I']
-        # test_image_idx = idx_mat['tst_images_I']
+        test_image_idx = idx_mat['tst_images_I']
 
         if self._full:
             train_size = training_sen_idx.shape[0]
@@ -78,6 +78,18 @@ class GUYDataSet(DatasetBase):
         for i in range(test_size):
             self.testset[0][i, :] = CNN_output[int(images_sent_mapping[int(test_sen_idx[i]) - 1]) - 1]
             self.testset[1][i, :] = feature_vectors[int(test_sen_idx[i]) - 1]
+
+        self.x_y_mapping = {
+            'train': numpy.repeat(numpy.identity(training_image_idx.shape[0]), 5, axis=1),
+            'test': numpy.repeat(numpy.identity(test_image_idx.shape[0]), 5, axis=1),
+            'dev': numpy.repeat(numpy.identity(validation_image_idx.shape[0]), 5, axis=1)
+        }
+
+        self.x_reduce = {
+            'train': range(0, self.trainset[0].shape[0], 5),
+            'dev': range(0, self.tuning[0].shape[0], 5),
+            'test': range(0, self.testset[0].shape[0], 5)
+        }
 
         del CNN_output
         del feature_vectors
