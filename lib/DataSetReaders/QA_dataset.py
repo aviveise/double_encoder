@@ -20,7 +20,7 @@ class QADataSet(DatasetBase):
         info_mat = h5py.File(os.path.join(self.dataset_path, 'dataset_info.mat'), 'r')
         sent_mat = h5py.File(os.path.join(self.dataset_path, 'sents.mat'), 'r')
 
-        training_sents = sent_mat[sent_mat['sent_vecs'][0][0]]
+        training_sents = sent_mat[sent_mat['sent_vecs'][1][0]]
         validation_sents = sent_mat[sent_mat['sent_vecs'][2][0]]
         testing_sents = sent_mat[sent_mat['sent_vecs'][3][0]]
 
@@ -28,7 +28,7 @@ class QADataSet(DatasetBase):
         dev_number_of_questions = len(validation_sents)
         tst_number_of_questions = len(testing_sents)
 
-        trn_number_of_pairs = info_mat['num_valid_pairs'][0][0]
+        trn_number_of_pairs = info_mat['num_valid_pairs'][1][0]
         dev_number_of_pairs = info_mat['num_valid_pairs'][2][0]
         tst_number_of_pairs = info_mat['num_valid_pairs'][3][0]
 
