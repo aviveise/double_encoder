@@ -203,8 +203,8 @@ def unitnorm_cols(M):
 
 
 def normalize(M):
-    normalizer = preprocessing.Normalizer().fit(M)
-    return normalizer.transform(M), normalizer
+    M = center(M)[0]
+    return preprocessing.Normalizer().fit_transform(M)
 
 
 def scale_cols(M):
@@ -538,20 +538,23 @@ def calculate_reconstruction_error(x, y):
     return numpy.mean(((x - y) ** 2).sum(axis=1))
 
 
-def complete_rank(x, y, reduce_x=0, normalize_axis=1):
+def complete_rank(x, y, reduce_x=0, normalize=True, normalize_axis=1, y_x_mapping=None):
     try:
-        if normalize_axis == 1:
+        if normalize and normalize_axis == 1:
             x_c = center(x)[0]
             y_c = center(y)[0]
 
             x_n = preprocessing.normalize(x_c, axis=1)
             y_n = preprocessing.normalize(y_c, axis=1)
-        elif normalize_axis == 0:
+        elif normalize and normalize_axis == 0:
             x_c = center(x.T)[0].T
             y_c = center(y.T)[0].T
 
             x_n = preprocessing.normalize(x_c, axis=0)
             y_n = preprocessing.normalize(y_c, axis=0)
+        else:
+            x_n = x
+            y_n = y
 
         if reduce_x and not x.shape[0] % reduce_x == 0:
             for i in range(0, reduce_x - x.shape[0] % reduce_x):
@@ -686,6 +689,6 @@ def calc_rank_an_ap(ranks):
     positive_ranks = numpy.nonzero(ranks)[0] + 1
 
     rank = 1. / float(positive_ranks[0])
-    precision = numpy.sum(1. / numpy.cast['float32'](positive_ranks))
+    precision = numpy.mean(numpy.array([float(i) / float(pos) for i, pos in enumerate(positive_ranks)]))
 
     return rank, precision
