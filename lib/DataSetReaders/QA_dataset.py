@@ -74,26 +74,28 @@ class QADataSet(DatasetBase):
             answares = numpy.array(sent_mat[training_sents[i][0]]['a_vecs'])
 
             self.x_reduce['train'].append(current_pair)
-            # for index, answare in enumerate(answares):
-            #     # if index == 5:
-            #     #     break
-            #     self.trainset[0][index + current_pair, :] = question.T
-            #     self.trainset[1][index + current_pair, :] = answare.T
-            #     self.x_y_mapping['train'][q_index, index + current_pair]
+            for index, answare in enumerate(answares):
+                # if index == 5:
+                #     break
+                self.trainset[0][index + current_pair, :] = question.T
+                self.trainset[1][index + current_pair, :] = answare.T
+                self.x_y_mapping['train'][q_index, index + current_pair]
 
 
-            self.trainset[0][q_index, :] = question.T
-            self.trainset[1][q_index, :] = numpy.mean(answares.T, axis=1)
-            self.x_y_mapping['train'][q_index, q_index] = 1
+            # self.trainset[0][q_index, :] = question.T
+            # self.trainset[1][q_index, :] = numpy.mean(answares.T, axis=1)
+            # self.x_y_mapping['train'][q_index, q_index] = 1
 
             q_index += 1
-            # current_pair += index + 1
+            current_pair += index + 1
 
-        # self.trainset = [self.trainset[0][0: current_pair + 1], self.trainset[1][0: current_pair + 1]]
-        # self.x_y_mapping['train'] = self.x_y_mapping['train'][:, 0: current_pair + 1]
+        self.trainset = [self.trainset[0][0: current_pair + 1], self.trainset[1][0: current_pair + 1]]
+        self.x_y_mapping['train'] = self.x_y_mapping['train'][:, 0: current_pair + 1]
 
-        self.trainset = [self.trainset[0][0: q_index], self.trainset[1][0: q_index]]
-        self.x_y_mapping['train'] = self.x_y_mapping['train'][:, 0: q_index]
+        # self.trainset = (self.trainset[0] + numpy.random.normal(0, 1, self.trainset[0].shape), self.trainset[1])
+
+        # self.trainset = [self.trainset[0][0: q_index], self.trainset[1][0: q_index]]
+        # self.x_y_mapping['train'] = self.x_y_mapping['train'][:, 0: q_index]
 
         current_pair = 0
         q_index = 0
