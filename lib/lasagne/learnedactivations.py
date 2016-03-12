@@ -123,7 +123,7 @@ class BatchNormalizationLayer(Layer):
 
         self.num_units = int(np.prod(self.input_shape[1:]))
         self.gamma = self.add_param(gamma, (self.num_units,), name="BatchNormalizationLayer:gamma", regularizable=False,
-                                    gamma=True)
+                                    gamma=True, trainable=True)
         self.beta = self.add_param(beta, (self.num_units,), name="BatchNormalizationLayer:beta", regularizable=False)
         self.epsilon = epsilon
 
@@ -161,7 +161,7 @@ class BatchNormalizationLayer(Layer):
             v = self.variance_inference
 
         input_hat = (input - m) / v  # normalize
-        y = input_hat * self.gamma + self.beta  # scale and shift
+        y = input_hat / self.gamma + self.beta  # scale and shift
 
         if input.ndim > 2:
             y = T.reshape(y, output_shape)

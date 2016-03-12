@@ -604,7 +604,7 @@ def complete_rank(x, y, reduce_x=0, normalize=True, normalize_axis=1, y_x_mappin
         return [0, 0, 0], [0, 0, 0]
 
 
-def complete_rank_2(x, y, x_y_mapping, reduce_map=None):
+def complete_rank_2(x, y, x_y_mapping, reduce_map=None, similarity=None):
 
     if reduce_map:
         x = x[reduce_map]
@@ -612,7 +612,10 @@ def complete_rank_2(x, y, x_y_mapping, reduce_map=None):
     num_X_samples = x.shape[0]
     num_Y_samples = y.shape[0]
 
-    y_x_sim_matrix = cdist(x, y, metric=Params.SIMILARITY_METRIC)
+    if similarity is None:
+        y_x_sim_matrix = cdist(x, y, metric=Params.SIMILARITY_METRIC)
+    else:
+        y_x_sim_matrix = similarity
 
     y_to_x_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=0)
     x_to_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)
@@ -632,8 +635,8 @@ def complete_rank_2(x, y, x_y_mapping, reduce_map=None):
         y_to_x_score[index] = sum([1 if numpy.sum(row) > 0 else 0 for row in reduced_y_to_x])
         x_to_y_score[index] = sum([1 if numpy.sum(row) > 0 else 0 for row in reduced_x_to_y])
 
-    y_to_x_recall = 100 * y_to_x_score / num_Y_samples
-    x_to_y_recall = 100 * x_to_y_score / num_X_samples
+    y_to_x_recall = 100 * y_to_x_score / y_x_sim_matrix.shape[1]
+    x_to_y_recall = 100 * x_to_y_score / y_x_sim_matrix.shape[0]
 
     ranks = numpy.zeros(x_to_y_ranks.shape[0])
     precisions = numpy.zeros(x_to_y_ranks.shape[0])
@@ -689,6 +692,6 @@ def calc_rank_an_ap(ranks):
     positive_ranks = numpy.nonzero(ranks)[0] + 1
 
     rank = 1. / float(positive_ranks[0])
-    precision = numpy.mean(numpy.array([float(i) / float(pos) for i, pos in enumerate(positive_ranks)]))
+    precision = numpy.mean(numpy.array([float(i + 1) / float(pos) for i, pos in enumerate(positive_ranks)]))
 
     return rank, precision

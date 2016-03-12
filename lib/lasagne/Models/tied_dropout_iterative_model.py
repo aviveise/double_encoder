@@ -101,8 +101,8 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
     gamma_y = lasagne.layers.get_all_params(model_y, gamma=True)
 
     loss_gamma = T.constant(0)
-    loss_gamma += sum(l2(1 / gamma) for gamma in gamma_x) * Params.GAMMA_COEF
-    loss_gamma += sum(l2(1 / gamma) for gamma in gamma_y) * Params.GAMMA_COEF
+    loss_gamma += sum(l2(gamma) for gamma in gamma_x) * Params.GAMMA_COEF
+    loss_gamma += sum(l2(gamma) for gamma in gamma_y) * Params.GAMMA_COEF
 
     loss = loss_x + loss_y + loss_l2 + loss_weight_decay + loss_withen_x + loss_withen_y + loss_gamma
 
@@ -178,7 +178,7 @@ def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
         if Params.BN:
             model.append(BatchNormalizationLayer(model[-1],
                                                  nonlinearity=lasagne.nonlinearities.LeakyRectify(
-                                                     Params.LEAKINESS) if Params.BN_ACTIVATION else lasagne.nonlinearities.identity))
+                                                 Params.LEAKINESS) if Params.BN_ACTIVATION else lasagne.nonlinearities.identity))
 
         drop = 0 if drop_prob is None else drop_prob[index]
         model.append(
