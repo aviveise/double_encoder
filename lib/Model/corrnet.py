@@ -1,5 +1,7 @@
 import scipy
 
+from lib.MISC.utils import complete_rank
+
 __author__ = 'Sarath'
 
 import time
@@ -407,7 +409,10 @@ def trainCorrNet2(dataset_x, dataset_y, test_x, test_y, batch_size = 20, trainin
     numpy.save(open(os.path.join(PATH,'view_x.npy'),'w'), view_x)
     numpy.save(open(os.path.join(PATH,'view_y.npy'),'w'), view_y)
 
+    search_recall, describe_recall = complete_rank(view_x, view_y, 5)
+
     print 'correlation: {0}'.format(calculate_mardia(view_x, view_y, top=0))
+    print 'searc_recall {0}, annotated_recall {1}'.format(search_recall, describe_recall)
 
 def trainCorrNet(src_folder, tgt_folder, batch_size = 20, training_epochs=40,
                  l_rate=0.01, optimization="sgd", tied=False, n_visible_left=None,
