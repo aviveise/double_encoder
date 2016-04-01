@@ -492,14 +492,8 @@ def calculate_mardia(x, y, top, visualize=False):
             visualize_correlation_matrix(mat_T, 'correlation_mat')
             visualize_correlation_matrix(numpy.sort(mat_T, axis=1), 'correlation_mat_sorted')
 
-        s = numpy.linalg.svd(numpy.diag(numpy.diag(mat_T)), compute_uv=0)
+        return numpy.trace(mat_T)
 
-        del mat_T
-
-        if top == 0:
-            return numpy.sum(s)
-
-        return numpy.sum(s[0:top])
     except Exception as e:
         OutputLog().write('Error while calculating meridia error')
         OutputLog().write('Exception {0}'.format(e))
@@ -606,13 +600,9 @@ def complete_rank(x, y, reduce_x=0, normalize=True, normalize_axis=1, y_x_mappin
 
 def complete_rank_2(x, y, x_y_mapping, reduce_map=None, similarity=None):
 
-    if reduce_map:
-        x = x[reduce_map]
-
-    num_X_samples = x.shape[0]
-    num_Y_samples = y.shape[0]
-
     if similarity is None:
+        if reduce_map:
+            x = x[reduce_map]
         y_x_sim_matrix = cdist(x, y, metric=Params.SIMILARITY_METRIC)
     else:
         y_x_sim_matrix = similarity
@@ -621,7 +611,7 @@ def complete_rank_2(x, y, x_y_mapping, reduce_map=None, similarity=None):
     x_to_y_sorted_neighbs = numpy.argsort(y_x_sim_matrix, axis=1)
 
     y_to_x_ranks = numpy.array([x_y_mapping.T[index, col] for index, col in enumerate(y_to_x_sorted_neighbs.T)])
-    x_to_y_ranks = numpy.array([x_y_mapping[index, row] for index, row in enumerate(x_to_y_sorted_neighbs)])
+    x_to_y_ranks = numpy.array([x_y_mapping[index, row] for index, row in enumerate(x_to_y_sorted_neighbs) if numpy.sum(x_y_mapping[index]) > 0])
 
     ranks = [1, 5, 10]
 
@@ -645,7 +635,7 @@ def complete_rank_2(x, y, x_y_mapping, reduce_map=None, similarity=None):
         ranks[i] = rank
         precisions[i] = precision
 
-    return y_to_x_recall, x_to_y_recall, numpy.mean(ranks), numpy.mean(precision)
+    return y_to_x_recall, x_to_y_recall, numpy.mean(ranks), numpy.mean(precisions)
 
 def visualize_correlation_matrix(mat, name):
     path = OutputLog().output_path
