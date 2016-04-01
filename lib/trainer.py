@@ -330,8 +330,8 @@ class Trainer(object):
         else:
             raise Exception('Loss not recognized')
 
-        loss -= Trainer.add_negative(var_x, x_tilde, None)
-        loss -= Trainer.add_negative(var_y, y_tilde, None)
+        # loss -= Trainer.add_negative(var_x, x_tilde, None)
+        # loss -= Trainer.add_negative(var_y, y_tilde, None)
 
         print 'Adding regularization'
 

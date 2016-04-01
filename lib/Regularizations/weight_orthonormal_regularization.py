@@ -41,11 +41,14 @@ class WeightOrthonormalRegularization(RegularizationBase):
             # regularization += Tensor.sum((hidden_x_sqr - Tensor.identity_like(hidden_x_sqr)) ** 2, dtype=Tensor.config.floatX)
             # regularization += Tensor.sum((hidden_y_sqr - Tensor.identity_like(hidden_y_sqr)) ** 2, dtype=Tensor.config.floatX)
 
-            # Wy_Square = Tensor.dot(layer.Wy.T, layer.Wy)
+            Wy_Square = Tensor.dot(layer.Wy.T, layer.Wy)
             Wx_Square = Tensor.dot(layer.Wx.T, layer.Wx)
+            # cross = Tensor.dot(layer.Wx, layer.Wy.T)
             #
             # regularization += Tensor.sum((Wy_Square - Tensor.identity_like(Wy_Square)) ** 2, dtype=Tensor.config.floatX)
-            regularization += Tensor.sum(Wx_Square ** 2, dtype=Tensor.config.floatX)
+            regularization += Tensor.sum(abs(Wx_Square), dtype=Tensor.config.floatX)
+            regularization += Tensor.sum(abs(Wy_Square), dtype=Tensor.config.floatX)
+            # regularization += Tensor.sum(abs(cross))
 
         Wy_Square = Tensor.dot(symmetric_double_encoder[-1].Wy.T, symmetric_double_encoder[-1].Wy)
         regularization += Tensor.sum(Wy_Square ** 2, dtype=Tensor.config.floatX)

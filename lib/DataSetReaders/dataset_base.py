@@ -28,7 +28,7 @@ class DatasetBase(object):
         self.reduce_test = 0
         self.reduce_val = 0
         self.x_y_mapping = {'train': None, 'dev': None, 'test': None}
-        self.x_reduce = None
+        self.x_reduce = {'train': None, 'dev': None, 'test': None}
 
         self.data_set_parameters = data_set_parameters
         self.scale = map(int, data_set_parameters['scale'].split())

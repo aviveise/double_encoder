@@ -54,6 +54,7 @@ class SymmetricHiddenLayer(object):
         self.beta_x = None
         self.gamma_y = None
         self.beta_y = None
+        self.beta = None
 
         if normalize:
             OutputLog().write('Using batch normalization')
@@ -113,6 +114,9 @@ class SymmetricHiddenLayer(object):
         self.bias = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
                                   name='bias' + '_' + self.name)
 
+        self.beta = theano.shared(value=numpy.zeros(self.hidden_layer_size, dtype=theano.config.floatX),
+                                  name='bias' + '_' + self.name)
+
     def update_x(self, x, weights=None, bias=None, bias_x_prime=None, input_size=None):
 
         if x:
@@ -138,14 +142,7 @@ class SymmetricHiddenLayer(object):
                                             name='beta_x' + '_' + self.name)
                 self.gamma_x = theano.shared(
                     numpy.ones(self.hidden_layer_size, dtype=theano.config.floatX),
-                    # numpy.cast[theano.config.floatX](numpy.random.uniform(1.00, 1.05, self.hidden_layer_size)),
                     name='gamma_x' + '_' + self.name)
-
-            self.x_params = [self.Wx,
-                             #self.bias,
-                             self.bias_x_prime]
-
-            self.x_hidden_params = [self.Wx, self.beta_x, self.gamma_x] #self.bias
 
             self.output_forward_x = self.compute_forward_hidden_x()
 
@@ -179,12 +176,6 @@ class SymmetricHiddenLayer(object):
                     # numpy.cast[theano.config.floatX](numpy.random.uniform(1.00, 1.05, self.hidden_layer_size)),
                     name='gamma_y' + '_' + self.name)
 
-            self.y_params = [self.Wy,
-                            # self.bias,
-                             self.bias_y_prime]
-
-            self.y_hidden_params = [self.Wy, self.beta_y, self.gamma_y] #self.bias
-
             self.output_forward_y = self.compute_forward_hidden_y()
 
     def _initialize_input_weights(self, input_size):
@@ -204,26 +195,7 @@ class SymmetricHiddenLayer(object):
                                                 size=(input_size, self.hidden_layer_size)),
                            dtype=theano.config.floatX)
 
-        # wx = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
-        # OutputLog().write('Initialized Wx to normal 0 and 0.01')
-        # wx = 0.01 * numpy.random.multivariate_normal(numpy.zeros(self.hidden_layer_size),
-        #                                              numpy.identity(self.hidden_layer_size),
-        #                                              size=input_size)
-        # # wx_out = numpy.random.normal(0, 0.01, size=(self.hidden_layer_size, input_size))
-        # wx = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
-
-        # wx_out = wx_out.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx_out.T.dot(wx_out))))
-        # wx = wx.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wx.T.dot(wx))))
-
         initial_Wx = numpy.asarray(wx, dtype=theano.config.floatX)
-        # initial_Wx_out = numpy.asarray(wx_out, dtype=theano.config.floatX)
-
-        # self.gamma_x = theano.shared(
-        #     value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
-        #     name='gamma_x_' + self.name)
-        #
-        # self.beta_x = theano.shared(value=numpy.zeros(input_size, dtype=theano.config.floatX),
-        #                             name='beta_x_' + self.name)
 
         # WXtoH corresponds to the weights between the input and the hidden layer
         self.Wx = theano.shared(value=initial_Wx, name='Wx' + '_' + self.name)
@@ -240,25 +212,8 @@ class SymmetricHiddenLayer(object):
                            dtype=theano.config.floatX)
 
         OutputLog().write('Initialized Wy to 1 / (input size + layer size)')
-        # wy = 0.01 * numpy.random.multivariate_normal(numpy.zeros(self.hidden_layer_size),
-        #                                              numpy.identity(self.hidden_layer_size),
-        #                                              size=input_size)
-        # wy = numpy.random.normal(0, 0.01, size=(input_size, self.hidden_layer_size))
 
-        # wy = numpy.random.randn(input_size, self.hidden_layer_size) * sqrt(2.0 / input_size)
-
-        # wy = wy.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy.T.dot(wy))))
-        # wy_out = wy_out.dot(scipy.linalg.inv(scipy.linalg.sqrtm(wy_out.T.dot(wy_out))))
-        #
         initial_Wy = numpy.asarray(wy, dtype=theano.config.floatX)
-        # initial_Wy_out = numpy.asarray(wy_out, dtype=theano.config.floatX)
-
-        # self.gamma_y = theano.shared(
-        #     value=numpy.random.uniform(0.95, 1.05, input_size).astype(dtype=theano.config.floatX),
-        #     name='gamma_y_' + self.name)
-        #
-        # self.beta_y = theano.shared(value=numpy.zeros(input_size, dtype=theano.config.floatX),
-        #                             name='beta_y_' + self.name)
 
         # WHtoY corresponds to the weights between the hidden layer and the output
         self.Wy = theano.shared(value=initial_Wy, name='Wy' + '_' + self.name)
@@ -279,20 +234,20 @@ class SymmetricHiddenLayer(object):
         if self.normalize:
             self.moving_average_x = []
             result = self.normalize_activations(result, self.mean_inference_x, self.variance_inference_x,
-                                                self.gamma_x, self.beta_x, self.moving_average_x)
+                                                self.gamma_x, self.beta, self.moving_average_x)
 
         if self.normalize_sample:
-            result = self.normalize_samples(result, self.gamma_x, self.beta_x)
+            result = self.normalize_samples(result, self.gamma_x, self.beta)
 
         if self.decorrelate:
             self.moving_average_x = []
             result = self.withen_activations(result, self.cov_inference_x, self.moving_average_x, self.gamma_x,
-                                             self.beta_x)
-
-        # result = self.activation_hidden(result)
+                                             self.bias)
 
         if self._dropout == 'dropout':
             result = self.dropout(result)
+
+        # result = self.activation_hidden(result)
 
         return result
 
@@ -311,20 +266,22 @@ class SymmetricHiddenLayer(object):
         if self.normalize:
             self.moving_average_y = []
             result = self.normalize_activations(result, self.mean_inference_y, self.variance_inference_y,
-                                                self.gamma_y, self.beta_y, self.moving_average_y)
+                                                self.gamma_y, self.beta, self.moving_average_y)
 
         if self.normalize_sample:
-            result = self.normalize_samples(result, self.gamma_y, self.beta_y)
+            result = self.normalize_samples(result, self.gamma_y, self.beta)
 
         if self.decorrelate:
             self.moving_average_y = []
             result = self.withen_activations(result, self.cov_inference_y, self.moving_average_y, self.gamma_y,
                                              self.beta_y)
 
-        # result = self.activation_hidden(result)
-
         if self._dropout == 'dropout':
             result = self.dropout(result)
+
+
+        # result = self.activation_hidden(result)
+
 
         return result
 
@@ -366,8 +323,7 @@ class SymmetricHiddenLayer(object):
         self._eval = eval
 
     def drop(self, input, p):
-        output_train = input * Tensor.cast(self._random_streams.binomial(input.shape,
-                                                             p=p),dtype=Tensor.config.floatX)
+        output_train = input * Tensor.cast(self._random_streams.binomial(input.shape, p=p), dtype=Tensor.config.floatX)
         return output_train
 
     # Given one input computes the network forward output

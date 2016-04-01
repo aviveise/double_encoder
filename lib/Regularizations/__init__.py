@@ -6,5 +6,6 @@ from Regularizations import hinge_regularization
 from Regularizations import ortho_regularization
 from Regularizations import sparse_regularization
 from Regularizations import hidden_L2_regularization
+from Regularizations import contractive_regularization
 __author__ = 'aviv'
 

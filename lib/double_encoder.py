@@ -27,9 +27,9 @@ from MISC.container import Container
 from MISC.utils import ConfigSectionMap
 from MISC.logger import OutputLog
 
-import DataSetReaders
-import Regularizations
-import Optimizations
+import lib.DataSetReaders
+import lib.Regularizations
+import lib.Optimizations
 
 
 class DoubleEncoder(object):

@@ -204,13 +204,13 @@ class StackedDoubleEncoder(object):
             params_set.add(layer.bias)
             params_set.add(layer.gamma_x)
             params_set.add(layer.gamma_y)
-            params_set.add(layer.beta_x)
-            params_set.add(layer.beta_y)
+            # params_set.add(layer.beta_x)
+            # params_set.add(layer.beta_y)
 
-        for param in self._symmetric_layers[-1].y_params:
-            params_set.add(param)
-        for param in self._symmetric_layers[0].x_params:
-            params_set.add(param)
+        params_set.add(self._symmetric_layers[-1].Wy)
+        params_set.add(self._symmetric_layers[-1].bias_y_prime)
+
+        params_set.add(self._symmetric_layers[0].bias_x_prime)
 
         return list(params_set)
 

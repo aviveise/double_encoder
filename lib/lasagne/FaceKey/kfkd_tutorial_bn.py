@@ -23,7 +23,10 @@ from nolearn.lasagne import NeuralNet
 from pandas import DataFrame
 from pandas.io.parsers import read_csv
 from sklearn.utils import shuffle
+from lasagne import nonlinearities
 import theano
+
+from lib.lasagne.learnedactivations import BatchNormalizationLayer
 
 try:
     from lasagne.layers.cuda_convnet import Conv2DCCLayer as Conv2DLayer
@@ -166,6 +169,7 @@ class EarlyStopping(object):
             raise StopIteration()
 
 
+
 net = NeuralNet(
     layers=[
         ('input', layers.InputLayer),
@@ -179,8 +183,10 @@ net = NeuralNet(
         ('pool3', MaxPool2DLayer),
         ('dropout3', layers.DropoutLayer),
         ('hidden4', layers.DenseLayer),
+        ('batch4', BatchNormalizationLayer),
         ('dropout4', layers.DropoutLayer),
         ('hidden5', layers.DenseLayer),
+        ('batch5', BatchNormalizationLayer),
         ('output', layers.DenseLayer),
         ],
     input_shape=(None, 1, 96, 96),
@@ -191,8 +197,12 @@ net = NeuralNet(
     conv3_num_filters=128, conv3_filter_size=(2, 2), pool3_pool_size=(2, 2),
     dropout3_p=0.3,
     hidden4_num_units=1000,
+    hidden4_nonlinearity=nonlinearities.identity,
+    batch4_regularize_gamma=False,
     dropout4_p=0.5,
     hidden5_num_units=1000,
+    hidden5_nonlinearity=nonlinearities.identity,
+    batch5_regularize_gamma=False,
     output_num_units=30, output_nonlinearity=None,
 
     update_learning_rate=theano.shared(float32(0.03)),
@@ -208,7 +218,6 @@ net = NeuralNet(
     max_epochs=3000,
     verbose=1,
     )
-
 
 def fit():
     X, y = load2d()

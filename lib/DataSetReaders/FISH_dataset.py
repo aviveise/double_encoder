@@ -1,17 +1,16 @@
 import os
-
 import numpy
 import scipy.io
+import struct
 from theano import config
 from lib.MISC import utils
-
 from lib.MISC.container import ContainerRegisterMetaClass
 from dataset_base import DatasetBase
 
-TRAINING_PERCENT = 0.8
+TRAINING_PERCENT = 0.9
+
 
 class FISHDataSet(DatasetBase):
-
     __metaclass__ = ContainerRegisterMetaClass
 
     def __init__(self, data_set_parameters):
@@ -19,43 +18,57 @@ class FISHDataSet(DatasetBase):
 
     def build_dataset(self):
 
-        X, Y = self.load_fish_database(self.dataset_path + 'fish_database.mat', self.dataset_path + 'fasta.fas')
+        X, Y = self.load_fish_database(os.path.join(self.dataset_path, 'fish_database.mat'),
+                                       os.path.join(self.dataset_path, 'fasta.fas'))
 
+        training_size = int(X.shape[0] * TRAINING_PERCENT * 0.9)
+        tuning_size = int(X.shape[0] * TRAINING_PERCENT * 0.1)
+        test_size = int(X.shape[0] * (1 - TRAINING_PERCENT))
 
-        training_size = int(drug_number * TRAINING_PERCENT * 0.9)
-        tuning_size = int(drug_number * TRAINING_PERCENT * 0.1)
-        test_size = int(drug_number * (1 - TRAINING_PERCENT))
+        self.trainset = [X[0: training_size, :].astype(config.floatX, copy=False),
+                         Y[0: training_size, :].astype(config.floatX, copy=False)]
 
-        self.trainset = [fingerprints[0: training_size, :].astype(config.floatX, copy=False),
-                         side_effects[0: training_size, :].astype(config.floatX, copy=False)]
+        self.tuning = [X[training_size: training_size + tuning_size, :].astype(config.floatX, copy=False),
+                       Y[training_size: training_size + tuning_size, :].astype(config.floatX, copy=False)]
 
-        self.tuning = [fingerprints[training_size: training_size + tuning_size, :].astype(config.floatX, copy=False),
-                       side_effects[training_size: training_size + tuning_size, :].astype(config.floatX, copy=False)]
+        self.testset = [
+            X[training_size + tuning_size: training_size + tuning_size + test_size, :].astype(config.floatX,
+                                                                                                         copy=False),
+            Y[training_size + tuning_size: training_size + tuning_size + test_size, :].astype(config.floatX,
+                                                                                                         copy=False)]
 
-        self.testset = [fingerprints[training_size + tuning_size: training_size + tuning_size + test_size, :].astype(config.floatX, copy=False),
-                        side_effects[training_size + tuning_size: training_size + tuning_size + test_size, :].astype(config.floatX, copy=False)]
+        self.x_y_mapping = {
+            'train': numpy.identity(self.trainset[0].shape[0]),
+            'test': numpy.identity(self.testset[0].shape[0]),
+            'dev': numpy.identity(self.tuning[0].shape[0])
+        }
+
+        self.x_reduce = {
+            'train': range(self.trainset[0].shape[0]),
+            'test': range(self.testset[0].shape[0]),
+            'dev': range(self.tuning[0].shape[0])
+        }
 
     def load_fish_database(self, database_path, fish_path):
 
         mat = scipy.io.loadmat(database_path)
-        database = mat.get('database')
+        database = mat.get('database')[0]
 
-        X = numpy.ndarray([11111, database.shape[0]])
+        X = numpy.ndarray([database.shape[0], 11111])
 
-        first_name = {}
-        last_name = {}
-        for i in xrange(database.shape[1]):
+        first_name = []
+        last_name = []
+        for index, record in enumerate(database):
+            name = record[0][0]
+            a = name.rfind(r'/') + 1
+            b = name.find(r'+')
+            c = b + 1
+            d = name.find(r'_')
 
-            s = list(database[1, i][0][0])
-            a = max([i for (i, val) in s if val == '/']) + 1
-            b = min([i for (i, val) in s if val == '+']) - 1
-            c = b + 2
-            d = min([i for (i, val) in s if val == '_']) - 1
+            first_name.append(name[a:b])
+            last_name.append(name[c:d])
 
-            first_name[i] = s[a:b]
-            last_name[i] = s[c:d]
-
-            X[:, i] = database[1, i][6][0]
+            X[index, :] = numpy.cast['float32'](database[index][6]).T
 
         f = open(fish_path, 'rb')
 
@@ -63,74 +76,59 @@ class FISHDataSet(DatasetBase):
         endPos = f.tell()
         f.seek(0, os.SEEK_SET)
 
-        data_size = endPos / numpy.finfo(numpy.uint8).nexp
+        dat = list(struct.unpack('{0}c'.format(endPos), f.read()))
 
-        dat = list(f.readall())
+        datA = dat[0: endPos - 1]
+        datB = dat[1: endPos]
 
-        datA = dat[0: data_size - 1]
-        datB = dat[1: data_size]
+        line_starts = [i for i, val in enumerate(datA) if val == '>']
+        line_ends = [i + 1 for i, (valA, valB) in enumerate(zip(datA, datB)) if
+                     'z' >= valA >= 'a' and chr(10) <= valB <= chr(13)]
 
-        line_starts = ([i for (i, val) in datA if val == '>'])
-        line_ends_A = ([i for (i, val) in datA if val <= 'z' and val >= 'a'])
-        line_ends_B = ([i for (i, val) in datB if val <= 13 and val >= 10])
-
-        line_ends = ([x for x in line_ends_A for y in line_ends_B if x == y])
-
-        minus_starts_A = ([i for (i, val) in datA if val < ''])
-        minus_starts_B = ([i for (i, val) in datB if val == '-'])
-
-        minus_starts = ([x for x in minus_starts_A for y in minus_starts_B if x == y]) + 1
-
-        minus_ends_A = ([i for (i, val) in datA if val == '-'])
-        minus_ends_B = ([i for (i, val) in datB if val < ' '])
-
-        minus_ends = ([x for x in minus_ends_A for y in minus_ends_B if x == y]) + 1
+        minus_starts = [i + 1 for i, (valA, valB) in enumerate(zip(datA, datB)) if valA < ' ' and valB == '-']
+        minus_ends = [i + 1 for i, (valA, valB) in enumerate(zip(datA, datB)) if valB < ' ' and valA == '-']
 
         n = len(line_starts)
 
-        idx = numpy.ndarray([n, 1], dtype=config.floatX)
+        idx = numpy.ndarray(n, dtype=config.floatX)
 
-        for i in xrange(n):
-            s = datA[line_starts[i] : line_ends[i]]
-            f = ([i for (i, val) in s if val == '|'])
-            sp = ([i for (i, val) in s if val == ' '])
+        for j, (line_start, line_end) in enumerate(zip(line_starts, line_ends)):
+            s = datA[line_start: line_end]
+            f = [i for i, val in enumerate(s) if val == '|']
+            sp = [i for i, val in enumerate(s) if val == ' ']
 
-            fn = s[f[-1] + 1: s[0] - 1].T
-            ln = s[sp[-1] + 1: -1].T
+            fn = ''.join(s[f[-1] + 1: sp[0]])
+            ln = ''.join(s[sp[-1] + 1::])
 
-            idx[i] = self.gen_name_index(fn, ln, first_name, last_name)
+            idx[j] = self.gen_name_index(fn, ln, first_name, last_name)
 
-        nuc_prob = numpy.ndarray([901 * 4, 189])
+        nuc_prob = numpy.ndarray([189, 901 * 4])
 
         for i in xrange(n):
 
             if idx[i] == -1:
                 continue
 
-            factor = 1 / sum([x for x in idx if x == idx[i]])
-            vec = dat[minus_starts[i] : minus_ends[i]]
-            tacg = numpy.ndarray([4, len(vec)])
-            tacg[0, :] = [j for (j, val) in vec if (val == 'T')]
-            tacg[1, :] = [j for (j, val) in vec if (val == 'A')]
-            tacg[2, :] = [j for (j, val) in vec if (val == 'C')]
-            tacg[3, :] = [j for (j, val) in vec if (val == 'G')]
-            nuc_prob[:, idx[i]] = nuc_prob[:, idx[i]] + (factor * tacg[:])
+            factor = 1. / sum(idx == idx[i])
+            vec = numpy.array(dat[minus_starts[i]: minus_ends[i]])
+            tacg = numpy.zeros([4, len(vec)])
+            tacg[0, :] = (vec == 'T').astype(int)
+            tacg[1, :] = (vec == 'A').astype(int)
+            tacg[2, :] = (vec == 'C').astype(int)
+            tacg[3, :] = (vec == 'G').astype(int)
+            nuc_prob[idx[i], :] += (factor * tacg.flatten('F'))
 
-        legal_cols = [i for (i, val) in sum(nuc_prob) if val > 0]
+        legal_rows = numpy.nonzero(numpy.sum(nuc_prob, axis=1))[0]
 
         first_name_legal = {}
         last_name_legal = {}
 
-        for i in len(legal_cols):
-            first_name_legal[i] = first_name[legal_cols[i]]
-            last_name_legal[i] = last_name[legal_cols[i]]
+        for index, legal_col in enumerate(legal_rows):
+            first_name_legal[index] = first_name[legal_col]
+            last_name_legal[index] = last_name[legal_col]
 
-
-        Y = nuc_prob[:, legal_cols]
-
-        #Center X
-        X = utils.center(X)
-        Y = utils.center(Y)
+        Y = nuc_prob[legal_rows, :]
+        X = X[legal_rows, :]
 
         return X, Y
 
@@ -138,9 +136,7 @@ class FISHDataSet(DatasetBase):
 
         idx = -1
         for i in xrange(189):
-            if fn_cell_arr[i] == first_name:
-                if ln_cell_arr[i] == last_name:
-                    idx = i
-                    return idx
+            if str(fn_cell_arr[i]).lower() == first_name.lower() and str(ln_cell_arr[i]).lower() == last_name.lower():
+                return i
 
         return idx
