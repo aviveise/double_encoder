@@ -1,4 +1,5 @@
 import traceback
+from copy import copy
 from math import floor
 import matplotlib
 from scipy.spatial.distance import cdist
@@ -45,9 +46,9 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
 def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None,
                x_reduce=None):
     # Testing
-    # test_x, test_y = preprocess_dataset_test(dataset_x, dataset_y, x_reduce)
-    test_x = dataset_x
-    test_y = dataset_y
+    test_x, test_y = preprocess_dataset_test(dataset_x, dataset_y, x_reduce)
+    # test_x = dataset_x
+    # test_y = dataset_y
 
     if dataset_x.shape[0] > 10000:
         validate_all = False
@@ -147,24 +148,28 @@ def preprocess_dataset_test(test_x, test_y, reduce_x):
     return result_x, result_y
 
 
-def preprocess_dataset_train(train_x, train_y, reduce_x):
-    x_r = train_x[reduce_x]
-    result_x = numpy.zeros((x_r.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
-    result_y = numpy.zeros((x_r.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
+def preprocess_dataset_train(train_x, train_y, reduce_x, x_y_mapping):
+    # x_r = train_x[reduce_x]
+    # result_x = numpy.zeros((x_r.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
+    # result_y = numpy.zeros((x_r.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
 
-    # result_x = numpy.zeros((train_x.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
-    # result_y = numpy.zeros((train_x.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
+    result_x = numpy.zeros((train_x.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
+    result_y = numpy.zeros((train_x.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
 
-    y_indices = reduce_x
+    y_indices = copy(reduce_x)
     y_indices.append(train_y.shape[0])
-    for index, x in enumerate(x_r):
-        result_x[index] = x
-        result_y[index] = numpy.mean(train_y[y_indices[index]: y_indices[index + 1]], axis=0)
-        result_y[index] = result_y[index] / numpy.var(result_y[index])
+    # for index, x in enumerate(x_r):
+    #     result_x[index] = x
+    #     result_y[index] = numpy.mean(train_y[y_indices[index]: y_indices[index + 1]], axis=0)
+    #     result_y[index] = result_y[index] / numpy.var(result_y[index])
+    q_index = -1
+    for index, (x, y) in enumerate(zip(train_x, train_y)):
+        if index in reduce_x:
+            q_index += 1
+        label = x_y_mapping[q_index, index]
+        result_x[index, :] = x
+        result_y[index, :] = y
 
-    # for index, (x, y) in enumerate(zip(train_x, train_y)):
-    #     result_x[index, :] = x
-    #     result_y[index, :] = y
 
     return result_x, result_y
 
@@ -216,10 +221,11 @@ if __name__ == '__main__':
     # Export network
     path = OutputLog().output_path
 
-    # x_train, y_train = preprocess_dataset_train(data_set.trainset[0], data_set.trainset[1], data_set.x_reduce['train'])
+    x_train, y_train = preprocess_dataset_train(data_set.trainset[0], data_set.trainset[1], data_set.x_reduce['train'],
+                                                data_set.x_y_mapping['train'])
     #
-    x_train = data_set.trainset[0]
-    y_train = data_set.trainset[1]
+    # x_train = data_set.trainset[0]
+    # y_train = data_set.trainset[1]
 
     model_x, model_y, hidden_x, hidden_y, loss, outputs, hooks = model.build_model(x_var,
                                                                                    x_train.shape[1],
@@ -286,11 +292,11 @@ if __name__ == '__main__':
             OutputLog().write(output_string.format(index, batch_number, *train_loss))
 
         if Params.CROSS_VALIDATION:
-            # tuning_x, tuning_y = preprocess_dataset_test(data_set.tuning[0], data_set.tuning[1],
-            #                                             data_set.x_reduce['dev'])
-            #
-            tuning_x = data_set.tuning[0]
-            tuning_y = data_set.tuning[1]
+            tuning_x, tuning_y = preprocess_dataset_test(data_set.tuning[0], data_set.tuning[1],
+                                                        data_set.x_reduce['dev'])
+
+            # tuning_x = data_set.tuning[0]
+            # tuning_y = data_set.tuning[1]
 
             x_values = test_y(tuning_x, tuning_y)
             y_values = test_x(tuning_x, tuning_y)

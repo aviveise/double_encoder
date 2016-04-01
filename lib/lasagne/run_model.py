@@ -1,7 +1,8 @@
-import traceback
 from math import floor
-
 import matplotlib
+import traceback
+from scipy.spatial.distance import cdist
+from sklearn import preprocessing
 
 matplotlib.use('Agg')
 
@@ -18,7 +19,7 @@ from theano import tensor, theano
 from lib.MISC.container import Container
 from lib.MISC.logger import OutputLog
 from lib.MISC.utils import ConfigSectionMap, complete_rank, calculate_reconstruction_error, calculate_mardia, \
-    complete_rank_2
+    complete_rank_2, scale_cols
 from lib.lasagne.Models import parallel_model, bisimilar_model, iterative_model, tied_dropout_iterative_model
 from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
@@ -41,31 +42,33 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
         yield inputs_x[excerpt], inputs_y[excerpt]
 
 
-def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None, x_reduce=None):
-    # Testing
+def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None,
+               x_reduce=None):
+    test_x = dataset_x
+    test_y = dataset_y
 
     if dataset_x.shape[0] > 10000:
         validate_all = False
         x_total_value = None
         y_total_value = None
         for index, batch in enumerate(
-                    iterate_minibatches(dataset_x, dataset_y, Params.VALIDATION_BATCH_SIZE, True)):
+                iterate_minibatches(test_x, test_y, Params.VALIDATION_BATCH_SIZE, True)):
             input_x, input_y = batch
             y_values = model_x(input_x, input_y)[Params.TEST_LAYER]
             x_values = model_y(input_x, input_y)[Params.TEST_LAYER]
 
-            if not x_total_value:
+            if x_total_value is None:
                 x_total_value = x_values
             else:
                 x_total_value = numpy.vstack((x_total_value, x_values))
 
-            if not y_total_value:
+            if y_total_value is None:
                 y_total_value = y_values
             else:
                 y_total_value = numpy.vstack((y_total_value, y_values))
     else:
-        y_values = model_x(dataset_x, dataset_y)
-        x_values = model_y(dataset_x, dataset_y)
+        y_values = model_x(test_x, test_y)
+        x_values = model_y(test_x, test_y)
 
         if not validate_all:
             x_total_value = x_values[Params.TEST_LAYER]
@@ -80,8 +83,9 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
 
     if validate_all:
         for index, (x, y) in enumerate(zip(x_values, y_values)):
-            if data_set.x_y_mapping is not None:
-                search_recall, describe_recall, mrr, map = complete_rank_2(x, y, x_y_mapping, x_reduce)
+            if x_y_mapping is not None:
+                similarity = compute_similarity(x, y, x_y_mapping)
+                search_recall, describe_recall, mrr, map = complete_rank_2(x, y, x_y_mapping, x_reduce, similarity)
             else:
                 search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
                 mrr = 0
@@ -103,8 +107,9 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
         middle_x = x_total_value
         middle_y = y_total_value
 
-        if data_set.x_y_mapping is not None:
-            search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y, x_y_mapping, x_reduce)
+        if x_y_mapping is not None:
+            similarity = compute_similarity(middle_x, middle_y, x_y_mapping)
+            search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y, x_y_mapping, x_reduce, similarity)
         else:
             search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
             mrr = 0
@@ -113,7 +118,7 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
         loss = calculate_reconstruction_error(middle_x, middle_y)
         correlation = calculate_mardia(middle_x, middle_y, top)
 
-        print_row = ["{0} ".format(middle), loss, correlation]
+        print_row = ["{0} ".format(Params.TEST_LAYER), loss, correlation]
         print_row.extend(search_recall)
         print_row.append(sum(search_recall))
         print_row.extend(describe_recall)
@@ -124,6 +129,56 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
         rows.append(print_row)
 
     OutputLog().write(tabulate(rows, headers=header))
+
+
+def preprocess_dataset_test(test_x, test_y, reduce_x):
+    reduced_x = test_x[reduce_x]
+
+    result_x = numpy.zeros((reduced_x.shape[0] * test_y.shape[0], test_y.shape[1]), dtype=theano.config.floatX)
+    result_y = numpy.zeros((reduced_x.shape[0] * test_y.shape[0], test_y.shape[1]), dtype=theano.config.floatX)
+
+    for i, x in enumerate(reduced_x):
+        for j, y in enumerate(test_y):
+            result_x[i * test_y.shape[0] + j, :] = x
+            result_y[i * test_y.shape[0] + j, :] = y
+
+    return result_x, result_y
+
+
+def preprocess_dataset_train(train_x, train_y, reduce_x):
+    x_r = train_x[reduce_x]
+    result_x = numpy.zeros((x_r.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
+    result_y = numpy.zeros((x_r.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
+
+    # result_x = numpy.zeros((train_x.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
+    # result_y = numpy.zeros((train_x.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
+
+    y_indices = reduce_x
+    y_indices.append(train_y.shape[0])
+    for index, x in enumerate(x_r):
+        result_x[index] = x
+        result_y[index] = numpy.mean(train_y[y_indices[index]: y_indices[index + 1]], axis=0)
+        result_y[index] = result_y[index] / numpy.var(result_y[index])
+
+    # for index, (x, y) in enumerate(zip(train_x, train_y)):
+    #     result_x[index, :] = x
+    #     result_y[index, :] = y
+
+    return result_x, result_y
+
+
+def compute_similarity(middle_x, middle_y, x_y_mapping):
+    scores = numpy.zeros(middle_x.shape[0])
+    for index, (x, y) in enumerate(zip(middle_x, middle_y)):
+        scores[index] = cdist(numpy.reshape(x, [1, x.shape[0]]),
+                              numpy.reshape(y, [1, y.shape[0]]), metric=Params.SIMILARITY_METRIC)
+
+    similarity = numpy.zeros(x_y_mapping.shape)
+
+    for q_index in range(x_y_mapping.shape[0]):
+        similarity[q_index, :] = scores[q_index * x_y_mapping.shape[1]: (q_index + 1) * x_y_mapping.shape[1]]
+
+    return similarity
 
 
 if __name__ == '__main__':
@@ -159,10 +214,13 @@ if __name__ == '__main__':
     # Export network
     path = OutputLog().output_path
 
+    x_train = data_set.trainset[0]
+    y_train = data_set.trainset[1]
+
     model_x, model_y, hidden_x, hidden_y, loss, outputs, hooks = model.build_model(x_var,
-                                                                                   data_set.trainset[0].shape[1],
+                                                                                   x_train.shape[1],
                                                                                    y_var,
-                                                                                   data_set.trainset[1].shape[1],
+                                                                                   y_train.shape[1],
                                                                                    layer_sizes=Params.LAYER_SIZES,
                                                                                    parallel_width=Params.PARALLEL_WIDTH,
                                                                                    drop_prob=Params.DROPOUT,
@@ -183,7 +241,7 @@ if __name__ == '__main__':
     current_learning_rate = Params.BASE_LEARNING_RATE
 
     updates.update(
-        lasagne.updates.momentum(loss, params, learning_rate=current_learning_rate, momentum=Params.MOMENTUM))
+        lasagne.updates.adam(loss, params, learning_rate=current_learning_rate))
 
     train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
@@ -211,7 +269,7 @@ if __name__ == '__main__':
             model_results['train'][epoch][label] = []
 
         for index, batch in enumerate(
-                iterate_minibatches(data_set.trainset[0], data_set.trainset[1], Params.BATCH_SIZE, True)):
+                iterate_minibatches(x_train, y_train, Params.BATCH_SIZE, True)):
             input_x, input_y = batch
             train_loss = train_fn(numpy.cast[theano.config.floatX](input_x),
                                   numpy.cast[theano.config.floatX](input_y))
@@ -223,15 +281,19 @@ if __name__ == '__main__':
             OutputLog().write(output_string.format(index, batch_number, *train_loss))
 
         if Params.CROSS_VALIDATION:
-            x_values = test_y(data_set.tuning[0], data_set.tuning[1])
-            y_values = test_x(data_set.tuning[0], data_set.tuning[1])
+            tuning_x = data_set.tuning[0]
+            tuning_y = data_set.tuning[1]
+
+            x_values = test_y(tuning_x, tuning_y)
+            y_values = test_x(tuning_x, tuning_y)
 
             OutputLog().write('\nValidating model\n')
 
             if VALIDATE_ALL:
                 for index, (x, y) in enumerate(zip(x_values, y_values)):
-                    if data_set.x_y_mapping is not None:
-                        search_recall, describe_recall, mrr, map = complete_rank_2(x, y, data_set.x_y_mapping['dev'],data_set.x_reduce['dev'])
+                    if data_set.x_y_mapping['dev'] is not None:
+                        search_recall, describe_recall, mrr, map = complete_rank_2(x, y, data_set.x_y_mapping['dev'],
+                                                                                   data_set.x_reduce['dev'])
                     else:
                         search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
                         mrr = 0
@@ -240,17 +302,24 @@ if __name__ == '__main__':
                     validation_loss = calculate_reconstruction_error(x, y)
                     correlation = calculate_mardia(x, y, top)
 
-                    OutputLog().write('Layer {0} - loss: {1}, correlation: {2}, recall: {3}, mrr: {4}, map: {5}'.format(index,
-                                                                                                    validation_loss,
-                                                                                                    correlation,
-                                                                                                    sum(search_recall) + sum(describe_recall),
-                                                                                                                        mrr, map))
+                    OutputLog().write(
+                        'Layer {0} - loss: {1}, correlation: {2}, recall: {3}, mrr: {4}, map: {5}'.format(index,
+                                                                                                          validation_loss,
+                                                                                                          correlation,
+                                                                                                          sum(
+                                                                                                              search_recall) + sum(
+                                                                                                              describe_recall),
+                                                                                                          mrr, map))
             else:
-                middle = int(len(x_values) / 2.) - 1 if len(x_values) % 2 == 0 else int(floor(float(len(x_values)) / 2.))
-                middle_x = x_values[middle]
-                middle_y = y_values[middle]
-                if data_set.x_y_mapping is not None:
-                    search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y, data_set.x_y_mapping['dev'],data_set.x_reduce['dev'])
+                middle_x = x_values[Params.TEST_LAYER]
+                middle_y = y_values[Params.TEST_LAYER]
+
+                if data_set.x_y_mapping['dev'] is not None:
+                    similarity = compute_similarity(middle_x, middle_y, data_set.x_y_mapping['dev'])
+                    search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y,
+                                                                               data_set.x_y_mapping['dev'],
+                                                                               data_set.x_reduce['dev'],
+                                                                               similarity)
                 else:
                     search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
                     mrr = 0
@@ -265,11 +334,12 @@ if __name__ == '__main__':
 
                 OutputLog().write('Layer - loss: {1}, correlation: {2}, recall: {3}, mean_x: {4}, mean_y: {5},'
                                   'var_x: {6}, var_y: {7}, mrr: {8}, map: {9}'.format(index,
-                                                                  validation_loss,
-                                                                  correlation,
-                                                                  sum(search_recall) + sum(
-                                                                      describe_recall),
-                                                                  mean_x, mean_y, var_x, var_y, mrr, map))
+                                                                                      validation_loss,
+                                                                                      correlation,
+                                                                                      sum(search_recall) + sum(
+                                                                                          describe_recall),
+                                                                                      mean_x, mean_y, var_x, var_y, mrr,
+                                                                                      map))
 
                 model_results['validate'][epoch]['loss'] = validation_loss
                 model_results['validate'][epoch]['correlation'] = correlation
@@ -288,8 +358,8 @@ if __name__ == '__main__':
                 updates = OrderedDict()
             try:
                 test_model(test_x, test_y, numpy.cast[theano.config.floatX](data_set.testset[0]),
-                           numpy.cast[theano.config.floatX](data_set.testset[1]), parallel=5, validate_all=VALIDATE_ALL,
-                           top=top,x_y_mapping=data_set.x_y_mapping['test'], x_reduce=data_set.x_reduce['test'])
+                           numpy.cast[theano.config.floatX](data_set.testset[1]),
+                           top=top, x_y_mapping=data_set.x_y_mapping['test'], x_reduce=data_set.x_reduce['test'])
 
             except Exception as e:
                 OutputLog().write('Failed testing model with exception {0}'.format(e))
@@ -309,7 +379,8 @@ if __name__ == '__main__':
     OutputLog().write('Test results')
 
     try:
-        test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top, x_y_mapping=data_set.x_y_mapping['test'],
+        test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top,
+                   x_y_mapping=data_set.x_y_mapping['test'],
                    x_reduce=data_set.x_reduce['test'])
     except Exception as e:
         OutputLog().write('Error testing model with exception {0}'.format(e))

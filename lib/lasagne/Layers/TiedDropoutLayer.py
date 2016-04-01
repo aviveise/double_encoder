@@ -1,5 +1,4 @@
 from math import sqrt
-
 import theano
 from lasagne.layers import Layer
 from lasagne.random import get_rng
@@ -74,12 +73,12 @@ class TiedDropoutLayer(Layer):
             if any(s is None for s in input_shape):
                 input_shape = input.shape
 
-            if not self._master is None:
+            if self._master is not None:
                 self._mask = self._master._mask
 
             if self._mask is None:
                 self._mask = tensor.cast(self._srng.binomial(input_shape, p=retain_prob),
-                                                             dtype=theano.config.floatX)
+                                         dtype=theano.config.floatX)
 
             input *= self._mask
 
@@ -128,6 +127,7 @@ class DropoutLayer(Layer):
            Dropout: A Simple Way to Prevent Neural Networks from Overfitting.
            Journal of Machine Learning Research, 5(Jun)(2), 1929-1958.
     """
+
     def __init__(self, incoming, p=0.5, rescale=True, **kwargs):
         super(DropoutLayer, self).__init__(incoming)
         self._srng = RandomStreams(get_rng().randint(1, 2147462579))
