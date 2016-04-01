@@ -1,6 +1,9 @@
+import numpy
 import theano
 from theano.sandbox.cuda import GpuOp, as_cuda_ndarray_variable, CudaNdarrayType
 from theano.sandbox.cuda.basic_ops import gpu_contiguous
+from theano import tensor
+import time
 
 __author__ = 'avive'
 
@@ -22,79 +25,79 @@ class BatchedInvOp(GpuOp):
     def output_type(self, input):
         return CudaNdarrayType((input.type.broadcastable[0], input.type.broadcastable[1], input.type.broadcastable[2]))
 
-    # def make_thunk(self, node, storage_map, _, _2):
-    #     inputs = [storage_map[v] for v in node.inputs]
-    #     outputs = [storage_map[v] for v in node.outputs]
-    #     from theano.misc.pycuda_utils import to_gpuarray
-    #
-    #     # reusable allocations
-    #     pivot_alloc = [None]
-    #     info_alloc = [None]
-    #
-    #     def thunk():
-    #
-    #         start = time()
-    #
-    #         input_shape = inputs[0][0].shape
-    #
-    #         size = input_shape[1]  # matrices to invert are (size x size)
-    #         batch_size = input_shape[0]
-    #
-    #         z = outputs[0]
-    #
-    #         # only allocate if there is no previous allocation of the right size.
-    #         if z[0] is None or z[0].shape != input_shape:
-    #             z[0] = theano.sandbox.cuda.CudaNdarray.zeros(input_shape)
-    #             pivot_alloc[0] = pycuda.gpuarray.empty((batch_size, size), numpy.int32)
-    #             info_alloc[0] = pycuda.gpuarray.zeros(batch_size, numpy.int32)
-    #
-    #         input_pycuda = to_gpuarray(inputs[0][0])
-    #         output_pycuda = to_gpuarray(z[0])
-    #         pivot = pivot_alloc[0]
-    #         info = info_alloc[0]
-    #
-    #         init = time()
-    #
-    #         print('init time:{0}'.format(init - start))
-    #
-    #         if not self.destructive:
-    #             input_pycuda = input_pycuda.copy()  # to prevent destruction of the input
-    #
-    #         # construct pointer arrays for batched operations
-    #         input_arr = bptrs(input_pycuda)
-    #         output_arr = bptrs(output_pycuda)
-    #
-    #         alloc = time()
-    #
-    #         print('allocation time:{0}'.format(alloc - init))
-    #
-    #         handle = scikits.cuda.misc._global_cublas_handle
-    #
-    #         # perform LU factorization
-    #         cublas.cublasSgetrfBatched(handle, size, input_arr.gpudata, size, pivot.gpudata, info.gpudata, batch_size)
-    #         # the LU factorization is now in input_pycuda (destructive operation!)
-    #
-    #         LU = time()
-    #
-    #         print('LU time:{0}'.format(LU - alloc))
-    #
-    #         # use factorization to perform inversion
-    #         cublas.cublasSgetriBatched(handle, size, input_arr.gpudata, size, pivot.gpudata, output_arr.gpudata, size,
-    #                                    info.gpudata, batch_size)
-    #         # the inverted matrices are now in output_pycuda
-    #
-    #         inv = time()
-    #
-    #         print('inv time:{0}'.format(inv - LU))
-    #
-    #         print('total time: {0}'.format(inv - start))
-    #
-    #
-    #     thunk.inputs = inputs
-    #     thunk.outputs = outputs
-    #     thunk.lazy = False
-    #
-    #     return thunk
+    def make_thunk(self, node, storage_map, _, _2):
+        inputs = [storage_map[v] for v in node.inputs]
+        outputs = [storage_map[v] for v in node.outputs]
+        from theano.misc.pycuda_utils import to_gpuarray
+
+        # reusable allocations
+        pivot_alloc = [None]
+        info_alloc = [None]
+
+        def thunk():
+
+            start = time()
+
+            input_shape = inputs[0][0].shape
+
+            size = input_shape[1]  # matrices to invert are (size x size)
+            batch_size = input_shape[0]
+
+            z = outputs[0]
+
+            # only allocate if there is no previous allocation of the right size.
+            if z[0] is None or z[0].shape != input_shape:
+                z[0] = theano.sandbox.cuda.CudaNdarray.zeros(input_shape)
+                pivot_alloc[0] = pycuda.gpuarray.empty((batch_size, size), numpy.int32)
+                info_alloc[0] = pycuda.gpuarray.zeros(batch_size, numpy.int32)
+
+            input_pycuda = to_gpuarray(inputs[0][0])
+            output_pycuda = to_gpuarray(z[0])
+            pivot = pivot_alloc[0]
+            info = info_alloc[0]
+
+            init = time()
+
+            print('init time:{0}'.format(init - start))
+
+            if not self.destructive:
+                input_pycuda = input_pycuda.copy()  # to prevent destruction of the input
+
+            # construct pointer arrays for batched operations
+            input_arr = bptrs(input_pycuda)
+            output_arr = bptrs(output_pycuda)
+
+            alloc = time()
+
+            print('allocation time:{0}'.format(alloc - init))
+
+            handle = scikits.cuda.misc._global_cublas_handle
+
+            # perform LU factorization
+            cublas.cublasSgetrfBatched(handle, size, input_arr.gpudata, size, pivot.gpudata, info.gpudata, batch_size)
+            # the LU factorization is now in input_pycuda (destructive operation!)
+
+            LU = time()
+
+            print('LU time:{0}'.format(LU - alloc))
+
+            # use factorization to perform inversion
+            cublas.cublasSgetriBatched(handle, size, input_arr.gpudata, size, pivot.gpudata, output_arr.gpudata, size,
+                                       info.gpudata, batch_size)
+            # the inverted matrices are now in output_pycuda
+
+            inv = time()
+
+            print('inv time:{0}'.format(inv - LU))
+
+            print('total time: {0}'.format(inv - start))
+
+
+        thunk.inputs = inputs
+        thunk.outputs = outputs
+        thunk.lazy = False
+
+        return thunk
 
     def c_support_code_apply(self, node, name):
         return """
@@ -244,8 +247,6 @@ class BatchedInvOp(GpuOp):
                     %(fail)s;
                 }
 
-                printf("test2");
-
                 cublasSgetrfBatched(handle, x_dim1, %(name)s_x_gpu, x_dim1, (int *)%(name)s_pivot, (int *)%(name)s_info, x_dim0);
 
                 cublasSgetriBatched(handle, x_dim1, (const float **)%(name)s_x_gpu, x_dim1, (const int *)%(name)s_pivot, %(name)s_z_gpu, x_dim1, (int *)%(name)s_info, x_dim0);
@@ -257,7 +258,6 @@ class BatchedInvOp(GpuOp):
     def c_cleanup_code_struct(self, node, name):
 
         return """
-            printf("test");
             if (%(n)s_pivot) device_free(%(n)s_pivot);
             if (%(n)s_info) device_free(%(n)s_info);
             if (%(n)s_x_list) free(%(n)s_x_list);
@@ -267,6 +267,23 @@ class BatchedInvOp(GpuOp):
         """ % dict(n=name)
 
     def c_code_cache_version(self):
-        return (0,1,18)
+        return (0,1,20)
 
 batched_inv = BatchedInvOp()
+
+
+if __name__ == "__main__":
+
+    a = numpy.cast['float32'](numpy.random.uniform(-1,1,(1,1024,1024)))
+    b = tensor.ftensor3()
+    c = batched_inv(b)
+
+    start = time.time()
+    f = theano.function([b],[c])(a)
+    end = time.time()
+    print('gpu-{0}'.format(end-start))
+
+    start = time.time()
+    f = numpy.linalg.inv(a)
+    end = time.time()
+    print('numpy-{0}'.format(end-start))
