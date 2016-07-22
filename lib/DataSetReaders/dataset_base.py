@@ -3,6 +3,8 @@ import os
 import struct
 
 import random
+
+import cPickle
 import hickle
 import theano
 import numpy
@@ -42,53 +44,29 @@ class DatasetBase(object):
         if not os.path.isdir(self.dataset_path):
             path = os.path.dirname(os.path.abspath(self.dataset_path))
 
-        train_file = os.path.join(path, 'train.p')
-        test_file = os.path.join(path, 'test.p')
-        validate_file = os.path.join(path, 'validate.p')
-        params_file = os.path.join(path, 'params.p')
-        mapping = os.path.join(path, 'mapping.p')
+        params = os.path.join(path, 'params.p')
 
-        if os.path.exists(train_file) and \
-                os.path.exists(test_file) and \
-                os.path.exists(validate_file):
-            with open(train_file, 'r') as f:
-                self.trainset = hickle.load(f)
-            with open(test_file, 'r') as f:
-                self.testset = hickle.load(f)
-            with open(validate_file, 'r') as f:
-                self.tuning = hickle.load(f)
-            if os.path.exists(params_file):
-                with open(params_file, 'r') as f:
-                    loaded_data_set_parameters = hickle.load(f)
-            else:
-                    loaded_data_set_parameters = 'No params file found'
+        try:
+            self.trainset = self.load_cache(path, 'train')
+            self.testset = self.load_cache(path, 'test')
+            self.tuning = self.load_cache(path, 'validate')
 
-            if os.path.exists(mapping):
-                with open(mapping, 'r') as f:
-                    map_reduce = hickle.load(f)
-                    self.x_y_mapping = map_reduce['map']
-                    self.x_reduce = map_reduce['reduce']
+            self.x_y_mapping['train'] = numpy.load(os.path.join(path, 'mapping_train.npy'), 'r')
+            self.x_y_mapping['test'] = numpy.load(os.path.join(path, 'mapping_test.npy'), 'r')
+            self.x_y_mapping['dev'] = numpy.load(os.path.join(path, 'mapping_dev.npy'), 'r')
 
-            self.trainset = self.trainset[0].astype(dtype=theano.config.floatX), self.trainset[1].astype(
-                dtype=theano.config.floatX)
-            self.testset = self.testset[0].astype(dtype=theano.config.floatX), self.testset[1].astype(
-                dtype=theano.config.floatX)
-            self.tuning = self.tuning[0].astype(dtype=theano.config.floatX), self.tuning[1].astype(
-                dtype=theano.config.floatX)
+            self.x_reduce = cPickle.load(open(os.path.join(path, 'reduce.p'), 'r'))
 
-            OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[1], self.trainset[1].shape[1]))
-            OutputLog().write('Training set size = %d' % self.trainset[0].shape[0])
-            OutputLog().write('Test set size = %d' % self.testset[0].shape[0])
+            with open(params) as params_file:
+                loaded_params = cPickle.load(params_file)
 
-            OutputLog().write('Dataset params: {0}'.format(loaded_data_set_parameters))
+            OutputLog().write('Loaded dataset params: {0}'.format(loaded_params))
 
-            return
+        except Exception as e:
+            OutputLog().write('Failed loading from local cache with exception: {}'.format(e))
+            self.build_dataset()
 
-        self.build_dataset()
-
-        self.preprocess()
-
-        self.dump()
+        # self.preprocess()
 
         OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[1], self.trainset[1].shape[1]))
         OutputLog().write('Training set size = %d' % self.trainset[0].shape[0])
@@ -206,12 +184,14 @@ class DatasetBase(object):
         params_file = os.path.join(path, 'params{0}.p'.format(suffix))
         mapping_file = os.path.join(path, 'mapping{0}.p'.format(suffix))
 
-        hickle.dump(self.trainset, file(train_file, 'w'))
+        numpy.save('x_{0}'.format(train_file), self.trainset[0])
+        numpy.save('y_{0}'.format(train_file), self.trainset[1])
+
+        # hickle.dump(self.trainset, file(train_file, 'w'))
         hickle.dump(self.testset, file(test_file, 'w'))
         hickle.dump(self.tuning, file(validate_file, 'w'))
         hickle.dump(self.data_set_parameters, file(params_file, 'w'))
         hickle.dump({'map': self.x_y_mapping, 'reduce': self.x_reduce}, file(mapping_file, 'w'))
-
 
     @abc.abstractmethod
     def build_dataset(self):
@@ -270,3 +250,9 @@ class DatasetBase(object):
                 complete_shuffle = True
 
         return x[shuffle_index], y
+
+    def load_cache(self, path, type, mmap_type='r'):
+        dataset_x = numpy.load(os.path.join(path, type + '_x.npy'), mmap_type)
+        dataset_y = numpy.load(os.path.join(path, type + '_y.npy'), mmap_type)
+
+        return (dataset_x, dataset_y)

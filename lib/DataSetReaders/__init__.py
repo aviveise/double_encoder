@@ -14,3 +14,4 @@ from GUY_dataset import GUYDataSet
 from CUAVE_dataset import CUAVEDataSet
 from ARIK_dataset import ARIKDataSet
 from QA_dataset import QADataSet
+from CHUK03_dataset import CHUK03DataSet
