@@ -1,0 +1,15 @@
+name: these
+dependencies:
+- numpy=1.11.1
+- scipy=0.17.1
+- h5py=2.6.0
+- libpng=1.6.17=0
+- pillow=3.3.0
+- pyqt=4.11.4
+- pip:
+  - theano==0.8.2
+  - tabulate==0.7.2
+  - https://github.com/Lasagne/Lasagne/archive/master.zip
+  - scikit-learn==0.16.1
+  - matplotlib==1.5.0
+  - hickle==1.1.0
