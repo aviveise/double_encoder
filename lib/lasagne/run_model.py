@@ -25,11 +25,11 @@ from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
 import lib.DataSetReaders
 
-OUTPUT_DIR = r'C:\Workspace\output'
+OUTPUT_DIR = r'/home/avive/workspace/output'
 VALIDATE_ALL = False
 
 
-def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
+def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocessors=None):
     assert len(inputs_x) == len(inputs_y)
     if shuffle:
         indices = numpy.arange(len(inputs_x))
@@ -39,7 +39,10 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False):
             excerpt = indices[start_idx:start_idx + batchsize]
         else:
             excerpt = slice(start_idx, start_idx + batchsize)
-        yield inputs_x[excerpt], inputs_y[excerpt]
+        if preprocessors is not None:
+            yield preprocessors[0].transform(numpy.copy(inputs_x[excerpt])), preprocessors[1].transform(numpy.copy(inputs_y[excerpt]))
+        else:
+            yield inputs_x[excerpt], inputs_y[excerpt]
 
 
 def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None,
@@ -84,13 +87,11 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
     if validate_all:
         for index, (x, y) in enumerate(zip(x_values, y_values)):
             if x_y_mapping is not None:
-                similarity = compute_similarity(x, y, x_y_mapping)
-                search_recall, describe_recall, mrr, map = complete_rank_2(x, y, x_y_mapping, x_reduce, similarity)
+                search_recall, describe_recall, mrr, map = complete_rank_2(x, y, x_y_mapping, x_reduce, None)
             else:
                 search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
                 mrr = 0
                 map = 0
-
             loss = calculate_reconstruction_error(x, y)
             correlation = calculate_mardia(x, y, top)
 
@@ -108,8 +109,7 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
         middle_y = y_total_value
 
         if x_y_mapping is not None:
-            similarity = compute_similarity(middle_x, middle_y, x_y_mapping)
-            search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y, x_y_mapping, x_reduce, similarity)
+            search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y, x_y_mapping, x_reduce, None)
         else:
             search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
             mrr = 0
@@ -150,9 +150,6 @@ def preprocess_dataset_train(train_x, train_y, reduce_x):
     result_x = numpy.zeros((x_r.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
     result_y = numpy.zeros((x_r.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
 
-    # result_x = numpy.zeros((train_x.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
-    # result_y = numpy.zeros((train_x.shape[0], train_y.shape[1]), dtype=theano.config.floatX)
-
     y_indices = reduce_x
     y_indices.append(train_y.shape[0])
     for index, x in enumerate(x_r):
@@ -160,18 +157,16 @@ def preprocess_dataset_train(train_x, train_y, reduce_x):
         result_y[index] = numpy.mean(train_y[y_indices[index]: y_indices[index + 1]], axis=0)
         result_y[index] = result_y[index] / numpy.var(result_y[index])
 
-    # for index, (x, y) in enumerate(zip(train_x, train_y)):
-    #     result_x[index, :] = x
-    #     result_y[index, :] = y
-
     return result_x, result_y
 
 
-def compute_similarity(middle_x, middle_y, x_y_mapping):
-    scores = numpy.zeros(middle_x.shape[0])
-    for index, (x, y) in enumerate(zip(middle_x, middle_y)):
-        scores[index] = cdist(numpy.reshape(x, [1, x.shape[0]]),
-                              numpy.reshape(y, [1, y.shape[0]]), metric=Params.SIMILARITY_METRIC)
+def compute_similarity(middle_x, middle_y, x_y_mapping, reduce_x):
+    scores = numpy.zeros(x_y_mapping.shape[0] * x_y_mapping.shape[1])
+    for index_x, x in enumerate(middle_x):
+        for index_y, y in enumerate(middle_y):
+            scores[index_x * middle_x.shape[0] + index_y] = cdist(numpy.reshape(x, [1, x.shape[0]]),
+                                                                  numpy.reshape(y, [1, y.shape[0]]),
+                                                                  metric=Params.SIMILARITY_METRIC)
 
     similarity = numpy.zeros(x_y_mapping.shape)
 
@@ -269,7 +264,7 @@ if __name__ == '__main__':
             model_results['train'][epoch][label] = []
 
         for index, batch in enumerate(
-                iterate_minibatches(x_train, y_train, Params.BATCH_SIZE, True)):
+                iterate_minibatches(x_train, y_train, Params.BATCH_SIZE, True, data_set.preprocessors)):
             input_x, input_y = batch
             train_loss = train_fn(numpy.cast[theano.config.floatX](input_x),
                                   numpy.cast[theano.config.floatX](input_y))
@@ -315,11 +310,10 @@ if __name__ == '__main__':
                 middle_y = y_values[Params.TEST_LAYER]
 
                 if data_set.x_y_mapping['dev'] is not None:
-                    similarity = compute_similarity(middle_x, middle_y, data_set.x_y_mapping['dev'])
                     search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y,
                                                                                data_set.x_y_mapping['dev'],
                                                                                data_set.x_reduce['dev'],
-                                                                               similarity)
+                                                                               None)
                 else:
                     search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
                     mrr = 0
@@ -356,14 +350,6 @@ if __name__ == '__main__':
                 updates = OrderedDict(batchnormalizeupdates(hooks, 100))
             else:
                 updates = OrderedDict()
-            try:
-                test_model(test_x, test_y, numpy.cast[theano.config.floatX](data_set.testset[0]),
-                           numpy.cast[theano.config.floatX](data_set.testset[1]),
-                           top=top, x_y_mapping=data_set.x_y_mapping['test'], x_reduce=data_set.x_reduce['test'])
-
-            except Exception as e:
-                OutputLog().write('Failed testing model with exception {0}'.format(e))
-                OutputLog().write('{0}'.format(traceback.format_exc()))
 
             with file(os.path.join(path, 'model_x_{0}.p'.format(epoch)), 'w') as model_x_file:
                 cPickle.dump(model_x, model_x_file)

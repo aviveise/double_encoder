@@ -10,12 +10,24 @@ import theano
 import numpy
 import pickle
 
+from sklearn import preprocessing
 from sklearn.decomposition import PCA
 from lib.MISC.utils import scale_cols, normalize
 from lib.MISC.logger import OutputLog
 
 __author__ = 'aviv'
 
+
+class IdentityPreprocessor():
+    def transform(self, x):
+        return x
+
+class TransposedPreprocessor():
+    def __init__(self, preprocessor):
+        self._preprocessor = preprocessor
+
+    def transform(self, x):
+        return self._preprocessor.transform(x.T).T
 
 class DatasetBase(object):
     def __init__(self, data_set_parameters):
@@ -33,11 +45,11 @@ class DatasetBase(object):
         self.x_reduce = {'train': None, 'dev': None, 'test': None}
 
         self.data_set_parameters = data_set_parameters
-        self.scale = map(int, data_set_parameters['scale'].split())
+        self.scale = bool(int(data_set_parameters['scale']))
         self.scale_rows = bool(int(data_set_parameters['scale_samples']))
         self.whiten = bool(int(data_set_parameters['whiten']))
         self.pca = map(int, data_set_parameters['pca'].split())
-        self.normalize_data = map(int, data_set_parameters['normalize'].split())
+        self.normalize_data = bool(int(data_set_parameters['normalize']))
 
     def load(self):
         path = self.dataset_path
@@ -66,7 +78,7 @@ class DatasetBase(object):
             OutputLog().write('Failed loading from local cache with exception: {}'.format(e))
             self.build_dataset()
 
-        # self.preprocess()
+        self.preprocess()
 
         OutputLog().write('Dataset dimensions = %d, %d' % (self.trainset[0].shape[1], self.trainset[1].shape[1]))
         OutputLog().write('Training set size = %d' % self.trainset[0].shape[0])
@@ -104,61 +116,30 @@ class DatasetBase(object):
 
         return [train_result, test_result, test_samples]
 
-    def preprocess(self):
+    def preprocess(self, copy=False):
 
         path = self.dataset_path
         if not os.path.isdir(self.dataset_path):
             path = os.path.dirname(os.path.abspath(self.dataset_path))
 
-        if self.normalize_data[0]:
-            self.trainset = (normalize(self.trainset[0]), self.trainset[1])
-            self.tuning = (normalize(self.tuning[0]), self.tuning[1])
-            self.testset = (normalize(self.testset[0]), self.testset[1])
+        if self.normalize_data:
+            self.preprocessors = (preprocessing.Normalizer(copy=copy).fit(self.trainset[0]),
+                                  preprocessing.Normalizer(copy=copy).fit(self.trainset[1]))
 
-        if self.normalize_data[1]:
-            self.trainset = (self.trainset[0], normalize(self.trainset[1]))
-            self.tuning = (self.tuning[0], normalize(self.tuning[1]))
-            self.testset = (self.testset[0], normalize(self.testset[1]))
-
-        if self.scale[0]:
-            train_set_x, scaler_x = scale_cols(self.trainset[0])
-            self.trainset = train_set_x, self.trainset[1]
-            self.tuning = (scaler_x.transform(self.tuning[0]), self.tuning[1])
-            self.testset = (scaler_x.transform(self.testset[0]), self.testset[1])
-            scaler_x_path = os.path.join(path, 'scaler_x.p')
-
-            pickle.dump(scaler_x, file(scaler_x_path, 'w'))
-
-        if self.scale[1]:
-            train_set_y, scaler_y = scale_cols(self.trainset[1])
-
-            self.trainset = self.trainset[0], train_set_y
-            self.tuning = (self.tuning[0], scaler_y.transform(self.tuning[1]))
-            self.testset = (self.testset[0], scaler_y.transform(self.testset[1]))
-            scaler_y_path = os.path.join(path, 'scaler_y.p')
-
-            pickle.dump(scaler_y, file(scaler_y_path, 'w'))
+        if self.scale:
+            self.preprocessors = (preprocessing.StandardScaler(copy=copy).fit(self.trainset[0]),
+                                  preprocessing.StandardScaler(copy=copy).fit(self.trainset[1]))
 
         if self.scale_rows:
-            self.trainset = (scale_cols(self.trainset[0].T)[0].T, scale_cols(self.trainset[1].T)[0].T)
-            self.tuning = (scale_cols(self.tuning[0].T)[0].T, scale_cols(self.tuning[1].T)[0].T)
-            self.testset = (scale_cols(self.testset[0].T)[0].T, scale_cols(self.testset[1].T)[0].T)
+            pass
 
         if not self.pca[0] == 0:
-            pca_dim1 = PCA(self.pca[0], self.whiten)
-            pca_dim1.fit(self.trainset[0])
-
-            self.trainset = (pca_dim1.transform(self.trainset[0]), self.trainset[1])
-            self.testset = (pca_dim1.transform(self.testset[0]), self.testset[1])
-            self.tuning = (pca_dim1.transform(self.tuning[0]), self.tuning[1])
+            self.preprocessors = (PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[0]),
+                                  IdentityPreprocessor())
 
         if not self.pca[1] == 0:
-            pca_dim2 = PCA(self.pca[1], self.whiten)
-            pca_dim2.fit(self.trainset[1])
-
-            self.trainset = (self.trainset[0], pca_dim2.transform(self.trainset[1]))
-            self.testset = (self.testset[0], pca_dim2.transform(self.testset[1]))
-            self.tuning = (self.tuning[0], pca_dim2.transform(self.tuning[1]))
+            self.preprocessors = (IdentityPreprocessor(),
+                                  PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[1]))
 
         if self.whiten:
             OutputLog().write('using whiten')
