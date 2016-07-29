@@ -40,7 +40,7 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocess
         else:
             excerpt = slice(start_idx, start_idx + batchsize)
         if preprocessors is not None:
-            yield preprocessors[0].transform(numpy.copy(inputs_x[excerpt])), preprocessors[1].transform(numpy.copy(inputs_y[excerpt]))
+            yield preprocessors[0](numpy.copy(inputs_x[excerpt])), preprocessors[1](numpy.copy(inputs_y[excerpt]))
         else:
             yield inputs_x[excerpt], inputs_y[excerpt]
 

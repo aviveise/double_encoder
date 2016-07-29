@@ -5,6 +5,8 @@ import struct
 import random
 
 import cPickle
+
+import functools
 import hickle
 import theano
 import numpy
@@ -21,6 +23,7 @@ __author__ = 'aviv'
 class IdentityPreprocessor():
     def transform(self, x):
         return x
+
 
 class TransposedPreprocessor():
     def __init__(self, preprocessor):
@@ -123,23 +126,24 @@ class DatasetBase(object):
             path = os.path.dirname(os.path.abspath(self.dataset_path))
 
         if self.normalize_data:
-            self.preprocessors = (preprocessing.Normalizer(copy=copy).fit(self.trainset[0]),
-                                  preprocessing.Normalizer(copy=copy).fit(self.trainset[1]))
+            self.preprocessors = (functools.partial(preprocessing.normalize, copy=copy),
+                                  functools.partial(preprocessing.normalize, copy=copy))
 
         if self.scale:
-            self.preprocessors = (preprocessing.StandardScaler(copy=copy).fit(self.trainset[0]),
-                                  preprocessing.StandardScaler(copy=copy).fit(self.trainset[1]))
+            self.preprocessors = (preprocessing.StandardScaler(copy=copy).fit(self.trainset[0]).transform,
+                                  preprocessing.StandardScaler(copy=copy).fit(self.trainset[1]).transform)
 
         if self.scale_rows:
-            pass
+            self.preprocessors = (functools.partial(preprocessing.scale, copy=copy, axis=1) ,
+                                  functools.partial(preprocessing.scale, copy=copy, axis=1))
 
         if not self.pca[0] == 0:
-            self.preprocessors = (PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[0]),
-                                  IdentityPreprocessor())
+            self.preprocessors = (PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[0]).transform,
+                                  lambda x: x)
 
         if not self.pca[1] == 0:
-            self.preprocessors = (IdentityPreprocessor(),
-                                  PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[1]))
+            self.preprocessors = (lambda x: x,
+                                  PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[1]).transform)
 
         if self.whiten:
             OutputLog().write('using whiten')
