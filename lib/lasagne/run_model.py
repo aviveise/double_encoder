@@ -25,7 +25,7 @@ from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
 import lib.DataSetReaders
 
-OUTPUT_DIR = r'/home/avive/workspace/output'
+OUTPUT_DIR = r'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/coco'
 VALIDATE_ALL = False
 
 
@@ -275,7 +275,7 @@ if __name__ == '__main__':
 
             OutputLog().write(output_string.format(index, batch_number, *train_loss))
 
-        if Params.CROSS_VALIDATION:
+        if Params.CROSS_VALIDATION or epoch in Params.DECAY_EPOCH:
             tuning_x = data_set.tuning[0]
             tuning_y = data_set.tuning[1]
 
