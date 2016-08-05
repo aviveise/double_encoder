@@ -29,7 +29,7 @@ OUTPUT_DIR = r'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/'
 VALIDATE_ALL = False
 
 
-def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocessors=None):
+def iterate_parallel_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocessors=None):
     assert len(inputs_x) == len(inputs_y)
     if shuffle:
         indices = numpy.arange(len(inputs_x))
@@ -44,6 +44,20 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocess
         else:
             yield inputs_x[excerpt], inputs_y[excerpt]
 
+def iterate_single_minibatch(inputs, batchsize, shuffle=False, preprocessor=None):
+    if shuffle:
+        indices = numpy.arange(len(inputs))
+        numpy.random.shuffle(indices)
+    for start_idx in range(0, len(inputs) - batchsize + 1, batchsize):
+        if shuffle:
+            excerpt = indices[start_idx:start_idx + batchsize]
+        else:
+            excerpt = slice(start_idx, start_idx + batchsize)
+        if preprocessor is not None:
+            yield preprocessor(numpy.copy(inputs[excerpt]))
+        else:
+            yield inputs[excerpt]
+
 
 def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None,
                x_reduce=None, preprocessors=None):
@@ -53,69 +67,49 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
     x_total_value = None
     y_total_value = None
     for index, batch in enumerate(
-            iterate_minibatches(test_x, test_y, Params.VALIDATION_BATCH_SIZE, False, preprocessors=preprocessors)):
-        input_x, input_y = batch
-        y_values = model_x(input_x, input_y)[Params.TEST_LAYER]
-        x_values = model_y(input_x, input_y)[Params.TEST_LAYER]
-
-        if x_total_value is None:
-            x_total_value = x_values
-        else:
-            x_total_value = numpy.vstack((x_total_value, x_values))
+            iterate_single_minibatch(test_x, Params.VALIDATION_BATCH_SIZE, False, preprocessor=preprocessors[0])):
+        y_values = model_y(batch)[Params.TEST_LAYER]
 
         if y_total_value is None:
             y_total_value = y_values
         else:
             y_total_value = numpy.vstack((y_total_value, y_values))
 
+    for index, batch in enumerate(
+            iterate_single_minibatch(test_y, Params.VALIDATION_BATCH_SIZE, False, preprocessor=preprocessors[1])):
+
+        x_values = model_x(batch)[Params.TEST_LAYER]
+
+        if x_total_value is None:
+            x_total_value = x_values
+        else:
+            x_total_value = numpy.vstack((x_total_value, x_values))
+
+
     header = ['layer', 'loss', 'corr', 'search1', 'search5', 'search10', 'search_sum', 'desc1', 'desc5', 'desc10',
               'desc_sum', 'mrr', 'map']
 
     rows = []
 
-    if validate_all:
-        for index, (x, y) in enumerate(zip(x_values, y_values)):
-            if x_y_mapping is not None:
-                search_recall, describe_recall, mrr, map = complete_rank_2(x, y, x_y_mapping, x_reduce, None)
-            else:
-                search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
-                mrr = 0
-                map = 0
-            loss = calculate_reconstruction_error(x, y)
-            correlation = calculate_mardia(x, y, top)
-
-            print_row = ["{0} ".format(index), loss, correlation]
-            print_row.extend(search_recall)
-            print_row.append(sum(search_recall))
-            print_row.extend(describe_recall)
-            print_row.append(sum(describe_recall))
-            print_row.append(mrr)
-            print_row.append(map)
-
-            rows.append(print_row)
+    if x_y_mapping is not None:
+        search_recall, describe_recall, mrr, map = complete_rank_2(x_total_value, y_total_value, x_y_mapping, x_reduce, None)
     else:
-        middle_x = x_total_value
-        middle_y = y_total_value
+        search_recall, describe_recall = complete_rank(x_total_value, y_total_value, data_set.reduce_val)
+        mrr = 0
+        map = 0
 
-        if x_y_mapping is not None:
-            search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y, x_y_mapping, x_reduce, None)
-        else:
-            search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
-            mrr = 0
-            map = 0
+    loss = calculate_reconstruction_error(x_total_value, y_total_value)
+    correlation = calculate_mardia(x_total_value, y_total_value, top)
 
-        loss = calculate_reconstruction_error(middle_x, middle_y)
-        correlation = calculate_mardia(middle_x, middle_y, top)
+    print_row = ["{0} ".format(Params.TEST_LAYER), loss, correlation]
+    print_row.extend(search_recall)
+    print_row.append(sum(search_recall))
+    print_row.extend(describe_recall)
+    print_row.append(sum(describe_recall))
+    print_row.append(mrr)
+    print_row.append(map)
 
-        print_row = ["{0} ".format(Params.TEST_LAYER), loss, correlation]
-        print_row.extend(search_recall)
-        print_row.append(sum(search_recall))
-        print_row.extend(describe_recall)
-        print_row.append(sum(describe_recall))
-        print_row.append(mrr)
-        print_row.append(map)
-
-        rows.append(print_row)
+    rows.append(print_row)
 
     OutputLog().write(tabulate(rows, headers=header))
 
@@ -231,11 +225,11 @@ if __name__ == '__main__':
 
     train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
-    test_y = theano.function([x_var, y_var],
+    test_y = theano.function([x_var],
                              [lasagne.layers.get_output(layer, moving_avg_hooks=hooks, deterministic=True) for layer in
                               hidden_x],
                              on_unused_input='ignore')
-    test_x = theano.function([x_var, y_var],
+    test_x = theano.function([y_var],
                              [lasagne.layers.get_output(layer, moving_avg_hooks=hooks, deterministic=True) for layer in
                               hidden_y],
                              on_unused_input='ignore')
@@ -255,7 +249,7 @@ if __name__ == '__main__':
             model_results['train'][epoch][label] = []
 
         for index, batch in enumerate(
-                iterate_minibatches(x_train, y_train, Params.BATCH_SIZE, True, data_set.preprocessors)):
+                iterate_parallel_minibatches(x_train, y_train, Params.BATCH_SIZE, True, data_set.preprocessors)):
             input_x, input_y = batch
             train_loss = train_fn(numpy.cast[theano.config.floatX](input_x),
                                   numpy.cast[theano.config.floatX](input_y))
@@ -272,7 +266,8 @@ if __name__ == '__main__':
 
             OutputLog().write('\nValidating model\n')
 
-            test_model(test_x, test_y, tuning_x, tuning_y, x_y_mapping=data_set.x_y_mapping['dev'], x_reduce=data_set.x_reduce['dev'], preprocessors=data_set.preprocessors)
+            test_model(test_x, test_y, tuning_x, tuning_y, x_y_mapping=data_set.x_y_mapping['dev'],
+                       x_reduce=data_set.x_reduce['dev'], preprocessors=data_set.preprocessors)
 
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
@@ -298,7 +293,7 @@ if __name__ == '__main__':
         test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top,
                    x_y_mapping=data_set.x_y_mapping['test'],
                    x_reduce=data_set.x_reduce['test'],
-		   preprocessors=data_set.preprocessors)
+                   preprocessors=data_set.preprocessors)
     except Exception as e:
         OutputLog().write('Error testing model with exception {0}'.format(e))
         traceback.print_exc()
