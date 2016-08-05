@@ -25,7 +25,7 @@ from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
 import lib.DataSetReaders
 
-OUTPUT_DIR = r'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/coco'
+OUTPUT_DIR = r'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/'
 VALIDATE_ALL = False
 
 
@@ -46,38 +46,27 @@ def iterate_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocess
 
 
 def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None,
-               x_reduce=None):
+               x_reduce=None, preprocessors=None):
     test_x = dataset_x
     test_y = dataset_y
 
-    if dataset_x.shape[0] > 10000:
-        validate_all = False
-        x_total_value = None
-        y_total_value = None
-        for index, batch in enumerate(
-                iterate_minibatches(test_x, test_y, Params.VALIDATION_BATCH_SIZE, True)):
-            input_x, input_y = batch
-            y_values = model_x(input_x, input_y)[Params.TEST_LAYER]
-            x_values = model_y(input_x, input_y)[Params.TEST_LAYER]
+    x_total_value = None
+    y_total_value = None
+    for index, batch in enumerate(
+            iterate_minibatches(test_x, test_y, Params.VALIDATION_BATCH_SIZE, False, preprocessors=preprocessors)):
+        input_x, input_y = batch
+        y_values = model_x(input_x, input_y)[Params.TEST_LAYER]
+        x_values = model_y(input_x, input_y)[Params.TEST_LAYER]
 
-            if x_total_value is None:
-                x_total_value = x_values
-            else:
-                x_total_value = numpy.vstack((x_total_value, x_values))
+        if x_total_value is None:
+            x_total_value = x_values
+        else:
+            x_total_value = numpy.vstack((x_total_value, x_values))
 
-            if y_total_value is None:
-                y_total_value = y_values
-            else:
-                y_total_value = numpy.vstack((y_total_value, y_values))
-    else:
-        y_values = model_x(test_x, test_y)
-        x_values = model_y(test_x, test_y)
-
-        if not validate_all:
-            x_total_value = x_values[Params.TEST_LAYER]
-            y_total_value = y_values[Params.TEST_LAYER]
-
-    OutputLog().write('\nTesting model\n')
+        if y_total_value is None:
+            y_total_value = y_values
+        else:
+            y_total_value = numpy.vstack((y_total_value, y_values))
 
     header = ['layer', 'loss', 'corr', 'search1', 'search5', 'search10', 'search_sum', 'desc1', 'desc5', 'desc10',
               'desc_sum', 'mrr', 'map']
@@ -186,7 +175,9 @@ if __name__ == '__main__':
 
     model_results = {'train': [], 'validate': []}
 
-    OutputLog().set_path(OUTPUT_DIR)
+    results_folder = os.path.join(OUTPUT_DIR, str.rstrip(str.split(data_set_config,'_')[-1][:-4]))
+
+    OutputLog().set_path(results_folder)
     OutputLog().set_verbosity('info')
 
     data_config = ConfigParser.ConfigParser()
@@ -279,70 +270,9 @@ if __name__ == '__main__':
             tuning_x = data_set.tuning[0]
             tuning_y = data_set.tuning[1]
 
-            x_values = test_y(tuning_x, tuning_y)
-            y_values = test_x(tuning_x, tuning_y)
-
             OutputLog().write('\nValidating model\n')
 
-            if VALIDATE_ALL:
-                for index, (x, y) in enumerate(zip(x_values, y_values)):
-                    if data_set.x_y_mapping['dev'] is not None:
-                        search_recall, describe_recall, mrr, map = complete_rank_2(x, y, data_set.x_y_mapping['dev'],
-                                                                                   data_set.x_reduce['dev'])
-                    else:
-                        search_recall, describe_recall = complete_rank(x, y, data_set.reduce_val)
-                        mrr = 0
-                        map = 0
-
-                    validation_loss = calculate_reconstruction_error(x, y)
-                    correlation = calculate_mardia(x, y, top)
-
-                    OutputLog().write(
-                        'Layer {0} - loss: {1}, correlation: {2}, recall: {3}, mrr: {4}, map: {5}'.format(index,
-                                                                                                          validation_loss,
-                                                                                                          correlation,
-                                                                                                          sum(
-                                                                                                              search_recall) + sum(
-                                                                                                              describe_recall),
-                                                                                                          mrr, map))
-            else:
-                middle_x = x_values[Params.TEST_LAYER]
-                middle_y = y_values[Params.TEST_LAYER]
-
-                if data_set.x_y_mapping['dev'] is not None:
-                    search_recall, describe_recall, mrr, map = complete_rank_2(middle_x, middle_y,
-                                                                               data_set.x_y_mapping['dev'],
-                                                                               data_set.x_reduce['dev'],
-                                                                               None)
-                else:
-                    search_recall, describe_recall = complete_rank(middle_x, middle_y, data_set.reduce_val)
-                    mrr = 0
-                    map = 0
-
-                validation_loss = calculate_reconstruction_error(middle_x, middle_y)
-                correlation = calculate_mardia(middle_x, middle_y, top)
-                mean_x = numpy.mean(numpy.mean(middle_x, axis=0)),
-                mean_y = numpy.mean(numpy.mean(middle_y, axis=0)),
-                var_x = numpy.mean(numpy.var(middle_x, axis=0)),
-                var_y = numpy.mean(numpy.var(middle_y, axis=0)),
-
-                OutputLog().write('Layer - loss: {1}, correlation: {2}, recall: {3}, mean_x: {4}, mean_y: {5},'
-                                  'var_x: {6}, var_y: {7}, mrr: {8}, map: {9}'.format(index,
-                                                                                      validation_loss,
-                                                                                      correlation,
-                                                                                      sum(search_recall) + sum(
-                                                                                          describe_recall),
-                                                                                      mean_x, mean_y, var_x, var_y, mrr,
-                                                                                      map))
-
-                model_results['validate'][epoch]['loss'] = validation_loss
-                model_results['validate'][epoch]['correlation'] = correlation
-                model_results['validate'][epoch]['search_recall'] = sum(search_recall)
-                model_results['validate'][epoch]['describe_recall'] = sum(describe_recall)
-                model_results['validate'][epoch]['mean_x'] = mean_x
-                model_results['validate'][epoch]['mean_y'] = mean_y
-                model_results['validate'][epoch]['var_x'] = var_x
-                model_results['validate'][epoch]['var_y'] = var_y
+            test_model(test_x, test_y, tuning_x, tuning_y, x_y_mapping=data_set.x_y_mapping['dev'], x_reduce=data_set.x_reduce['dev'], preprocessors=dataset.preprocessors)
 
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
@@ -367,7 +297,8 @@ if __name__ == '__main__':
     try:
         test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top,
                    x_y_mapping=data_set.x_y_mapping['test'],
-                   x_reduce=data_set.x_reduce['test'])
+                   x_reduce=data_set.x_reduce['test'],
+		   preprocessors=dataset.preprocessors)
     except Exception as e:
         OutputLog().write('Error testing model with exception {0}'.format(e))
         traceback.print_exc()
