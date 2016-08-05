@@ -66,8 +66,12 @@ class DatasetBase(object):
             self.testset = self.load_cache(path, 'test')
             self.tuning = self.load_cache(path, 'validate')
 
-            self.x_y_mapping['train'] = numpy.load(os.path.join(path, 'mapping_train.npy'), 'r')
-            self.x_y_mapping['test'] = numpy.load(os.path.join(path, 'mapping_test.npy'), 'r')
+            try:
+	    	self.x_y_mapping['train'] = numpy.load(os.path.join(path, 'mapping_train.npy'), 'r')
+            except:
+	        OutputLog().write('Failed loading training mapping')
+
+	    self.x_y_mapping['test'] = numpy.load(os.path.join(path, 'mapping_test.npy'), 'r')
             self.x_y_mapping['dev'] = numpy.load(os.path.join(path, 'mapping_dev.npy'), 'r')
 
             self.x_reduce = cPickle.load(open(os.path.join(path, 'reduce.p'), 'r'))
