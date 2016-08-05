@@ -272,7 +272,7 @@ if __name__ == '__main__':
 
             OutputLog().write('\nValidating model\n')
 
-            test_model(test_x, test_y, tuning_x, tuning_y, x_y_mapping=data_set.x_y_mapping['dev'], x_reduce=data_set.x_reduce['dev'], preprocessors=dataset.preprocessors)
+            test_model(test_x, test_y, tuning_x, tuning_y, x_y_mapping=data_set.x_y_mapping['dev'], x_reduce=data_set.x_reduce['dev'], preprocessors=data_set.preprocessors)
 
         if epoch in Params.DECAY_EPOCH:
             current_learning_rate *= Params.DECAY_RATE
@@ -298,7 +298,7 @@ if __name__ == '__main__':
         test_model(test_x, test_y, data_set.testset[0], data_set.testset[1], parallel=5, top=top,
                    x_y_mapping=data_set.x_y_mapping['test'],
                    x_reduce=data_set.x_reduce['test'],
-		   preprocessors=dataset.preprocessors)
+		   preprocessors=data_set.preprocessors)
     except Exception as e:
         OutputLog().write('Error testing model with exception {0}'.format(e))
         traceback.print_exc()
