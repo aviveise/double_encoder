@@ -134,7 +134,7 @@ class DatasetBase(object):
                                   preprocessing.StandardScaler(copy=copy).fit(self.trainset[1]).transform)
 
         if self.scale_rows:
-            self.preprocessors = (functools.partial(preprocessing.scale, copy=copy, axis=1) ,
+            self.preprocessors = (functools.partial(preprocessing.scale, copy=copy, axis=1),
                                   functools.partial(preprocessing.scale, copy=copy, axis=1))
 
         if not self.pca[0] == 0:
