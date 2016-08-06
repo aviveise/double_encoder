@@ -68,22 +68,22 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
     y_total_value = None
     for index, batch in enumerate(
             iterate_single_minibatch(test_x, Params.VALIDATION_BATCH_SIZE, False, preprocessor=preprocessors[0])):
-        y_values = model_y(batch)[Params.TEST_LAYER]
-
-        if y_total_value is None:
-            y_total_value = y_values
-        else:
-            y_total_value = numpy.vstack((y_total_value, y_values))
-
-    for index, batch in enumerate(
-            iterate_single_minibatch(test_y, Params.VALIDATION_BATCH_SIZE, False, preprocessor=preprocessors[1])):
-
-        x_values = model_x(batch)[Params.TEST_LAYER]
+        x_values = model_y(batch)[Params.TEST_LAYER]
 
         if x_total_value is None:
             x_total_value = x_values
         else:
             x_total_value = numpy.vstack((x_total_value, x_values))
+
+    for index, batch in enumerate(
+            iterate_single_minibatch(test_y, Params.VALIDATION_BATCH_SIZE, False, preprocessor=preprocessors[1])):
+
+        y_values = model_x(batch)[Params.TEST_LAYER]
+
+        if y_total_value is None:
+            y_total_value = y_values
+        else:
+            y_total_value = numpy.vstack((y_total_value, y_values))
 
 
     header = ['layer', 'loss', 'corr', 'search1', 'search5', 'search10', 'search_sum', 'desc1', 'desc5', 'desc10',
