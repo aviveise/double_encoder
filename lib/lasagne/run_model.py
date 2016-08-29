@@ -204,6 +204,7 @@ if __name__ == '__main__':
                                                                                    layer_sizes=Params.LAYER_SIZES,
                                                                                    parallel_width=Params.PARALLEL_WIDTH,
                                                                                    drop_prob=Params.DROPOUT,
+                                                                                   train_gamma_layer=Params.TRAIN_GAMMA,
                                                                                    weight_init=Params.WEIGHT_INIT)
 
     params_x = lasagne.layers.get_all_params(model_x, trainable=True)

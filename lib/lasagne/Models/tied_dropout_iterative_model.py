@@ -20,7 +20,7 @@ def transpose_recursive(w):
 
 
 def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
-                weight_init=lasagne.init.GlorotUniform(), drop_prob=None, **kwargs):
+                weight_init=lasagne.init.GlorotUniform(), drop_prob=None, train_gamma_layer=None, **kwargs):
     layer_types = Params.LAYER_TYPES
 
     # Create x to y network
@@ -32,7 +32,8 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
                                                                                                      weight_init,
                                                                                                      lasagne.init.Constant(
                                                                                                          0.),
-                                                                                                     drop_prob, 'x')
+                                                                                                     drop_prob, 'x',
+                                                                                                     train_gamma_layer=train_gamma_layer)
 
     weights_y = [transpose_recursive(w) for w in reversed(weights_x)]
     bias_y = lasagne.init.Constant(0.)
@@ -47,7 +48,8 @@ def build_model(var_x, input_size_x, var_y, input_size_y, layer_sizes,
                                                                                                      weights_y,
                                                                                                      bias_y,
                                                                                                      drop_prob, 'y',
-                                                                                                     dropouts_x)
+                                                                                                     dropouts_x,
+                                                                                                     train_gamma_layer)
 
     reversed_hidden_y = list(reversed(hidden_y))
 
@@ -142,7 +144,8 @@ def add_withening_regularization(hidden_x, hidden_y_reversed):
 
 def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
                          weight_init=lasagne.init.GlorotUniform(),
-                         bias_init=lasagne.init.Constant(0.), drop_prob=None, name='', dropouts_init=None):
+                         bias_init=lasagne.init.Constant(0.), drop_prob=None, name='', dropouts_init=None,
+                         train_gamma_layer=None):
     model = []
     weights = []
     biases = []
@@ -176,9 +179,11 @@ def build_single_channel(var, input_size, output_size, layer_sizes, layer_types,
         biases.append(model[-1].b)
 
         if Params.BN:
+            train_gamma = train_gamma_layer[index] if train_gamma_layer is not None else True
             model.append(BatchNormalizationLayer(model[-1],
                                                  nonlinearity=lasagne.nonlinearities.LeakyRectify(
-                                                 Params.LEAKINESS) if Params.BN_ACTIVATION else lasagne.nonlinearities.identity))
+                                                     Params.LEAKINESS) if Params.BN_ACTIVATION else lasagne.nonlinearities.identity,
+                                                 train_gamma=train_gamma))
 
         drop = 0 if drop_prob is None else drop_prob[index]
         model.append(
