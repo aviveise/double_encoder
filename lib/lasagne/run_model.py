@@ -1,4 +1,4 @@
-from math import floor
+from math import floor, ceil
 import matplotlib
 import traceback
 from scipy.spatial.distance import cdist
@@ -27,6 +27,7 @@ import lib.DataSetReaders
 
 OUTPUT_DIR = r'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/'
 VALIDATE_ALL = False
+MEMORY_LIMIT = 1000000.
 
 
 def iterate_parallel_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocessors=None):
@@ -34,29 +35,51 @@ def iterate_parallel_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, p
     if shuffle:
         indices = numpy.arange(len(inputs_x))
         numpy.random.shuffle(indices)
+
+    batch_limit = floor(MEMORY_LIMIT / (inputs_x.shape[1] + inputs_y.shape[1]) / batchsize / 8.)
+
+    buffer_x = numpy.load(inputs_x.filename, 'r')
+    buffer_y = numpy.load(inputs_y.filename, 'r')
+
     for start_idx in range(0, len(inputs_x) - batchsize + 1, batchsize):
         if shuffle:
             excerpt = indices[start_idx:start_idx + batchsize]
         else:
             excerpt = slice(start_idx, start_idx + batchsize)
+
+        if (start_idx / batchsize) % batch_limit == 0:
+            buffer_x = numpy.load(inputs_x.filename, 'r')
+            buffer_y = numpy.load(inputs_y.filename, 'r')
+
         if preprocessors is not None:
-            yield preprocessors[0](numpy.copy(inputs_x[excerpt])), preprocessors[1](numpy.copy(inputs_y[excerpt]))
+            yield preprocessors[0](numpy.copy(buffer_x[excerpt])), \
+                  preprocessors[1](numpy.copy(buffer_y[excerpt]))
         else:
-            yield inputs_x[excerpt], inputs_y[excerpt]
+            yield buffer_x[excerpt], buffer_y[excerpt]
+
 
 def iterate_single_minibatch(inputs, batchsize, shuffle=False, preprocessor=None):
     if shuffle:
         indices = numpy.arange(len(inputs))
         numpy.random.shuffle(indices)
+
+    batch_limit = ceil(MEMORY_LIMIT / inputs.shape[1] / batchsize / 4.)
+
+    buffer = numpy.load(inputs.filename, 'r')
+
     for start_idx in range(0, len(inputs) - batchsize + 1, batchsize):
         if shuffle:
             excerpt = indices[start_idx:start_idx + batchsize]
         else:
             excerpt = slice(start_idx, start_idx + batchsize)
+
+        if (start_idx / batchsize) % batch_limit == 0:
+            buffer = numpy.load(inputs.filename, 'r')
+
         if preprocessor is not None:
-            yield preprocessor(numpy.copy(inputs[excerpt]))
+            yield preprocessor(numpy.copy(buffer[excerpt]))
         else:
-            yield inputs[excerpt]
+            yield buffer[excerpt]
 
 
 def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=True, top=0, x_y_mapping=None,
@@ -85,14 +108,14 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
         else:
             y_total_value = numpy.vstack((y_total_value, y_values))
 
-
     header = ['layer', 'loss', 'corr', 'search1', 'search5', 'search10', 'search_sum', 'desc1', 'desc5', 'desc10',
               'desc_sum', 'mrr', 'map']
 
     rows = []
 
     if x_y_mapping is not None:
-        search_recall, describe_recall, mrr, map = complete_rank_2(x_total_value, y_total_value, x_y_mapping, x_reduce, None)
+        search_recall, describe_recall, mrr, map = complete_rank_2(x_total_value, y_total_value, x_y_mapping, x_reduce,
+                                                                   None)
     else:
         search_recall, describe_recall = complete_rank(x_total_value, y_total_value, data_set.reduce_val)
         mrr = 0
@@ -169,7 +192,7 @@ if __name__ == '__main__':
 
     model_results = {'train': [], 'validate': []}
 
-    results_folder = os.path.join(OUTPUT_DIR, str.rstrip(str.split(data_set_config,'_')[-1][:-4]))
+    results_folder = os.path.join(OUTPUT_DIR, str.rstrip(str.split(data_set_config, '_')[-1][:-4]))
 
     OutputLog().set_path(results_folder)
     OutputLog().set_verbosity('info')
@@ -250,7 +273,7 @@ if __name__ == '__main__':
             model_results['train'][epoch][label] = []
 
         for index, batch in enumerate(
-                iterate_parallel_minibatches(x_train, y_train, Params.BATCH_SIZE, True, data_set.preprocessors)):
+                iterate_parallel_minibatches(x_train, y_train, Params.BATCH_SIZE, False, data_set.preprocessors)):
             input_x, input_y = batch
             train_loss = train_fn(numpy.cast[theano.config.floatX](input_x),
                                   numpy.cast[theano.config.floatX](input_y))
@@ -260,6 +283,9 @@ if __name__ == '__main__':
                 model_results['train'][epoch][label].append(value)
 
             OutputLog().write(output_string.format(index, batch_number, *train_loss))
+
+            del batch, input_x, input_y
+            del train_loss
 
         if Params.CROSS_VALIDATION or epoch in Params.DECAY_EPOCH:
             tuning_x = data_set.tuning[0]
