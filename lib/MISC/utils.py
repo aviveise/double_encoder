@@ -601,8 +601,11 @@ def complete_rank(x, y, reduce_x=0, normalize=True, normalize_axis=1, y_x_mappin
 def complete_rank_2(x, y, x_y_mapping, reduce_map=None, similarity=None):
 
     if similarity is None:
+        if reduce_map and not x.shape[0] % reduce_map == 0:
+            for i in range(0, reduce_map - x.shape[0] % reduce_map):
+                x = numpy.vstack((x, x[-1, :]))
+
         if reduce_map:
-            reduce_map[-1] = min(x.shape[1] - 1, reduce_map[-1])
             x = x[reduce_map]
         y_x_sim_matrix = cdist(x, y, metric=Params.SIMILARITY_METRIC)
     else:
