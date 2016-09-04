@@ -601,7 +601,7 @@ def complete_rank(x, y, reduce_x=0, normalize=True, normalize_axis=1, y_x_mappin
 def complete_rank_2(x, y, x_y_mapping, reduce_map=None, similarity=None):
 
     if similarity is None:
-        if reduce_map and not x.shape[0] % reduce_map == 0:
+        if reduce_map and not x.shape[0] % reduce_map.shape[0] == 0:
             for i in range(0, reduce_map - x.shape[0] % reduce_map):
                 x = numpy.vstack((x, x[-1, :]))
 
