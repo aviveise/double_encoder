@@ -602,7 +602,7 @@ def complete_rank_2(x, y, x_y_mapping, reduce_map=None, similarity=None):
 
     if similarity is None:
         if reduce_map and not (x.shape[0] - reduce_map[-1] - 1) == 0:
-            for i in range(0, reduce_map[-1] - x.shape[0]):
+            for i in range(0, reduce_map[-1] - x.shape[0] + 1):
                 x = numpy.vstack((x, x[-1, :]))
 
         if reduce_map:
