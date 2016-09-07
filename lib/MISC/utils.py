@@ -604,6 +604,7 @@ def complete_rank_2(x, y, x_y_mapping, reduce_map=None, similarity=None):
         if reduce_map and not (x.shape[0] - reduce_map[-1] - 1) == 0:
             for i in range(0, reduce_map[-1] - x.shape[0] + 1):
                 x = numpy.vstack((x, x[-1, :]))
+                x_y_mapping
 
         if reduce_map:
             x = x[reduce_map]
@@ -634,10 +635,14 @@ def complete_rank_2(x, y, x_y_mapping, reduce_map=None, similarity=None):
 
     ranks = numpy.zeros(x_to_y_ranks.shape[0])
     precisions = numpy.zeros(x_to_y_ranks.shape[0])
-    for i, x in enumerate(x_to_y_ranks):
-        rank, precision = calc_rank_an_ap(x)
-        ranks[i] = rank
-        precisions[i] = precision
+
+    try:
+        for i, x in enumerate(x_to_y_ranks):
+            rank, precision = calc_rank_an_ap(x)
+            ranks[i] = rank
+            precisions[i] = precision
+    except Exception as e:
+        OutputLog().write('Failed calculating rank and precision')
 
     return y_to_x_recall, x_to_y_recall, numpy.mean(ranks), numpy.mean(precisions)
 
