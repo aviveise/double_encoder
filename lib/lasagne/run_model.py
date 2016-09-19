@@ -25,9 +25,9 @@ from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
 import lib.DataSetReaders
 
-OUTPUT_DIR = r'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/'
+OUTPUT_DIR = r'/home/avive/workspace/'#'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/'
 VALIDATE_ALL = False
-MEMORY_LIMIT = 1000000.
+MEMORY_LIMIT = 8000000.
 
 
 def iterate_parallel_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocessors=None):
@@ -36,7 +36,7 @@ def iterate_parallel_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, p
         indices = numpy.arange(len(inputs_x))
         numpy.random.shuffle(indices)
 
-    batch_limit = floor(MEMORY_LIMIT / (inputs_x.shape[1] + inputs_y.shape[1]) / batchsize / 8.)
+    batch_limit = ceil(MEMORY_LIMIT / (inputs_x.shape[1] + inputs_y.shape[1]) / batchsize / 8.)
 
     buffer_x = numpy.load(inputs_x.filename, 'r')
     buffer_y = numpy.load(inputs_y.filename, 'r')
@@ -205,8 +205,8 @@ if __name__ == '__main__':
     data_set = Container().create(data_parameters['name'], data_parameters)
     data_set.load()
 
-    y_var = tensor.fmatrix()
-    x_var = tensor.fmatrix()
+    y_var = tensor.matrix()
+    x_var = tensor.matrix()
 
     model = tied_dropout_iterative_model
 
@@ -245,7 +245,7 @@ if __name__ == '__main__':
     current_learning_rate = Params.BASE_LEARNING_RATE
 
     updates.update(
-        lasagne.updates.adam(loss, params, learning_rate=current_learning_rate))
+        lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=Params.MOMENTUM))
 
     train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
@@ -310,7 +310,7 @@ if __name__ == '__main__':
                 cPickle.dump(model_y, model_y_file)
 
             updates.update(
-                lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=0.9))
+                lasagne.updates.nesterov_momentum(loss, params, learning_rate=current_learning_rate, momentum=Params.MOMENTUM))
             del train_fn
             train_fn = theano.function([x_var, y_var], [loss] + outputs.values(), updates=updates)
 
