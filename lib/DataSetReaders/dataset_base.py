@@ -147,7 +147,7 @@ class DatasetBase(object):
 
         if not self.pca[1] == 0:
             self.preprocessors = (lambda x: x,
-                                  PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[1]).transform)
+                                  PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[1].copy()).transform)
 
         if self.whiten:
             OutputLog().write('using whiten')
