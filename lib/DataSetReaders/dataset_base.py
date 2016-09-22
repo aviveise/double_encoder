@@ -142,7 +142,7 @@ class DatasetBase(object):
                                   functools.partial(preprocessing.scale, copy=copy, axis=1))
 
         if not self.pca[0] == 0:
-            self.preprocessors = (PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[0]).transform,
+            self.preprocessors = (PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[0].copy()).transform,
                                   lambda x: x)
 
         if not self.pca[1] == 0:
