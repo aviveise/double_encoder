@@ -53,6 +53,7 @@ class DatasetBase(object):
         self.whiten = bool(int(data_set_parameters['whiten']))
         self.pca = map(int, data_set_parameters['pca'].split())
         self.normalize_data = bool(int(data_set_parameters['normalize']))
+        self.preprocessors = None
 
     def load(self):
         path = self.dataset_path
