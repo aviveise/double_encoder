@@ -89,6 +89,10 @@ def test_model(model_x, model_y, dataset_x, dataset_y, parallel=1, validate_all=
 
     x_total_value = None
     y_total_value = None
+
+    if preprocessors is None:
+        preprocessors = (None, None)
+
     for index, batch in enumerate(
             iterate_single_minibatch(test_x, Params.VALIDATION_BATCH_SIZE, False, preprocessor=preprocessors[0])):
         x_values = model_y(batch)[Params.TEST_LAYER]
