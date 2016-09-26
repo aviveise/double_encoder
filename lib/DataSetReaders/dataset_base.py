@@ -32,6 +32,7 @@ class TransposedPreprocessor():
     def transform(self, x):
         return self._preprocessor.transform(x.T).T
 
+
 class DatasetBase(object):
     def __init__(self, data_set_parameters):
 
@@ -68,14 +69,19 @@ class DatasetBase(object):
             self.tuning = self.load_cache(path, 'validate')
 
             try:
-	    	self.x_y_mapping['train'] = numpy.load(os.path.join(path, 'mapping_train.npy'), 'r')
+                self.x_y_mapping['test'] = numpy.load(os.path.join(path, 'mapping_test.npy'), 'r')
+                self.x_y_mapping['dev'] = numpy.load(os.path.join(path, 'mapping_dev.npy'), 'r')
+                self.x_reduce = cPickle.load(open(os.path.join(path, 'reduce.p'), 'r'))
             except:
-	        OutputLog().write('Failed loading training mapping')
+                OutputLog().write('Failed loading mappings')
+                self.generate_mapping()
 
-	    self.x_y_mapping['test'] = numpy.load(os.path.join(path, 'mapping_test.npy'), 'r')
-            self.x_y_mapping['dev'] = numpy.load(os.path.join(path, 'mapping_dev.npy'), 'r')
+                # Save mapping to disk
+                numpy.save(os.path.join(path, 'mapping_test'), self.x_y_mapping['test'])
+                numpy.save(os.path.join(path, 'mapping_dev'), self.x_y_mapping['dev'])
 
-            self.x_reduce = cPickle.load(open(os.path.join(path, 'reduce.p'), 'r'))
+                with open(os.path.join(path, 'reduce.p'), 'w') as reduce_file:
+                    cPickle.dump(self.x_reduce, reduce_file)
 
             with open(params) as params_file:
                 loaded_params = cPickle.load(params_file)
@@ -143,12 +149,14 @@ class DatasetBase(object):
                                   functools.partial(preprocessing.scale, copy=copy, axis=1))
 
         if not self.pca[0] == 0:
-            self.preprocessors = (PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[0].copy()).transform,
-                                  lambda x: x)
+            self.preprocessors = (
+            PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[0].copy()).transform,
+            lambda x: x)
 
         if not self.pca[1] == 0:
             self.preprocessors = (lambda x: x,
-                                  PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(self.trainset[1].copy()).transform)
+                                  PCA(self.pca[0], copy=copy, whiten=self.whiten).fit(
+                                      self.trainset[1].copy()).transform)
 
         if self.whiten:
             OutputLog().write('using whiten')
