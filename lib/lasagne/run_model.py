@@ -25,16 +25,18 @@ from lib.lasagne.learnedactivations import batchnormalizeupdates
 from lib.lasagne.params import Params
 import lib.DataSetReaders
 
-OUTPUT_DIR = r'/home/avive/workspace/'#'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/'
+OUTPUT_DIR = r'/home/avive/workspace/results'#'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/'
 VALIDATE_ALL = False
 MEMORY_LIMIT = 8000000.
 
 
-def iterate_parallel_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocessors=None):
+def iterate_parallel_minibatches(inputs_x, inputs_y, batchsize, shuffle=False, preprocessors=None, subsample=0):
     assert len(inputs_x) == len(inputs_y)
     if shuffle:
         indices = numpy.arange(len(inputs_x))
         numpy.random.shuffle(indices)
+        if subsample > 0:
+            indices = indices[0:subsample]
 
     batch_limit = ceil(MEMORY_LIMIT / (inputs_x.shape[1] + inputs_y.shape[1]) / batchsize / 8.)
 
@@ -277,7 +279,8 @@ if __name__ == '__main__':
             model_results['train'][epoch][label] = []
 
         for index, batch in enumerate(
-                iterate_parallel_minibatches(x_train, y_train, Params.BATCH_SIZE, False, data_set.preprocessors)):
+                iterate_parallel_minibatches(x_train, y_train, Params.BATCH_SIZE, False, data_set.preprocessors,
+                                             data_set.subsample)):
             input_x, input_y = batch
             train_loss = train_fn(numpy.cast[theano.config.floatX](input_x),
                                   numpy.cast[theano.config.floatX](input_y))
