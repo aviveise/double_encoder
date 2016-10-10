@@ -8,14 +8,21 @@ import lasagne
 import numpy
 import theano
 
+from collections import OrderedDict
 from lib.MISC.container import Container
 from lib.MISC.logger import OutputLog
 from lib.MISC.utils import ConfigSectionMap
-from lib.lasagne.Layers import TiedDropoutLayer
+from lib.lasagne.Layers.TiedDropoutLayer import TiedDropoutLayer
+from lib.lasagne.learnedactivations import BatchNormalizationLayer
 from lib.lasagne.params import Params
+from lasagne.layers.noise import DropoutLayer
+from math import ceil, floor
 
-OUTPUT_DIR = r'/home/avive/workspace/results'#'/specific/a/netapp3/vol/wolf/davidgad/aviveise/results/'
-INPUT_DIT = r''
+import lib.DataSetReaders
+
+OUTPUT_DIR = r'/media/data1/aviveise/results/'
+INPUT_DIR = r'/media/data1/aviveise/results/flickr8k'
+MEMORY_LIMIT = 8000000.
 
 def iterate_single_minibatch(inputs, batchsize, shuffle=False, preprocessor=None):
     if shuffle:
@@ -43,20 +50,33 @@ def iterate_single_minibatch(inputs, batchsize, shuffle=False, preprocessor=None
 
 def get_vars(model_x, model_y, data_set):
 
+    x_total_value = None
+    y_total_value = None
+
     x_var = model_x[0].input_var
     y_var = model_y[0].input_var
 
     hidden_x = filter(lambda layer: isinstance(layer, TiedDropoutLayer), model_x)
     hidden_y = filter(lambda layer: isinstance(layer, TiedDropoutLayer), model_y)
+
+    if len(hidden_x) == 0:
+	hidden_x = filter(lambda layer: isinstance(layer, DropoutLayer), model_x)
+    	hidden_y = filter(lambda layer: isinstance(layer, DropoutLayer), model_y)
+    if len(hidden_x) == 0:
+	hidden_x = filter(lambda layer: isinstance(layer, BatchNormalizationLayer), model_x)
+        hidden_y = filter(lambda layer: isinstance(layer, BatchNormalizationLayer), model_y)
+
+
     hidden_y = reversed(hidden_y)
 
-    test_y = theano.function([x_var, y_var],
-                             [lasagne.layers.get_output(layer, deterministic=True) for layer in
-                              hidden_x],
-                             on_unused_input='ignore')
-    test_x = theano.function([x_var, y_var],
-                             [lasagne.layers.get_output(layer, deterministic=True) for layer in
-                              hidden_y],
+    hooks = OrderedDict()
+
+    test_y = theano.function([x_var],
+                            [lasagne.layers.get_output(layer, moving_avg_hooks=hooks, deterministic=True) for layer in hidden_x],
+                            on_unused_input='ignore')
+
+    test_x = theano.function([y_var],
+                             [lasagne.layers.get_output(layer, moving_avg_hooks=hooks, deterministic=True) for layer in hidden_y],
                              on_unused_input='ignore')
 
     tuning_x = data_set.tuning[0]
@@ -104,12 +124,17 @@ if __name__ == '__main__':
 
     dirs = []
 
-    for (dirpath, dirnames, filenames) in os.walk(INPUT_DIT):
-        dirs.append(dirnames)
+    for (dirpath, dirnames, filenames) in os.walk(INPUT_DIR):
+        dirs.extend(dirnames)
 
     for dir in dirs:
+        print dir
+        model_x_path = os.path.join(INPUT_DIR, dir, 'model_x.p')
+	model_y_path = os.path.join(INPUT_DIR, dir, 'model_y.p')
+	if not os.path.exists(model_x_path) or not os.path.exists(model_y_path):
+		continue
         print '{0} Vars:'.format(dir)
-        model_x = cPickle.load(os.path.join(INPUT_DIT, dir, 'model_x'))
-        model_y = cPickle.load(os.path.join(INPUT_DIT, dir, 'model_y'))
+        model_x = cPickle.load(open(model_x_path, 'rb'))
+        model_y = cPickle.load(open(model_y_path, 'rb'))
         get_vars(model_x, model_y, data_set)
 
